@@ -8,15 +8,11 @@ import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useRef } from "react";
 
 const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
-console.log("ageData", ageData);
 const AGE_ITEM_SIZE = scale(70);
 
-const GAP = scale(0);
 const Age = () => {
   const ageRef = useRef(null);
   const scrollRef = useRef<FlatList>(null);
-  console.log("useOnboardingStore", useOnboardingStore.getState().age);
-  console.log({ AGE_ITEM_SIZE });
 
   return (
     <View style={{ flex: 1 }}>
@@ -28,38 +24,34 @@ const Age = () => {
         <FlatList
           initialScrollIndex={9}
           onScroll={(e) => {
-            console.log(e.nativeEvent.contentOffset);
-            const index = Math.ceil(
-              e.nativeEvent.contentOffset.x / (AGE_ITEM_SIZE + GAP)
+            const index = Math.floor(
+              e.nativeEvent.contentOffset.y / (AGE_ITEM_SIZE - 1)
             );
-            //   console.log(index);
-            ageRef.current = ageData[index];
+            ageRef.current =
+              ageData[index > ageData.length - 1 ? ageData.length - 1 : index];
           }}
           ref={scrollRef}
-          horizontal
           onMomentumScrollEnd={() =>
             useOnboardingStore.setState({ age: ageRef.current })
           }
-          snapToInterval={AGE_ITEM_SIZE + GAP}
+          snapToInterval={AGE_ITEM_SIZE}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           style={{
             borderRadius: scale(16),
             marginTop: scale(72),
+            height: 4 * AGE_ITEM_SIZE,
           }}
           contentContainerStyle={{
-            justifyContent: "space-between",
             paddingHorizontal: scale(24),
-            paddingBottom: scale(24),
-            flexDirection: "row",
-            gap: GAP,
-            paddingLeft: (SCREEN_WIDTH - AGE_ITEM_SIZE) / 2,
-            paddingRight: (SCREEN_WIDTH - AGE_ITEM_SIZE) / 2,
+            paddingBottom: 3 * AGE_ITEM_SIZE,
+            alignItems: "center",
           }}
           data={ageData}
           keyExtractor={(item) => item.toString()}
           getItemLayout={(data, index) => ({
             length: AGE_ITEM_SIZE,
-            offset: (AGE_ITEM_SIZE + GAP) * index,
+            offset: AGE_ITEM_SIZE * index,
             index,
           })}
           renderItem={({ item, index }) => (
@@ -92,7 +84,7 @@ const Age = () => {
             width: SCREEN_WIDTH - scale(48),
             marginHorizontal: scale(24),
             position: "absolute",
-            bottom: scale(16),
+            top: scale(72),
             zIndex: -1,
           }}
         >
