@@ -8,22 +8,23 @@ import MaleImage from "../assets/male.jpg";
 import FemaleImage from "../assets/female.jpg";
 import NonBinaryImage from "../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { Gender as GenderEnum } from "./types";
 
 const genders = [
   {
     title: "Male",
-    key: "1",
+    key: GenderEnum.Male,
     image: MaleImage,
   },
 
   {
     title: "Female",
-    key: "2",
+    key: GenderEnum.Female,
     image: FemaleImage,
   },
   {
     title: "Non-binary",
-    key: "3",
+    key: GenderEnum.Nonbinary,
     image: NonBinaryImage,
   },
 ];
@@ -34,10 +35,10 @@ const Gender = () => {
   const renderItem = ({ item }) => {
     return (
       <Pressable
-        onPress={() => useOnboardingStore.setState({ gender: item.title })}
+        onPress={() => useOnboardingStore.setState({ gender: item.key })}
         style={{
           backgroundColor:
-            item.title === gender
+            item.key === gender
               ? colors["color-primary-500"]
               : colors["color-primary-100"],
           flexDirection: "row",
@@ -62,7 +63,7 @@ const Gender = () => {
               textAlign: "center",
               marginTop: scale(8),
               color:
-                item.title === gender
+                item.key === gender
                   ? colors["color-primary-100"]
                   : colors["color-primary-500"],
             },

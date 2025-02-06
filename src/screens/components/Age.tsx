@@ -6,12 +6,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { fontStyles } from "../../theme/fontStyles";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useRef } from "react";
+import * as Haptics from "expo-haptics";
 
 const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
 
 const Age = () => {
-  const ageRef = useRef(null);
+  const ageRef = useRef<number>(0);
   const scrollRef = useRef<FlatList>(null);
 
   return (
@@ -27,8 +28,17 @@ const Age = () => {
             const index = Math.floor(
               e.nativeEvent.contentOffset.y / (AGE_ITEM_SIZE - 1)
             );
-            ageRef.current =
-              ageData[index > ageData.length - 1 ? ageData.length - 1 : index];
+
+            if (
+              ageRef.current !==
+              ageData[index > ageData.length - 1 ? ageData.length - 1 : index]
+            ) {
+              ageRef.current =
+                ageData[
+                  index > ageData.length - 1 ? ageData.length - 1 : index
+                ];
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
           }}
           ref={scrollRef}
           onMomentumScrollEnd={() =>
@@ -39,13 +49,13 @@ const Age = () => {
           showsVerticalScrollIndicator={false}
           style={{
             borderRadius: scale(16),
-            marginTop: scale(72),
             height: 4 * AGE_ITEM_SIZE,
           }}
           contentContainerStyle={{
             paddingHorizontal: scale(24),
-            paddingBottom: 3 * AGE_ITEM_SIZE,
+            // paddingBottom: 1 * AGE_ITEM_SIZE,
             alignItems: "center",
+            paddingTop: scale(72),
           }}
           data={ageData}
           keyExtractor={(item) => item.toString()}

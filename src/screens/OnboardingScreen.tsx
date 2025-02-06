@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { FlatList, Pressable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Goal from "./components/Goal";
 import { useRef, useState } from "react";
@@ -11,11 +11,16 @@ import { fontStyles } from "../theme/fontStyles";
 import Animated, { FadeInLeft } from "react-native-reanimated";
 import Gender from "./components/Gender";
 import Age from "./components/Age";
+import WeightHeight from "./components/WeightHeight";
+import * as Haptics from "expo-haptics";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useNavigation } from "@react-navigation/native";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
   const [step, setStep] = useState(0);
   const onboardingStore = useOnboardingStore();
+  const { goBack } = useNavigation();
 
   const onboardingItems = [
     {
@@ -33,31 +38,74 @@ const OnboardingScreen = () => {
       component: Age,
       disabled: onboardingStore.age === null,
     },
+    {
+      title: "Let's get physical",
+      component: WeightHeight,
+      disabled:
+        onboardingStore.weight === null || onboardingStore.height === null,
+    },
   ];
 
   const onButtonPress = () => {
     console.log("step", step);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     ref.current?.scrollToIndex({ index: step + 1, animated: true });
     setStep((prev) => prev + 1);
   };
   return (
     <SafeAreaView style={styles.container}>
-      <Animated.Text
-        layout={FadeInLeft}
-        style={[
-          fontStyles.headline1,
-          { marginHorizontal: scale(24), marginTop: scale(24) },
-        ]}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginHorizontal: scale(24),
+          marginTop: scale(24),
+        }}
       >
-        {onboardingItems[step].title}
-      </Animated.Text>
+        <Pressable
+          hitSlop={scale(10)}
+          onPress={() => {
+            if (step === 0) {
+              goBack();
+              return;
+            }
+            ref.current?.scrollToIndex({ index: step - 1, animated: true });
+            setStep((prev) => prev - 1);
+          }}
+        >
+          <FontAwesome6
+            name="chevron-left"
+            size={scale(20)}
+            color={colors["color-primary-500"]}
+          />
+        </Pressable>
+
+        <Animated.Text
+          layout={FadeInLeft}
+          style={[
+            fontStyles.headline1,
+            {
+              marginLeft: scale(16),
+            },
+          ]}
+        >
+          {onboardingItems[step].title}
+        </Animated.Text>
+      </View>
+
       <FlatList
         renderItem={({ item }) => {
           const Component = item.component;
 
           return (
             <View style={{ width: SCREEN_WIDTH }}>
-              <Component />
+              <Component
+                focused={
+                  step ===
+                  onboardingItems.findIndex((i) => i.title === item.title)
+                }
+              />
             </View>
           );
         }}

@@ -67,6 +67,7 @@ const RootNavigator = () => {
       <Stack.Screen
         options={{
           headerShown: false,
+          gestureEnabled: false,
         }}
         component={OnboardingScreen}
         name="Onboarding"

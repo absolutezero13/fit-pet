@@ -17,3 +17,5 @@ export const shadowStyle: ViewStyle = {
   shadowRadius: scale(3.84),
   elevation: scale(5),
 };
+
+export const IS_SMALL_SCREEN = SCREEN_HEIGHT < 700;

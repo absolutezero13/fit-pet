@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface OnboardingStore {
   goals: { title: string; key: string }[];
-  gender: string;
+  gender: Gender | "";
   age: number | null;
 }
 

@@ -10,6 +10,7 @@ import { colors } from "../../theme/colors";
 import { GoalListItem } from "./GoalListItem";
 import AppButton from "../../components/AppButton";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const goalItems = [
   {
@@ -103,6 +104,7 @@ const goalItems = [
 ];
 
 const Goal = () => {
+  const { bottom } = useSafeAreaInsets();
   const selectedGoals = useOnboardingStore((state) => state.goals);
   const renderItem = ({ item, index }) => {
     const isSelected = selectedGoals.find((goal) => goal.key === item.key);
@@ -140,6 +142,9 @@ const Goal = () => {
           offset: scale(120) * index,
           index,
         })}
+        contentContainerStyle={{
+          paddingBottom: bottom + scale(100),
+        }}
         showsVerticalScrollIndicator={false}
       />
     </View>
