@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import { Image, ImageSourcePropType, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { IS_SMALL_SCREEN, scale, SCREEN_WIDTH } from "../../theme/utils";
@@ -29,8 +28,7 @@ const weightData = Array.from({ length: 160 })
   .map((_, i) => i + 40);
 
 const WeightHeight = ({ focused }) => {
-  const [weight, setWeight] = useState(65);
-  const [height, setHeight] = useState(150);
+  const { height, weight } = useOnboardingStore();
 
   return (
     <View>
@@ -63,6 +61,8 @@ const WeightHeight = ({ focused }) => {
 
       {focused && (
         <FlatList
+          removeClippedSubviews
+          initialNumToRender={20}
           initialScrollIndex={20}
           bounces={false}
           data={heightData}
@@ -72,7 +72,7 @@ const WeightHeight = ({ focused }) => {
             if (heightData[index] !== height && heightData[index]) {
               console.log(heightData[index]);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setHeight(heightData[index]);
+              useOnboardingStore.setState({ height: heightData[index] });
             }
           }}
           getItemLayout={(data, index) => ({
@@ -112,6 +112,8 @@ const WeightHeight = ({ focused }) => {
 
       {focused && (
         <FlatList
+          removeClippedSubviews
+          initialNumToRender={30}
           data={weightData}
           keyExtractor={(item) => item.toString()}
           horizontal
@@ -131,7 +133,7 @@ const WeightHeight = ({ focused }) => {
             if (weightData[index] !== weight && weightData[index]) {
               console.log(weightData[index]);
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setWeight(weightData[index]);
+              useOnboardingStore.setState({ weight: weightData[index] });
             }
           }}
           contentContainerStyle={{

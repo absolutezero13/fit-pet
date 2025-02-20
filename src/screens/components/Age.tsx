@@ -53,7 +53,7 @@ const Age = () => {
           }}
           contentContainerStyle={{
             paddingHorizontal: scale(24),
-            // paddingBottom: 1 * AGE_ITEM_SIZE,
+            paddingBottom: 2 * AGE_ITEM_SIZE,
             alignItems: "center",
             paddingTop: scale(72),
           }}

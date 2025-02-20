@@ -15,6 +15,7 @@ import WeightHeight from "./components/WeightHeight";
 import * as Haptics from "expo-haptics";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation } from "@react-navigation/native";
+import Analyzing from "./components/Analyzing";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
@@ -44,6 +45,10 @@ const OnboardingScreen = () => {
       disabled:
         onboardingStore.weight === null || onboardingStore.height === null,
     },
+    {
+      title: "",
+      component: Analyzing,
+    },
   ];
 
   const onButtonPress = () => {
@@ -55,44 +60,46 @@ const OnboardingScreen = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginHorizontal: scale(24),
-          marginTop: scale(24),
-        }}
-      >
-        <Pressable
-          hitSlop={scale(10)}
-          onPress={() => {
-            if (step === 0) {
-              goBack();
-              return;
-            }
-            ref.current?.scrollToIndex({ index: step - 1, animated: true });
-            setStep((prev) => prev - 1);
+      {onboardingItems[step]?.title ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginHorizontal: scale(24),
+            marginTop: scale(24),
           }}
         >
-          <FontAwesome6
-            name="chevron-left"
-            size={scale(20)}
-            color={colors["color-primary-500"]}
-          />
-        </Pressable>
+          <Pressable
+            hitSlop={scale(10)}
+            onPress={() => {
+              if (step === 0) {
+                goBack();
+                return;
+              }
+              ref.current?.scrollToIndex({ index: step - 1, animated: true });
+              setStep((prev) => prev - 1);
+            }}
+          >
+            <FontAwesome6
+              name="chevron-left"
+              size={scale(20)}
+              color={colors["color-primary-500"]}
+            />
+          </Pressable>
 
-        <Animated.Text
-          layout={FadeInLeft}
-          style={[
-            fontStyles.headline1,
-            {
-              marginLeft: scale(16),
-            },
-          ]}
-        >
-          {onboardingItems[step].title}
-        </Animated.Text>
-      </View>
+          <Animated.Text
+            layout={FadeInLeft}
+            style={[
+              fontStyles.headline1,
+              {
+                marginLeft: scale(16),
+              },
+            ]}
+          >
+            {onboardingItems[step].title}
+          </Animated.Text>
+        </View>
+      ) : null}
 
       <FlatList
         renderItem={({ item }) => {
@@ -117,14 +124,15 @@ const OnboardingScreen = () => {
         showsHorizontalScrollIndicator={false}
         ref={ref}
       />
-
-      <AppButton
-        margin={{ marginHorizontal: scale(24) }}
-        title="Proceed"
-        position="bottom"
-        onPress={onButtonPress}
-        disabled={onboardingItems[step].disabled}
-      />
+      {onboardingItems[step].title && (
+        <AppButton
+          margin={{ marginHorizontal: scale(24) }}
+          title="Proceed"
+          position="bottom"
+          onPress={onButtonPress}
+          disabled={onboardingItems[step].disabled}
+        />
+      )}
     </SafeAreaView>
   );
 };
