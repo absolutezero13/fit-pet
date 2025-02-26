@@ -32,7 +32,7 @@ const WelcomeScreen = () => {
 
       <AppButton
         position="bottom"
-        title="Get Started"
+        title="Get Started with Google"
         onPress={() => navigation.navigate("Onboarding")}
       />
     </View>

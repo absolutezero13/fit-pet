@@ -19,7 +19,7 @@ export interface ChatCompletion {
       };
       finish_reason: string;
       index: number;
-    }
+    },
   ];
 }
 
@@ -33,25 +33,6 @@ export const createChatCompletion = async (
   }
 ): Promise<ChatCompletion> => {
   try {
-    console.log(
-      "body",
-      JSON.stringify({
-        content,
-        user: {
-          email: null,
-          displayName: "Anonymous Stranger",
-          photoURL: null,
-          uid: "FcvSCs6pjaOEuTS74VVJV5DhY852",
-          messageHistory: [],
-          role: "user",
-          type: "anonymous",
-          settings: {
-            model: user.settings.model,
-          },
-        },
-      })
-    );
-    console.log("user", user);
     const res = await fetch(ENDPOINT, {
       method: "POST",
       body: JSON.stringify({
