@@ -1,4 +1,4 @@
-export const createPrompt = (userInfo) => `You are a meal planner. 
+export const createMealPrompt = (userInfo) => `You are a meal planner. 
 First you will look at information about the user that I provide for you.
 There will be lifestyle and body information about the user.
 Based on these information, you will create a meal plan for the user.

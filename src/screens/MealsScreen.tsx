@@ -5,7 +5,7 @@ import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { createChatCompletion, IMeal } from "../services/gptApi";
-import { createPrompt } from "../utils/systemPrompt";
+import { createMealPrompt } from "../utils/mealPrompt";
 import GradientSpinner from "../components/GradientSpinner";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 
@@ -181,7 +181,7 @@ const MealsScreen = () => {
   const getMeals = async () => {
     setLoading(true);
     try {
-      const response = await createChatCompletion(createPrompt(userInfo), {
+      const response = await createChatCompletion(createMealPrompt(userInfo), {
         settings: {
           model: "gpt-4o-mini",
         },
