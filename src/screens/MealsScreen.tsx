@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
+import { View, ScrollView, Text, StyleSheet, Alert, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
-import { createChatCompletion, IMeal } from "../services/gptApi";
+import {
+  createChatCompletion,
+  createGeminiCompletion,
+  IMeal,
+} from "../services/gptApi";
 import { createMealPrompt } from "../utils/mealPrompt";
 import GradientSpinner from "../components/GradientSpinner";
-import useOnboardingStore from "../zustand/useOnboardingStore";
+import { storageService } from "../storage/AsyncStorageService";
 
 const TotalNutrition = ({ meals }: IMeal[]) => {
   const totals = useMemo(() => {
@@ -127,6 +131,15 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
 
 const MealCard = (meal: IMeal) => (
   <View style={styles.mealCard}>
+    {/* <Image
+      source={{ uri: meal.image }}
+      style={{
+        width: "100%",
+        height: scale(100),
+        marginBottom: scale(16),
+        borderRadius: scale(12),
+      }}
+    /> */}
     <View style={styles.mealHeader}>
       <View style={styles.mealTitleContainer}>
         <Text style={styles.mealTitle}>{meal.mealType}</Text>
@@ -169,26 +182,61 @@ const MealCard = (meal: IMeal) => (
         <Text style={styles.macroLabel}>fats</Text>
       </View>
     </View>
+    <View style={{ marginTop: scale(20) }}>
+      {meal.insights?.map((insight, index) => (
+        <Text
+          key={index}
+          style={{
+            ...fontStyles.body2,
+            color: colors["color-primary-400"],
+            marginTop: scale(8),
+          }}
+        >
+          * {insight}
+        </Text>
+      ))}
+    </View>
   </View>
 );
 
 const MealsScreen = () => {
   const [meals, setMeals] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const userInfo = useOnboardingStore();
-
+  console.log("meals", meals);
   const getMeals = async () => {
+    const storageItem = await storageService.getItem("User");
+
+    // if (
+    //   storageItem &&
+    //   storageItem.mealInfo?.meals?.length > 0 &&
+    //   storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
+    // ) {
+    //   setMeals(storageItem.mealInfo.meals);
+    //   return;
+    // }
+
     setLoading(true);
     try {
-      const response = await createChatCompletion(createMealPrompt(userInfo), {
-        settings: {
-          model: "gpt-4o-mini",
-        },
-      });
-      console.log("resp", response);
+      const data = await createGeminiCompletion(createMealPrompt(storageItem));
+      console.log(
+        "response",
+        data.response.candidates[0].content.parts[0].text
+      );
+      setMeals(
+        JSON.parse(data.response.candidates[0].content.parts[0].text) as IMeal[]
+      );
 
-      setMeals(JSON.parse(response.choices[0].message.content));
+      if (storageItem) {
+        storageService.setItem("User", {
+          ...storageItem,
+          mealInfo: {
+            date: new Date().toLocaleDateString("en-US"),
+            meals: JSON.parse(
+              data.response.candidates[0].content.parts[0].text
+            ) as IMeal[],
+          },
+        });
+      }
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
       console.log("error", error);

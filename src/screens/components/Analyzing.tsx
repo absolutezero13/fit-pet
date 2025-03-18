@@ -17,6 +17,10 @@ import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useNavigation } from "@react-navigation/native";
+import useUserStore from "../../zustand/useUserStore";
+import AsynsStorage from "@react-native-async-storage/async-storage";
+import { StorageItem } from "../../storage/types";
+import { storageService } from "../../storage/AsyncStorageService";
 
 const { width } = Dimensions.get("window");
 
@@ -55,6 +59,14 @@ const AnalyzingScreen = ({ focused }) => {
     if (!focused) {
       return;
     }
+
+    storageService.setItem("User", {
+      ...useOnboardingStore.getState(),
+      mealInfo: {
+        date: new Date().toISOString(),
+        meals: [],
+      },
+    });
 
     setTimeout(() => {
       navigation.navigate("HomeTabs");

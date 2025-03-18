@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { Gender } from "../screens/components/types";
 
-interface OnboardingStore {
-  goals: { title: string; key: string }[];
+export interface OnboardingStore {
+  goals?: { title: string; key: string }[];
   gender: Gender | "";
   age: number | null;
   weight: number | null;

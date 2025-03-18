@@ -5,6 +5,7 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import MealsScreen from "../screens/MealsScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import LearnScreen from "../screens/LearnScreen";
+import AnalyzedMealScreen from "../screens/AnalyzedMealScreen";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { scale } from "../theme/utils";
@@ -135,6 +136,15 @@ const RootNavigator = () => {
           headerShown: false,
         }}
       />
+      
+      <Stack.Screen
+        name="AnalyzedMeal"
+        component={AnalyzedMealScreen}
+        options={{
+          headerShown: false,
+          presentation: "card",
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -146,6 +156,18 @@ type RootStackParamList = {
   Profile: undefined;
   Settings: undefined;
   NotFound: undefined;
+  AnalyzedMeal: {
+    meal: {
+      id: string;
+      mealType: string;
+      description: string;
+      time: string;
+      calories: string;
+      proteins: string;
+      carbs: string;
+      fats: string;
+    };
+  };
 };
 
 declare global {

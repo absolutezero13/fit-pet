@@ -1,17 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
-  TextInput,
-  Keyboard,
-  TouchableWithoutFeedback,
-  ActivityIndicator,
-  Animated,
-  PanResponder,
+  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
@@ -19,6 +13,158 @@ import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import LogMealModal from "./components/LogMeaBottomSheet";
+
+const EmptyState = ({ onPress }) => {
+  return (
+    <View style={styles.emptyStateContainer}>
+      {/* <Image
+        source={require("../../assets/images/empty-plate.png")}
+        style={styles.emptyStateImage}
+        resizeMode="contain"
+      /> */}
+      <Text style={styles.emptyStateTitle}>No meals logged yet</Text>
+      <Text style={styles.emptyStateDescription}>
+        Track your nutrition by logging your meals throughout the day
+      </Text>
+      <TouchableOpacity style={styles.emptyStateButton} onPress={onPress}>
+        <Text style={styles.emptyStateButtonText}>Log Your First Meal</Text>
+        <MaterialCommunityIcons
+          name="plus-circle-outline"
+          size={scale(18)}
+          color="white"
+          style={{ marginLeft: scale(8) }}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const NutritionScore = ({ score }) => {
+  // Determine color based on score
+  const getScoreColor = () => {
+    if (score >= 8) return colors["color-success-400"];
+    if (score >= 6) return colors["color-info-400"];
+    if (score >= 4) return colors["color-warning-400"];
+    return colors["color-danger-400"];
+  };
+
+  return (
+    <View style={styles.scoreContainer}>
+      <Text style={styles.scoreLabel}>Nutrition Score</Text>
+      <View style={[styles.scoreCircle, { backgroundColor: getScoreColor() }]}>
+        <Text style={styles.scoreValue}>{score}</Text>
+      </View>
+    </View>
+  );
+};
+
+const MacroCards = ({ proteins, carbs, fats }) => {
+  return (
+    <View style={styles.macroContainer}>
+      <View style={styles.macroCard}>
+        <MaterialCommunityIcons
+          name="food-steak"
+          size={scale(20)}
+          color={colors["color-primary-500"]}
+        />
+        <Text style={styles.macroValue}>{proteins}g</Text>
+        <Text style={styles.macroLabel}>Protein</Text>
+      </View>
+
+      <View style={styles.macroCard}>
+        <MaterialCommunityIcons
+          name="bread-slice"
+          size={scale(20)}
+          color={colors["color-primary-500"]}
+        />
+        <Text style={styles.macroValue}>{carbs}g</Text>
+        <Text style={styles.macroLabel}>Carbs</Text>
+      </View>
+
+      <View style={styles.macroCard}>
+        <MaterialCommunityIcons
+          name="oil"
+          size={scale(20)}
+          color={colors["color-primary-500"]}
+        />
+        <Text style={styles.macroValue}>{fats}g</Text>
+        <Text style={styles.macroLabel}>Fats</Text>
+      </View>
+    </View>
+  );
+};
+
+const MealInsights = ({ meal }) => {
+  // Generate insights based on meal data
+  const getInsights = () => {
+    const insights = [];
+
+    // Protein insight
+    if (parseInt(meal.proteins) > 30) {
+      insights.push("High in protein, great for muscle recovery");
+    } else if (parseInt(meal.proteins) < 10) {
+      insights.push("Consider adding more protein sources");
+    }
+
+    // Carbs insight
+    if (parseInt(meal.carbs) > 40) {
+      insights.push("Rich in energy-providing carbohydrates");
+    } else if (parseInt(meal.carbs) < 15) {
+      insights.push("Low-carb option, good for fat metabolism");
+    }
+
+    // Fat insight
+    if (parseInt(meal.fats) > 20) {
+      insights.push("Contains healthy fats for hormone production");
+    } else if (parseInt(meal.fats) < 5) {
+      insights.push("Low in fats, consider adding healthy fats");
+    }
+
+    // Calorie insight
+    if (parseInt(meal.calories) > 500) {
+      insights.push("Higher calorie meal, ideal for active days");
+    } else if (parseInt(meal.calories) < 200) {
+      insights.push("Light meal or snack, perfect between main meals");
+    }
+
+    // Return only 2 insights
+    return insights.slice(0, 2);
+  };
+
+  const insights = getInsights();
+
+  if (insights.length === 0) return null;
+
+  return (
+    <View style={styles.insightsContainer}>
+      <Text style={styles.insightsTitle}>Insights</Text>
+      {insights.map((insight, index) => (
+        <View key={index} style={styles.insightRow}>
+          <View style={styles.bulletPoint} />
+          <Text style={styles.insightText}>{insight}</Text>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+// Calculate nutrition score based on macros and calories
+const calculateScore = (meal) => {
+  const { proteins, carbs, fats, calories } = meal;
+
+  const proteinScore = Math.min(parseInt(proteins) / 5, 4);
+  const carbsScore = Math.min(Math.max(parseInt(carbs) / 10, 0), 3);
+  const fatsScore = Math.min(Math.max(parseInt(fats) / 5, 0), 3);
+
+  // Simple balanced diet score calculation
+  let score = proteinScore + carbsScore + fatsScore;
+
+  // Cap at 10
+  score = Math.min(Math.round(score), 10);
+
+  return score;
+};
 
 const MealTypeSection = ({ title, meals, onPressItem }) => {
   if (meals.length === 0) return null;
@@ -27,13 +173,13 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
 
-      {meals.map((meal, index) => (
+      {meals.map((meal) => (
         <TouchableOpacity
-          key={index}
+          key={meal.id}
           style={styles.mealItem}
           onPress={() => onPressItem(meal)}
         >
-          <View style={styles.mealItemContent}>
+          <View style={styles.mealItemHeader}>
             <View style={styles.mealItemLeft}>
               <Text style={styles.mealItemTitle}>
                 {meal.description.split(".")[0]}
@@ -50,375 +196,96 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
               />
             </View>
           </View>
+
+          <View style={styles.mealItemDetails}>
+            <MacroCards
+              proteins={meal.proteins}
+              carbs={meal.carbs}
+              fats={meal.fats}
+            />
+
+            <View style={styles.detailsBottomRow}>
+              <MealInsights meal={meal} />
+              <NutritionScore score={calculateScore(meal)} />
+            </View>
+          </View>
         </TouchableOpacity>
       ))}
     </View>
   );
 };
 
-const LogMealModal = ({ visible, onClose, onAddMeal }) => {
-  const [mealDescription, setMealDescription] = useState("");
-  const [selectedMealType, setSelectedMealType] = useState("Breakfast");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiResponse, setAiResponse] = useState(null);
-
-  // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(300)).current; // Start from below screen
-  const translateY = useRef(new Animated.Value(0)).current;
-
-  // Handle swipe down to dismiss
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          // Only allow downward swipes
-          translateY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 100) {
-          // Threshold to close
-          closeModal();
-        } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  // Combined animations when opening
-  useEffect(() => {
-    if (visible) {
-      // Reset position before animation starts
-      slideAnim.setValue(300);
-      translateY.setValue(0);
-
-      // Fade in overlay
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-
-      // Slide up modal
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        tension: 70,
-        friction: 12,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [visible, fadeAnim, slideAnim]);
-
-  const closeModal = () => {
-    // Parallel animations for closing
-    Animated.parallel([
-      // Fade out overlay
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      // Slide down modal
-      Animated.timing(slideAnim, {
-        toValue: 300,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onClose();
-      resetModal();
-    });
-  };
-
-  const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"];
-
-  const analyzeMeal = () => {
-    if (!mealDescription.trim()) return;
-
-    setIsAnalyzing(true);
-
-    // Simulate AI response with a timer
-    // In a real app, this would be an API call to your AI service
-    setTimeout(() => {
-      // Generate mock AI response
-      const calories = Math.floor(Math.random() * 500) + 100;
-      const proteins = Math.floor(Math.random() * 40) + 5;
-      const carbs = Math.floor(Math.random() * 50) + 10;
-      const fats = Math.floor(Math.random() * 25) + 3;
-
-      const response = {
-        calories,
-        proteins,
-        carbs,
-        fats,
-      };
-
-      setAiResponse(response);
-      setIsAnalyzing(false);
-    }, 1500);
-  };
-
-  const handleSaveMeal = () => {
-    if (!mealDescription.trim() || !aiResponse) return;
-
-    const currentTime = new Date();
-    const formattedTime = currentTime.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    const newMeal = {
-      id: Date.now().toString(),
-      mealType: selectedMealType,
-      description: mealDescription,
-      time: formattedTime,
-      calories: aiResponse.calories.toString(),
-      proteins: aiResponse.proteins.toString(),
-      carbs: aiResponse.carbs.toString(),
-      fats: aiResponse.fats.toString(),
-    };
-
-    onAddMeal(newMeal);
-    closeModal();
-  };
-
-  const resetModal = () => {
-    setMealDescription("");
-    setSelectedMealType("Breakfast");
-    setAiResponse(null);
-  };
-
-  if (!visible) return null;
-
-  return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      onRequestClose={closeModal}
-      animationType="none"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
-          <Animated.View
-            style={[
-              styles.modalContent,
-              {
-                transform: [
-                  { translateY: slideAnim },
-                  { translateY: translateY },
-                ],
-              },
-            ]}
-          >
-            {/* Swipe indicator handle */}
-            <View
-              {...panResponder.panHandlers}
-              style={styles.swipeIndicatorContainer}
-            >
-              <View style={styles.swipeIndicator} />
-            </View>
-
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Log a Meal</Text>
-              <TouchableOpacity onPress={closeModal}>
-                <MaterialCommunityIcons
-                  name="close"
-                  size={scale(24)}
-                  color={colors["color-primary-500"]}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Describe your meal</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Example: Scrambled eggs with spinach and whole grain toast"
-                value={mealDescription}
-                onChangeText={setMealDescription}
-                multiline
-                numberOfLines={3}
-              />
-            </View>
-
-            <View style={styles.mealTypeContainer}>
-              <Text style={styles.inputLabel}>Meal Type</Text>
-              <View style={styles.mealTypeOptions}>
-                {mealTypes.map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    style={[
-                      styles.mealTypeButton,
-                      selectedMealType === type && styles.mealTypeButtonActive,
-                    ]}
-                    onPress={() => setSelectedMealType(type)}
-                  >
-                    <Text
-                      style={[
-                        styles.mealTypeText,
-                        selectedMealType === type && styles.mealTypeTextActive,
-                      ]}
-                    >
-                      {type}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {!aiResponse && (
-              <TouchableOpacity
-                style={[
-                  styles.analyzeButton,
-                  !mealDescription.trim() && styles.disabledButton,
-                ]}
-                onPress={analyzeMeal}
-                disabled={!mealDescription.trim() || isAnalyzing}
-              >
-                {isAnalyzing ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={styles.buttonText}>Analyze Meal</Text>
-                )}
-              </TouchableOpacity>
-            )}
-
-            {aiResponse && (
-              <>
-                <View style={styles.nutritionContainer}>
-                  <Text style={styles.nutritionTitle}>
-                    Nutrition Information
-                  </Text>
-
-                  <View style={styles.nutritionGrid}>
-                    <View style={styles.nutritionItem}>
-                      <Text style={styles.nutritionValue}>
-                        {aiResponse.calories}
-                      </Text>
-                      <Text style={styles.nutritionLabel}>Calories</Text>
-                    </View>
-
-                    <View style={styles.nutritionItem}>
-                      <Text style={styles.nutritionValue}>
-                        {aiResponse.proteins}g
-                      </Text>
-                      <Text style={styles.nutritionLabel}>Protein</Text>
-                    </View>
-
-                    <View style={styles.nutritionItem}>
-                      <Text style={styles.nutritionValue}>
-                        {aiResponse.carbs}g
-                      </Text>
-                      <Text style={styles.nutritionLabel}>Carbs</Text>
-                    </View>
-
-                    <View style={styles.nutritionItem}>
-                      <Text style={styles.nutritionValue}>
-                        {aiResponse.fats}g
-                      </Text>
-                      <Text style={styles.nutritionLabel}>Fats</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.saveButton}
-                  onPress={handleSaveMeal}
-                >
-                  <Text style={styles.buttonText}>Save Meal</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </Animated.View>
-        </Animated.View>
-      </TouchableWithoutFeedback>
-    </Modal>
-  );
-};
-
 const LoggedMealsScreen = () => {
   const { bottom } = useSafeAreaInsets();
   const [meals, setMeals] = useState([]);
-  const [organizedMeals, setOrganizedMeals] = useState({
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snack: [],
-  });
   const [modalVisible, setModalVisible] = useState(false);
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    // In a real app, this would fetch from local storage or an API
-    // For now using sample data
-    const sampleMeals = [
-      {
-        id: "1",
-        mealType: "Breakfast",
-        description: "Oatmeal with berries and honey. Rich in fiber.",
-        time: "7:30 AM",
-        calories: "350",
-        proteins: "12",
-        carbs: "45",
-        fats: "8",
-      },
-      {
-        id: "2",
-        mealType: "Lunch",
-        description:
-          "Grilled chicken salad with olive oil dressing. High protein lunch.",
-        time: "12:30 PM",
-        calories: "450",
-        proteins: "35",
-        carbs: "20",
-        fats: "15",
-      },
-      {
-        id: "3",
-        mealType: "Dinner",
-        description: "Salmon with roasted vegetables. Omega-3 rich dinner.",
-        time: "6:45 PM",
-        calories: "520",
-        proteins: "38",
-        carbs: "25",
-        fats: "22",
-      },
-      {
-        id: "4",
-        mealType: "Snack",
-        description: "Greek yogurt with nuts. Protein-rich afternoon snack.",
-        time: "3:15 PM",
-        calories: "180",
-        proteins: "15",
-        carbs: "10",
-        fats: "8",
-      },
-    ];
+  // useEffect(() => {
+  //   // In a real app, this would fetch from local storage or an API
+  //   // For now using sample data
+  //   const sampleMeals = [
+  //     {
+  //       id: "1",
+  //       mealType: "Breakfast",
+  //       description: "Oatmeal with berries and honey. Rich in fiber.",
+  //       time: "7:30 AM",
+  //       calories: "350",
+  //       proteins: "12",
+  //       carbs: "45",
+  //       fats: "8",
+  //     },
+  //     {
+  //       id: "2",
+  //       mealType: "Lunch",
+  //       description:
+  //         "Grilled chicken salad with olive oil dressing. High protein lunch.",
+  //       time: "12:30 PM",
+  //       calories: "450",
+  //       proteins: "35",
+  //       carbs: "20",
+  //       fats: "15",
+  //     },
+  //     {
+  //       id: "3",
+  //       mealType: "Dinner",
+  //       description: "Salmon with roasted vegetables. Omega-3 rich dinner.",
+  //       time: "6:45 PM",
+  //       calories: "520",
+  //       proteins: "38",
+  //       carbs: "25",
+  //       fats: "22",
+  //     },
+  //     {
+  //       id: "4",
+  //       mealType: "Snack",
+  //       description: "Greek yogurt with nuts. Protein-rich afternoon snack.",
+  //       time: "3:15 PM",
+  //       calories: "180",
+  //       proteins: "15",
+  //       carbs: "10",
+  //       fats: "8",
+  //     },
+  //   ];
 
-    setMeals(sampleMeals);
-  }, []);
+  //   setMeals(sampleMeals);
 
-  useEffect(() => {
-    // Organize meals by type
-    const organized = {
-      breakfast: meals.filter(
-        (meal) => meal.mealType.toLowerCase() === "breakfast"
-      ),
-      lunch: meals.filter((meal) => meal.mealType.toLowerCase() === "lunch"),
-      dinner: meals.filter((meal) => meal.mealType.toLowerCase() === "dinner"),
-      snack: meals.filter((meal) => meal.mealType.toLowerCase() === "snack"),
-    };
+  //   // For testing empty state, uncomment the line below
+  //   // setMeals([]);
+  // }, []);
 
-    setOrganizedMeals(organized);
-  }, [meals]);
+  // Group meals by type
+  const getMealsByType = (type) => {
+    return meals.filter(
+      (meal) => meal.mealType.toLowerCase() === type.toLowerCase()
+    );
+  };
+
+  const breakfastMeals = getMealsByType("breakfast");
+  const lunchMeals = getMealsByType("lunch");
+  const dinnerMeals = getMealsByType("dinner");
+  const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal) => {
     // Navigate to meal detail or edit screen
@@ -427,7 +294,16 @@ const LoggedMealsScreen = () => {
   };
 
   const handleAddMeal = (newMeal) => {
-    setMeals((prevMeals) => [...prevMeals, newMeal]);
+    // Generate a unique ID for the new meal
+    const newId = (meals.length + 1).toString();
+    const mealWithId = { ...newMeal, id: newId };
+
+    // Add new meal to the meals array
+    setMeals((prevMeals) => [...prevMeals, mealWithId]);
+  };
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
   };
 
   return (
@@ -443,47 +319,53 @@ const LoggedMealsScreen = () => {
         </Text>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <MealTypeSection
-          title="Breakfast"
-          meals={organizedMeals.breakfast}
-          onPressItem={handleMealPress}
-        />
+      {meals.length > 0 ? (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <MealTypeSection
+            title="Breakfast"
+            meals={breakfastMeals}
+            onPressItem={handleMealPress}
+          />
 
-        <MealTypeSection
-          title="Lunch"
-          meals={organizedMeals.lunch}
-          onPressItem={handleMealPress}
-        />
+          <MealTypeSection
+            title="Lunch"
+            meals={lunchMeals}
+            onPressItem={handleMealPress}
+          />
 
-        <MealTypeSection
-          title="Dinner"
-          meals={organizedMeals.dinner}
-          onPressItem={handleMealPress}
-        />
+          <MealTypeSection
+            title="Dinner"
+            meals={dinnerMeals}
+            onPressItem={handleMealPress}
+          />
 
-        <MealTypeSection
-          title="Snacks"
-          meals={organizedMeals.snack}
-          onPressItem={handleMealPress}
-        />
-      </ScrollView>
+          <MealTypeSection
+            title="Snacks"
+            meals={snackMeals}
+            onPressItem={handleMealPress}
+          />
+        </ScrollView>
+      ) : (
+        <EmptyState onPress={handleOpenModal} />
+      )}
 
-      <TouchableOpacity
-        style={[
-          styles.addButton,
-          {
-            bottom: bottom + scale(64),
-          },
-        ]}
-        onPress={() => setModalVisible(true)}
-      >
-        <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
-      </TouchableOpacity>
+      {meals.length > 0 && (
+        <TouchableOpacity
+          style={[
+            styles.addButton,
+            {
+              bottom: bottom + scale(64),
+            },
+          ]}
+          onPress={handleOpenModal}
+        >
+          <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
+        </TouchableOpacity>
+      )}
 
       <LogMealModal
         visible={modalVisible}
@@ -539,7 +421,6 @@ const styles = StyleSheet.create({
   mealItem: {
     backgroundColor: "white",
     borderRadius: scale(16),
-    padding: scale(16),
     marginBottom: scale(12),
     shadowColor: colors["color-primary-500"],
     shadowOffset: {
@@ -549,11 +430,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: scale(8),
     elevation: 3,
+    overflow: "hidden",
   },
-  mealItemContent: {
+  mealItemHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    padding: scale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: colors["color-primary-100"],
+  },
+  mealItemDetails: {
+    padding: scale(16),
   },
   mealItemLeft: {
     flex: 1,
@@ -575,6 +463,82 @@ const styles = StyleSheet.create({
     color: colors["color-success-400"],
     marginRight: scale(8),
   },
+  // Macro cards styles
+  macroContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: scale(16),
+  },
+  macroCard: {
+    width: "30%",
+    backgroundColor: colors["color-primary-100"],
+    borderRadius: scale(12),
+    padding: scale(12),
+    alignItems: "center",
+  },
+  macroValue: {
+    ...fontStyles.headline3,
+    color: colors["color-primary-500"],
+    marginVertical: scale(4),
+  },
+  macroLabel: {
+    ...fontStyles.caption,
+    color: colors["color-primary-400"],
+  },
+  // Insights styles
+  detailsBottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  insightsContainer: {
+    flex: 1,
+    marginRight: scale(16),
+  },
+  insightsTitle: {
+    ...fontStyles.headline4,
+    color: colors["color-primary-500"],
+    marginBottom: scale(8),
+  },
+  insightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scale(6),
+  },
+  bulletPoint: {
+    width: scale(6),
+    height: scale(6),
+    borderRadius: scale(3),
+    backgroundColor: colors["color-primary-400"],
+    marginRight: scale(8),
+  },
+  insightText: {
+    ...fontStyles.body2,
+    color: colors["color-primary-400"],
+    flex: 1,
+  },
+  // Score styles
+  scoreContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scoreLabel: {
+    ...fontStyles.caption,
+    color: colors["color-primary-400"],
+    marginBottom: scale(4),
+  },
+  scoreCircle: {
+    width: scale(50),
+    height: scale(50),
+    borderRadius: scale(25),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scoreValue: {
+    ...fontStyles.headline3,
+    color: "white",
+    fontWeight: "bold",
+  },
   addButton: {
     position: "absolute",
     bottom: scale(32),
@@ -594,140 +558,50 @@ const styles = StyleSheet.create({
     shadowRadius: scale(8),
     elevation: 5,
   },
-
-  // Modal styles
-  modalOverlay: {
+  // Empty state styles
+  emptyStateContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderTopLeftRadius: scale(30),
-    borderTopRightRadius: scale(30),
-    paddingHorizontal: scale(24),
-    paddingTop: scale(8), // Reduced padding for swipe indicator
-    paddingBottom: scale(48),
-    marginBottom: scale(-40), // Overlap with overlay
-  },
-  swipeIndicatorContainer: {
-    width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: scale(8),
+    paddingHorizontal: scale(32),
   },
-  swipeIndicator: {
-    width: scale(40),
-    height: scale(5),
-    backgroundColor: colors["color-primary-300"],
-    borderRadius: scale(3),
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  emptyStateImage: {
+    width: scale(180),
+    height: scale(180),
     marginBottom: scale(24),
   },
-  modalTitle: {
+  emptyStateTitle: {
     ...fontStyles.headline2,
     color: colors["color-primary-500"],
-  },
-  inputContainer: {
-    marginBottom: scale(20),
-  },
-  inputLabel: {
-    ...fontStyles.body1,
-    color: colors["color-primary-500"],
-    marginBottom: scale(8),
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: colors["color-primary-300"],
-    borderRadius: scale(12),
-    padding: scale(12),
-    ...fontStyles.body1,
-    minHeight: scale(100),
-    textAlignVertical: "top",
-  },
-  mealTypeContainer: {
-    marginBottom: scale(24),
-  },
-  mealTypeOptions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: scale(-4),
-  },
-  mealTypeButton: {
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(8),
-    borderRadius: scale(20),
-    backgroundColor: colors["color-primary-100"],
-    marginHorizontal: scale(4),
-    marginBottom: scale(8),
-  },
-  mealTypeButtonActive: {
-    backgroundColor: colors["color-primary-400"],
-  },
-  mealTypeText: {
-    ...fontStyles.body2,
-    color: colors["color-primary-500"],
-  },
-  mealTypeTextActive: {
-    color: "white",
-  },
-  analyzeButton: {
-    backgroundColor: colors["color-success-400"],
-    padding: scale(16),
-    borderRadius: scale(12),
-    alignItems: "center",
-    marginTop: scale(16),
-  },
-  disabledButton: {
-    backgroundColor: colors["color-primary-300"],
-    opacity: 0.7,
-  },
-  saveButton: {
-    backgroundColor: colors["color-primary-500"],
-    padding: scale(16),
-    borderRadius: scale(12),
-    alignItems: "center",
-    marginTop: scale(16),
-  },
-  buttonText: {
-    ...fontStyles.headline4,
-    color: "white",
-  },
-  nutritionContainer: {
-    marginTop: scale(24),
-    backgroundColor: colors["color-primary-100"],
-    borderRadius: scale(16),
-    padding: scale(16),
-  },
-  nutritionTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-    marginBottom: scale(16),
+    marginBottom: scale(12),
     textAlign: "center",
   },
-  nutritionGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  nutritionItem: {
-    width: "48%",
-    backgroundColor: "white",
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginBottom: scale(12),
-    alignItems: "center",
-  },
-  nutritionValue: {
-    ...fontStyles.headline2,
-    color: colors["color-primary-500"],
-  },
-  nutritionLabel: {
-    ...fontStyles.body2,
+  emptyStateDescription: {
+    ...fontStyles.body1,
     color: colors["color-primary-400"],
+    textAlign: "center",
+    marginBottom: scale(32),
+  },
+  emptyStateButton: {
+    backgroundColor: colors["color-success-400"],
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(14),
+    borderRadius: scale(12),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors["color-success-500"],
+    shadowOffset: {
+      width: 0,
+      height: scale(4),
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: scale(8),
+    elevation: 4,
+  },
+  emptyStateButtonText: {
+    ...fontStyles.headline4,
+    color: "white",
   },
 });
 

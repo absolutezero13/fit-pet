@@ -1,17 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Button, StyleSheet, Pressable } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storageService } from "../storage/AsyncStorageService";
 
 const WelcomeScreen = () => {
   const { bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    storageService.getItem("User").then((user) => {
+      if (user) {
+        navigation.navigate("HomeTabs");
+      }
+    });
+  }, []);
+
   return (
     <View style={styles.container}>
       <Animated.Text entering={FadeInUp} style={[fontStyles.headline2]}>
@@ -32,7 +42,7 @@ const WelcomeScreen = () => {
 
       <AppButton
         position="bottom"
-        title="Get Started with Google"
+        title="Get Started"
         onPress={() => navigation.navigate("Onboarding")}
       />
     </View>
