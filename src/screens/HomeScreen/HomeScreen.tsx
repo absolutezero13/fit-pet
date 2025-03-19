@@ -6,6 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
@@ -14,6 +18,16 @@ import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LogMealModal from "./components/LogMeaBottomSheet";
+import { createGeminiCompletion } from "../../services/gptApi";
+import { createAnalysisPrompt } from "../../utils/mealPrompt";
+import useOnboardingStore from "../../zustand/useOnboardingStore";
+
+// Enable LayoutAnimation for Android
+if (Platform.OS === "android") {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const EmptyState = ({ onPress }) => {
   return (
@@ -51,7 +65,7 @@ const NutritionScore = ({ score }) => {
 
   return (
     <View style={styles.scoreContainer}>
-      <Text style={styles.scoreLabel}>Nutrition Score</Text>
+      <Text style={styles.scoreLabel}>Score</Text>
       <View style={[styles.scoreCircle, { backgroundColor: getScoreColor() }]}>
         <Text style={styles.scoreValue}>{score}</Text>
       </View>
@@ -96,74 +110,46 @@ const MacroCards = ({ proteins, carbs, fats }) => {
 };
 
 const MealInsights = ({ meal }) => {
+  const [expanded, setExpanded] = useState(false);
+
   // Generate insights based on meal data
-  const getInsights = () => {
-    const insights = [];
+  if (meal.insights.length === 0) return null;
 
-    // Protein insight
-    if (parseInt(meal.proteins) > 30) {
-      insights.push("High in protein, great for muscle recovery");
-    } else if (parseInt(meal.proteins) < 10) {
-      insights.push("Consider adding more protein sources");
-    }
-
-    // Carbs insight
-    if (parseInt(meal.carbs) > 40) {
-      insights.push("Rich in energy-providing carbohydrates");
-    } else if (parseInt(meal.carbs) < 15) {
-      insights.push("Low-carb option, good for fat metabolism");
-    }
-
-    // Fat insight
-    if (parseInt(meal.fats) > 20) {
-      insights.push("Contains healthy fats for hormone production");
-    } else if (parseInt(meal.fats) < 5) {
-      insights.push("Low in fats, consider adding healthy fats");
-    }
-
-    // Calorie insight
-    if (parseInt(meal.calories) > 500) {
-      insights.push("Higher calorie meal, ideal for active days");
-    } else if (parseInt(meal.calories) < 200) {
-      insights.push("Light meal or snack, perfect between main meals");
-    }
-
-    // Return only 2 insights
-    return insights.slice(0, 2);
+  const toggleExpand = () => {
+    // Configure the animation
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpanded(!expanded);
   };
-
-  const insights = getInsights();
-
-  if (insights.length === 0) return null;
 
   return (
     <View style={styles.insightsContainer}>
-      <Text style={styles.insightsTitle}>Insights</Text>
-      {insights.map((insight, index) => (
-        <View key={index} style={styles.insightRow}>
-          <View style={styles.bulletPoint} />
-          <Text style={styles.insightText}>{insight}</Text>
+      <TouchableOpacity
+        style={styles.insightsTitleContainer}
+        onPress={toggleExpand}
+        activeOpacity={0.7}
+      >
+        <NutritionScore score={meal.score} />
+
+        <Text style={styles.insightsTitle}>Insights</Text>
+        <MaterialCommunityIcons
+          name={expanded ? "chevron-up" : "chevron-down"}
+          size={scale(20)}
+          color={colors["color-primary-500"]}
+        />
+      </TouchableOpacity>
+
+      {expanded && (
+        <View style={styles.insightsContent}>
+          {meal.insights.map((insight, index) => (
+            <View key={index} style={styles.insightRow}>
+              <View style={styles.bulletPoint} />
+              <Text style={styles.insightText}>{insight}</Text>
+            </View>
+          ))}
         </View>
-      ))}
+      )}
     </View>
   );
-};
-
-// Calculate nutrition score based on macros and calories
-const calculateScore = (meal) => {
-  const { proteins, carbs, fats, calories } = meal;
-
-  const proteinScore = Math.min(parseInt(proteins) / 5, 4);
-  const carbsScore = Math.min(Math.max(parseInt(carbs) / 10, 0), 3);
-  const fatsScore = Math.min(Math.max(parseInt(fats) / 5, 0), 3);
-
-  // Simple balanced diet score calculation
-  let score = proteinScore + carbsScore + fatsScore;
-
-  // Cap at 10
-  score = Math.min(Math.round(score), 10);
-
-  return score;
 };
 
 const MealTypeSection = ({ title, meals, onPressItem }) => {
@@ -175,7 +161,7 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
 
       {meals.map((meal) => (
         <TouchableOpacity
-          key={meal.id}
+          key={meal.description}
           style={styles.mealItem}
           onPress={() => onPressItem(meal)}
         >
@@ -204,10 +190,7 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
               fats={meal.fats}
             />
 
-            <View style={styles.detailsBottomRow}>
-              <MealInsights meal={meal} />
-              <NutritionScore score={calculateScore(meal)} />
-            </View>
+            <MealInsights meal={meal} />
           </View>
         </TouchableOpacity>
       ))}
@@ -221,59 +204,6 @@ const LoggedMealsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const navigation = useNavigation();
-
-  // useEffect(() => {
-  //   // In a real app, this would fetch from local storage or an API
-  //   // For now using sample data
-  //   const sampleMeals = [
-  //     {
-  //       id: "1",
-  //       mealType: "Breakfast",
-  //       description: "Oatmeal with berries and honey. Rich in fiber.",
-  //       time: "7:30 AM",
-  //       calories: "350",
-  //       proteins: "12",
-  //       carbs: "45",
-  //       fats: "8",
-  //     },
-  //     {
-  //       id: "2",
-  //       mealType: "Lunch",
-  //       description:
-  //         "Grilled chicken salad with olive oil dressing. High protein lunch.",
-  //       time: "12:30 PM",
-  //       calories: "450",
-  //       proteins: "35",
-  //       carbs: "20",
-  //       fats: "15",
-  //     },
-  //     {
-  //       id: "3",
-  //       mealType: "Dinner",
-  //       description: "Salmon with roasted vegetables. Omega-3 rich dinner.",
-  //       time: "6:45 PM",
-  //       calories: "520",
-  //       proteins: "38",
-  //       carbs: "25",
-  //       fats: "22",
-  //     },
-  //     {
-  //       id: "4",
-  //       mealType: "Snack",
-  //       description: "Greek yogurt with nuts. Protein-rich afternoon snack.",
-  //       time: "3:15 PM",
-  //       calories: "180",
-  //       proteins: "15",
-  //       carbs: "10",
-  //       fats: "8",
-  //     },
-  //   ];
-
-  //   setMeals(sampleMeals);
-
-  //   // For testing empty state, uncomment the line below
-  //   // setMeals([]);
-  // }, []);
 
   // Group meals by type
   const getMealsByType = (type) => {
@@ -293,14 +223,43 @@ const LoggedMealsScreen = () => {
     // navigation.navigate('MealDetail', { meal });
   };
 
-  const handleAddMeal = (newMeal) => {
-    // Generate a unique ID for the new meal
-    const newId = (meals.length + 1).toString();
-    const mealWithId = { ...newMeal, id: newId };
+  console.log("useOnboardingStore", useOnboardingStore.getState());
 
+  const handleAddMeal = async (mealDescription: string, mealType: string) => {
+    // Generate a unique ID for the new meal
+    // const newId = (meals.length + 1).toString();
+    // const mealWithId = { ...newMeal, id: newId };
+    console.log({
+      mealDescription,
+      mealType,
+    });
+
+    const prompt = createAnalysisPrompt(
+      useOnboardingStore.getState(),
+      mealDescription,
+      mealType
+    );
+
+    const response = await createGeminiCompletion(prompt, "analyzedMeal");
+
+    const meal = JSON.parse(
+      response.response.candidates[0].content.parts[0].text
+    );
+
+    if (meal.mealType === null) {
+      Alert.alert(
+        "Meal could not be analyzed",
+        "Please make sure the meal description is a valid food item."
+      );
+      return;
+    }
+
+    console.log("Meal added:", meal);
     // Add new meal to the meals array
-    setMeals((prevMeals) => [...prevMeals, mealWithId]);
+    setMeals((prevMeals) => [...prevMeals, meal]);
   };
+
+  console.log("meals", meals);
 
   const handleOpenModal = () => {
     setModalVisible(true);
@@ -447,8 +406,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mealItemTitle: {
-    ...fontStyles.headline4,
-    marginBottom: scale(4),
+    ...fontStyles.headline3,
   },
   mealItemTime: {
     ...fontStyles.caption,
@@ -459,7 +417,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   caloriesText: {
-    ...fontStyles.body2,
+    ...fontStyles.body1,
     color: colors["color-success-400"],
     marginRight: scale(8),
   },
@@ -495,14 +453,21 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: scale(16),
   },
+  insightsTitleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: scale(8),
+  },
   insightsTitle: {
     ...fontStyles.headline4,
     color: colors["color-primary-500"],
-    marginBottom: scale(8),
+  },
+  insightsContent: {
+    marginTop: scale(4),
   },
   insightRow: {
     flexDirection: "row",
-    alignItems: "center",
     marginBottom: scale(6),
   },
   bulletPoint: {
@@ -511,6 +476,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(3),
     backgroundColor: colors["color-primary-400"],
     marginRight: scale(8),
+    marginTop: scale(6),
   },
   insightText: {
     ...fontStyles.body2,
@@ -523,8 +489,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   scoreLabel: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
+    ...fontStyles.headline4,
+    color: colors["color-primary-800"],
     marginBottom: scale(4),
   },
   scoreCircle: {

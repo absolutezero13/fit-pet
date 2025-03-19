@@ -101,50 +101,9 @@ const LogMealModal = ({ visible, onClose, onAddMeal }) => {
 
   const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"];
 
-  const analyzeMeal = () => {
+  const handleSaveMeal = async () => {
     if (!mealDescription.trim()) return;
-
     setIsAnalyzing(true);
-
-    // Simulate AI response with a timer
-    // In a real app, this would be an API call to your AI service
-    setTimeout(() => {
-      // Generate mock AI response
-      const calories = Math.floor(Math.random() * 500) + 100;
-      const proteins = Math.floor(Math.random() * 40) + 5;
-      const carbs = Math.floor(Math.random() * 50) + 10;
-      const fats = Math.floor(Math.random() * 25) + 3;
-
-      const response = {
-        calories,
-        proteins,
-        carbs,
-        fats,
-      };
-      const currentTime = new Date();
-
-      const formattedTime = currentTime.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      });
-      const newMeal = {
-        id: Date.now().toString(),
-        mealType: selectedMealType,
-        description: mealDescription,
-        time: formattedTime,
-        calories: calories.toString(),
-        proteins: proteins.toString(),
-        carbs: carbs.toString(),
-        fats: fats.toString(),
-      };
-
-      navigation.navigate("AnalyzedMeal", { meal: newMeal });
-    }, 1500);
-  };
-
-  const handleSaveMeal = () => {
-    if (!mealDescription.trim() || !aiResponse) return;
 
     const currentTime = new Date();
     const formattedTime = currentTime.toLocaleTimeString("en-US", {
@@ -153,11 +112,13 @@ const LogMealModal = ({ visible, onClose, onAddMeal }) => {
       hour12: true,
     });
 
-    onAddMeal(newMeal);
+    console.log("Saving meal:", {
+      mealType: selectedMealType,
+      description: mealDescription,
+    });
+    await onAddMeal(mealDescription, selectedMealType);
+    setIsAnalyzing(false);
     closeModal();
-
-    // Navigate to the AnalyzedMeal screen with the meal data
-    navigation.navigate("AnalyzedMeal", { meal: newMeal });
   };
 
   const resetModal = () => {
@@ -250,7 +211,7 @@ const LogMealModal = ({ visible, onClose, onAddMeal }) => {
                   styles.analyzeButton,
                   !mealDescription.trim() && styles.disabledButton,
                 ]}
-                onPress={analyzeMeal}
+                onPress={handleSaveMeal}
                 disabled={!mealDescription.trim() || isAnalyzing}
               >
                 {isAnalyzing ? (

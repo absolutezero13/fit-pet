@@ -12,6 +12,7 @@ import {
 import { createMealPrompt } from "../utils/mealPrompt";
 import GradientSpinner from "../components/GradientSpinner";
 import { storageService } from "../storage/AsyncStorageService";
+import useOnboardingStore from "../zustand/useOnboardingStore";
 
 const TotalNutrition = ({ meals }: IMeal[]) => {
   const totals = useMemo(() => {
@@ -206,6 +207,14 @@ const MealsScreen = () => {
   const getMeals = async () => {
     const storageItem = await storageService.getItem("User");
 
+    useOnboardingStore.setState({
+      age: storageItem?.age,
+      weight: storageItem?.weight,
+      height: storageItem?.height,
+      gender: storageItem?.gender,
+      goals: storageItem?.goals,
+    });
+
     // if (
     //   storageItem &&
     //   storageItem.mealInfo?.meals?.length > 0 &&
@@ -217,7 +226,10 @@ const MealsScreen = () => {
 
     setLoading(true);
     try {
-      const data = await createGeminiCompletion(createMealPrompt(storageItem));
+      const data = await createGeminiCompletion(
+        createMealPrompt(storageItem),
+        "recipe"
+      );
       console.log(
         "response",
         data.response.candidates[0].content.parts[0].text
