@@ -1,5 +1,3 @@
-import { exampleMeal } from "../services/gptApi";
-
 export const createMealPrompt = (userInfo) => `
 date:${new Date().toISOString()} 
 You are a meal planner. 
@@ -27,6 +25,7 @@ Description can be simple, just estimate the macros and calories.
 Provide insight with what you have, assign null to meal type if request in not a food.
 Score should be 1 to 10, 1 is the worst and 10 is the best.
 First insight should be about how you determine the score. 
+Insights can be single sentences. No need to over explain.
 Description is the Meal Description given by user. Nothing else.
 meal type can only be "breakfast", "lunch", "dinner", "snack". Nothing else.
 If the meal description is not a food, assign null to meal type.

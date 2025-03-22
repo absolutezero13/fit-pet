@@ -10,8 +10,8 @@ import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import MacroCards from "./MacroCards";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IMeal } from "../../../services/gptApi";
 import { fontStyles } from "../../../theme/fontStyles";
+import { IMeal } from "../../../services/apiTypes";
 
 interface Props {
   meal: IMeal;
@@ -57,7 +57,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         <TouchableOpacity
           style={styles.insightsTitleContainer}
           onPress={toggleExpand}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           {renderNutritionScore()}
 
