@@ -5,10 +5,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  LayoutAnimation,
-  Platform,
-  UIManager,
   Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -18,25 +14,14 @@ import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LogMealModal from "./components/LogMeaBottomSheet";
-import { createGeminiCompletion } from "../../services/gptApi";
+import { createGeminiCompletion, IMeal } from "../../services/gptApi";
 import { createAnalysisPrompt } from "../../utils/mealPrompt";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
-
-// Enable LayoutAnimation for Android
-if (Platform.OS === "android") {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
+import MealCard from "./components/MealCard";
 
 const EmptyState = ({ onPress }) => {
   return (
     <View style={styles.emptyStateContainer}>
-      {/* <Image
-        source={require("../../assets/images/empty-plate.png")}
-        style={styles.emptyStateImage}
-        resizeMode="contain"
-      /> */}
       <Text style={styles.emptyStateTitle}>No meals logged yet</Text>
       <Text style={styles.emptyStateDescription}>
         Track your nutrition by logging your meals throughout the day
@@ -54,104 +39,6 @@ const EmptyState = ({ onPress }) => {
   );
 };
 
-const NutritionScore = ({ score }) => {
-  // Determine color based on score
-  const getScoreColor = () => {
-    if (score >= 8) return colors["color-success-400"];
-    if (score >= 6) return colors["color-info-400"];
-    if (score >= 4) return colors["color-warning-400"];
-    return colors["color-danger-400"];
-  };
-
-  return (
-    <View style={styles.scoreContainer}>
-      <Text style={styles.scoreLabel}>Score</Text>
-      <View style={[styles.scoreCircle, { backgroundColor: getScoreColor() }]}>
-        <Text style={styles.scoreValue}>{score}</Text>
-      </View>
-    </View>
-  );
-};
-
-const MacroCards = ({ proteins, carbs, fats }) => {
-  return (
-    <View style={styles.macroContainer}>
-      <View style={styles.macroCard}>
-        <MaterialCommunityIcons
-          name="food-steak"
-          size={scale(20)}
-          color={colors["color-primary-500"]}
-        />
-        <Text style={styles.macroValue}>{proteins}g</Text>
-        <Text style={styles.macroLabel}>Protein</Text>
-      </View>
-
-      <View style={styles.macroCard}>
-        <MaterialCommunityIcons
-          name="bread-slice"
-          size={scale(20)}
-          color={colors["color-primary-500"]}
-        />
-        <Text style={styles.macroValue}>{carbs}g</Text>
-        <Text style={styles.macroLabel}>Carbs</Text>
-      </View>
-
-      <View style={styles.macroCard}>
-        <MaterialCommunityIcons
-          name="oil"
-          size={scale(20)}
-          color={colors["color-primary-500"]}
-        />
-        <Text style={styles.macroValue}>{fats}g</Text>
-        <Text style={styles.macroLabel}>Fats</Text>
-      </View>
-    </View>
-  );
-};
-
-const MealInsights = ({ meal }) => {
-  const [expanded, setExpanded] = useState(false);
-
-  // Generate insights based on meal data
-  if (meal.insights.length === 0) return null;
-
-  const toggleExpand = () => {
-    // Configure the animation
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded(!expanded);
-  };
-
-  return (
-    <View style={styles.insightsContainer}>
-      <TouchableOpacity
-        style={styles.insightsTitleContainer}
-        onPress={toggleExpand}
-        activeOpacity={0.7}
-      >
-        <NutritionScore score={meal.score} />
-
-        <Text style={styles.insightsTitle}>Insights</Text>
-        <MaterialCommunityIcons
-          name={expanded ? "chevron-up" : "chevron-down"}
-          size={scale(20)}
-          color={colors["color-primary-500"]}
-        />
-      </TouchableOpacity>
-
-      {expanded && (
-        <View style={styles.insightsContent}>
-          {meal.insights.map((insight, index) => (
-            <View key={index} style={styles.insightRow}>
-              <View style={styles.bulletPoint} />
-              <Text style={styles.insightText}>{insight}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
-
 const MealTypeSection = ({ title, meals, onPressItem }) => {
   if (meals.length === 0) return null;
 
@@ -160,39 +47,7 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
       <Text style={styles.sectionTitle}>{title}</Text>
 
       {meals.map((meal) => (
-        <TouchableOpacity
-          key={meal.description}
-          style={styles.mealItem}
-          onPress={() => onPressItem(meal)}
-        >
-          <View style={styles.mealItemHeader}>
-            <View style={styles.mealItemLeft}>
-              <Text style={styles.mealItemTitle}>
-                {meal.description.split(".")[0]}
-              </Text>
-              <Text style={styles.mealItemTime}>{meal.time}</Text>
-            </View>
-
-            <View style={styles.mealItemRight}>
-              <Text style={styles.caloriesText}>{meal.calories} cal</Text>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={scale(24)}
-                color={colors["color-primary-300"]}
-              />
-            </View>
-          </View>
-
-          <View style={styles.mealItemDetails}>
-            <MacroCards
-              proteins={meal.proteins}
-              carbs={meal.carbs}
-              fats={meal.fats}
-            />
-
-            <MealInsights meal={meal} />
-          </View>
-        </TouchableOpacity>
+        <MealCard meal={meal} key={meal.id} onPress={() => onPressItem(meal)} />
       ))}
     </View>
   );
@@ -200,7 +55,7 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
 
 const LoggedMealsScreen = () => {
   const { bottom } = useSafeAreaInsets();
-  const [meals, setMeals] = useState([]);
+  const [meals, setMeals] = useState<IMeal[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
   const navigation = useNavigation();
@@ -217,13 +72,11 @@ const LoggedMealsScreen = () => {
   const dinnerMeals = getMealsByType("dinner");
   const snackMeals = getMealsByType("snack");
 
-  const handleMealPress = (meal) => {
+  const handleMealPress = (meal: IMeal) => {
     // Navigate to meal detail or edit screen
     console.log("Meal pressed:", meal);
     // navigation.navigate('MealDetail', { meal });
   };
-
-  console.log("useOnboardingStore", useOnboardingStore.getState());
 
   const handleAddMeal = async (mealDescription: string, mealType: string) => {
     // Generate a unique ID for the new meal
@@ -254,12 +107,9 @@ const LoggedMealsScreen = () => {
       return;
     }
 
-    console.log("Meal added:", meal);
     // Add new meal to the meals array
     setMeals((prevMeals) => [...prevMeals, meal]);
   };
-
-  console.log("meals", meals);
 
   const handleOpenModal = () => {
     setModalVisible(true);
@@ -420,28 +270,6 @@ const styles = StyleSheet.create({
     ...fontStyles.body1,
     color: colors["color-success-400"],
     marginRight: scale(8),
-  },
-  // Macro cards styles
-  macroContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: scale(16),
-  },
-  macroCard: {
-    width: "30%",
-    backgroundColor: colors["color-primary-100"],
-    borderRadius: scale(12),
-    padding: scale(12),
-    alignItems: "center",
-  },
-  macroValue: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-    marginVertical: scale(4),
-  },
-  macroLabel: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
   },
   // Insights styles
   detailsBottomRow: {

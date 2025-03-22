@@ -24,12 +24,20 @@ import {
   Nunito_900Black_Italic,
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Platform, UIManager } from "react-native";
 
 Asset.loadAsync([
   ...NavigationAssets,
   require("./assets/newspaper.png"),
   require("./assets/bell.png"),
 ]);
+
+// Enable LayoutAnimation for Android
+if (Platform.OS === "android") {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 SplashScreen.preventAutoHideAsync();
 

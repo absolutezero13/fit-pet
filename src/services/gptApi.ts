@@ -85,22 +85,22 @@ const recipeSchema: Schema = {
     type: SchemaType.OBJECT,
     properties: {
       calories: {
-        type: SchemaType.STRING,
+        type: SchemaType.NUMBER,
         description: "Calories",
         nullable: false,
       },
       proteins: {
-        type: SchemaType.STRING,
+        type: SchemaType.NUMBER,
         description: "Proteins",
         nullable: false,
       },
       carbs: {
-        type: SchemaType.STRING,
+        type: SchemaType.NUMBER,
         description: "Carbs",
         nullable: false,
       },
       fats: {
-        type: SchemaType.STRING,
+        type: SchemaType.NUMBER,
         description: "Fats",
         nullable: false,
       },
@@ -269,6 +269,7 @@ export interface IMeal {
   ingredients: string[];
   insights: string[];
   image: string;
+  score: number;
 }
 
 export const exampleMeal: IMeal = {
