@@ -4,13 +4,14 @@ import OnboardingScreen from "../screens/OnboardingScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import MealsScreen from "../screens/MealsScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import LearnScreen from "../screens/LearnScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
+import ChatScreen from "../screens/ChatScreen";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Tabs = createBottomTabNavigator();
 const TAB_BAR_ICON_SIZE = scale(24);
@@ -33,10 +34,10 @@ const renderTabBarIcon = (screenName: string, focused: boolean) => {
       return (
         <FontAwesome5 name="burn" size={TAB_BAR_ICON_SIZE} color={color} />
       );
-    case "Learn":
+    case "Chat":
       return (
-        <FontAwesome5
-          name="chalkboard-teacher"
+        <MaterialIcons
+          name="sports-gymnastics"
           size={TAB_BAR_ICON_SIZE}
           color={color}
         />
@@ -97,10 +98,10 @@ const TabNavigator = () => {
         }}
       />
       <Tabs.Screen
-        name="Learn"
-        component={LearnScreen}
+        name="Chat"
+        component={ChatScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTabBarIcon("Learn", focused),
+          tabBarIcon: ({ focused }) => renderTabBarIcon("Chat", focused),
           headerShown: false,
         }}
       />
@@ -136,7 +137,7 @@ const RootNavigator = () => {
           headerShown: false,
         }}
       />
-      
+
       <Stack.Screen
         name="AnalyzedMeal"
         component={AnalyzedMealScreen}
