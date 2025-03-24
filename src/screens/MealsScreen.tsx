@@ -203,7 +203,7 @@ const MealCard = (meal: IMeal) => (
 const MealsScreen = () => {
   const [meals, setMeals] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
-  console.log("meals", meals);
+
   const getMeals = async () => {
     const storageItem = await storageService.getItem("User");
 
@@ -215,14 +215,14 @@ const MealsScreen = () => {
       goals: storageItem?.goals,
     });
 
-    // if (
-    //   storageItem &&
-    //   storageItem.mealInfo?.meals?.length > 0 &&
-    //   storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
-    // ) {
-    //   setMeals(storageItem.mealInfo.meals);
-    //   return;
-    // }
+    if (
+      storageItem &&
+      storageItem.mealInfo?.meals?.length > 0 &&
+      storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
+    ) {
+      setMeals(storageItem.mealInfo.meals);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -230,10 +230,7 @@ const MealsScreen = () => {
         createMealPrompt(storageItem),
         "recipe"
       );
-      console.log(
-        "response",
-        data.response.candidates[0].content.parts[0].text
-      );
+
       setMeals(
         JSON.parse(data.response.candidates[0].content.parts[0].text) as IMeal[]
       );

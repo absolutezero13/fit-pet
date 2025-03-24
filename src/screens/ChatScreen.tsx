@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   ScrollView,
@@ -16,72 +16,52 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
+import { opacity } from "react-native-reanimated/lib/typescript/Colors";
+import { createGeminiStream } from "../services/gptApi";
+import { createChatPrompt } from "../utils/mealPrompt";
+import useOnboardingStore from "../zustand/useOnboardingStore";
 
 const TAB_BAR_HEIGHT = scale(85);
 
-// Mock data for chat messages
-const initialMessages = [
-  {
-    id: "1",
-    text: "Hi there! I'm your nutrition assistant. How can I help you today?",
-    isUser: false,
-    timestamp: new Date(Date.now() - 3600000),
-  },
-  {
-    id: "2",
-    text: "I'm trying to find healthy lunch options that are high in protein.",
-    isUser: true,
-    timestamp: new Date(Date.now() - 3540000),
-  },
-  {
-    id: "3",
-    text: "Great choice! For high-protein lunches, I recommend grilled chicken salad with mixed veggies, quinoa bowl with beans and tofu, or a turkey and avocado wrap with whole grain bread. Would you like specific recipes for any of these?",
-    isUser: false,
-    timestamp: new Date(Date.now() - 3500000),
-  },
-];
+type ChatMessage = {
+  id: string;
+  text: string;
+  role: "user" | "model";
+  timestamp: Date;
+};
 
-const EmptyState = ({ onPress }) => {
+const EmptyState = () => {
   return (
     <View style={styles.emptyStateContainer}>
       <Text style={styles.emptyStateTitle}>Start a conversation</Text>
       <Text style={styles.emptyStateDescription}>
         Ask questions about nutrition, diet plans, or meal suggestions
       </Text>
-      <TouchableOpacity style={styles.emptyStateButton} onPress={onPress}>
-        <Text style={styles.emptyStateButtonText}>Send First Message</Text>
-        <MaterialCommunityIcons
-          name="arrow-right-circle-outline"
-          size={scale(18)}
-          color="white"
-          style={{ marginLeft: scale(8) }}
-        />
-      </TouchableOpacity>
     </View>
   );
 };
 
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message }: { message: ChatMessage }) => {
   const time = message.timestamp.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "numeric",
-    hour12: true,
+    hour12: false,
   });
+
+  const isUser = message.role === "user";
 
   return (
     <View
       style={[
         styles.messageContainer,
-        message.isUser
-          ? styles.userMessageContainer
-          : styles.botMessageContainer,
+        isUser ? styles.userMessageContainer : styles.botMessageContainer,
       ]}
     >
       <View style={styles.messageContent}>
         <Text
           style={[
             styles.messageText,
-            message.isUser ? styles.userMessageText : styles.botMessageText,
+            isUser ? styles.userMessageText : styles.botMessageText,
           ]}
         >
           {message.text}
@@ -90,7 +70,7 @@ const ChatMessage = ({ message }) => {
       <Text
         style={[
           styles.messageTime,
-          message.isUser ? styles.userMessageTime : styles.botMessageTime,
+          isUser ? styles.userMessageTime : styles.botMessageTime,
         ]}
       >
         {time}
@@ -101,47 +81,68 @@ const ChatMessage = ({ message }) => {
 
 const ChatScreen = () => {
   const { bottom } = useSafeAreaInsets();
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef(null);
+  const textInputRef = useRef<TextInput>(null);
 
   const navigation = useNavigation();
 
-  const handleSendMessage = () => {
+  useEffect(() => {
+    navigation.addListener("focus", () => {
+      textInputRef.current?.focus();
+    });
+  }, [navigation, textInputRef]);
+
+  const handleSendMessage = async () => {
     if (inputText.trim() === "") return;
 
     // Add user message
-    const userMessage = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
       text: inputText,
-      isUser: true,
+      role: "user",
       timestamp: new Date(),
     };
 
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setMessages((prevMessages) => [userMessage, ...prevMessages]);
     setInputText("");
 
-    // Simulate bot response (in a real app, you would call your API here)
-    setTimeout(() => {
-      const botMessage = {
+    console.log({ inputText });
+
+    const geminiResponse = await createGeminiStream(
+      inputText,
+      [userMessage, ...messages].map((message) => ({
+        role: message.role,
+        parts: [
+          {
+            text: message.text,
+          },
+        ],
+      }))
+    );
+    console.log({ geminiResponse });
+
+    if (geminiResponse.response) {
+      console.log(
+        "gemini says:",
+        geminiResponse.response.candidates[0].content.parts[0].text
+      );
+      const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: "I understand your question. Let me provide some helpful nutrition advice based on your needs.",
-        isUser: false,
+        text: geminiResponse.response.candidates[0].content.parts[0].text,
+        role: "model",
         timestamp: new Date(),
       };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    }, 1000);
-  };
-
-  const handleEmptyStatePress = () => {
-    setInputText("What are some healthy meal ideas for the week?");
+      setMessages((prevMessages) => [botMessage, ...prevMessages]);
+    }
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <View style={styles.header}>
         <Text style={styles.title}>Nutrition Assistant</Text>
@@ -158,16 +159,18 @@ const ChatScreen = () => {
           inverted
         />
       ) : (
-        <EmptyState onPress={handleEmptyStatePress} />
+        <EmptyState />
       )}
 
-      <View style={[styles.inputContainer, { marginTop: "auto" }]}>
+      <View style={[styles.inputContainer, { marginBottom: TAB_BAR_HEIGHT }]}>
         <TextInput
           style={styles.input}
           placeholder="Type your message..."
           value={inputText}
           onChangeText={setInputText}
           multiline
+          ref={textInputRef}
+          onSubmitEditing={handleSendMessage}
         />
         <TouchableOpacity
           style={[
@@ -227,7 +230,7 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
     marginBottom: scale(16),
     borderRadius: scale(16),
-    padding: scale(16),
+    padding: scale(12),
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -259,7 +262,6 @@ const styles = StyleSheet.create({
   messageTime: {
     ...fontStyles.caption,
     alignSelf: "flex-end",
-    marginTop: scale(4),
   },
   userMessageTime: {
     color: "rgba(255, 255, 255, 0.8)",
