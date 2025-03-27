@@ -17,7 +17,10 @@ const WelcomeScreen = () => {
   useEffect(() => {
     storageService.getItem("User").then((user) => {
       if (user) {
-        navigation.navigate("HomeTabs");
+        navigation.reset({
+          routes: [{ name: "HomeTabs" }],
+          index: 0,
+        });
       }
     });
   }, []);

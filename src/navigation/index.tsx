@@ -12,6 +12,28 @@ import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import ChatScreen from "../screens/ChatScreen";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Platform, ViewStyle } from "react-native";
+import LogMealScreen from "../screens/LogMealScreen";
+
+export const tabBarDefaultStyles: ViewStyle = {
+  elevation: 0,
+  borderTopWidth: 0,
+  height: scale(Platform.select({ ios: 85, default: 65 })),
+  paddingBottom: scale(8),
+  paddingTop: scale(8),
+  borderTopLeftRadius: scale(20),
+  borderTopRightRadius: scale(20),
+  position: "absolute",
+  left: scale(20), // Added side padding
+  right: scale(20), // Added side padding
+  shadowColor: colors["color-primary-500"],
+  shadowOffset: {
+    width: 0,
+    height: -4,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+};
 
 const Tabs = createBottomTabNavigator();
 const TAB_BAR_ICON_SIZE = scale(24);
@@ -53,25 +75,7 @@ const TabNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarStyle: {
-          elevation: 0,
-          borderTopWidth: 0,
-          height: scale(85),
-          paddingBottom: 8,
-          paddingTop: 8,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          position: "absolute",
-          left: 20, // Added side padding
-          right: 20, // Added side padding
-          shadowColor: colors["color-primary-500"],
-          shadowOffset: {
-            width: 0,
-            height: -4,
-          },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-        },
+        tabBarStyle: tabBarDefaultStyles,
         tabBarLabelStyle: {
           ...fontStyles.body2,
           color: colors["color-primary-400"],
@@ -79,6 +83,7 @@ const TabNavigator = () => {
         tabBarActiveTintColor: colors["color-success-400"],
         tabBarInactiveTintColor: colors["color-primary-400"],
         animation: "shift",
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
@@ -137,7 +142,14 @@ const RootNavigator = () => {
           headerShown: false,
         }}
       />
-
+      <Stack.Screen
+        name="LogMeal"
+        component={LogMealScreen}
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
       <Stack.Screen
         name="AnalyzedMeal"
         component={AnalyzedMealScreen}

@@ -4,15 +4,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
-import {
-  createChatCompletion,
-  createGeminiCompletion,
-  IMeal,
-} from "../services/gptApi";
+import { createGeminiCompletion } from "../services/gptApi";
 import { createMealPrompt } from "../utils/mealPrompt";
 import GradientSpinner from "../components/GradientSpinner";
 import { storageService } from "../storage/AsyncStorageService";
 import useOnboardingStore from "../zustand/useOnboardingStore";
+import { IMeal } from "../services/apiTypes";
 
 const TotalNutrition = ({ meals }: IMeal[]) => {
   const totals = useMemo(() => {

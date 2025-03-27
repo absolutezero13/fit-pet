@@ -12,16 +12,22 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
-import { opacity } from "react-native-reanimated/lib/typescript/Colors";
 import { createGeminiStream } from "../services/gptApi";
-import { createChatPrompt } from "../utils/mealPrompt";
-import useOnboardingStore from "../zustand/useOnboardingStore";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 const TAB_BAR_HEIGHT = scale(85);
+
+// Suggestion data type
+type Suggestion = {
+  text: string;
+  prompt: string;
+};
+
+// Suggestion data array
 
 type ChatMessage = {
   id: string;
@@ -38,6 +44,24 @@ const EmptyState = () => {
         Ask questions about nutrition, diet plans, or meal suggestions
       </Text>
     </View>
+  );
+};
+
+// Suggestion Bubble Component
+const SuggestionBubble = ({
+  suggestion,
+  onPress,
+}: {
+  suggestion: Suggestion;
+  onPress: (prompt: string) => void;
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.suggestionBubble}
+      onPress={() => onPress(suggestion.prompt)}
+    >
+      <Text style={styles.suggestionBubbleText}>{suggestion.text}</Text>
+    </TouchableOpacity>
   );
 };
 
@@ -80,27 +104,63 @@ const ChatMessage = ({ message }: { message: ChatMessage }) => {
 };
 
 const ChatScreen = () => {
-  const { bottom } = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const flatListRef = useRef(null);
   const textInputRef = useRef<TextInput>(null);
 
   const navigation = useNavigation();
 
+  const SUGGESTIONS: Suggestion[] = [
+    {
+      text: "How was my last meal?",
+      prompt: JSON.stringify({
+        mealType: "last_meal",
+        context: "Analyze nutritional intake and provide feedback",
+      }),
+    },
+    {
+      text: "Meal planning help",
+      prompt: JSON.stringify({
+        mealType: "planning",
+        context: "Provide suggestions for balanced meal planning",
+      }),
+    },
+    {
+      text: "Nutrition advice",
+      prompt: JSON.stringify({
+        mealType: "advice",
+        context: "General nutritional guidance and recommendations",
+      }),
+    },
+    {
+      text: "Calorie tracking",
+      prompt: JSON.stringify({
+        mealType: "tracking",
+        context: "Help with calorie counting and dietary goals",
+      }),
+    },
+  ];
+
   useEffect(() => {
     navigation.addListener("focus", () => {
-      textInputRef.current?.focus();
+      setTimeout(() => {
+        textInputRef.current?.focus();
+      }, 300);
     });
   }, [navigation, textInputRef]);
 
-  const handleSendMessage = async () => {
-    if (inputText.trim() === "") return;
+  const handleSendMessage = async (message?: string) => {
+    const textToSend = message || inputText;
+
+    if (textToSend.trim() === "") return;
 
     // Add user message
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: inputText,
+      text: textToSend,
       role: "user",
       timestamp: new Date(),
     };
@@ -108,10 +168,10 @@ const ChatScreen = () => {
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
     setInputText("");
 
-    console.log({ inputText });
+    console.log({ textToSend });
 
     const geminiResponse = await createGeminiStream(
-      inputText,
+      textToSend,
       [userMessage, ...messages].map((message) => ({
         role: message.role,
         parts: [
@@ -124,10 +184,6 @@ const ChatScreen = () => {
     console.log({ geminiResponse });
 
     if (geminiResponse.response) {
-      console.log(
-        "gemini says:",
-        geminiResponse.response.candidates[0].content.parts[0].text
-      );
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: geminiResponse.response.candidates[0].content.parts[0].text,
@@ -138,15 +194,44 @@ const ChatScreen = () => {
     }
   };
 
+  const handleSuggestionPress = (prompt: string) => {
+    // You can parse the stringified prompt if needed
+    const parsedPrompt = JSON.parse(prompt);
+    handleSendMessage(parsedPrompt.context);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      behavior={Platform.OS === "ios" ? "height" : "padding"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? scale(-100) : 0}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Nutrition Assistant</Text>
-      </View>
+      <Animated.View
+        layout={FadeInUp}
+        style={[
+          styles.header,
+          {
+            paddingTop: isFocused ? top : scale(60),
+            borderBottomLeftRadius: isFocused ? 0 : scale(30),
+            borderBottomRightRadius: isFocused ? 0 : scale(30),
+            paddingBottom: isFocused ? scale(8) : scale(32),
+          },
+        ]}
+      >
+        <Text
+          style={
+            isFocused
+              ? {
+                  ...fontStyles.headline2,
+                }
+              : {
+                  ...fontStyles.headline1,
+                }
+          }
+        >
+          Nutrition Assistant
+        </Text>
+      </Animated.View>
 
       {messages.length > 0 ? (
         <FlatList
@@ -162,31 +247,60 @@ const ChatScreen = () => {
         <EmptyState />
       )}
 
+      {/* Suggestions ScrollView */}
+
       <View style={[styles.inputContainer, { marginBottom: TAB_BAR_HEIGHT }]}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message..."
-          value={inputText}
-          onChangeText={setInputText}
-          multiline
-          ref={textInputRef}
-          onSubmitEditing={handleSendMessage}
-        />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor:
-                inputText.trim() === ""
-                  ? colors["color-primary-300"]
-                  : colors["color-success-400"],
-            },
-          ]}
-          onPress={handleSendMessage}
-          disabled={inputText.trim() === ""}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.suggestionsContainer}
         >
-          <MaterialCommunityIcons name="send" size={scale(20)} color="white" />
-        </TouchableOpacity>
+          {SUGGESTIONS.map((suggestion, index) => (
+            <SuggestionBubble
+              key={index}
+              suggestion={suggestion}
+              onPress={handleSuggestionPress}
+            />
+          ))}
+        </ScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+            paddingVertical: scale(12),
+          }}
+        >
+          <TextInput
+            style={styles.input}
+            placeholder="Type your message..."
+            value={inputText}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onChangeText={setInputText}
+            ref={textInputRef}
+            onSubmitEditing={() => handleSendMessage()}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor:
+                  inputText.trim() === ""
+                    ? colors["color-primary-300"]
+                    : colors["color-success-400"],
+              },
+            ]}
+            onPress={() => handleSendMessage()}
+            disabled={inputText.trim() === ""}
+          >
+            <MaterialCommunityIcons
+              name="send"
+              size={scale(20)}
+              color="white"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -202,8 +316,7 @@ const styles = StyleSheet.create({
     paddingTop: scale(60),
     paddingBottom: scale(32),
     backgroundColor: colors["color-primary-200"],
-    borderBottomLeftRadius: scale(30),
-    borderBottomRightRadius: scale(30),
+
     shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
@@ -212,19 +325,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: scale(12),
   },
-  title: {
-    ...fontStyles.headline1,
-  },
+  title: {},
   date: {
     ...fontStyles.headline4,
     color: colors["color-primary-400"],
   },
   messageList: {
-    flex: 1,
+    flexGrow: 1,
   },
   messageListContent: {
     padding: scale(16),
     paddingTop: scale(24),
+    flexGrow: 1,
   },
   messageContainer: {
     maxWidth: "80%",
@@ -270,9 +382,7 @@ const styles = StyleSheet.create({
     color: colors["color-primary-400"],
   },
   inputContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: scale(16),
     paddingVertical: scale(12),
     borderTopWidth: 1,
     borderTopColor: colors["color-primary-100"],
@@ -284,6 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
+    marginHorizontal: scale(16),
     maxHeight: scale(120),
     ...fontStyles.body1,
   },
@@ -293,7 +404,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(22),
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: scale(12),
+    marginRight: scale(12),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -342,6 +453,31 @@ const styles = StyleSheet.create({
   emptyStateButtonText: {
     ...fontStyles.headline4,
     color: "white",
+  },
+  // New suggestion bubbles styles
+  suggestionsContainer: {
+    paddingHorizontal: scale(16),
+    backgroundColor: colors["color-primary-100"],
+  },
+  suggestionBubble: {
+    backgroundColor: "white",
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(10),
+    borderRadius: scale(20),
+    marginRight: scale(10),
+    shadowColor: colors["color-primary-500"],
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: scale(4),
+    elevation: 2,
+    height: scale(40),
+  },
+  suggestionBubbleText: {
+    ...fontStyles.body2,
+    color: colors["color-primary-600"],
   },
 });
 

@@ -57,7 +57,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         <TouchableOpacity
           style={styles.insightsTitleContainer}
           onPress={toggleExpand}
-          activeOpacity={0.8}
+          activeOpacity={0.9}
         >
           {renderNutritionScore()}
 
@@ -85,6 +85,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
 
   return (
     <TouchableOpacity
+      activeOpacity={0.8}
       key={meal.description}
       style={styles.mealItem}
       onPress={() => onPress(meal)}

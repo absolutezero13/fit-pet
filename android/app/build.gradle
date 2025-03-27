@@ -86,7 +86,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.fitpanda"
+    namespace 'com.ilks.fitpet'
     defaultConfig {
         applicationId 'com.ilks.fitpet'
         minSdkVersion rootProject.ext.minSdkVersion

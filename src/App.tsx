@@ -25,6 +25,7 @@ import {
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Platform, UIManager } from "react-native";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 Asset.loadAsync([
   ...NavigationAssets,
@@ -67,13 +68,15 @@ export function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer
-        onReady={() => {
-          SplashScreen.hideAsync();
-        }}
-      >
-        <RootNavigator />
-      </NavigationContainer>
+      <BottomSheetModalProvider>
+        <NavigationContainer
+          onReady={() => {
+            SplashScreen.hideAsync();
+          }}
+        >
+          <RootNavigator />
+        </NavigationContainer>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

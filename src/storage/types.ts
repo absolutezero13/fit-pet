@@ -1,4 +1,4 @@
-import { IMeal } from "../services/gptApi";
+import { IMeal } from "../services/apiTypes";
 import { OnboardingStore } from "../zustand/useOnboardingStore";
 
 export interface User {
@@ -14,5 +14,6 @@ export interface User {
 export interface StorageItems {
   User: OnboardingStore & User;
   token: string;
+  meals: IMeal[];
   // Add other storage keys and their types here
 }

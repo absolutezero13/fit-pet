@@ -6,55 +6,154 @@ import {
   StyleSheet,
   Text,
   View,
-  Keyboard,
-  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Alert,
+  Image,
 } from "react-native";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { colors } from "../../../theme/colors";
-import { scale } from "../../../theme/utils";
-import { fontStyles } from "../../../theme/fontStyles";
+import { scale } from "../theme/utils";
+import { colors } from "../theme/colors";
+import { fontStyles } from "../theme/fontStyles";
+import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { createAnalysisPrompt } from "../utils/mealPrompt";
+import useOnboardingStore from "../zustand/useOnboardingStore";
+import {
+  createGeminiCompletion,
+  createGeminiVisionCompletion,
+} from "../services/gptApi";
+import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
+import { storageService } from "../storage/AsyncStorageService";
+import * as ImagePicker from "expo-image-picker";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { GeminiResponse } from "../services/apiTypes";
 
-const LogMealModal = () => {
+const LogMealScreen = () => {
+  const navigation = useNavigation();
+  const { bottom } = useSafeAreaInsets();
   const [mealDescription, setMealDescription] = useState("");
   const [selectedMealType, setSelectedMealType] = useState("Breakfast");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const textInputRef = useRef<TextInput>(null);
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
-  // ref
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const pickImage = async (source: "camera" | "gallery") => {
+    let result;
+
+    if (source === "camera") {
+      // Request camera permission
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Sorry", "Camera permission is required to take a photo.");
+        return;
+      }
+
+      result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      });
+    } else {
+      // Request media library permission
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Sorry",
+          "Media library permission is required to select an image."
+        );
+        return;
+      }
+
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      });
+    }
+
+    if (!result.canceled) {
+      setImage(result.assets[0]);
+    }
+  };
+
+  const handleAddMeal = async (mealDescription: string, mealType: string) => {
+    const prompt = createAnalysisPrompt(
+      useOnboardingStore.getState(),
+      mealDescription,
+      mealType
+    );
+
+    let response: { response: GeminiResponse };
+
+    if (image) {
+      response = await createGeminiVisionCompletion(
+        {
+          uri: image.uri,
+          mimeType: image.type,
+        },
+
+        prompt ?? null,
+        "analyzedMeal"
+      );
+    } else {
+      response = await createGeminiCompletion(prompt, "analyzedMeal");
+    }
+
+    console.log("response", response);
+    const meal = JSON.parse(
+      response.response.candidates[0].content.parts[0].text
+    );
+
+    console.log("meal", meal);
+
+    if (!meal.mealType) {
+      Alert.alert(
+        "Meal could not be analyzed",
+        "Please make sure the meal description is a valid food item."
+      );
+      return;
+    }
+
+    // Add new meal to the meals array
+    const meals = useLoggedMealsStore.getState().meals;
+    useLoggedMealsStore.setState({ meals: [...meals, meal] });
+    storageService.setItem("meals", [...meals, meal]);
+  };
 
   const handleSaveMeal = async () => {
-    if (!mealDescription.trim()) return;
+    if (!mealDescription.trim() && !image) return;
     setIsAnalyzing(true);
+    await handleAddMeal(mealDescription, selectedMealType);
 
-    const currentTime = new Date();
-    const formattedTime = currentTime.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    console.log("Saving meal:", {
-      mealType: selectedMealType,
-      description: mealDescription,
-    });
-    // await onAddMeal(mealDescription, selectedMealType);
     setIsAnalyzing(false);
     closeModal();
   };
 
   const closeModal = () => {
-    bottomSheetRef.current?.close();
+    navigation.goBack();
   };
 
   const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"];
 
-  // Render only if visible
+  const contentExists = !!(mealDescription.trim() || image);
 
   return (
-    <View>
+    <KeyboardAvoidingView
+      behavior="height"
+      style={[
+        styles.container,
+        {
+          paddingTop: scale(24),
+          backgroundColor: "white",
+        },
+      ]}
+    >
       <View style={styles.modalHeader}>
         <Text style={styles.modalTitle}>Log a Meal</Text>
         <TouchableOpacity onPress={closeModal}>
@@ -68,15 +167,66 @@ const LogMealModal = () => {
 
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Describe your meal</Text>
-        <TextInput
-          ref={textInputRef}
-          style={styles.textInput}
-          placeholder="Example: Scrambled eggs with spinach and whole grain toast"
-          value={mealDescription}
-          onChangeText={setMealDescription}
-          multiline
-          numberOfLines={3}
-        />
+        <View style={styles.textInputWrapper}>
+          <TextInput
+            ref={textInputRef}
+            style={[
+              styles.textInput,
+              {
+                paddingRight: image ? scale(140) : scale(24),
+              },
+            ]}
+            placeholder="Example: Scrambled eggs with spinach and whole grain toast"
+            value={mealDescription}
+            onChangeText={setMealDescription}
+            multiline
+            numberOfLines={3}
+          />
+          {!image && (
+            <TouchableOpacity
+              style={styles.imagePickerButton}
+              onPress={() => {
+                Alert.alert("Add Image", "Choose image source", [
+                  {
+                    text: "Camera",
+                    onPress: () => pickImage("camera"),
+                  },
+                  {
+                    text: "Gallery",
+                    onPress: () => pickImage("gallery"),
+                  },
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                ]);
+              }}
+            >
+              <FontAwesome5
+                name="image"
+                size={scale(24)}
+                color={colors["color-primary-500"]}
+              />
+            </TouchableOpacity>
+          )}
+          {image && (
+            <View style={styles.imageWrapper}>
+              <AntDesign
+                style={{
+                  position: "absolute",
+                  right: scale(-4),
+                  bottom: 0,
+                  zIndex: 99,
+                }}
+                name="delete"
+                size={scale(24)}
+                color={colors["color-danger-600"]}
+                onPress={() => setImage(null)}
+              />
+              <Image source={{ uri: image.uri }} style={styles.previewImage} />
+            </View>
+          )}
+        </View>
       </View>
 
       <View style={styles.mealTypeContainer}>
@@ -108,10 +258,11 @@ const LogMealModal = () => {
         <TouchableOpacity
           style={[
             styles.analyzeButton,
-            !mealDescription.trim() && styles.disabledButton,
+            (isAnalyzing || !contentExists) && styles.disabledButton,
+            { marginBottom: bottom + scale(32) },
           ]}
           onPress={handleSaveMeal}
-          disabled={!mealDescription.trim() || isAnalyzing}
+          disabled={isAnalyzing || !contentExists}
         >
           {isAnalyzing ? (
             <ActivityIndicator color="white" />
@@ -156,7 +307,7 @@ const LogMealModal = () => {
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -176,7 +327,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
+    paddingHorizontal: scale(24),
   },
   header: {
     padding: scale(24),
@@ -278,7 +429,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     padding: scale(12),
     ...fontStyles.body1,
-    minHeight: scale(100),
+    minHeight: scale(150),
     textAlignVertical: "top",
   },
   mealTypeContainer: {
@@ -313,7 +464,7 @@ const styles = StyleSheet.create({
     padding: scale(16),
     borderRadius: scale(12),
     alignItems: "center",
-    marginTop: scale(16),
+    marginTop: "auto",
   },
   disabledButton: {
     backgroundColor: colors["color-primary-300"],
@@ -363,6 +514,31 @@ const styles = StyleSheet.create({
     ...fontStyles.body2,
     color: colors["color-primary-400"],
   },
+  textInputWrapper: {
+    position: "relative",
+  },
+  imagePickerButton: {
+    position: "absolute",
+    bottom: scale(8),
+    right: scale(8),
+    backgroundColor: colors["color-primary-100"],
+    borderRadius: scale(20),
+    width: scale(36),
+    height: scale(36),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  previewImage: {
+    height: scale(120),
+    width: scale(120),
+    borderRadius: scale(60),
+  },
+  imageWrapper: {
+    marginTop: scale(12),
+    position: "absolute",
+    right: scale(8),
+    bottom: scale(15),
+  },
 });
 
-export default LogMealModal;
+export default LogMealScreen;

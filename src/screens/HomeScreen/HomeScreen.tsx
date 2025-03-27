@@ -14,10 +14,13 @@ import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LogMealModal from "./components/LogMeaBottomSheet";
-import { createGeminiCompletion, IMeal } from "../../services/gptApi";
+import { createGeminiCompletion } from "../../services/gptApi";
 import { createAnalysisPrompt } from "../../utils/mealPrompt";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import MealCard from "./components/MealCard";
+import { storageService } from "../../storage/AsyncStorageService";
+import { IMeal } from "../../services/apiTypes";
+import useLoggedMealsStore from "../../zustand/useLoggedMealsStore";
 
 const EmptyState = ({ onPress }) => {
   return (
@@ -39,15 +42,27 @@ const EmptyState = ({ onPress }) => {
   );
 };
 
-const MealTypeSection = ({ title, meals, onPressItem }) => {
+const MealTypeSection = ({
+  title,
+  meals,
+  onPressItem,
+}: {
+  title: string;
+  meals: IMeal[];
+  onPressItem: (meal: IMeal) => void;
+}) => {
   if (meals.length === 0) return null;
 
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
 
-      {meals.map((meal) => (
-        <MealCard meal={meal} key={meal.id} onPress={() => onPressItem(meal)} />
+      {meals.map((meal, index) => (
+        <MealCard
+          meal={meal}
+          key={meal.description + index}
+          onPress={() => onPressItem(meal)}
+        />
       ))}
     </View>
   );
@@ -55,10 +70,36 @@ const MealTypeSection = ({ title, meals, onPressItem }) => {
 
 const LoggedMealsScreen = () => {
   const { bottom } = useSafeAreaInsets();
-  const [meals, setMeals] = useState<IMeal[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const meals = useLoggedMealsStore((state) => state.meals);
+
+  const setMeals = (meals: IMeal[]) => useLoggedMealsStore.setState({ meals });
+
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const storedMeals = await storageService.getItem("meals");
+      if (storedMeals) {
+        setMeals(storedMeals);
+      }
+    };
+
+    fetchMeals();
+  }, []);
+
+  useEffect(() => {
+    if (modalVisible) {
+      navigation.setOptions({
+        tabBarVisible: false,
+      });
+    } else {
+      navigation.setOptions({
+        tabBarVisible: true,
+      });
+    }
+  }, [modalVisible]);
 
   // Group meals by type
   const getMealsByType = (type) => {
@@ -78,41 +119,8 @@ const LoggedMealsScreen = () => {
     // navigation.navigate('MealDetail', { meal });
   };
 
-  const handleAddMeal = async (mealDescription: string, mealType: string) => {
-    // Generate a unique ID for the new meal
-    // const newId = (meals.length + 1).toString();
-    // const mealWithId = { ...newMeal, id: newId };
-    console.log({
-      mealDescription,
-      mealType,
-    });
-
-    const prompt = createAnalysisPrompt(
-      useOnboardingStore.getState(),
-      mealDescription,
-      mealType
-    );
-
-    const response = await createGeminiCompletion(prompt, "analyzedMeal");
-
-    const meal = JSON.parse(
-      response.response.candidates[0].content.parts[0].text
-    );
-
-    if (meal.mealType === null) {
-      Alert.alert(
-        "Meal could not be analyzed",
-        "Please make sure the meal description is a valid food item."
-      );
-      return;
-    }
-
-    // Add new meal to the meals array
-    setMeals((prevMeals) => [...prevMeals, meal]);
-  };
-
-  const handleOpenModal = () => {
-    setModalVisible(true);
+  const navigateLogMeal = () => {
+    navigation.navigate("LogMeal");
   };
 
   return (
@@ -159,7 +167,7 @@ const LoggedMealsScreen = () => {
           />
         </ScrollView>
       ) : (
-        <EmptyState onPress={handleOpenModal} />
+        <EmptyState onPress={navigateLogMeal} />
       )}
 
       {meals.length > 0 && (
@@ -170,17 +178,11 @@ const LoggedMealsScreen = () => {
               bottom: bottom + scale(64),
             },
           ]}
-          onPress={handleOpenModal}
+          onPress={navigateLogMeal}
         >
           <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
         </TouchableOpacity>
       )}
-
-      <LogMealModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onAddMeal={handleAddMeal}
-      />
     </View>
   );
 };
