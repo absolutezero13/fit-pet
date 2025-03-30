@@ -1,7 +1,7 @@
-import { Text, View } from "react-native";
+import { NativeScrollEvent, Text, View, StyleSheet } from "react-native";
 import { colors } from "../../theme/colors";
 import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
-import { FlatList, Pressable, ScrollView } from "react-native-gesture-handler";
+import { FlatList, Pressable } from "react-native-gesture-handler";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { fontStyles } from "../../theme/fontStyles";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
@@ -17,31 +17,27 @@ const Age = () => {
   const scrollRef = useRef<FlatList>(null);
   const { t } = useTranslation();
 
+  const onScroll = (e: { nativeEvent: NativeScrollEvent }) => {
+    const index = Math.floor(
+      e.nativeEvent.contentOffset.y / (AGE_ITEM_SIZE - 1)
+    );
+
+    if (
+      ageRef.current !==
+      ageData[index > ageData.length - 1 ? ageData.length - 1 : index]
+    ) {
+      ageRef.current =
+        ageData[index > ageData.length - 1 ? ageData.length - 1 : index];
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <View
-        style={{
-          justifyContent: "center",
-        }}
-      >
+    <View style={styles.container}>
+      <View style={styles.pickerContainer}>
         <FlatList
           initialScrollIndex={9}
-          onScroll={(e) => {
-            const index = Math.floor(
-              e.nativeEvent.contentOffset.y / (AGE_ITEM_SIZE - 1)
-            );
-
-            if (
-              ageRef.current !==
-              ageData[index > ageData.length - 1 ? ageData.length - 1 : index]
-            ) {
-              ageRef.current =
-                ageData[
-                  index > ageData.length - 1 ? ageData.length - 1 : index
-                ];
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
-          }}
+          onScroll={onScroll}
           ref={scrollRef}
           onMomentumScrollEnd={() =>
             useOnboardingStore.setState({ age: ageRef.current })
@@ -49,19 +45,11 @@ const Age = () => {
           snapToInterval={AGE_ITEM_SIZE}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          style={{
-            borderRadius: scale(16),
-            height: 4 * AGE_ITEM_SIZE,
-          }}
-          contentContainerStyle={{
-            paddingHorizontal: scale(24),
-            paddingBottom: 2 * AGE_ITEM_SIZE,
-            alignItems: "center",
-            paddingTop: scale(72),
-          }}
+          style={styles.flatList}
+          contentContainerStyle={styles.flatListContent}
           data={ageData}
           keyExtractor={(item) => item.toString()}
-          getItemLayout={(data, index) => ({
+          getItemLayout={(_, index) => ({
             length: AGE_ITEM_SIZE,
             offset: AGE_ITEM_SIZE * index,
             index,
@@ -76,42 +64,15 @@ const Age = () => {
                 });
               }}
               key={item}
-              style={{
-                height: AGE_ITEM_SIZE,
-                width: AGE_ITEM_SIZE,
-                borderRadius: AGE_ITEM_SIZE / 2,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              style={styles.ageItem}
             >
-              <Text style={[fontStyles.headline1]}>{item}</Text>
+              <Text style={fontStyles.headline1}>{item}</Text>
             </Pressable>
           )}
         />
 
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            width: SCREEN_WIDTH - scale(48),
-            marginHorizontal: scale(24),
-            position: "absolute",
-            top: scale(72),
-            zIndex: -1,
-          }}
-        >
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: colors["color-success-700"],
-              borderRadius: scale(99),
-              width: AGE_ITEM_SIZE + scale(10),
-              height: AGE_ITEM_SIZE + scale(10),
-              justifyContent: "flex-end",
-              alignItems: "center",
-              backgroundColor: colors["color-primary-100"],
-            }}
-          >
+        <View style={styles.selectionIndicatorContainer}>
+          <View style={styles.selectionIndicator}>
             <AntDesign
               name="caretup"
               size={24}
@@ -121,42 +82,78 @@ const Age = () => {
         </View>
       </View>
 
-      <View
-        style={{
-          position: "absolute",
-          bottom: scale(96),
-          borderWidth: 1,
-          marginHorizontal: scale(24),
-          borderRadius: scale(16),
-          padding: scale(12),
-          backgroundColor: colors["color-primary-500"],
-          ...shadowStyle,
-        }}
-      >
-        <Text
-          style={[
-            fontStyles.headline3,
-            {
-              color: colors["color-primary-100"],
-            },
-          ]}
-        >
+      <View style={styles.infoCard}>
+        <Text style={[fontStyles.headline3, styles.infoCardTitle]}>
           {t("whyWeAsk")}
         </Text>
-        <Text
-          style={[
-            fontStyles.body2,
-            {
-              marginTop: scale(8),
-              color: colors["color-primary-100"],
-            },
-          ]}
-        >
+        <Text style={[fontStyles.body2, styles.infoCardDescription]}>
           {t("whyWeAskDescription")}
         </Text>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  pickerContainer: {
+    justifyContent: "center",
+  },
+  flatList: {
+    borderRadius: scale(16),
+    height: 4 * AGE_ITEM_SIZE,
+  },
+  flatListContent: {
+    paddingHorizontal: scale(24),
+    paddingBottom: 2 * AGE_ITEM_SIZE,
+    alignItems: "center",
+    paddingTop: scale(72),
+  },
+  ageItem: {
+    height: AGE_ITEM_SIZE,
+    width: AGE_ITEM_SIZE,
+    borderRadius: AGE_ITEM_SIZE / 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  selectionIndicatorContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: SCREEN_WIDTH - scale(48),
+    marginHorizontal: scale(24),
+    position: "absolute",
+    top: scale(72),
+    zIndex: -1,
+  },
+  selectionIndicator: {
+    borderWidth: 1,
+    borderColor: colors["color-success-700"],
+    borderRadius: scale(99),
+    width: AGE_ITEM_SIZE + scale(10),
+    height: AGE_ITEM_SIZE + scale(10),
+    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: colors["color-primary-100"],
+  },
+  infoCard: {
+    position: "absolute",
+    bottom: scale(96),
+    borderWidth: 1,
+    marginHorizontal: scale(24),
+    borderRadius: scale(16),
+    padding: scale(12),
+    backgroundColor: colors["color-primary-500"],
+    ...shadowStyle,
+  },
+  infoCardTitle: {
+    color: colors["color-primary-100"],
+  },
+  infoCardDescription: {
+    marginTop: scale(8),
+    color: colors["color-primary-100"],
+  },
+});
 
 export default Age;

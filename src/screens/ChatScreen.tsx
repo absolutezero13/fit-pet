@@ -291,15 +291,7 @@ const ChatScreen = () => {
         contentContainerStyle={styles.messageListContent}
         ListEmptyComponent={() => <EmptyState />}
       />
-
-      {/* Suggestions ScrollView */}
-
-      <View
-        style={[
-          styles.inputContainer,
-          // { marginBottom: isFocused ? 0 : scale(36) },
-        ]}
-      >
+      <View style={[styles.inputContainer]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

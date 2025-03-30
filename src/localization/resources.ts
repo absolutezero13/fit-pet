@@ -4,7 +4,7 @@ export const resources = {
       welcome: "Hoş geldiniz",
       appName: "FitPet!",
       getStarted: "Başla",
-      defineGoals: "Öncelikle hedeflerini belirleyelim",
+      defineGoals: "Hedeflerini belirleyelim",
       loseWeight: "Kilo Vermek",
       gainMuscle: "Kas Kazanmak",
       eatHeathier: "Daha Sağlıklı Beslenmek",

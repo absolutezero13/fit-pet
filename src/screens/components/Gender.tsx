@@ -11,7 +11,13 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { Gender as GenderEnum } from "./types";
 import { useTranslation } from "react-i18next";
 
-const genders = [
+type GenderItem = {
+  titleKey: string;
+  key: GenderEnum;
+  image: any;
+};
+
+const genders: GenderItem[] = [
   {
     titleKey: "male",
     key: GenderEnum.Male,
@@ -34,7 +40,7 @@ const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: GenderItem }) => {
     return (
       <Pressable
         onPress={() => useOnboardingStore.setState({ gender: item.key })}
@@ -100,7 +106,7 @@ const Gender = () => {
       <FlatList
         data={genders}
         renderItem={renderItem}
-        keyExtractor={(item) => item.title}
+        keyExtractor={(item) => item.titleKey}
         bounces={false}
         ItemSeparatorComponent={() => <View style={{ height: scale(16) }} />}
       />

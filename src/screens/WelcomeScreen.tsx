@@ -4,7 +4,6 @@ import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import { storageService } from "../storage/AsyncStorageService";

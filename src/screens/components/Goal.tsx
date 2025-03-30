@@ -1,17 +1,22 @@
-import React, { useEffect } from "react";
-import { Text, View } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { scale, SCREEN_WIDTH } from "../../theme/utils";
+import { scale } from "../../theme/utils";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
 import { colors } from "../../theme/colors";
 import { GoalListItem } from "./GoalListItem";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 
-export const goalItems = [
+type GoalItem = {
+  titleKey: string;
+  key: string;
+  iconComponent: ({ color }: { color?: string }) => JSX.Element;
+};
+
+export const goalItems: GoalItem[] = [
   {
     titleKey: "loseWeight",
     key: "1",
@@ -106,7 +111,7 @@ const Goal = () => {
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const selectedGoals = useOnboardingStore((state) => state.goals);
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item, index }: { item: GoalItem; index: number }) => {
     const isSelected = selectedGoals?.find((goal) => goal.key === item.key);
 
     const onSelect = () => {
@@ -117,7 +122,15 @@ const Goal = () => {
         return;
       }
 
-      useOnboardingStore.setState({ goals: [...selectedGoals, item] });
+      useOnboardingStore.setState({
+        goals: [
+          ...selectedGoals,
+          {
+            key: item.key,
+            title: t(item.titleKey),
+          },
+        ],
+      });
     };
     return (
       <GoalListItem
@@ -137,7 +150,7 @@ const Goal = () => {
         columnWrapperStyle={{ gap: scale(12), marginTop: scale(16) }}
         renderItem={renderItem}
         keyExtractor={(item) => item.key}
-        getItemLayout={(data, index) => ({
+        getItemLayout={(_, index) => ({
           length: scale(120),
           offset: scale(120) * index,
           index,
