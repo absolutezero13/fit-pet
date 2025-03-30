@@ -18,7 +18,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ilks.fitpet"
+      "package": "com.ilks.fitpet",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,6 +43,11 @@
       ],
       "react-native-edge-to-edge",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f1365aa7-d806-4f5b-b32e-22bf0ef6e025"
+      }
+    }
   }
 }

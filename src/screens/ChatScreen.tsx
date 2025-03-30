@@ -20,8 +20,48 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
+import { TAB_BAR_HEIGHT } from "../navigation";
+import {
+  KeyboardController,
+  useKeyboardController,
+  useReanimatedKeyboardAnimation,
+} from "react-native-keyboard-controller";
 
-const TAB_BAR_HEIGHT = scale(85);
+import { Keyboard } from "react-native";
+
+/**
+ * A custom hook that tracks keyboard visibility
+ * @returns {boolean} - Whether the keyboard is currently visible
+ */
+const useKeyboardVisibility = () => {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    // Different event names for iOS and Android
+    const keyboardShowEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const keyboardHideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    // When keyboard shows
+    const keyboardShowListener = Keyboard.addListener(keyboardShowEvent, () => {
+      setKeyboardVisible(true);
+    });
+
+    // When keyboard hides
+    const keyboardHideListener = Keyboard.addListener(keyboardHideEvent, () => {
+      setKeyboardVisible(false);
+    });
+
+    // Clean up listeners when component unmounts
+    return () => {
+      keyboardShowListener.remove();
+      keyboardHideListener.remove();
+    };
+  }, []);
+
+  return isKeyboardVisible;
+};
 
 // Suggestion data type
 type Suggestion = {
@@ -106,24 +146,28 @@ const ChatMessage = ({ message }: { message: ChatMessage }) => {
 };
 
 const ChatScreen = () => {
-  const { top } = useSafeAreaInsets();
+  const { height } = useReanimatedKeyboardAnimation();
+  const { top, bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
   const flatListRef = useRef(null);
   const textInputRef = useRef<TextInput>(null);
 
+  const isKeyboardVisible = useKeyboardVisibility();
   const navigation = useNavigation();
-
+  console.log({ isKeyboardVisible });
   const SUGGESTIONS: Suggestion[] = [
     {
       text: t("howWasMyLastMeal"),
       prompt: JSON.stringify({
         context: t("howWasMyLastMeal"),
-        data: useLoggedMealsStore.getState().loggedMeals[
-          useLoggedMealsStore.getState().loggedMeals.length - 1
-        ],
+        data: {
+          ...useLoggedMealsStore.getState().loggedMeals[
+            useLoggedMealsStore.getState().loggedMeals.length - 1
+          ],
+          insights: null,
+        },
       }),
     },
     {
@@ -204,26 +248,22 @@ const ChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "height" : "padding"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? scale(-100) : 0}
-    >
+    <View style={styles.container}>
       <Animated.View
         layout={FadeInUp}
         style={[
           styles.header,
           {
-            paddingTop: isFocused ? top : scale(60),
-            borderBottomLeftRadius: isFocused ? 0 : scale(30),
-            borderBottomRightRadius: isFocused ? 0 : scale(30),
-            paddingBottom: isFocused ? scale(8) : scale(32),
+            paddingTop: isKeyboardVisible ? top : scale(60),
+            borderBottomLeftRadius: isKeyboardVisible ? 0 : scale(30),
+            borderBottomRightRadius: isKeyboardVisible ? 0 : scale(30),
+            paddingBottom: isKeyboardVisible ? scale(8) : scale(32),
           },
         ]}
       >
         <Text
           style={
-            isFocused
+            isKeyboardVisible
               ? {
                   ...fontStyles.headline2,
                 }
@@ -236,23 +276,30 @@ const ChatScreen = () => {
         </Text>
       </Animated.View>
 
-      {messages.length > 0 ? (
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={({ item }) => <ChatMessage message={item} />}
-          keyExtractor={(item) => item.id}
-          style={styles.messageList}
-          contentContainerStyle={styles.messageListContent}
-          inverted
-        />
-      ) : (
-        <EmptyState />
-      )}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={({ item }) => <ChatMessage message={item} />}
+        inverted
+        keyExtractor={(item) => item.id}
+        style={[
+          styles.messageList,
+          {
+            marginBottom: isKeyboardVisible ? scale(260) : 0,
+          },
+        ]}
+        contentContainerStyle={styles.messageListContent}
+        ListEmptyComponent={() => <EmptyState />}
+      />
 
       {/* Suggestions ScrollView */}
 
-      <View style={[styles.inputContainer, { marginBottom: TAB_BAR_HEIGHT }]}>
+      <View
+        style={[
+          styles.inputContainer,
+          // { marginBottom: isFocused ? 0 : scale(36) },
+        ]}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -266,20 +313,29 @@ const ChatScreen = () => {
             />
           ))}
         </ScrollView>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-            paddingVertical: scale(12),
-          }}
+        <Animated.View
+          style={[
+            {
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
+              paddingVertical: scale(12),
+              marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + bottom,
+              position: isKeyboardVisible ? "absolute" : undefined,
+            },
+            {
+              transform: [
+                {
+                  translateY: height,
+                },
+              ],
+            },
+          ]}
         >
           <TextInput
             style={styles.input}
             placeholder={t("typeYourMessage")}
             value={inputText}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
             onChangeText={setInputText}
             ref={textInputRef}
             onSubmitEditing={() => handleSendMessage()}
@@ -303,9 +359,9 @@ const ChatScreen = () => {
               color="white"
             />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -335,6 +391,7 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flexGrow: 1,
+    // backgroundColor: "red",
   },
   messageListContent: {
     padding: scale(16),

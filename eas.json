@@ -1,0 +1,22 @@
+{
+  "cli": {
+    "version": ">= 14.6.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "apk": {
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "release": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease"
+      }
+    },
+    "internal": {
+      "distribution": "internal"
+    },
+    "production": {}
+  }
+}

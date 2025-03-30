@@ -28,6 +28,13 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { GeminiResponse } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
+import {
+  KeyboardControllerView,
+  KeyboardGestureArea,
+  useKeyboardAnimation,
+  useReanimatedKeyboardAnimation,
+} from "react-native-keyboard-controller";
+import Animated from "react-native-reanimated";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
@@ -38,6 +45,8 @@ const LogMealScreen = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+
+  const { height } = useReanimatedKeyboardAnimation();
 
   const pickImage = async (source: "camera" | "gallery") => {
     let result;
@@ -144,132 +153,149 @@ const LogMealScreen = () => {
   const contentExists = !!(mealDescription.trim() || image);
 
   return (
-    <KeyboardAvoidingView
-      behavior="height"
-      style={[
-        styles.container,
-        {
-          paddingTop: scale(24),
-          backgroundColor: "white",
-        },
-      ]}
+    <KeyboardGestureArea
+      interpolator="ios"
+      offset={50}
+      textInputNativeID="composer"
+      style={{
+        flex: 1,
+      }}
     >
-      <View style={styles.modalHeader}>
-        <Text style={styles.modalTitle}>{t("logAMeal")}</Text>
-        <TouchableOpacity onPress={closeModal}>
-          <MaterialCommunityIcons
-            name="close"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>{t("describeYourMeal")}</Text>
-        <View style={styles.textInputWrapper}>
-          <TextInput
-            keyboardType="default"
-            ref={textInputRef}
-            style={[
-              styles.textInput,
-              {
-                paddingRight: image ? scale(140) : scale(24),
-              },
-            ]}
-            placeholder={t("exampleMeal")}
-            value={mealDescription}
-            onChangeText={setMealDescription}
-            multiline
-            numberOfLines={3}
-          />
-          {!image && (
-            <TouchableOpacity
-              style={styles.imagePickerButton}
-              onPress={() => {
-                Alert.alert(t("addImage"), t("chooseImageSource"), [
-                  {
-                    text: t("camera"),
-                    onPress: () => pickImage("camera"),
-                  },
-                  {
-                    text: t("gallery"),
-                    onPress: () => pickImage("gallery"),
-                  },
-                  {
-                    text: t("cancel"),
-                    style: "cancel",
-                  },
-                ]);
-              }}
-            >
-              <FontAwesome5
-                name="image"
-                size={scale(24)}
-                color={colors["color-primary-500"]}
-              />
-            </TouchableOpacity>
-          )}
-          {image && (
-            <View style={styles.imageWrapper}>
-              <AntDesign
-                style={{
-                  position: "absolute",
-                  right: scale(-4),
-                  bottom: 0,
-                  zIndex: 99,
-                }}
-                name="delete"
-                size={scale(24)}
-                color={colors["color-danger-600"]}
-                onPress={() => setImage(null)}
-              />
-              <Image source={{ uri: image.uri }} style={styles.previewImage} />
-            </View>
-          )}
-        </View>
-      </View>
-
-      <View style={styles.mealTypeContainer}>
-        <Text style={styles.inputLabel}>Meal Type</Text>
-        <View style={styles.mealTypeOptions}>
-          {mealTypes.map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                styles.mealTypeButton,
-                selectedMealType === type && styles.mealTypeButtonActive,
-              ]}
-              onPress={() => setSelectedMealType(type)}
-            >
-              <Text
-                style={[
-                  styles.mealTypeText,
-                  selectedMealType === type && styles.mealTypeTextActive,
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-      <TouchableOpacity
+      <View
         style={[
-          styles.analyzeButton,
-          (isAnalyzing || !contentExists) && styles.disabledButton,
-          { marginBottom: bottom + scale(32) },
+          styles.container,
+          {
+            backgroundColor: "white",
+          },
         ]}
-        onPress={handleSaveMeal}
-        disabled={isAnalyzing || !contentExists}
       >
-        {isAnalyzing ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text style={styles.buttonText}>{t("analyzeMeal")}</Text>
-        )}
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>{t("logAMeal")}</Text>
+          <TouchableOpacity onPress={closeModal}>
+            <MaterialCommunityIcons
+              name="close"
+              size={scale(24)}
+              color={colors["color-primary-500"]}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{t("describeYourMeal")}</Text>
+          <View style={styles.textInputWrapper}>
+            <TextInput
+              keyboardType="default"
+              ref={textInputRef}
+              style={[
+                styles.textInput,
+                {
+                  paddingRight: image ? scale(140) : scale(24),
+                },
+              ]}
+              placeholder={t("exampleMeal")}
+              value={mealDescription}
+              onChangeText={setMealDescription}
+              multiline
+              numberOfLines={3}
+            />
+            {!image && (
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={() => {
+                  Alert.alert(t("addImage"), t("chooseImageSource"), [
+                    {
+                      text: t("camera"),
+                      onPress: () => pickImage("camera"),
+                    },
+                    {
+                      text: t("gallery"),
+                      onPress: () => pickImage("gallery"),
+                    },
+                    {
+                      text: t("cancel"),
+                      style: "cancel",
+                    },
+                  ]);
+                }}
+              >
+                <FontAwesome5
+                  name="image"
+                  size={scale(24)}
+                  color={colors["color-primary-500"]}
+                />
+              </TouchableOpacity>
+            )}
+            {image && (
+              <View style={styles.imageWrapper}>
+                <AntDesign
+                  style={{
+                    position: "absolute",
+                    right: scale(-4),
+                    bottom: 0,
+                    zIndex: 99,
+                  }}
+                  name="delete"
+                  size={scale(24)}
+                  color={colors["color-danger-600"]}
+                  onPress={() => setImage(null)}
+                />
+                <Image
+                  source={{ uri: image.uri }}
+                  style={styles.previewImage}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.mealTypeContainer}>
+          <Text style={styles.inputLabel}>Meal Type</Text>
+          <View style={styles.mealTypeOptions}>
+            {mealTypes.map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={[
+                  styles.mealTypeButton,
+                  selectedMealType === type && styles.mealTypeButtonActive,
+                ]}
+                onPress={() => setSelectedMealType(type)}
+              >
+                <Text
+                  style={[
+                    styles.mealTypeText,
+                    selectedMealType === type && styles.mealTypeTextActive,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        <Animated.View
+          style={{
+            ...styles.buttonView,
+            transform: [{ translateY: height }],
+          }}
+        >
+          <TouchableOpacity
+            style={[
+              styles.analyzeButton,
+              (isAnalyzing || !contentExists) && styles.disabledButton,
+              { marginBottom: bottom },
+            ]}
+            onPress={handleSaveMeal}
+            disabled={isAnalyzing || !contentExists}
+          >
+            {isAnalyzing ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>{t("analyzeMeal")}</Text>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+    </KeyboardGestureArea>
   );
 };
 
@@ -290,6 +316,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(24),
+    paddingTop: scale(24),
   },
   header: {
     padding: scale(24),
@@ -421,15 +448,21 @@ const styles = StyleSheet.create({
   mealTypeTextActive: {
     color: "white",
   },
+
+  buttonView: {
+    marginTop: "auto",
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    alignItems: "center",
+    marginHorizontal: scale(24),
+  },
   analyzeButton: {
     backgroundColor: colors["color-success-400"],
     padding: scale(16),
     borderRadius: scale(12),
-    alignItems: "center",
-    marginTop: "auto",
-    position: "absolute",
-    bottom: 0,
     alignSelf: "center",
+    alignItems: "center",
     width: "100%",
   },
   disabledButton: {

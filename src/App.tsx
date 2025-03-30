@@ -3,7 +3,10 @@ import { Asset } from "expo-asset";
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
 import RootNavigator from "./navigation";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  createNavigationContainerRef,
+  NavigationContainer,
+} from "@react-navigation/native";
 import {
   useFonts,
   Nunito_200ExtraLight,
@@ -29,6 +32,8 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+import * as NavigationBar from "expo-navigation-bar";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -37,6 +42,8 @@ i18next.use(initReactI18next).init({
     escapeValue: false, // React already escapes values
   },
 });
+
+NavigationBar.setBackgroundColorAsync("#ffffff00");
 
 Asset.loadAsync([
   ...NavigationAssets,
@@ -53,7 +60,7 @@ if (Platform.OS === "android") {
 
 SplashScreen.preventAutoHideAsync();
 
-export const navigationRef = React.createRef();
+export const navigationRef = createNavigationContainerRef();
 
 export function App() {
   const [fontLoaded] = useFonts({
@@ -82,14 +89,16 @@ export function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => {
-            SplashScreen.hideAsync();
-          }}
-        >
-          <RootNavigator />
-        </NavigationContainer>
+        <KeyboardProvider>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={() => {
+              SplashScreen.hideAsync();
+            }}
+          >
+            <RootNavigator />
+          </NavigationContainer>
+        </KeyboardProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );

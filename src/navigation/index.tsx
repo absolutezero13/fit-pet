@@ -17,27 +17,11 @@ import LogMealScreen from "../screens/LogMealScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { createRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const navigationRef = createRef();
 
-export const tabBarDefaultStyles: ViewStyle = {
-  elevation: 0,
-  borderTopWidth: 0,
-  height: scale(Platform.select({ ios: 70, default: 120 })),
-  paddingTop: scale(8),
-  borderTopLeftRadius: scale(20),
-  borderTopRightRadius: scale(20),
-  position: "absolute",
-  left: scale(20), // Added side padding
-  right: scale(20), // Added side padding
-  shadowColor: colors["color-primary-500"],
-  shadowOffset: {
-    width: 0,
-    height: -4,
-  },
-  shadowOpacity: 0.1,
-  shadowRadius: 8,
-};
+export const TAB_BAR_HEIGHT = scale(Platform.select({ ios: 70, default: 70 }));
 
 const Tabs = createBottomTabNavigator();
 const TAB_BAR_ICON_SIZE = scale(24);
@@ -76,6 +60,26 @@ const renderTabBarIcon = (screenName: string, focused: boolean) => {
 
 const TabNavigator = () => {
   const { t } = useTranslation();
+  const { bottom } = useSafeAreaInsets();
+
+  const tabBarDefaultStyles: ViewStyle = {
+    elevation: 0,
+    borderTopWidth: 0,
+    height: TAB_BAR_HEIGHT + bottom,
+    paddingTop: scale(8),
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
+    position: "absolute",
+    left: scale(20), // Added side padding
+    right: scale(20), // Added side padding
+    shadowColor: colors["color-primary-500"],
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  };
   return (
     <Tabs.Navigator
       screenOptions={{

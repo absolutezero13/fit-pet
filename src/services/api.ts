@@ -3,4 +3,4 @@ export const LIVE_ENDPOINT =
 
 export const DEV_ENDPOINT = "http://192.168.1.108:3000/api";
 
-export const ENDPOINT = DEV_ENDPOINT;
+export const ENDPOINT = LIVE_ENDPOINT;
