@@ -17,22 +17,21 @@ import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useNavigation } from "@react-navigation/native";
-import useUserStore from "../../zustand/useUserStore";
-import AsynsStorage from "@react-native-async-storage/async-storage";
-import { StorageItem } from "../../storage/types";
 import { storageService } from "../../storage/AsyncStorageService";
+import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
 
 const AnalyzingScreen = ({ focused }) => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [currentStatus, setCurrentStatus] = React.useState(0);
   const statusMessages = [
-    "Analyzing your profile...",
-    "Calculating optimal calorie intake...",
-    "Finding the perfect meal plans...",
-    "Optimizing macro ratios...",
-    "Almost there...",
+    t("analyzing"),
+    t("calculating"),
+    t("finding"),
+    t("optimizing"),
+    t("almostThere"),
   ];
 
   // Animation values
@@ -199,24 +198,24 @@ const AnalyzingScreen = ({ focused }) => {
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
             <InfoCard
-              label="Age"
+              label={t("age")}
               value={`${useOnboardingStore.getState().age} years`}
               style={cardAnimations[0]}
             />
             <InfoCard
-              label="Height"
+              label={t("height")}
               value={`${useOnboardingStore.getState().height} cm`}
               style={cardAnimations[1]}
             />
           </View>
           <View style={styles.infoRow}>
             <InfoCard
-              label="Weight"
+              label={t("weight")}
               value={`${useOnboardingStore.getState().weight} kg`}
               style={cardAnimations[2]}
             />
             <InfoCard
-              label="Gender"
+              label={t("gender")}
               value={useOnboardingStore.getState().gender}
               style={cardAnimations[3]}
             />

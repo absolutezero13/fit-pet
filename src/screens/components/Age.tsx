@@ -7,6 +7,7 @@ import { fontStyles } from "../../theme/fontStyles";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useRef } from "react";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 
 const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
@@ -14,6 +15,7 @@ const AGE_ITEM_SIZE = scale(70);
 const Age = () => {
   const ageRef = useRef<number>(0);
   const scrollRef = useRef<FlatList>(null);
+  const { t } = useTranslation();
 
   return (
     <View style={{ flex: 1 }}>
@@ -139,7 +141,7 @@ const Age = () => {
             },
           ]}
         >
-          Why We Ask for Your Age?
+          {t("whyWeAsk")}
         </Text>
         <Text
           style={[
@@ -150,9 +152,7 @@ const Age = () => {
             },
           ]}
         >
-          Age helps us calculate your daily calorie and macro needs more
-          accurately, ensuring personalized nutrition recommendations that fit
-          your metabolism and goals.
+          {t("whyWeAskDescription")}
         </Text>
       </View>
     </View>

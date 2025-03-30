@@ -6,9 +6,9 @@ import {
   StyleSheet,
   Text,
   View,
-  KeyboardAvoidingView,
   Alert,
   Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
@@ -23,19 +23,19 @@ import {
   createGeminiVisionCompletion,
 } from "../services/gptApi";
 import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
-import { storageService } from "../storage/AsyncStorageService";
 import * as ImagePicker from "expo-image-picker";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { GeminiResponse } from "../services/apiTypes";
+import { useTranslation } from "react-i18next";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
   const [mealDescription, setMealDescription] = useState("");
-  const [selectedMealType, setSelectedMealType] = useState("Breakfast");
+  const [selectedMealType, setSelectedMealType] = useState(t("breakfast"));
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiResponse, setAiResponse] = useState(null);
   const textInputRef = useRef<TextInput>(null);
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
@@ -95,7 +95,7 @@ const LogMealScreen = () => {
       response = await createGeminiVisionCompletion(
         {
           uri: image.uri,
-          mimeType: image.type,
+          mimeType: image.type ?? "image/jpeg",
         },
 
         prompt ?? null,
@@ -121,9 +121,9 @@ const LogMealScreen = () => {
     }
 
     // Add new meal to the meals array
-    const meals = useLoggedMealsStore.getState().meals;
-    useLoggedMealsStore.setState({ meals: [...meals, meal] });
-    storageService.setItem("meals", [...meals, meal]);
+    const meals = useLoggedMealsStore.getState().loggedMeals;
+    useLoggedMealsStore.setState({ loggedMeals: [...meals, meal] });
+    // storageService.setItem("meals", [...meals, meal]);
   };
 
   const handleSaveMeal = async () => {
@@ -139,7 +139,7 @@ const LogMealScreen = () => {
     navigation.goBack();
   };
 
-  const mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"];
+  const mealTypes = [t("breakfast"), t("lunch"), t("dinner"), t("snack")];
 
   const contentExists = !!(mealDescription.trim() || image);
 
@@ -155,7 +155,7 @@ const LogMealScreen = () => {
       ]}
     >
       <View style={styles.modalHeader}>
-        <Text style={styles.modalTitle}>Log a Meal</Text>
+        <Text style={styles.modalTitle}>{t("logAMeal")}</Text>
         <TouchableOpacity onPress={closeModal}>
           <MaterialCommunityIcons
             name="close"
@@ -166,9 +166,10 @@ const LogMealScreen = () => {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Describe your meal</Text>
+        <Text style={styles.inputLabel}>{t("describeYourMeal")}</Text>
         <View style={styles.textInputWrapper}>
           <TextInput
+            keyboardType="default"
             ref={textInputRef}
             style={[
               styles.textInput,
@@ -176,7 +177,7 @@ const LogMealScreen = () => {
                 paddingRight: image ? scale(140) : scale(24),
               },
             ]}
-            placeholder="Example: Scrambled eggs with spinach and whole grain toast"
+            placeholder={t("exampleMeal")}
             value={mealDescription}
             onChangeText={setMealDescription}
             multiline
@@ -186,17 +187,17 @@ const LogMealScreen = () => {
             <TouchableOpacity
               style={styles.imagePickerButton}
               onPress={() => {
-                Alert.alert("Add Image", "Choose image source", [
+                Alert.alert(t("addImage"), t("chooseImageSource"), [
                   {
-                    text: "Camera",
+                    text: t("camera"),
                     onPress: () => pickImage("camera"),
                   },
                   {
-                    text: "Gallery",
+                    text: t("gallery"),
                     onPress: () => pickImage("gallery"),
                   },
                   {
-                    text: "Cancel",
+                    text: t("cancel"),
                     style: "cancel",
                   },
                 ]);
@@ -253,60 +254,21 @@ const LogMealScreen = () => {
           ))}
         </View>
       </View>
-
-      {!aiResponse && (
-        <TouchableOpacity
-          style={[
-            styles.analyzeButton,
-            (isAnalyzing || !contentExists) && styles.disabledButton,
-            { marginBottom: bottom + scale(32) },
-          ]}
-          onPress={handleSaveMeal}
-          disabled={isAnalyzing || !contentExists}
-        >
-          {isAnalyzing ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Analyze Meal</Text>
-          )}
-        </TouchableOpacity>
-      )}
-
-      {aiResponse && (
-        <>
-          <View style={styles.nutritionContainer}>
-            <Text style={styles.nutritionTitle}>Nutrition Information</Text>
-
-            <View style={styles.nutritionGrid}>
-              <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionValue}>{aiResponse.calories}</Text>
-                <Text style={styles.nutritionLabel}>Calories</Text>
-              </View>
-
-              <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionValue}>
-                  {aiResponse.proteins}g
-                </Text>
-                <Text style={styles.nutritionLabel}>Protein</Text>
-              </View>
-
-              <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionValue}>{aiResponse.carbs}g</Text>
-                <Text style={styles.nutritionLabel}>Carbs</Text>
-              </View>
-
-              <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionValue}>{aiResponse.fats}g</Text>
-                <Text style={styles.nutritionLabel}>Fats</Text>
-              </View>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeal}>
-            <Text style={styles.buttonText}>Save Meal</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <TouchableOpacity
+        style={[
+          styles.analyzeButton,
+          (isAnalyzing || !contentExists) && styles.disabledButton,
+          { marginBottom: bottom + scale(32) },
+        ]}
+        onPress={handleSaveMeal}
+        disabled={isAnalyzing || !contentExists}
+      >
+        {isAnalyzing ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>{t("analyzeMeal")}</Text>
+        )}
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
@@ -465,6 +427,10 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     alignItems: "center",
     marginTop: "auto",
+    position: "absolute",
+    bottom: 0,
+    alignSelf: "center",
+    width: "100%",
   },
   disabledButton: {
     backgroundColor: colors["color-primary-300"],

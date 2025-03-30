@@ -9,21 +9,22 @@ import FemaleImage from "../assets/female.jpg";
 import NonBinaryImage from "../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Gender as GenderEnum } from "./types";
+import { useTranslation } from "react-i18next";
 
 const genders = [
   {
-    title: "Male",
+    titleKey: "male",
     key: GenderEnum.Male,
     image: MaleImage,
   },
 
   {
-    title: "Female",
+    titleKey: "female",
     key: GenderEnum.Female,
     image: FemaleImage,
   },
   {
-    title: "Non-binary",
+    titleKey: "nonBinary",
     key: GenderEnum.Nonbinary,
     image: NonBinaryImage,
   },
@@ -31,6 +32,7 @@ const genders = [
 
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
+  const { t } = useTranslation();
 
   const renderItem = ({ item }) => {
     return (
@@ -69,7 +71,7 @@ const Gender = () => {
             },
           ]}
         >
-          {item.title}
+          {t(item.titleKey)}
         </Text>
 
         <FontAwesome6

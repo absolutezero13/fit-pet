@@ -1,12 +1,23 @@
 import { create } from "zustand";
 import { IMeal } from "../services/apiTypes";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoggedMealState {
-  meals: IMeal[];
+  loggedMeals: IMeal[];
+  suggestedMeals: IMeal[];
 }
 
-const useLoggedMealsStore = create<LoggedMealState>((set) => ({
-  meals: [],
-}));
+export const INITIAL_LOGGED_MEAL_STATE: LoggedMealState = {
+  loggedMeals: [],
+  suggestedMeals: [],
+};
+
+const useLoggedMealsStore = create(
+  persist<LoggedMealState>(() => INITIAL_LOGGED_MEAL_STATE, {
+    name: "logged-meals",
+    storage: createJSONStorage(() => AsyncStorage),
+  })
+);
 
 export default useLoggedMealsStore;

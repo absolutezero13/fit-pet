@@ -1,5 +1,13 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useUserStore from "../zustand/useUserStore";
+import useLoggedMealsStore, {
+  INITIAL_LOGGED_MEAL_STATE,
+} from "../zustand/useLoggedMealsStore";
+import useOnboardingStore, {
+  INITIAL_ONBOARDING_STATE,
+} from "../zustand/useOnboardingStore";
+import { navigationRef } from "../App";
+import { storageService } from "../storage/AsyncStorageService";
 
 export enum LoginType {
   Google,
@@ -54,6 +62,20 @@ class AuthService {
         success: false,
       };
     }
+  }
+
+  public async logout() {
+    //TODO: Implement logout API
+
+    useLoggedMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
+    useUserStore.setState({ user: null });
+    useOnboardingStore.setState(INITIAL_ONBOARDING_STATE);
+    navigationRef.current?.reset({
+      index: 0,
+      routes: [{ name: "Welcome" }],
+    });
+
+    storageService.removeItem("User");
   }
 }
 

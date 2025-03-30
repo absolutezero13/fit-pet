@@ -1,20 +1,19 @@
 import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { colors } from "../../theme/colors";
 import { GoalListItem } from "./GoalListItem";
-import AppButton from "../../components/AppButton";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
-const goalItems = [
+export const goalItems = [
   {
-    title: "Lose weight",
+    titleKey: "loseWeight",
     key: "1",
     iconComponent: ({ color }) => (
       <FontAwesome6
@@ -25,7 +24,7 @@ const goalItems = [
     ),
   },
   {
-    title: "Gain muscle",
+    titleKey: "gainMuscle",
     key: "2",
     iconComponent: ({ color }) => (
       <FontAwesome6
@@ -36,7 +35,7 @@ const goalItems = [
     ),
   },
   {
-    title: "Eat healthier",
+    titleKey: "eatHeathier",
     key: "3",
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
@@ -47,7 +46,7 @@ const goalItems = [
     ),
   },
   {
-    title: "Get more sleep",
+    titleKey: "getMoreSleep",
     key: "4",
     iconComponent: ({ color }) => (
       <FontAwesome6
@@ -58,8 +57,8 @@ const goalItems = [
     ),
   },
   {
-    title: "Drink more water",
-    key: "6",
+    titleKey: "drinkMoreWater",
+    key: "5",
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="water"
@@ -69,8 +68,8 @@ const goalItems = [
     ),
   },
   {
-    title: "Reduce stress",
-    key: "12",
+    titleKey: "reduceStress",
+    key: "6",
     iconComponent: ({ color }) => (
       <FontAwesome6
         name="spa"
@@ -80,8 +79,8 @@ const goalItems = [
     ),
   },
   {
-    title: "Reduce alcohol",
-    key: "14",
+    titleKey: "reduceAlcohol",
+    key: "7",
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="beer-outline"
@@ -91,8 +90,8 @@ const goalItems = [
     ),
   },
   {
-    title: "Get more active",
-    key: "15",
+    titleKey: "getMoreActive",
+    key: "8",
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="run-fast"
@@ -105,14 +104,15 @@ const goalItems = [
 
 const Goal = () => {
   const { bottom } = useSafeAreaInsets();
+  const { t } = useTranslation();
   const selectedGoals = useOnboardingStore((state) => state.goals);
   const renderItem = ({ item, index }) => {
-    const isSelected = selectedGoals.find((goal) => goal.key === item.key);
+    const isSelected = selectedGoals?.find((goal) => goal.key === item.key);
 
     const onSelect = () => {
       if (isSelected) {
         useOnboardingStore.setState({
-          goals: selectedGoals.filter((goal) => goal.key !== item.key),
+          goals: selectedGoals?.filter((goal) => goal.key !== item.key),
         });
         return;
       }

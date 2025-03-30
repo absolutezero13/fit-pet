@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   LayoutAnimation,
   StyleSheet,
@@ -9,9 +9,10 @@ import {
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import MacroCards from "./MacroCards";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
+import useLoggedMealsStore from "../../../zustand/useLoggedMealsStore";
 
 interface Props {
   meal: IMeal;
@@ -38,6 +39,13 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         </View>
       </View>
     );
+  };
+
+  const onDeletePress = () => {
+    useLoggedMealsStore.setState((state) => {
+      const newMeals = state.loggedMeals.filter((m) => m.id !== meal.id);
+      return { loggedMeals: newMeals };
+    });
   };
 
   const renderMealInsights = () => {
@@ -117,6 +125,37 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
 
         {renderMealInsights()}
       </View>
+
+      <TouchableOpacity
+        onPress={onDeletePress}
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: scale(4),
+          alignSelf: "flex-end",
+          borderWidth: 1,
+          borderColor: colors["color-danger-400"],
+          borderRadius: scale(8),
+          padding: scale(4),
+          marginRight: scale(16),
+          marginBottom: scale(16),
+        }}
+      >
+        <Text
+          style={{
+            color: colors["color-danger-400"],
+            textAlign: "center",
+          }}
+        >
+          Delete
+        </Text>
+        <AntDesign
+          name="delete"
+          size={scale(16)}
+          color={colors["color-danger-400"]}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 };

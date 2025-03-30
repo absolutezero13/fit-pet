@@ -53,4 +53,10 @@ export const fontStyles = StyleSheet.create({
     color: colors["color-primary-500"],
     lineHeight: scale(16),
   },
+  footnote: {
+    fontFamily: "Nunito_400Regular",
+    fontSize: scale(10),
+    color: colors["color-primary-500"],
+    lineHeight: scale(14),
+  },
 });

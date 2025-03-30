@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
-import { View, Text, Button, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storageService } from "../storage/AsyncStorageService";
+import { useTranslation } from "react-i18next";
 
 const WelcomeScreen = () => {
-  const { bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     storageService.getItem("User").then((user) => {
@@ -28,7 +28,7 @@ const WelcomeScreen = () => {
   return (
     <View style={styles.container}>
       <Animated.Text entering={FadeInUp} style={[fontStyles.headline2]}>
-        Welcome to
+        {t("welcome")}
       </Animated.Text>
 
       <Animated.Text
@@ -40,12 +40,12 @@ const WelcomeScreen = () => {
           },
         ]}
       >
-        FitPet
+        {t("appName")}
       </Animated.Text>
 
       <AppButton
         position="bottom"
-        title="Get Started"
+        title={t("getStarted")}
         onPress={() => navigation.navigate("Onboarding")}
       />
     </View>

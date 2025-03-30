@@ -13,10 +13,11 @@ import Animated, {
 import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useTranslation } from "react-i18next";
 
 export const GoalListItem = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
-
+  const { t } = useTranslation();
   const opacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -96,7 +97,7 @@ export const GoalListItem = ({ item, index, isSelected, onSelect }) => {
               },
             ]}
           >
-            {item.title}
+            {t(item.titleKey)}
           </Text>
         </View>
       </Pressable>

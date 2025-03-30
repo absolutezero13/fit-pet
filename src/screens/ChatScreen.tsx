@@ -18,6 +18,8 @@ import { scale } from "../theme/utils";
 import { createGeminiStream } from "../services/gptApi";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInUp } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
+import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
 
 const TAB_BAR_HEIGHT = scale(85);
 
@@ -25,6 +27,7 @@ const TAB_BAR_HEIGHT = scale(85);
 type Suggestion = {
   text: string;
   prompt: string;
+  data?: {};
 };
 
 // Suggestion data array
@@ -37,12 +40,11 @@ type ChatMessage = {
 };
 
 const EmptyState = () => {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyStateTitle}>Start a conversation</Text>
-      <Text style={styles.emptyStateDescription}>
-        Ask questions about nutrition, diet plans, or meal suggestions
-      </Text>
+      <Text style={styles.emptyStateTitle}>{t("startAConversation")}</Text>
+      <Text style={styles.emptyStateDescription}>{t("askQuestion")}</Text>
     </View>
   );
 };
@@ -66,7 +68,7 @@ const SuggestionBubble = ({
 };
 
 const ChatMessage = ({ message }: { message: ChatMessage }) => {
-  const time = message.timestamp.toLocaleTimeString("en-US", {
+  const time = message.timestamp.toLocaleTimeString("tr-TR", {
     hour: "numeric",
     minute: "numeric",
     hour12: false,
@@ -105,6 +107,7 @@ const ChatMessage = ({ message }: { message: ChatMessage }) => {
 
 const ChatScreen = () => {
   const { top } = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -115,33 +118,33 @@ const ChatScreen = () => {
 
   const SUGGESTIONS: Suggestion[] = [
     {
-      text: "How was my last meal?",
+      text: t("howWasMyLastMeal"),
       prompt: JSON.stringify({
-        mealType: "last_meal",
-        context: "Analyze nutritional intake and provide feedback",
+        context: t("howWasMyLastMeal"),
+        data: useLoggedMealsStore.getState().loggedMeals[
+          useLoggedMealsStore.getState().loggedMeals.length - 1
+        ],
       }),
     },
     {
-      text: "Meal planning help",
+      text: t("brutallyHonestFeedback"),
       prompt: JSON.stringify({
-        mealType: "planning",
-        context: "Provide suggestions for balanced meal planning",
+        context: t("brutallyHonestFeedback"),
       }),
     },
-    {
-      text: "Nutrition advice",
-      prompt: JSON.stringify({
-        mealType: "advice",
-        context: "General nutritional guidance and recommendations",
-      }),
-    },
-    {
-      text: "Calorie tracking",
-      prompt: JSON.stringify({
-        mealType: "tracking",
-        context: "Help with calorie counting and dietary goals",
-      }),
-    },
+    // {
+    //   text: "Nutrition advice",
+    //   prompt: JSON.stringify({
+    //     context: "General nutritional guidance and recommendations",
+    //   }),
+    // },
+    // {
+    //   text: "Calorie tracking",
+    //   prompt: JSON.stringify({
+    //     mealType: "tracking",
+    //     context: "Help with calorie counting and dietary goals",
+    //   }),
+    // },
   ];
 
   useEffect(() => {
@@ -152,7 +155,7 @@ const ChatScreen = () => {
     });
   }, [navigation, textInputRef]);
 
-  const handleSendMessage = async (message?: string) => {
+  const handleSendMessage = async (message?: string, data?: {}) => {
     const textToSend = message || inputText;
 
     if (textToSend.trim() === "") return;
@@ -171,7 +174,7 @@ const ChatScreen = () => {
     console.log({ textToSend });
 
     const geminiResponse = await createGeminiStream(
-      textToSend,
+      textToSend + (data ? ` ${JSON.stringify(data)}` : ""),
       [userMessage, ...messages].map((message) => ({
         role: message.role,
         parts: [
@@ -197,7 +200,7 @@ const ChatScreen = () => {
   const handleSuggestionPress = (prompt: string) => {
     // You can parse the stringified prompt if needed
     const parsedPrompt = JSON.parse(prompt);
-    handleSendMessage(parsedPrompt.context);
+    handleSendMessage(parsedPrompt.context, parsedPrompt.data);
   };
 
   return (
@@ -229,7 +232,7 @@ const ChatScreen = () => {
                 }
           }
         >
-          Nutrition Assistant
+          {t("nutritionAssistant")}
         </Text>
       </Animated.View>
 
@@ -273,7 +276,7 @@ const ChatScreen = () => {
         >
           <TextInput
             style={styles.input}
-            placeholder="Type your message..."
+            placeholder={t("typeYourMessage")}
             value={inputText}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}

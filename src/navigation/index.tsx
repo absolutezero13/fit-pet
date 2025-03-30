@@ -14,12 +14,16 @@ import ChatScreen from "../screens/ChatScreen";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Platform, ViewStyle } from "react-native";
 import LogMealScreen from "../screens/LogMealScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+import { createRef } from "react";
+import { useTranslation } from "react-i18next";
+
+export const navigationRef = createRef();
 
 export const tabBarDefaultStyles: ViewStyle = {
   elevation: 0,
   borderTopWidth: 0,
-  height: scale(Platform.select({ ios: 85, default: 65 })),
-  paddingBottom: scale(8),
+  height: scale(Platform.select({ ios: 70, default: 120 })),
   paddingTop: scale(8),
   borderTopLeftRadius: scale(20),
   borderTopRightRadius: scale(20),
@@ -64,12 +68,14 @@ const renderTabBarIcon = (screenName: string, focused: boolean) => {
           color={color}
         />
       );
+
     default:
       return null;
   }
 };
 
 const TabNavigator = () => {
+  const { t } = useTranslation();
   return (
     <Tabs.Navigator
       screenOptions={{
@@ -87,7 +93,7 @@ const TabNavigator = () => {
       }}
     >
       <Tabs.Screen
-        name="Meals"
+        name={t("tabMeals")}
         component={MealsScreen}
         options={{
           tabBarIcon: ({ focused }) => renderTabBarIcon("Meals", focused),
@@ -95,7 +101,7 @@ const TabNavigator = () => {
         }}
       />
       <Tabs.Screen
-        name="Home"
+        name={t("tabHome")}
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => renderTabBarIcon("Home", focused),
@@ -103,7 +109,7 @@ const TabNavigator = () => {
         }}
       />
       <Tabs.Screen
-        name="Chat"
+        name={t("tabChat")}
         component={ChatScreen}
         options={{
           tabBarIcon: ({ focused }) => renderTabBarIcon("Chat", focused),
@@ -145,6 +151,14 @@ const RootNavigator = () => {
       <Stack.Screen
         name="LogMeal"
         component={LogMealScreen}
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
         options={{
           headerShown: false,
           presentation: "modal",

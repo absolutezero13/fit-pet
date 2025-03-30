@@ -10,8 +10,10 @@ import GradientSpinner from "../components/GradientSpinner";
 import { storageService } from "../storage/AsyncStorageService";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { IMeal } from "../services/apiTypes";
+import { useTranslation } from "react-i18next";
 
-const TotalNutrition = ({ meals }: IMeal[]) => {
+const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
+  const { t } = useTranslation();
   const totals = useMemo(() => {
     return meals.reduce(
       (acc, meal) => {
@@ -35,25 +37,25 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
           color={colors["color-info-400"]}
           style={styles.totalIcon}
         />
-        <Text style={styles.totalTitle}>Daily Total</Text>
+        <Text style={styles.totalTitle}>{t("dailyTotal")}</Text>
       </View>
 
       <View style={styles.totalMacrosContainer}>
         <View style={styles.totalMacroItem}>
           <Text style={styles.totalMacroValue}>{totals.calories}</Text>
-          <Text style={styles.totalMacroLabel}>calories</Text>
+          <Text style={styles.totalMacroLabel}>{t("calories")}</Text>
         </View>
         <View style={styles.totalMacroItem}>
           <Text style={styles.totalMacroValue}>{totals.proteins}g</Text>
-          <Text style={styles.totalMacroLabel}>proteins</Text>
+          <Text style={styles.totalMacroLabel}>{t("proteins")}</Text>
         </View>
         <View style={styles.totalMacroItem}>
           <Text style={styles.totalMacroValue}>{totals.carbs}g</Text>
-          <Text style={styles.totalMacroLabel}>carbs</Text>
+          <Text style={styles.totalMacroLabel}>{t("carbs")} </Text>
         </View>
         <View style={styles.totalMacroItem}>
           <Text style={styles.totalMacroValue}>{totals.fats}g</Text>
-          <Text style={styles.totalMacroLabel}>fats</Text>
+          <Text style={styles.totalMacroLabel}>{t("fats")} </Text>
         </View>
       </View>
 
@@ -101,7 +103,9 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
                 { backgroundColor: colors["color-success-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>Protein</Text>
+            <Text style={styles.macroLegendText}>
+              {t("proteins").toUpperCase()}
+            </Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
@@ -110,7 +114,9 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
                 { backgroundColor: colors["color-info-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>Carbs</Text>
+            <Text style={styles.macroLegendText}>
+              {t("carbs").toUpperCase()}
+            </Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
@@ -119,7 +125,9 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
                 { backgroundColor: colors["color-primary-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>Fats</Text>
+            <Text style={styles.macroLegendText}>
+              {t("fats").toUpperCase()}
+            </Text>
           </View>
         </View>
       </View>
@@ -129,18 +137,9 @@ const TotalNutrition = ({ meals }: IMeal[]) => {
 
 const MealCard = (meal: IMeal) => (
   <View style={styles.mealCard}>
-    {/* <Image
-      source={{ uri: meal.image }}
-      style={{
-        width: "100%",
-        height: scale(100),
-        marginBottom: scale(16),
-        borderRadius: scale(12),
-      }}
-    /> */}
     <View style={styles.mealHeader}>
       <View style={styles.mealTitleContainer}>
-        <Text style={styles.mealTitle}>{meal.mealType}</Text>
+        <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
         <View style={styles.timeContainer}>
           <MaterialCommunityIcons
             name="clock-outline"
@@ -198,6 +197,7 @@ const MealCard = (meal: IMeal) => (
 );
 
 const MealsScreen = () => {
+  const { t } = useTranslation();
   const [meals, setMeals] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -212,14 +212,14 @@ const MealsScreen = () => {
       goals: storageItem?.goals,
     });
 
-    if (
-      storageItem &&
-      storageItem.mealInfo?.meals?.length > 0 &&
-      storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
-    ) {
-      setMeals(storageItem.mealInfo.meals);
-      return;
-    }
+    // if (
+    //   storageItem &&
+    //   storageItem.mealInfo?.meals?.length > 0 &&
+    //   storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
+    // ) {
+    //   setMeals(storageItem.mealInfo.meals);
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -260,7 +260,7 @@ const MealsScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title} onPress={getMeals}>
-          Today's Menu
+          {t("todaysMenu")}
         </Text>
         <Text style={styles.date}>
           {new Date().toLocaleDateString("en-US", {
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     marginRight: scale(6),
   },
   macroLegendText: {
-    ...fontStyles.caption,
+    ...fontStyles.footnote,
     color: colors["color-primary-400"],
   },
 });

@@ -2,8 +2,7 @@ import { Part } from "@google/generative-ai";
 import { createChatPrompt } from "../utils/mealPrompt";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
-
-export const ENDPOINT = "http://127.0.0.1:3000/api";
+import { ENDPOINT } from "./api";
 
 export const createChatCompletion = async (
   content: string

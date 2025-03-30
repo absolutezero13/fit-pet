@@ -64,6 +64,11 @@ const recipeSchema: Schema = {
         description: "Meal type",
         nullable: false,
       },
+      mealTypeLocalized: {
+        type: SchemaType.STRING,
+        description: "Localized meal type",
+        nullable: false,
+      },
       instructions: {
         type: SchemaType.ARRAY,
         description: "Instructions",
@@ -100,6 +105,7 @@ const recipeSchema: Schema = {
       "instructions",
       "ingredients",
       "insights",
+      "mealTypeLocalized",
     ],
   },
 };
@@ -108,6 +114,11 @@ const analyzedMealSchema: Schema = {
   description: "Analyzed meal",
   type: SchemaType.OBJECT,
   properties: {
+    id: {
+      type: SchemaType.STRING,
+      description: "unique id",
+      nullable: false,
+    },
     calories: {
       type: SchemaType.NUMBER,
       description: "Calories",
@@ -152,6 +163,11 @@ const analyzedMealSchema: Schema = {
       description: "string as in Breakfast, Lunch, Dinner, Snack",
       nullable: true,
     },
+    date: {
+      type: SchemaType.STRING,
+      description: "ISO Date",
+      nullable: false,
+    },
   },
   required: [
     "calories",
@@ -162,6 +178,8 @@ const analyzedMealSchema: Schema = {
     "score",
     "insights",
     "mealType",
+    "id",
+    "date",
   ],
 };
 
@@ -209,12 +227,15 @@ export interface IMeal {
   fats: string;
   description: string;
   time: string;
-  mealType: string;
+  mealType: "breakfast" | "lunch" | "dinner" | "snack";
   instructions: string[];
   ingredients: string[];
   insights: string[];
   image: string;
   score: number;
+  id: string;
+  date: string;
+  mealTypeLocalized: string;
 }
 
 export const exampleMeal: IMeal = {
@@ -224,10 +245,13 @@ export const exampleMeal: IMeal = {
   fats: "10", //string,
   description: "Chicken and rice", //string
   time: "18:00 - 20:00", //string
-  mealType: "Dinner", //string
+  mealType: "dinner", //string
+  mealTypeLocalized: "Dinner", //string
   instructions: ["Cook the chicken", "Cook the rice"], //string[]
   ingredients: ["300g of Chicken", "200g of Rice"], //string[]
   insights: ["High in protein", "High in carbs"], //string[]
   image: "/api/placeholder/400/250",
   score: 6.5,
+  id: "placeholder",
+  date: new Date().toISOString(),
 };

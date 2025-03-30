@@ -7,30 +7,27 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import LogMealModal from "./components/LogMeaBottomSheet";
-import { createGeminiCompletion } from "../../services/gptApi";
-import { createAnalysisPrompt } from "../../utils/mealPrompt";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
 import MealCard from "./components/MealCard";
-import { storageService } from "../../storage/AsyncStorageService";
 import { IMeal } from "../../services/apiTypes";
 import useLoggedMealsStore from "../../zustand/useLoggedMealsStore";
+import { useTranslation } from "react-i18next";
 
 const EmptyState = ({ onPress }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyStateTitle}>No meals logged yet</Text>
+      <Text style={styles.emptyStateTitle}>{t("noMealsLogged")}</Text>
       <Text style={styles.emptyStateDescription}>
-        Track your nutrition by logging your meals throughout the day
+        {t("trackYourNutrition")}
       </Text>
       <TouchableOpacity style={styles.emptyStateButton} onPress={onPress}>
-        <Text style={styles.emptyStateButtonText}>Log Your First Meal</Text>
+        <Text style={styles.emptyStateButtonText}>{t("logYourFirstMeal")}</Text>
         <MaterialCommunityIcons
           name="plus-circle-outline"
           size={scale(18)}
@@ -69,25 +66,35 @@ const MealTypeSection = ({
 };
 
 const LoggedMealsScreen = () => {
-  const { bottom } = useSafeAreaInsets();
+  const { bottom, top } = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
+  const meals = useLoggedMealsStore((state) => state.loggedMeals);
 
-  const meals = useLoggedMealsStore((state) => state.meals);
-
-  const setMeals = (meals: IMeal[]) => useLoggedMealsStore.setState({ meals });
+  console.log("useMealsStore", useLoggedMealsStore.getState());
+  useEffect(() => {
+    // useLoggedMealsStore.setState((state) => {
+    //   const newMeals = state.loggedMeals.filter((m) => {
+    //     console.log("m.date", m.date);
+    //     console.log("new Date(m.date)", new Date(m.date));
+    //     console.log(
+    //       "new Date().toLocaleDateString()",
+    //       new Date().toLocaleDateString()
+    //     );
+    //     console.log(
+    //       "new Date(m.date).toLocaleDateString()",
+    //       new Date(m.date).toLocaleDateString()
+    //     );
+    //     return (
+    //       new Date(m.date).toLocaleDateString() ===
+    //       new Date().toLocaleDateString()
+    //     );
+    //   });
+    //   return { loggedMeals: newMeals };
+    // });
+  }, []);
 
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const fetchMeals = async () => {
-      const storedMeals = await storageService.getItem("meals");
-      if (storedMeals) {
-        setMeals(storedMeals);
-      }
-    };
-
-    fetchMeals();
-  }, []);
 
   useEffect(() => {
     if (modalVisible) {
@@ -126,7 +133,7 @@ const LoggedMealsScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Logged Meals</Text>
+        <Text style={styles.title}>{t("loggedMeals")}</Text>
         <Text style={styles.date}>
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
@@ -134,6 +141,17 @@ const LoggedMealsScreen = () => {
             day: "numeric",
           })}
         </Text>
+
+        <TouchableOpacity
+          style={{ position: "absolute", top: scale(70), right: scale(24) }}
+          onPress={() => navigation.navigate("Settings")}
+        >
+          <MaterialIcons
+            name="settings"
+            size={scale(24)}
+            color={colors["color-primary-500"]}
+          />
+        </TouchableOpacity>
       </View>
 
       {meals.length > 0 ? (
@@ -143,25 +161,25 @@ const LoggedMealsScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <MealTypeSection
-            title="Breakfast"
+            title={t("breakfast")}
             meals={breakfastMeals}
             onPressItem={handleMealPress}
           />
 
           <MealTypeSection
-            title="Lunch"
+            title={t("lunch")}
             meals={lunchMeals}
             onPressItem={handleMealPress}
           />
 
           <MealTypeSection
-            title="Dinner"
+            title={t("dinner")}
             meals={dinnerMeals}
             onPressItem={handleMealPress}
           />
 
           <MealTypeSection
-            title="Snacks"
+            title={t("snack")}
             meals={snackMeals}
             onPressItem={handleMealPress}
           />

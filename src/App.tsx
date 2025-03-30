@@ -26,6 +26,17 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Platform, UIManager } from "react-native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import i18next from "i18next";
+import { initReactI18next } from "react-i18next";
+import { resources } from "./localization/resources";
+
+i18next.use(initReactI18next).init({
+  resources,
+  lng: "tr", // Default language
+  interpolation: {
+    escapeValue: false, // React already escapes values
+  },
+});
 
 Asset.loadAsync([
   ...NavigationAssets,
@@ -41,6 +52,8 @@ if (Platform.OS === "android") {
 }
 
 SplashScreen.preventAutoHideAsync();
+
+export const navigationRef = React.createRef();
 
 export function App() {
   const [fontLoaded] = useFonts({
@@ -70,6 +83,7 @@ export function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <NavigationContainer
+          ref={navigationRef}
           onReady={() => {
             SplashScreen.hideAsync();
           }}

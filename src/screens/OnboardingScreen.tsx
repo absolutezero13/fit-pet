@@ -16,31 +16,33 @@ import * as Haptics from "expo-haptics";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation } from "@react-navigation/native";
 import Analyzing from "./components/Analyzing";
+import { useTranslation } from "react-i18next";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
   const [step, setStep] = useState(0);
   const onboardingStore = useOnboardingStore();
   const { goBack } = useNavigation();
+  const { t } = useTranslation();
 
   const onboardingItems = [
     {
-      title: "First, let's define our goals.",
+      title: t("defineGoals"),
       component: Goal,
       disabled: onboardingStore.goals.length === 0,
     },
     {
-      title: "How do you identify?",
+      title: t("identify"),
       component: Gender,
       disabled: onboardingStore.gender === "",
     },
     {
-      title: "Tell us your age",
+      title: t("yourAge"),
       component: Age,
       disabled: onboardingStore.age === null,
     },
     {
-      title: "Let's get physical",
+      title: t("getPhysical"),
       component: WeightHeight,
       disabled:
         onboardingStore.weight === null || onboardingStore.height === null,
@@ -127,7 +129,7 @@ const OnboardingScreen = () => {
       {onboardingItems[step].title && (
         <AppButton
           margin={{ marginHorizontal: scale(24) }}
-          title="Proceed"
+          title={t("proceed")}
           position="bottom"
           onPress={onButtonPress}
           disabled={onboardingItems[step].disabled}
