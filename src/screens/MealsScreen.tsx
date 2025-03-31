@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, ScrollView, Text, StyleSheet, Alert, Image } from "react-native";
+import {
+  View,
+  ScrollView,
+  Text,
+  StyleSheet,
+  Alert,
+  Image,
+  Pressable,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
@@ -13,6 +21,7 @@ import { IMeal } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import useMealsStore from "../zustand/useMealsStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -137,8 +146,8 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   );
 };
 
-const MealCard = (meal: IMeal) => (
-  <View style={styles.mealCard}>
+const MealCard = ({ meal, onPress }) => (
+  <Pressable style={styles.mealCard} onPress={() => onPress(meal)}>
     <View style={styles.mealHeader}>
       <View style={styles.mealTitleContainer}>
         <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
@@ -181,7 +190,7 @@ const MealCard = (meal: IMeal) => (
         <Text style={styles.macroLabel}>fats</Text>
       </View>
     </View>
-    <View style={{ marginTop: scale(20) }}>
+    {/* <View style={{ marginTop: scale(20) }}>
       {meal.insights?.map((insight, index) => (
         <Text
           key={index}
@@ -194,14 +203,19 @@ const MealCard = (meal: IMeal) => (
           * {insight}
         </Text>
       ))}
-    </View>
-  </View>
+    </View> */}
+  </Pressable>
 );
 
 const MealsScreen = () => {
   const { t } = useTranslation();
   const { top } = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+
+  const onMealPress = (meal: IMeal) => {
+    navigation.navigate("MealDetail", { meal });
+  };
 
   const meals = useMealsStore((state) => state.suggestedMeals);
   const getMeals = async () => {
@@ -262,9 +276,7 @@ const MealsScreen = () => {
           },
         ]}
       >
-        <Text style={styles.title} onPress={getMeals}>
-          {t("todaysMenu")}
-        </Text>
+        <Text style={styles.title}>{t("todaysMenu")}</Text>
         <Text style={styles.date}>
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
@@ -291,7 +303,7 @@ const MealsScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {meals.map((meal, index) => (
-            <MealCard key={index} {...meal} />
+            <MealCard key={index} meal={meal} onPress={onMealPress} />
           ))}
           {meals.length > 0 && <TotalNutrition meals={meals} />}
         </ScrollView>

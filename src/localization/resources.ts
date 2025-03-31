@@ -73,6 +73,9 @@ export const resources = {
       analyzeMeal: "Öğünü Analiz Et",
       howWasMyLastMeal: "Son öğünüm nasıldı?",
       brutallyHonestFeedback: "Bana acımasız bir geri bildirim ver",
+      instructions: "Talimatlar",
+      ingredients: "Malzemeler",
+      insights: "Tavsiyeler",
     },
   },
   en: {
@@ -149,6 +152,9 @@ export const resources = {
       analyzeMeal: "Analyze Meal",
       howWasMyLastMeal: "How was my last meal?",
       brutallyHonestFeedback: "Give me a brutally honest feedback",
+      instructions: "Instructions",
+      ingredients: "Ingredients",
+      insights: "Insights",
     },
   },
 };
