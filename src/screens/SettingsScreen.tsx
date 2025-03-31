@@ -80,7 +80,7 @@ const SettingsScreen = () => {
       return;
     }
 
-    const onboardingState = useUserStore.getState().user;
+    const onboardingState = useUserStore.getState().user as OnboardingStore;
 
     useUserStore.setState({
       user: {

@@ -8,7 +8,6 @@ import {
   View,
   Alert,
   Image,
-  KeyboardAvoidingView,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
@@ -16,7 +15,6 @@ import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { createAnalysisPrompt } from "../utils/mealPrompt";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import {
   createGeminiCompletion,
@@ -33,6 +31,7 @@ import {
   useReanimatedKeyboardAnimation,
 } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
+import promptBuilder from "../utils/promptBuilder";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
@@ -90,7 +89,7 @@ const LogMealScreen = () => {
   };
 
   const handleAddMeal = async (mealDescription: string, mealType: string) => {
-    const prompt = createAnalysisPrompt(
+    const prompt = promptBuilder.createAnalysisPrompt(
       useOnboardingStore.getState(),
       mealDescription,
       mealType

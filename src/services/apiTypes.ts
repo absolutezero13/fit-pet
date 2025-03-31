@@ -226,6 +226,8 @@ interface UsageMetadata {
   total_token_count: number;
 }
 
+export type IMealType = "breakfast" | "lunch" | "dinner" | "snack";
+
 export interface IMeal {
   calories: string;
   proteins: string;
@@ -233,7 +235,7 @@ export interface IMeal {
   fats: string;
   description: string;
   time: string;
-  mealType: "breakfast" | "lunch" | "dinner" | "snack";
+  mealType: IMealType;
   instructions: string[];
   ingredients: string[];
   insights: string[];

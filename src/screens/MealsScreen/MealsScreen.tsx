@@ -4,7 +4,6 @@ import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { createGeminiCompletion } from "../../services/gptApi";
-import { createMealPrompt } from "../../utils/mealPrompt";
 import GradientSpinner from "../../components/GradientSpinner";
 import { storageService } from "../../storage/AsyncStorageService";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
@@ -15,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
+import promptBuilder from "../../utils/promptBuilder";
 
 const MealsScreen = () => {
   const { t } = useTranslation();
@@ -41,7 +41,7 @@ const MealsScreen = () => {
     setLoading(true);
     try {
       const data = await createGeminiCompletion(
-        createMealPrompt(storageItem),
+        promptBuilder.createMealPrompt(storageItem),
         "recipe"
       );
 

@@ -12,7 +12,7 @@ export interface OnboardingStore {
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
   goals: [],
   gender: Gender.Female,
-  age: null,
+  age: 24,
   weight: null,
   height: null,
 };

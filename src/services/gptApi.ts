@@ -1,5 +1,5 @@
 import { Part } from "@google/generative-ai";
-import { createChatPrompt } from "../utils/mealPrompt";
+import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
 import { ENDPOINT } from "./api";
@@ -73,6 +73,7 @@ export const createGeminiVisionCompletion = async (
       formData.append("prompt", content);
     }
 
+    //@ts-ignore
     formData.append("image", {
       uri: image.uri,
       type: image.mimeType,
@@ -110,7 +111,9 @@ export const createGeminiStream = async (
     const res = await fetch(ENDPOINT + "/chat/gemini-stream", {
       method: "POST",
       body: JSON.stringify({
-        systemPrompt: createChatPrompt(useOnboardingStore.getState()),
+        systemPrompt: promptBuilder.createChatPrompt(
+          useOnboardingStore.getState()
+        ),
         history,
         prompt: content,
       }),

@@ -19,7 +19,7 @@ const GradientSpinner = () => {
     ).start();
 
     // Sequential fade animations for segments
-    const createFadeAnimation = (index) => {
+    const createFadeAnimation = (index: number) => {
       return Animated.sequence([
         Animated.timing(fadeValues[index], {
           toValue: 1,

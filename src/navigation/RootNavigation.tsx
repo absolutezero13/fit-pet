@@ -6,6 +6,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
+import { IMeal } from "../services/apiTypes";
 
 const Stack = createNativeStackNavigator();
 
@@ -79,17 +80,13 @@ type RootStackParamList = {
   Profile: undefined;
   Settings: undefined;
   NotFound: undefined;
+  Onboarding: undefined;
   AnalyzedMeal: {
-    meal: {
-      id: string;
-      mealType: string;
-      description: string;
-      time: string;
-      calories: string;
-      proteins: string;
-      carbs: string;
-      fats: string;
-    };
+    meal: IMeal;
+  };
+  LogMeal: undefined;
+  MealDetail: {
+    meal: IMeal;
   };
 };
 

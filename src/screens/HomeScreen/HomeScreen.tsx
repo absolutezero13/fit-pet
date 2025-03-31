@@ -14,7 +14,7 @@ import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MealCard from "./components/MealCard";
-import { IMeal } from "../../services/apiTypes";
+import { IMeal, IMealType } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
 import EmptyState from "./components/EmptyState";
@@ -89,7 +89,7 @@ const LoggedMealsScreen = () => {
   }, [modalVisible]);
 
   // Group meals by type
-  const getMealsByType = (type) => {
+  const getMealsByType = (type: IMealType) => {
     return meals.filter(
       (meal) => meal.mealType.toLowerCase() === type.toLowerCase()
     );
