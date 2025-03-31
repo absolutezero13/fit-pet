@@ -76,6 +76,7 @@ export const resources = {
       instructions: "Talimatlar",
       ingredients: "Malzemeler",
       insights: "Tavsiyeler",
+      mealAnalysis: "Yemek Analizi",
     },
   },
   en: {
@@ -155,6 +156,7 @@ export const resources = {
       instructions: "Instructions",
       ingredients: "Ingredients",
       insights: "Insights",
+      mealAnalysis: "Meal Analysis",
     },
   },
 };

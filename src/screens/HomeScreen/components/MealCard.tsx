@@ -8,8 +8,7 @@ import {
 } from "react-native";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
-import MacroCards from "./MacroCards";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
 import useMealsStore from "../../../zustand/useMealsStore";
@@ -115,47 +114,6 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
           />
         </View>
       </View>
-
-      <View style={styles.mealItemDetails}>
-        <MacroCards
-          proteins={meal.proteins}
-          carbs={meal.carbs}
-          fats={meal.fats}
-        />
-
-        {renderMealInsights()}
-      </View>
-
-      <TouchableOpacity
-        onPress={onDeletePress}
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: scale(4),
-          alignSelf: "flex-end",
-          borderWidth: 1,
-          borderColor: colors["color-danger-400"],
-          borderRadius: scale(8),
-          padding: scale(4),
-          marginRight: scale(16),
-          marginBottom: scale(16),
-        }}
-      >
-        <Text
-          style={{
-            color: colors["color-danger-400"],
-            textAlign: "center",
-          }}
-        >
-          Delete
-        </Text>
-        <AntDesign
-          name="delete"
-          size={scale(16)}
-          color={colors["color-danger-400"]}
-        />
-      </TouchableOpacity>
     </TouchableOpacity>
   );
 };

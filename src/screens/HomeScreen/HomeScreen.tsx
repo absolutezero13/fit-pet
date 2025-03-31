@@ -121,9 +121,7 @@ const LoggedMealsScreen = () => {
   const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal: IMeal) => {
-    // Navigate to meal detail or edit screen
-    console.log("Meal pressed:", meal);
-    // navigation.navigate('MealDetail', { meal });
+    navigation.navigate("AnalyzedMeal", { meal });
   };
 
   const navigateLogMeal = () => {
