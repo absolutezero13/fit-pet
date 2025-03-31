@@ -1,22 +1,22 @@
 import { StyleSheet, Text, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Goal from "./components/Goal";
 import { useRef, useState } from "react";
-import { colors } from "../theme/colors";
-import { scale, SCREEN_WIDTH } from "../theme/utils";
-import AppButton from "../components/AppButton";
-import useOnboardingStore from "../zustand/useOnboardingStore";
-import { fontStyles } from "../theme/fontStyles";
+import { colors } from "../../theme/colors";
+import { scale, SCREEN_WIDTH } from "../../theme/utils";
+import AppButton from "../../components/AppButton";
+import useOnboardingStore from "../../zustand/useOnboardingStore";
+import { fontStyles } from "../../theme/fontStyles";
 import Animated, { FadeInLeft } from "react-native-reanimated";
-import Gender from "./components/Gender";
-import Age from "./components/Age";
-import WeightHeight from "./components/WeightHeight";
 import * as Haptics from "expo-haptics";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation } from "@react-navigation/native";
-import Analyzing from "./components/Analyzing";
 import { useTranslation } from "react-i18next";
+import Age from "./components/Age";
+import Analyzing from "./components/Analyzing";
+import Goal from "./components/Goal";
+import WeightHeight from "./components/WeightHeight";
+import Gender from "./components/Gender";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
@@ -106,6 +106,7 @@ const OnboardingScreen = () => {
       <FlatList
         renderItem={({ item }) => {
           const Component = item.component;
+          console.log({ Component });
 
           return (
             <View style={{ width: SCREEN_WIDTH }}>

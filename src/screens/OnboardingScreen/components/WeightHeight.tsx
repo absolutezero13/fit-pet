@@ -1,15 +1,16 @@
 import { Image, ImageSourcePropType, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { IS_SMALL_SCREEN, scale, SCREEN_WIDTH } from "../../theme/utils";
-import { fontStyles } from "../../theme/fontStyles";
-import { colors } from "../../theme/colors";
-import femaleStandingPerson from "../assets/female-person-standing.png";
-import maleStandingPerson from "../assets/male-person-standing.png";
-import nonbinaryStandingPerson from "../assets/nonbinary-person-standing.png";
+import maleStandingPerson from "../../assets/male-person-standing.png";
+import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
+import femaleStandingPerson from "../../assets/female-person-standing.png";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { Gender } from "./types";
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
+import { IS_SMALL_SCREEN, scale } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 
 const imageMapping: Record<Gender, ImageSourcePropType> = {
   [Gender.Female]: femaleStandingPerson,

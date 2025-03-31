@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { LayoutAnimation, Pressable, Text, View } from "react-native";
-import { fontStyles } from "../../theme/fontStyles";
 import Animated, {
   Easing,
   FadeIn,
@@ -10,12 +9,27 @@ import Animated, {
   withDelay,
   withTiming,
 } from "react-native-reanimated";
-import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
-import { colors } from "../../theme/colors";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useTranslation } from "react-i18next";
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
+import { scale, shadowStyle } from "../../../theme/utils";
 
-export const GoalListItem = ({ item, index, isSelected, onSelect }) => {
+export type GoalItem = {
+  titleKey: string;
+  key: string;
+  iconComponent: ({ color }: { color?: string }) => JSX.Element;
+};
+
+type Props = {
+  item: GoalItem;
+  index: number;
+  isSelected: boolean;
+  onSelect: () => void;
+};
+
+const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
   const { t } = useTranslation();
   const opacity = useSharedValue(0);
@@ -104,3 +118,5 @@ export const GoalListItem = ({ item, index, isSelected, onSelect }) => {
     </Animated.View>
   );
 };
+
+export default GoalListItem;

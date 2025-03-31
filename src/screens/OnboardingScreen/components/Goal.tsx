@@ -1,20 +1,14 @@
 import React from "react";
 import { View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { scale } from "../../theme/utils";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { colors } from "../../theme/colors";
-import { GoalListItem } from "./GoalListItem";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
+import GoalListItem, { GoalItem } from "./GoalListItem";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-
-type GoalItem = {
-  titleKey: string;
-  key: string;
-  iconComponent: ({ color }: { color?: string }) => JSX.Element;
-};
+import { colors } from "../../../theme/colors";
+import { scale } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 
 export const goalItems: GoalItem[] = [
   {

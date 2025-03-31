@@ -1,15 +1,15 @@
 import { Image, Text, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
-import { colors } from "../../theme/colors";
-import { fontStyles } from "../../theme/fontStyles";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
-import { scale } from "../../theme/utils";
-import MaleImage from "../assets/male.jpg";
-import FemaleImage from "../assets/female.jpg";
-import NonBinaryImage from "../assets/nonbinary.jpg";
+import MaleImage from "../../assets/male.jpg";
+import FemaleImage from "../../assets/female.jpg";
+import NonBinaryImage from "../../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Gender as GenderEnum } from "./types";
 import { useTranslation } from "react-i18next";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
+import { scale } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 
 type GenderItem = {
   titleKey: string;

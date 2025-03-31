@@ -19,7 +19,7 @@ import useOnboardingStore from "../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
 import { fontStyles } from "../theme/fontStyles";
 import useAuthService from "../services/auth";
-import { goalItems } from "./components/Goal";
+import { goalItems } from "./OnboardingScreen/components/Goal";
 
 type GoalItem = { title: string; key: string };
 type LanguageOption = { code: string; name: string; localName: string };

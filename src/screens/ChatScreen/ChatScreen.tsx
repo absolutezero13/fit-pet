@@ -117,7 +117,7 @@ const ChatScreen = () => {
 
   const isKeyboardVisible = useKeyboardVisible();
   const navigation = useNavigation();
-  console.log({ isKeyboardVisible });
+
   const SUGGESTIONS: Suggestion[] = [
     {
       text: t("howWasMyLastMeal"),

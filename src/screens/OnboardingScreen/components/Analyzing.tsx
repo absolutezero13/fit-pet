@@ -12,13 +12,14 @@ import Animated, {
   interpolate,
   runOnJS,
 } from "react-native-reanimated";
-import { colors } from "../../theme/colors";
-import { fontStyles } from "../../theme/fontStyles";
-import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useNavigation } from "@react-navigation/native";
-import { storageService } from "../../storage/AsyncStorageService";
 import { useTranslation } from "react-i18next";
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { storageService } from "../../../storage/AsyncStorageService";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
+import { scale, shadowStyle } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 
 const { width } = Dimensions.get("window");
 

@@ -1,13 +1,14 @@
 import { NativeScrollEvent, Text, View, StyleSheet } from "react-native";
-import { colors } from "../../theme/colors";
-import { scale, SCREEN_WIDTH, shadowStyle } from "../../theme/utils";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { fontStyles } from "../../theme/fontStyles";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { useRef } from "react";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
+import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
+import { scale, shadowStyle } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 
 const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
