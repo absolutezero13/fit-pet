@@ -116,7 +116,7 @@ const analyzedMealSchema: Schema = {
   properties: {
     id: {
       type: SchemaType.STRING,
-      description: "unique id",
+      description: "unique id, create it with uuid",
       nullable: false,
     },
     calories: {
