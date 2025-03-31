@@ -5,7 +5,7 @@ import { Platform, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import MealsScreen from "../screens/MealsScreen";
+import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
