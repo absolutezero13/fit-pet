@@ -6,12 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
   FlatList,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -23,21 +21,13 @@ import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
+import ChatMessage, { IChatMessage } from "./components/ChatMessage";
 
 // Suggestion data type
 type Suggestion = {
   text: string;
   prompt: string;
   data?: {};
-};
-
-// Suggestion data array
-
-type ChatMessage = {
-  id: string;
-  text: string;
-  role: "user" | "model";
-  timestamp: Date;
 };
 
 const EmptyState = () => {
@@ -68,51 +58,14 @@ const SuggestionBubble = ({
   );
 };
 
-const ChatMessage = ({ message }: { message: ChatMessage }) => {
-  const time = message.timestamp.toLocaleTimeString("tr-TR", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-  });
-
-  const isUser = message.role === "user";
-
-  return (
-    <View
-      style={[
-        styles.messageContainer,
-        isUser ? styles.userMessageContainer : styles.botMessageContainer,
-      ]}
-    >
-      <View style={styles.messageContent}>
-        <Text
-          style={[
-            styles.messageText,
-            isUser ? styles.userMessageText : styles.botMessageText,
-          ]}
-        >
-          {message.text}
-        </Text>
-      </View>
-      <Text
-        style={[
-          styles.messageTime,
-          isUser ? styles.userMessageTime : styles.botMessageTime,
-        ]}
-      >
-        {time}
-      </Text>
-    </View>
-  );
-};
-
 const ChatScreen = () => {
   const { height } = useReanimatedKeyboardAnimation();
+  const isFocused = useIsFocused();
   const { top, bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
 
   const isKeyboardVisible = useKeyboardVisible();
@@ -137,19 +90,6 @@ const ChatScreen = () => {
         context: t("brutallyHonestFeedback"),
       }),
     },
-    // {
-    //   text: "Nutrition advice",
-    //   prompt: JSON.stringify({
-    //     context: "General nutritional guidance and recommendations",
-    //   }),
-    // },
-    // {
-    //   text: "Calorie tracking",
-    //   prompt: JSON.stringify({
-    //     mealType: "tracking",
-    //     context: "Help with calorie counting and dietary goals",
-    //   }),
-    // },
   ];
 
   useEffect(() => {
@@ -166,17 +106,15 @@ const ChatScreen = () => {
     if (textToSend.trim() === "") return;
 
     // Add user message
-    const userMessage: ChatMessage = {
+    const userMessage: IChatMessage = {
       id: Date.now().toString(),
       text: textToSend,
       role: "user",
       timestamp: new Date(),
     };
 
-    setMessages((prevMessages) => [userMessage, ...prevMessages]);
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInputText("");
-
-    console.log({ textToSend });
 
     const geminiResponse = await createGeminiStream(
       textToSend + (data ? ` ${JSON.stringify(data)}` : ""),
@@ -192,13 +130,13 @@ const ChatScreen = () => {
     console.log({ geminiResponse });
 
     if (geminiResponse.response) {
-      const botMessage: ChatMessage = {
+      const botMessage: IChatMessage = {
         id: (Date.now() + 1).toString(),
         text: geminiResponse.response.candidates[0].content.parts[0].text,
         role: "model",
         timestamp: new Date(),
       };
-      setMessages((prevMessages) => [botMessage, ...prevMessages]);
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
     }
   };
 
@@ -208,6 +146,13 @@ const ChatScreen = () => {
     handleSendMessage(parsedPrompt.context, parsedPrompt.data);
   };
 
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [messages, isKeyboardVisible]);
+
+  console.log("chatscreen keyboard", isKeyboardVisible);
   return (
     <View style={styles.container}>
       <Animated.View
@@ -215,10 +160,10 @@ const ChatScreen = () => {
         style={[
           styles.header,
           {
-            paddingTop: isKeyboardVisible ? top : scale(60),
+            paddingTop: top,
             borderBottomLeftRadius: isKeyboardVisible ? 0 : scale(30),
             borderBottomRightRadius: isKeyboardVisible ? 0 : scale(30),
-            paddingBottom: isKeyboardVisible ? scale(8) : scale(32),
+            paddingBottom: isKeyboardVisible ? scale(8) : scale(24),
           },
         ]}
       >
@@ -241,7 +186,6 @@ const ChatScreen = () => {
         ref={flatListRef}
         data={messages}
         renderItem={({ item }) => <ChatMessage message={item} />}
-        inverted
         keyExtractor={(item) => item.id}
         style={[
           styles.messageList,
@@ -272,14 +216,13 @@ const ChatScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               width: "100%",
-              paddingVertical: scale(12),
               marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + bottom,
               position: isKeyboardVisible ? "absolute" : undefined,
             },
             {
               transform: [
                 {
-                  translateY: height,
+                  translateY: isFocused ? height : 0,
                 },
               ],
             },
@@ -347,56 +290,14 @@ const styles = StyleSheet.create({
     // backgroundColor: "red",
   },
   messageListContent: {
-    padding: scale(16),
+    paddingHorizontal: scale(16),
     paddingTop: scale(24),
     flexGrow: 1,
-  },
-  messageContainer: {
-    maxWidth: "80%",
-    marginBottom: scale(16),
-    borderRadius: scale(16),
-    padding: scale(12),
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 2,
-  },
-  userMessageContainer: {
-    alignSelf: "flex-end",
-    backgroundColor: colors["color-success-400"],
-    shadowColor: colors["color-success-500"],
-  },
-  botMessageContainer: {
-    alignSelf: "flex-start",
-    backgroundColor: "white",
-    shadowColor: colors["color-primary-500"],
-  },
-  messageContent: {},
-  messageText: {
-    ...fontStyles.body1,
-  },
-  userMessageText: {
-    color: "white",
-  },
-  botMessageText: {
-    color: colors["color-primary-800"],
-  },
-  messageTime: {
-    ...fontStyles.caption,
-    alignSelf: "flex-end",
-  },
-  userMessageTime: {
-    color: "rgba(255, 255, 255, 0.8)",
-  },
-  botMessageTime: {
-    color: colors["color-primary-400"],
+    paddingBottom: scale(32),
   },
   inputContainer: {
     alignItems: "center",
-    paddingVertical: scale(12),
+    paddingBottom: scale(12),
     borderTopWidth: 1,
     borderTopColor: colors["color-primary-100"],
     backgroundColor: colors["color-primary-100"],
@@ -471,6 +372,7 @@ const styles = StyleSheet.create({
   suggestionsContainer: {
     paddingHorizontal: scale(16),
     backgroundColor: colors["color-primary-100"],
+    marginBottom: scale(12),
   },
   suggestionBubble: {
     backgroundColor: "white",
@@ -486,7 +388,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: scale(4),
     elevation: 2,
-    height: scale(40),
   },
   suggestionBubbleText: {
     ...fontStyles.body2,

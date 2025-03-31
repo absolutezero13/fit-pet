@@ -132,7 +132,14 @@ const LoggedMealsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: top,
+          },
+        ]}
+      >
         <Text style={styles.title}>{t("loggedMeals")}</Text>
         <Text style={styles.date}>
           {new Date().toLocaleDateString("en-US", {
@@ -211,9 +218,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-100"],
   },
   header: {
-    padding: scale(24),
-    paddingTop: scale(60),
-    paddingBottom: scale(32),
+    paddingHorizontal: scale(24),
+    paddingBottom: scale(24),
     backgroundColor: colors["color-primary-200"],
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),

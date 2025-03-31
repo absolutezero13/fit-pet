@@ -1,12 +1,23 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@react-native-google-signin/google-signin";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { OnboardingStore } from "./useOnboardingStore";
 
-type UserStore = {
-  user: User | null;
+export type UserStore = {
+  // FIXME: change type after google sign in
+  user: OnboardingStore | null;
 };
 
-const useUserStore = create<UserStore>(() => ({
+export const INITIAL_USER_STORE: UserStore = {
   user: null,
-}));
+};
+
+const useUserStore = create(
+  persist<UserStore>(() => INITIAL_USER_STORE, {
+    name: "user-storage",
+    storage: createJSONStorage(() => AsyncStorage),
+  })
+);
 
 export default useUserStore;

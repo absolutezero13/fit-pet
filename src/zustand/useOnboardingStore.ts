@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Gender } from "../screens/components/types";
+import { Gender } from "../screens/OnboardingScreen/components/types";
 
 export interface OnboardingStore {
   goals: { title: string; key: string }[];
@@ -11,7 +11,7 @@ export interface OnboardingStore {
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
   goals: [],
-  gender: "",
+  gender: Gender.Female,
   age: null,
   weight: null,
   height: null,

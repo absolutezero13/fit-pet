@@ -12,6 +12,7 @@ import useOnboardingStore from "../zustand/useOnboardingStore";
 import { IMeal } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import useMealsStore from "../zustand/useMealsStore";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -199,6 +200,7 @@ const MealCard = (meal: IMeal) => (
 
 const MealsScreen = () => {
   const { t } = useTranslation();
+  const { top } = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
 
   const meals = useMealsStore((state) => state.suggestedMeals);
@@ -252,7 +254,14 @@ const MealsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: top,
+          },
+        ]}
+      >
         <Text style={styles.title} onPress={getMeals}>
           {t("todaysMenu")}
         </Text>
@@ -297,9 +306,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-100"],
   },
   header: {
-    padding: scale(24),
-    paddingTop: scale(60),
-    paddingBottom: scale(32),
+    paddingHorizontal: scale(24),
+    paddingBottom: scale(24),
     backgroundColor: colors["color-primary-200"],
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),

@@ -20,6 +20,7 @@ import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import useUserStore from "../../../zustand/useUserStore";
 
 const { width } = Dimensions.get("window");
 
@@ -62,10 +63,10 @@ const AnalyzingScreen = ({ focused }) => {
 
     storageService.setItem("User", {
       ...useOnboardingStore.getState(),
-      mealInfo: {
-        date: new Date().toISOString(),
-        meals: [],
-      },
+    });
+
+    useUserStore.setState({
+      user: useOnboardingStore.getState(),
     });
 
     setTimeout(() => {

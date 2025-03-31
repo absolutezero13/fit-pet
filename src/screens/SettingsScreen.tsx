@@ -15,11 +15,14 @@ import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import useOnboardingStore from "../zustand/useOnboardingStore";
+import useOnboardingStore, {
+  OnboardingStore,
+} from "../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
 import { fontStyles } from "../theme/fontStyles";
 import useAuthService from "../services/auth";
 import { goalItems } from "./OnboardingScreen/components/Goal";
+import useUserStore, { UserStore } from "../zustand/useUserStore";
 
 type GoalItem = { title: string; key: string };
 type LanguageOption = { code: string; name: string; localName: string };
@@ -30,7 +33,9 @@ const SettingsScreen = () => {
   const authService = useAuthService();
   const { top, bottom } = useSafeAreaInsets();
 
-  const { gender, age, weight, height, goals } = useOnboardingStore();
+  const userStore = useUserStore() as UserStore;
+
+  const { goals, height, weight } = (userStore.user as OnboardingStore) || {};
 
   const [localWeight, setLocalWeight] = useState(
     weight ? weight.toString() : ""
@@ -75,13 +80,15 @@ const SettingsScreen = () => {
       return;
     }
 
-    const onboardingState = useOnboardingStore.getState();
+    const onboardingState = useUserStore.getState().user;
 
-    useOnboardingStore.setState({
-      ...onboardingState,
-      weight: weightNum,
-      height: heightNum,
-      goals: selectedGoals,
+    useUserStore.setState({
+      user: {
+        ...onboardingState,
+        weight: weightNum,
+        height: heightNum,
+        goals: selectedGoals,
+      },
     });
 
     navigation.goBack();
