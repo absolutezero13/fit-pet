@@ -17,27 +17,7 @@ import MealCard from "./components/MealCard";
 import { IMeal } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
-
-const EmptyState = ({ onPress }) => {
-  const { t } = useTranslation();
-  return (
-    <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyStateTitle}>{t("noMealsLogged")}</Text>
-      <Text style={styles.emptyStateDescription}>
-        {t("trackYourNutrition")}
-      </Text>
-      <TouchableOpacity style={styles.emptyStateButton} onPress={onPress}>
-        <Text style={styles.emptyStateButtonText}>{t("logYourFirstMeal")}</Text>
-        <MaterialCommunityIcons
-          name="plus-circle-outline"
-          size={scale(18)}
-          color="white"
-          style={{ marginLeft: scale(8) }}
-        />
-      </TouchableOpacity>
-    </View>
-  );
-};
+import EmptyState from "./components/EmptyState";
 
 const MealTypeSection = ({
   title,
