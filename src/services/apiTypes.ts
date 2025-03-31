@@ -168,6 +168,11 @@ const analyzedMealSchema: Schema = {
       description: "ISO Date",
       nullable: false,
     },
+    mealTypeLocalized: {
+      type: SchemaType.STRING,
+      description: "Localized meal type",
+      nullable: false,
+    },
   },
   required: [
     "calories",
@@ -180,6 +185,7 @@ const analyzedMealSchema: Schema = {
     "mealType",
     "id",
     "date",
+    "mealTypeLocalized",
   ],
 };
 

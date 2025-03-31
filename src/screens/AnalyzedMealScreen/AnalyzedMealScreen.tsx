@@ -6,15 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Platform,
-  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
-import { storageService } from "../../storage/AsyncStorageService";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
@@ -29,7 +26,6 @@ const AnalyzedMealScreen = () => {
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
-  const [expanded, setExpanded] = React.useState(true);
 
   const handleDelete = async () => {
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
@@ -65,9 +61,7 @@ const AnalyzedMealScreen = () => {
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 8) return t("excellent");
-    if (score >= 6) return t("good");
-    return t("needsImprovement");
+    return t("score" + Math.floor(score));
   };
 
   const renderMacroIcon = (type: string) => {
@@ -180,33 +174,23 @@ const AnalyzedMealScreen = () => {
         {/* Insights Section */}
         {meal.insights && meal.insights.length > 0 && (
           <>
-            <TouchableOpacity
-              style={styles.insightsHeader}
-              onPress={() => setExpanded(!expanded)}
-            >
+            <TouchableOpacity style={styles.insightsHeader}>
               <Text style={styles.sectionHeading}>{t("insights")}</Text>
-              <MaterialCommunityIcons
-                name={expanded ? "chevron-up" : "chevron-down"}
-                size={scale(24)}
-                color={colors["color-primary-500"]}
-              />
             </TouchableOpacity>
 
-            {expanded && (
-              <View style={styles.insightsList}>
-                {meal.insights.map((insight, index) => (
-                  <View key={index} style={styles.insightItem}>
-                    <MaterialCommunityIcons
-                      name="lightbulb-outline"
-                      size={scale(20)}
-                      color={colors["color-warning-500"]}
-                      style={styles.insightIcon}
-                    />
-                    <Text style={styles.insightText}>{insight}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+            <View style={styles.insightsList}>
+              {meal.insights.map((insight, index) => (
+                <View key={index} style={styles.insightItem}>
+                  <MaterialCommunityIcons
+                    name="lightbulb-outline"
+                    size={scale(20)}
+                    color={colors["color-warning-500"]}
+                    style={styles.insightIcon}
+                  />
+                  <Text style={styles.insightText}>{insight}</Text>
+                </View>
+              ))}
+            </View>
           </>
         )}
 
@@ -249,7 +233,7 @@ const styles = StyleSheet.create({
     color: colors["color-primary-500"],
   },
   topSection: {
-    marginBottom: scale(24),
+    marginBottom: scale(12),
   },
   mealTitle: {
     ...fontStyles.headline2,
@@ -264,7 +248,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scale(24),
+    marginBottom: scale(12),
     backgroundColor: "white",
     padding: scale(16),
     borderRadius: scale(16),
@@ -381,7 +365,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scale(16),
   },
   insightsList: {
     backgroundColor: "white",

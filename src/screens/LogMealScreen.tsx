@@ -14,7 +14,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createAnalysisPrompt } from "../utils/mealPrompt";
 import useOnboardingStore from "../zustand/useOnboardingStore";
@@ -120,6 +120,24 @@ const LogMealScreen = () => {
     console.log("meal", meal);
 
     if (!meal.mealType) {
+      return null;
+    }
+
+    // Add new meal to the meals array
+    const meals = useMealsStore.getState().loggedMeals;
+    useMealsStore.setState({ loggedMeals: [...meals, meal] });
+    // storageService.setItem("meals", [...meals, meal]);
+    return meal;
+  };
+
+  const handleSaveMeal = async () => {
+    if (!mealDescription.trim() && !image) return;
+    setIsAnalyzing(true);
+    const meal = await handleAddMeal(mealDescription, selectedMealType);
+
+    setIsAnalyzing(false);
+
+    if (!meal) {
       Alert.alert(
         "Meal could not be analyzed",
         "Please make sure the meal description is a valid food item."
@@ -127,19 +145,11 @@ const LogMealScreen = () => {
       return;
     }
 
-    // Add new meal to the meals array
-    const meals = useMealsStore.getState().loggedMeals;
-    useMealsStore.setState({ loggedMeals: [...meals, meal] });
-    // storageService.setItem("meals", [...meals, meal]);
-  };
-
-  const handleSaveMeal = async () => {
-    if (!mealDescription.trim() && !image) return;
-    setIsAnalyzing(true);
-    await handleAddMeal(mealDescription, selectedMealType);
-
-    setIsAnalyzing(false);
-    closeModal();
+    navigation.dispatch(
+      StackActions.replace("AnalyzedMeal", {
+        meal,
+      })
+    );
   };
 
   const closeModal = () => {
