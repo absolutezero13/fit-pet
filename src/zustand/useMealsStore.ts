@@ -13,11 +13,11 @@ export const INITIAL_LOGGED_MEAL_STATE: LoggedMealState = {
   suggestedMeals: [],
 };
 
-const useLoggedMealsStore = create(
+const useMealsStore = create(
   persist<LoggedMealState>(() => INITIAL_LOGGED_MEAL_STATE, {
     name: "logged-meals",
     storage: createJSONStorage(() => AsyncStorage),
   })
 );
 
-export default useLoggedMealsStore;
+export default useMealsStore;

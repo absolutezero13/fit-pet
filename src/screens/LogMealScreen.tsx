@@ -22,16 +22,14 @@ import {
   createGeminiCompletion,
   createGeminiVisionCompletion,
 } from "../services/gptApi";
-import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
+import useMealsStore from "../zustand/useMealsStore";
 import * as ImagePicker from "expo-image-picker";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { GeminiResponse } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import {
-  KeyboardControllerView,
   KeyboardGestureArea,
-  useKeyboardAnimation,
   useReanimatedKeyboardAnimation,
 } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
@@ -130,8 +128,8 @@ const LogMealScreen = () => {
     }
 
     // Add new meal to the meals array
-    const meals = useLoggedMealsStore.getState().loggedMeals;
-    useLoggedMealsStore.setState({ loggedMeals: [...meals, meal] });
+    const meals = useMealsStore.getState().loggedMeals;
+    useMealsStore.setState({ loggedMeals: [...meals, meal] });
     // storageService.setItem("meals", [...meals, meal]);
   };
 

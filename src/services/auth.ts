@@ -1,8 +1,8 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import useUserStore from "../zustand/useUserStore";
-import useLoggedMealsStore, {
+import useMealsStore, {
   INITIAL_LOGGED_MEAL_STATE,
-} from "../zustand/useLoggedMealsStore";
+} from "../zustand/useMealsStore";
 import useOnboardingStore, {
   INITIAL_ONBOARDING_STATE,
 } from "../zustand/useOnboardingStore";
@@ -67,7 +67,7 @@ class AuthService {
   public async logout() {
     //TODO: Implement logout API
 
-    useLoggedMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
+    useMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
     useUserStore.setState({ user: null });
     useOnboardingStore.setState(INITIAL_ONBOARDING_STATE);
     navigationRef.current?.reset({

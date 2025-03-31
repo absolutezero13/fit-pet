@@ -11,6 +11,7 @@ import { storageService } from "../storage/AsyncStorageService";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { IMeal } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
+import useMealsStore from "../zustand/useMealsStore";
 
 const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -198,9 +199,9 @@ const MealCard = (meal: IMeal) => (
 
 const MealsScreen = () => {
   const { t } = useTranslation();
-  const [meals, setMeals] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const meals = useMealsStore((state) => state.suggestedMeals);
   const getMeals = async () => {
     const storageItem = await storageService.getItem("User");
 
@@ -212,15 +213,6 @@ const MealsScreen = () => {
       goals: storageItem?.goals,
     });
 
-    // if (
-    //   storageItem &&
-    //   storageItem.mealInfo?.meals?.length > 0 &&
-    //   storageItem.mealInfo.date === new Date().toLocaleDateString("en-US")
-    // ) {
-    //   setMeals(storageItem.mealInfo.meals);
-    //   return;
-    // }
-
     setLoading(true);
     try {
       const data = await createGeminiCompletion(
@@ -228,9 +220,11 @@ const MealsScreen = () => {
         "recipe"
       );
 
-      setMeals(
-        JSON.parse(data.response.candidates[0].content.parts[0].text) as IMeal[]
-      );
+      useMealsStore.setState({
+        suggestedMeals: JSON.parse(
+          data.response.candidates[0].content.parts[0].text
+        ) as IMeal[],
+      });
 
       if (storageItem) {
         storageService.setItem("User", {

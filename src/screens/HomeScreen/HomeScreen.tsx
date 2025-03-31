@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MealCard from "./components/MealCard";
 import { IMeal } from "../../services/apiTypes";
-import useLoggedMealsStore from "../../zustand/useLoggedMealsStore";
+import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
 
 const EmptyState = ({ onPress }) => {
@@ -69,9 +69,9 @@ const LoggedMealsScreen = () => {
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
-  const meals = useLoggedMealsStore((state) => state.loggedMeals);
+  const meals = useMealsStore((state) => state.loggedMeals);
 
-  console.log("useMealsStore", useLoggedMealsStore.getState());
+  console.log("useMealsStore", useMealsStore.getState());
   useEffect(() => {
     // useLoggedMealsStore.setState((state) => {
     //   const newMeals = state.loggedMeals.filter((m) => {

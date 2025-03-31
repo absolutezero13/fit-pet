@@ -1,30 +1,20 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import OnboardingScreen from "../screens/OnboardingScreen";
-import WelcomeScreen from "../screens/WelcomeScreen";
-import MealsScreen from "../screens/MealsScreen";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Platform, ViewStyle } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import AnalyzedMealScreen from "../screens/AnalyzedMealScreen";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { scale } from "../theme/utils";
+import MealsScreen from "../screens/MealsScreen";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
-import ChatScreen from "../screens/ChatScreen";
+import { scale } from "../theme/utils";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Platform, ViewStyle } from "react-native";
-import LogMealScreen from "../screens/LogMealScreen";
-import SettingsScreen from "../screens/SettingsScreen";
-import { createRef } from "react";
-import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-export const navigationRef = createRef();
-
-export const TAB_BAR_HEIGHT = scale(Platform.select({ ios: 70, default: 70 }));
+import { TAB_BAR_HEIGHT, TAB_BAR_ICON_SIZE } from "./constants";
 
 const Tabs = createBottomTabNavigator();
-const TAB_BAR_ICON_SIZE = scale(24);
 
 const renderTabBarIcon = (screenName: string, focused: boolean) => {
   const color = focused
@@ -123,86 +113,5 @@ const TabNavigator = () => {
     </Tabs.Navigator>
   );
 };
-const Stack = createNativeStackNavigator();
 
-const RootNavigator = () => {
-  return (
-    <Stack.Navigator initialRouteName="Welcome">
-      <Stack.Screen
-        options={{
-          headerShown: false,
-        }}
-        component={WelcomeScreen}
-        name="Welcome"
-      />
-
-      <Stack.Screen
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-        component={OnboardingScreen}
-        name="Onboarding"
-      />
-
-      <Stack.Screen
-        name="HomeTabs"
-        component={TabNavigator}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="LogMeal"
-        component={LogMealScreen}
-        options={{
-          headerShown: false,
-          presentation: "modal",
-        }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          headerShown: false,
-          presentation: "modal",
-        }}
-      />
-      <Stack.Screen
-        name="AnalyzedMeal"
-        component={AnalyzedMealScreen}
-        options={{
-          headerShown: false,
-          presentation: "card",
-        }}
-      />
-    </Stack.Navigator>
-  );
-};
-
-export default RootNavigator;
-
-type RootStackParamList = {
-  HomeTabs: undefined;
-  Profile: undefined;
-  Settings: undefined;
-  NotFound: undefined;
-  AnalyzedMeal: {
-    meal: {
-      id: string;
-      mealType: string;
-      description: string;
-      time: string;
-      calories: string;
-      proteins: string;
-      carbs: string;
-      fats: string;
-    };
-  };
-};
-
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}
+export default TabNavigator;

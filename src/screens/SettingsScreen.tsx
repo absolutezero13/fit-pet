@@ -95,6 +95,13 @@ const SettingsScreen = () => {
   return (
     <View style={[styles.container, { paddingTop: 0, paddingBottom: 0 }]}>
       <View style={styles.header}>
+        <MaterialCommunityIcons
+          name="chevron-left"
+          size={scale(40)}
+          color={colors["color-primary-500"]}
+          onPress={navigation.goBack}
+        />
+
         <Text style={styles.title}>{t("settingsTitle")}</Text>
       </View>
 
@@ -270,7 +277,7 @@ const SettingsScreen = () => {
         style={[styles.saveButton, { marginBottom: bottom + scale(16) }]}
         onPress={saveChanges}
       >
-        <Text style={styles.buttonText}>{t("settings.saveChanges")}</Text>
+        <Text style={styles.buttonText}>{t("saveChanges")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -284,6 +291,9 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: scale(24),
     paddingVertical: scale(16),
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(4),
   },
   title: {
     ...fontStyles.headline1,

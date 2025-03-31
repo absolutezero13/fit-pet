@@ -12,7 +12,7 @@ import MacroCards from "./MacroCards";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
-import useLoggedMealsStore from "../../../zustand/useLoggedMealsStore";
+import useMealsStore from "../../../zustand/useMealsStore";
 
 interface Props {
   meal: IMeal;
@@ -42,7 +42,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
   };
 
   const onDeletePress = () => {
-    useLoggedMealsStore.setState((state) => {
+    useMealsStore.setState((state) => {
       const newMeals = state.loggedMeals.filter((m) => m.id !== meal.id);
       return { loggedMeals: newMeals };
     });

@@ -12,56 +12,17 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { colors } from "../theme/colors";
-import { fontStyles } from "../theme/fontStyles";
-import { scale } from "../theme/utils";
-import { createGeminiStream } from "../services/gptApi";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
-import useLoggedMealsStore from "../zustand/useLoggedMealsStore";
-import { TAB_BAR_HEIGHT } from "../navigation";
-import {
-  KeyboardController,
-  useKeyboardController,
-  useReanimatedKeyboardAnimation,
-} from "react-native-keyboard-controller";
-
-import { Keyboard } from "react-native";
-
-/**
- * A custom hook that tracks keyboard visibility
- * @returns {boolean} - Whether the keyboard is currently visible
- */
-const useKeyboardVisibility = () => {
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  useEffect(() => {
-    // Different event names for iOS and Android
-    const keyboardShowEvent =
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const keyboardHideEvent =
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
-    // When keyboard shows
-    const keyboardShowListener = Keyboard.addListener(keyboardShowEvent, () => {
-      setKeyboardVisible(true);
-    });
-
-    // When keyboard hides
-    const keyboardHideListener = Keyboard.addListener(keyboardHideEvent, () => {
-      setKeyboardVisible(false);
-    });
-
-    // Clean up listeners when component unmounts
-    return () => {
-      keyboardShowListener.remove();
-      keyboardHideListener.remove();
-    };
-  }, []);
-
-  return isKeyboardVisible;
-};
+import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import { createGeminiStream } from "../../services/gptApi";
+import { colors } from "../../theme/colors";
+import { fontStyles } from "../../theme/fontStyles";
+import { scale } from "../../theme/utils";
+import useMealsStore from "../../zustand/useMealsStore";
+import useKeyboardVisible from "./components/useKeyboardVisible";
+import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 
 // Suggestion data type
 type Suggestion = {
@@ -154,7 +115,7 @@ const ChatScreen = () => {
   const flatListRef = useRef(null);
   const textInputRef = useRef<TextInput>(null);
 
-  const isKeyboardVisible = useKeyboardVisibility();
+  const isKeyboardVisible = useKeyboardVisible();
   const navigation = useNavigation();
   console.log({ isKeyboardVisible });
   const SUGGESTIONS: Suggestion[] = [
@@ -163,8 +124,8 @@ const ChatScreen = () => {
       prompt: JSON.stringify({
         context: t("howWasMyLastMeal"),
         data: {
-          ...useLoggedMealsStore.getState().loggedMeals[
-            useLoggedMealsStore.getState().loggedMeals.length - 1
+          ...useMealsStore.getState().loggedMeals[
+            useMealsStore.getState().loggedMeals.length - 1
           ],
           insights: null,
         },
