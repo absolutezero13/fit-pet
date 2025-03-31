@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
@@ -17,12 +18,12 @@ import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller
 import { createGeminiStream } from "../../services/gptApi";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
-import { scale } from "../../theme/utils";
+import { scale, SCREEN_HEIGHT } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import ChatMessage, { IChatMessage } from "./components/ChatMessage";
-
+import doctorImage from "./components/doctor.png"; // Adjust the path as necessary
 // Suggestion data type
 type Suggestion = {
   text: string;
@@ -63,13 +64,14 @@ const ChatScreen = () => {
   const isFocused = useIsFocused();
   const { top, bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<IChatMessage[]>([]);
-  const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
-
   const isKeyboardVisible = useKeyboardVisible();
   const navigation = useNavigation();
+
+  const [messages, setMessages] = useState<IChatMessage[]>([]);
+  const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const SUGGESTIONS: Suggestion[] = [
     {
@@ -101,6 +103,9 @@ const ChatScreen = () => {
   }, [navigation, textInputRef]);
 
   const handleSendMessage = async (message?: string, data?: {}) => {
+    if (loading) {
+      return;
+    }
     const textToSend = message || inputText;
 
     if (textToSend.trim() === "") return;
@@ -115,6 +120,7 @@ const ChatScreen = () => {
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInputText("");
+    setLoading(true);
 
     const geminiResponse = await createGeminiStream(
       textToSend + (data ? ` ${JSON.stringify(data)}` : ""),
@@ -128,6 +134,8 @@ const ChatScreen = () => {
       }))
     );
     console.log({ geminiResponse });
+
+    setLoading(false);
 
     if (geminiResponse.response) {
       const botMessage: IChatMessage = {
@@ -152,7 +160,6 @@ const ChatScreen = () => {
     }
   }, [messages, isKeyboardVisible]);
 
-  console.log("chatscreen keyboard", isKeyboardVisible);
   return (
     <View style={styles.container}>
       <Animated.View
@@ -161,8 +168,8 @@ const ChatScreen = () => {
           styles.header,
           {
             paddingTop: top,
-            borderBottomLeftRadius: isKeyboardVisible ? 0 : scale(30),
-            borderBottomRightRadius: isKeyboardVisible ? 0 : scale(30),
+            borderBottomLeftRadius: scale(30),
+            borderBottomRightRadius: scale(30),
             paddingBottom: isKeyboardVisible ? scale(8) : scale(24),
           },
         ]}
@@ -182,6 +189,8 @@ const ChatScreen = () => {
         </Text>
       </Animated.View>
 
+      <Image source={doctorImage} style={styles.doctor} />
+
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -194,7 +203,7 @@ const ChatScreen = () => {
           },
         ]}
         contentContainerStyle={styles.messageListContent}
-        ListEmptyComponent={() => <EmptyState />}
+        ListEmptyComponent={EmptyState}
       />
       <View style={[styles.inputContainer]}>
         <ScrollView
@@ -247,7 +256,7 @@ const ChatScreen = () => {
               },
             ]}
             onPress={() => handleSendMessage()}
-            disabled={inputText.trim() === ""}
+            disabled={inputText.trim() === "" || loading}
           >
             <MaterialCommunityIcons
               name="send"
@@ -287,7 +296,6 @@ const styles = StyleSheet.create({
   },
   messageList: {
     flexGrow: 1,
-    // backgroundColor: "red",
   },
   messageListContent: {
     paddingHorizontal: scale(16),
@@ -328,7 +336,6 @@ const styles = StyleSheet.create({
     shadowRadius: scale(3),
     elevation: 3,
   },
-  // Empty state styles
   emptyStateContainer: {
     flex: 1,
     justifyContent: "center",
@@ -392,6 +399,14 @@ const styles = StyleSheet.create({
   suggestionBubbleText: {
     ...fontStyles.body2,
     color: colors["color-primary-600"],
+  },
+  doctor: {
+    width: scale(250),
+    height: scale(250),
+    position: "absolute",
+    opacity: 0.1,
+    top: SCREEN_HEIGHT / 2 - scale(250) / 2,
+    alignSelf: "center",
   },
 });
 
