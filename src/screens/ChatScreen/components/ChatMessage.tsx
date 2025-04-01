@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
@@ -10,14 +10,20 @@ export type IChatMessage = {
   timestamp: Date;
 };
 
-const ChatMessage = ({ message }: { message: IChatMessage }) => {
-  const time = message.timestamp.toLocaleTimeString("tr-TR", {
+const ChatMessage = ({
+  message,
+  loading,
+}: {
+  message: IChatMessage;
+  loading?: boolean;
+}) => {
+  const time = message?.timestamp.toLocaleTimeString("tr-TR", {
     hour: "numeric",
     minute: "numeric",
     hour12: false,
   });
 
-  const isUser = message.role === "user";
+  const isUser = !loading && message.role === "user";
 
   return (
     <View
@@ -26,24 +32,30 @@ const ChatMessage = ({ message }: { message: IChatMessage }) => {
         isUser ? styles.userMessageContainer : styles.botMessageContainer,
       ]}
     >
-      <View style={styles.messageContent}>
-        <Text
-          style={[
-            styles.messageText,
-            isUser ? styles.userMessageText : styles.botMessageText,
-          ]}
-        >
-          {message.text}
-        </Text>
-      </View>
-      <Text
-        style={[
-          styles.messageTime,
-          isUser ? styles.userMessageTime : styles.botMessageTime,
-        ]}
-      >
-        {time}
-      </Text>
+      {loading ? (
+        <ActivityIndicator size={"small"} />
+      ) : (
+        <>
+          <View style={styles.messageContent}>
+            <Text
+              style={[
+                styles.messageText,
+                isUser ? styles.userMessageText : styles.botMessageText,
+              ]}
+            >
+              {message.text}
+            </Text>
+          </View>
+          <Text
+            style={[
+              styles.messageTime,
+              isUser ? styles.userMessageTime : styles.botMessageTime,
+            ]}
+          >
+            {time}
+          </Text>
+        </>
+      )}
     </View>
   );
 };

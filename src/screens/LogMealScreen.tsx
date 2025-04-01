@@ -32,6 +32,7 @@ import {
 } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
 import promptBuilder from "../utils/promptBuilder";
+import FullPageSpinner from "../components/FullPageSpinner";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
@@ -302,6 +303,7 @@ const LogMealScreen = () => {
           </TouchableOpacity>
         </Animated.View>
       </View>
+      <FullPageSpinner visible={isAnalyzing} />
     </KeyboardGestureArea>
   );
 };

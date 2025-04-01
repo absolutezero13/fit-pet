@@ -47,12 +47,12 @@ const SuggestionBubble = ({
   onPress,
 }: {
   suggestion: Suggestion;
-  onPress: (prompt: string) => void;
+  onPress?: (prompt: string) => void;
 }) => {
   return (
     <TouchableOpacity
       style={styles.suggestionBubble}
-      onPress={() => onPress(suggestion.prompt)}
+      onPress={() => onPress?.(suggestion.prompt)}
     >
       <Text style={styles.suggestionBubbleText}>{suggestion.text}</Text>
     </TouchableOpacity>
@@ -156,7 +156,9 @@ const ChatScreen = () => {
 
   useEffect(() => {
     if (flatListRef.current) {
-      flatListRef.current?.scrollToEnd({ animated: true });
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   }, [messages, isKeyboardVisible]);
 
@@ -196,6 +198,7 @@ const ChatScreen = () => {
         data={messages}
         renderItem={({ item }) => <ChatMessage message={item} />}
         keyExtractor={(item) => item.id}
+        ListFooterComponent={loading ? <ChatMessage loading /> : null}
         style={[
           styles.messageList,
           {
@@ -215,7 +218,7 @@ const ChatScreen = () => {
             <SuggestionBubble
               key={index}
               suggestion={suggestion}
-              onPress={handleSuggestionPress}
+              onPress={loading ? undefined : handleSuggestionPress}
             />
           ))}
         </ScrollView>

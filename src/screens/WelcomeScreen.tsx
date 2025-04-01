@@ -43,6 +43,7 @@ const WelcomeScreen = () => {
       </Animated.Text>
 
       <AppButton
+        disableAnimation={true}
         position="bottom"
         title={t("getStarted")}
         onPress={() => navigation.navigate("Onboarding")}

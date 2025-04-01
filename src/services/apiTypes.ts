@@ -58,11 +58,12 @@ const recipeSchema: Schema = {
         description: "Time",
         nullable: false,
       },
-
       mealType: {
         type: SchemaType.STRING,
-        description: "Meal type",
+        description: "valid values:breakfast, lunch, dinner, snack",
         nullable: false,
+        enum: ["breakfast", "lunch", "dinner", "snack"],
+        format: "enum",
       },
       mealTypeLocalized: {
         type: SchemaType.STRING,
@@ -139,7 +140,6 @@ const analyzedMealSchema: Schema = {
       description: "Fats",
       nullable: false,
     },
-
     description: {
       type: SchemaType.STRING,
       description: "Description",
@@ -162,6 +162,8 @@ const analyzedMealSchema: Schema = {
       type: SchemaType.STRING,
       description: "string as in Breakfast, Lunch, Dinner, Snack",
       nullable: true,
+      enum: ["breakfast", "lunch", "dinner", "snack"],
+      format: "enum",
     },
     date: {
       type: SchemaType.STRING,

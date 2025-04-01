@@ -36,11 +36,7 @@ const renderTabBarIcon = (screenName: string, focused: boolean) => {
       );
     case "Chat":
       return (
-        <MaterialIcons
-          name="sports-gymnastics"
-          size={TAB_BAR_ICON_SIZE}
-          color={color}
-        />
+        <MaterialIcons name="chat" size={TAB_BAR_ICON_SIZE} color={color} />
       );
 
     default:

@@ -22,6 +22,7 @@ interface Props {
 
   position?: "bottom" | "top";
   disabled?: boolean;
+  disableAnimation?: boolean;
 }
 
 const AppButton: FC<Props> = ({
@@ -31,6 +32,7 @@ const AppButton: FC<Props> = ({
   margin,
   position,
   disabled,
+  disableAnimation = false,
 }) => {
   const { bottom } = useSafeAreaInsets();
 
@@ -63,7 +65,7 @@ const AppButton: FC<Props> = ({
           bottom: bottom + scale(16),
           width: "100%",
         }}
-        entering={FadeInDown.delay(500)}
+        entering={disableAnimation ? undefined : FadeInDown.delay(500)}
       >
         {renderButton()}
       </Animated.View>

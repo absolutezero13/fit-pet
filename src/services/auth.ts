@@ -6,8 +6,8 @@ import useMealsStore, {
 import useOnboardingStore, {
   INITIAL_ONBOARDING_STATE,
 } from "../zustand/useOnboardingStore";
-import { navigationRef } from "../App";
 import { storageService } from "../storage/AsyncStorageService";
+import { NavigationProp } from "@react-navigation/native";
 
 export enum LoginType {
   Google,
@@ -64,13 +64,15 @@ class AuthService {
     }
   }
 
-  public async logout() {
+  public async logout(
+    navigationRef: NavigationProp<ReactNavigation.RootParamList>
+  ) {
     //TODO: Implement logout API
 
     useMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
     useUserStore.setState({ user: null });
     useOnboardingStore.setState(INITIAL_ONBOARDING_STATE);
-    navigationRef.current?.reset({
+    navigationRef?.reset({
       index: 0,
       routes: [{ name: "Welcome" }],
     });

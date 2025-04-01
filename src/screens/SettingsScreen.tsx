@@ -214,7 +214,10 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <TouchableOpacity onPress={authService.logout} style={styles.card}>
+          <TouchableOpacity
+            onPress={() => authService.logout(navigation)}
+            style={styles.card}
+          >
             <Text>Logout</Text>
           </TouchableOpacity>
         </View>

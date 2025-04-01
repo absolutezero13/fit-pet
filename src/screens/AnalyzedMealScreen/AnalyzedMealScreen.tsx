@@ -97,7 +97,14 @@ const AnalyzedMealScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.pageHeader}>
+      <View
+        style={[
+          styles.pageHeader,
+          {
+            paddingTop: top,
+          },
+        ]}
+      >
         <MaterialCommunityIcons
           name="chevron-left"
           size={scale(40)}
@@ -223,7 +230,6 @@ const styles = StyleSheet.create({
   },
   pageHeader: {
     paddingHorizontal: scale(24),
-    paddingVertical: scale(16),
     flexDirection: "row",
     alignItems: "center",
     gap: scale(4),
@@ -234,6 +240,7 @@ const styles = StyleSheet.create({
   },
   topSection: {
     marginBottom: scale(12),
+    paddingTop: scale(24),
   },
   mealTitle: {
     ...fontStyles.headline2,

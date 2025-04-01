@@ -33,7 +33,6 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import * as NavigationBar from "expo-navigation-bar";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -43,7 +42,7 @@ i18next.use(initReactI18next).init({
   },
 });
 
-NavigationBar.setBackgroundColorAsync("#ffffff00");
+// NavigationBar.setBackgroundColorAsync("#ffffff00");
 
 Asset.loadAsync([
   ...NavigationAssets,
@@ -59,8 +58,6 @@ if (Platform.OS === "android") {
 }
 
 SplashScreen.preventAutoHideAsync();
-
-export const navigationRef = createNavigationContainerRef();
 
 export function App() {
   const [fontLoaded] = useFonts({
@@ -91,7 +88,6 @@ export function App() {
       <BottomSheetModalProvider>
         <KeyboardProvider>
           <NavigationContainer
-            ref={navigationRef}
             onReady={() => {
               SplashScreen.hideAsync();
             }}

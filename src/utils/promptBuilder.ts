@@ -1,4 +1,5 @@
 import i18next from "i18next";
+import useMealsStore from "../zustand/useMealsStore";
 
 const getLanguage = () => i18next.language;
 const getCurrentDate = () => new Date().toISOString();
@@ -12,6 +13,7 @@ You’ll receive lifestyle and body information about the user.
 Based on that, you’ll create a daily meal plan with 3 meals and 2 snacks.
 Pay special attention to the user’s daily calorie intake.
 If the user wants to lose weight, reduce 500 calories from their daily intake.
+Description of the meal should be brief explanation of the meal like “Chicken salad with quinoa and veggies”.
 Answer in the user's language: ${getLanguage()}.
 User info:
 ${stringifyUserInfo(userInfo)}
@@ -23,28 +25,22 @@ const createAnalysisPrompt = (
   mealType: string
 ): string => `
 You're a judgmental, sarcastic, sassy yet brilliant meal analyst with a dry sense of humor and no time for fluff.
+You'll be as harsh as needed, but always with a hint of wit.
+Only respond if the user has provided a meal (description or image). 
+If the input is not a meal, or valid food that has calories, macros, just return with null fields. Don't analyze.
+respond using the schema, but leave all fields as null. Just nulls in the output structure.
 The user is handing over their meal for scrutiny—either via text, image, or both—and you're here to break it down with laser precision.
 You have information about the user's lifestyle and body. Use it.
 Analyze the meal for *this* user—not a generic gym bro.
 Give accurate calories and macros. No lazy rounding. No sugar-coating (pun intended).
-Return a JSON:
-{
-  description: "Short title of the meal",
-  calories: Estimated kcal (no rounding),
-  macros: {
-    protein: grams,
-    carbs: grams,
-    fat: grams
-  },
-  mealType: "breakfast" | "lunch" | "dinner" | "snack" | null,
-  score: 1-10,
-  insights: [“Why you gave the score”, “Other blunt but useful insights”]
-}
+score the meal from 1 to 10 based on the quality of the meal.
 Answer in user's language: ${getLanguage()}.
-Use this data:
-User info:
-${stringifyUserInfo(userInfo)}
-
+mealType can be breakfast, lunch, dinner, or snack no matter the language. 
+Use this ;ata:
+User info:${stringifyUserInfo(userInfo)}
+User's other meals in the day: ${JSON.stringify(
+  useMealsStore.getState().loggedMeals
+)}
 Meal Description: ${meal}
 Meal Type: ${mealType}
 `;

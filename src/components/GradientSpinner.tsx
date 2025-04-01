@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { View, Animated, StyleSheet } from "react-native";
 import { colors } from "../theme/colors";
+import { scale } from "../theme/utils";
 
-const GradientSpinner = () => {
+const GradientSpinner = ({ size = scale(100) }) => {
   const rotation = new Animated.Value(0);
   const fadeValues = Array(5)
     .fill("")
@@ -82,7 +83,15 @@ const GradientSpinner = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          width: size,
+          height: size,
+        },
+      ]}
+    >
       <Animated.View
         style={[styles.spinnerContainer, { transform: [{ rotate: spin }] }]}
       >
@@ -96,22 +105,20 @@ const GradientSpinner = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 100,
-    height: 100,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: colors["color-primary-100"],
     borderRadius: 50,
   },
   spinnerContainer: {
-    width: 80,
-    height: 80,
+    width: scale(80),
+    height: scale(80),
     position: "relative",
   },
   segment: {
     position: "absolute",
-    width: 12,
-    height: 12,
+    width: scale(12),
+    height: scale(12),
     borderRadius: 6,
     top: "50%",
     left: "50%",
@@ -120,9 +127,9 @@ const styles = StyleSheet.create({
   },
   centerCircle: {
     position: "absolute",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: scale(20),
+    height: scale(20),
+    borderRadius: scale(10),
     backgroundColor: colors["color-primary-200"],
     shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 1 },

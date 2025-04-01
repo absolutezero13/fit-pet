@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   ScrollView,
@@ -18,6 +18,8 @@ import { IMeal, IMealType } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
 import EmptyState from "./components/EmptyState";
+import { TAB_BAR_HEIGHT } from "../../navigation/constants";
+import DailySummary from "./components/DailySummary";
 
 const MealTypeSection = ({
   title,
@@ -145,6 +147,8 @@ const LoggedMealsScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          {/* <DailySummary meals={meals} /> */}
+
           <MealTypeSection
             title={t("breakfast")}
             meals={breakfastMeals}
@@ -178,7 +182,7 @@ const LoggedMealsScreen = () => {
           style={[
             styles.addButton,
             {
-              bottom: bottom + scale(64),
+              bottom: TAB_BAR_HEIGHT + bottom + scale(16),
             },
           ]}
           onPress={navigateLogMeal}
@@ -216,15 +220,96 @@ const styles = StyleSheet.create({
     ...fontStyles.headline4,
     color: colors["color-primary-400"],
   },
+  // New compact summary styles
+  dailySummaryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: scale(20),
+  },
+  macroCard: {
+    flex: 3,
+    backgroundColor: "white",
+    borderRadius: scale(16),
+    padding: scale(12),
+    shadowColor: colors["color-primary-500"],
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: scale(8),
+    elevation: 3,
+    marginRight: scale(10),
+  },
+  summaryTitle: {
+    ...fontStyles.headline4,
+    color: colors["color-primary-500"],
+    marginBottom: scale(8),
+  },
+  macroGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  macroItem: {
+    width: "48%",
+    marginBottom: scale(8),
+  },
+  macroValue: {
+    ...fontStyles.headline3,
+    color: colors["color-primary-800"],
+  },
+  macroLabel: {
+    ...fontStyles.caption,
+    color: colors["color-primary-400"],
+  },
+  scoreCard: {
+    flex: 1,
+    backgroundColor: "white",
+    borderRadius: scale(16),
+    padding: scale(12),
+    shadowColor: colors["color-primary-500"],
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: scale(8),
+    elevation: 3,
+  },
+  scoreTitle: {
+    ...fontStyles.headline4,
+    color: colors["color-primary-500"],
+    marginBottom: scale(8),
+    textAlign: "center",
+  },
+  scoreContent: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  scoreCircle: {
+    width: scale(50),
+    height: scale(50),
+    borderRadius: scale(25),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scoreValue: {
+    ...fontStyles.headline3,
+    color: "white",
+    fontWeight: "bold",
+  },
+  // Original styles
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: scale(100),
+    paddingBottom: TAB_BAR_HEIGHT + scale(72),
   },
   sectionContainer: {
-    marginBottom: scale(24),
+    marginBottom: scale(12),
   },
   sectionTitle: {
     ...fontStyles.headline3,
@@ -316,27 +401,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   // Score styles
-  scoreContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  scoreLabel: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-800"],
-    marginBottom: scale(4),
-  },
-  scoreCircle: {
-    width: scale(50),
-    height: scale(50),
-    borderRadius: scale(25),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scoreValue: {
-    ...fontStyles.headline3,
-    color: "white",
-    fontWeight: "bold",
-  },
   addButton: {
     position: "absolute",
     bottom: scale(32),

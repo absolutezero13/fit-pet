@@ -7,6 +7,7 @@ import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import { IMeal } from "../services/apiTypes";
+import { createNavigationContainerRef } from "@react-navigation/native";
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,7 @@ const RootNavigator = () => {
 export default RootNavigator;
 
 type RootStackParamList = {
+  Welcome: undefined;
   HomeTabs: undefined;
   Profile: undefined;
   Settings: undefined;
