@@ -51,30 +51,12 @@ const LoggedMealsScreen = () => {
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
-  const meals = useMealsStore((state) => state.loggedMeals);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const meals = useMealsStore((state) => state.loggedMeals).filter(
+    (m) => m.date === selectedDate.toLocaleDateString("en-US")
+  );
 
   console.log("useMealsStore", useMealsStore.getState());
-  useEffect(() => {
-    // useLoggedMealsStore.setState((state) => {
-    //   const newMeals = state.loggedMeals.filter((m) => {
-    //     console.log("m.date", m.date);
-    //     console.log("new Date(m.date)", new Date(m.date));
-    //     console.log(
-    //       "new Date().toLocaleDateString()",
-    //       new Date().toLocaleDateString()
-    //     );
-    //     console.log(
-    //       "new Date(m.date).toLocaleDateString()",
-    //       new Date(m.date).toLocaleDateString()
-    //     );
-    //     return (
-    //       new Date(m.date).toLocaleDateString() ===
-    //       new Date().toLocaleDateString()
-    //     );
-    //   });
-    //   return { loggedMeals: newMeals };
-    // });
-  }, []);
 
   const navigation = useNavigation();
 
@@ -110,6 +92,9 @@ const LoggedMealsScreen = () => {
     navigation.navigate("LogMeal");
   };
 
+  const isToday =
+    selectedDate.toLocaleDateString() === new Date().toLocaleDateString();
+
   return (
     <View style={styles.container}>
       <View
@@ -121,16 +106,49 @@ const LoggedMealsScreen = () => {
         ]}
       >
         <Text style={styles.title}>{t("loggedMeals")}</Text>
-        <Text style={styles.date}>
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "center",
+            gap: scale(10),
+            alignItems: "center",
+          }}
+        >
+          <MaterialCommunityIcons
+            onPress={() =>
+              setSelectedDate(
+                new Date(selectedDate.setDate(selectedDate.getDate() - 1))
+              )
+            }
+            name="chevron-left"
+            size={scale(36)}
+          />
+          <Text style={styles.date}>
+            {selectedDate.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
+          <MaterialCommunityIcons
+            disabled={isToday}
+            color={isToday ? colors["color-primary-300"] : "black"}
+            onPress={() =>
+              setSelectedDate(
+                new Date(selectedDate.setDate(selectedDate.getDate() + 1))
+              )
+            }
+            name="chevron-right"
+            size={scale(36)}
+          />
+        </View>
 
         <TouchableOpacity
-          style={{ position: "absolute", top: scale(70), right: scale(24) }}
+          style={{
+            position: "absolute",
+            top: top + scale(12),
+            right: scale(24),
+          }}
           onPress={() => navigation.navigate("Settings")}
         >
           <MaterialIcons
@@ -219,6 +237,7 @@ const styles = StyleSheet.create({
   date: {
     ...fontStyles.headline4,
     color: colors["color-primary-400"],
+    textAlign: "center",
   },
   // New compact summary styles
   dailySummaryContainer: {

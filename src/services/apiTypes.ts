@@ -165,11 +165,6 @@ const analyzedMealSchema: Schema = {
       enum: ["breakfast", "lunch", "dinner", "snack"],
       format: "enum",
     },
-    date: {
-      type: SchemaType.STRING,
-      description: "ISO Date",
-      nullable: false,
-    },
     mealTypeLocalized: {
       type: SchemaType.STRING,
       description: "Localized meal type",
@@ -186,7 +181,6 @@ const analyzedMealSchema: Schema = {
     "insights",
     "mealType",
     "id",
-    "date",
     "mealTypeLocalized",
   ],
 };

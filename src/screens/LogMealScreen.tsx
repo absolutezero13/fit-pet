@@ -24,7 +24,7 @@ import useMealsStore from "../zustand/useMealsStore";
 import * as ImagePicker from "expo-image-picker";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { GeminiResponse } from "../services/apiTypes";
+import { GeminiResponse, IMeal } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import {
   KeyboardGestureArea,
@@ -113,7 +113,7 @@ const LogMealScreen = () => {
     }
 
     console.log("response", response);
-    const meal = JSON.parse(
+    const meal: IMeal = JSON.parse(
       response.response.candidates[0].content.parts[0].text
     );
 
@@ -122,6 +122,8 @@ const LogMealScreen = () => {
     if (!meal.mealType) {
       return null;
     }
+
+    meal.date = new Date().toLocaleDateString("en-US");
 
     // Add new meal to the meals array
     const meals = useMealsStore.getState().loggedMeals;
