@@ -34,7 +34,7 @@ const OnboardingScreen = () => {
     {
       title: t("identify"),
       component: Gender,
-      disabled: onboardingStore.gender === "",
+      disabled: !onboardingStore.gender,
     },
     {
       title: t("yourAge"),

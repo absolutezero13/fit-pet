@@ -3,7 +3,7 @@ import { Gender } from "../screens/OnboardingScreen/components/types";
 
 export interface OnboardingStore {
   goals: { title: string; key: string }[];
-  gender: Gender;
+  gender: Gender | null;
   age: number | null;
   weight: number | null;
   height: number | null;
@@ -11,7 +11,7 @@ export interface OnboardingStore {
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
   goals: [],
-  gender: Gender.Female,
+  gender: null,
   age: 24,
   weight: null,
   height: null,

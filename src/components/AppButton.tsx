@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
@@ -56,6 +56,20 @@ const AppButton: FC<Props> = ({
       <Text style={[fontStyles.headline4, { color: "white" }]}>{title}</Text>
     </TouchableOpacity>
   );
+
+  if (disableAnimation) {
+    return (
+      <View
+        style={{
+          position: "absolute",
+          bottom: bottom + scale(16),
+          width: "100%",
+        }}
+      >
+        {renderButton()}
+      </View>
+    );
+  }
 
   if (position === "bottom") {
     return (

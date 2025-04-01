@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Platform } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
@@ -8,6 +8,8 @@ import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import { storageService } from "../storage/AsyncStorageService";
 import { useTranslation } from "react-i18next";
+
+const disableAnimation = Platform.OS === "android";
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
@@ -26,12 +28,15 @@ const WelcomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.Text entering={FadeInUp} style={[fontStyles.headline2]}>
+      <Animated.Text
+        entering={disableAnimation ? undefined : FadeInUp}
+        style={[fontStyles.headline2]}
+      >
         {t("welcome")}
       </Animated.Text>
 
       <Animated.Text
-        entering={FadeInUp}
+        entering={disableAnimation ? undefined : FadeInUp}
         style={[
           fontStyles.hero,
           {
@@ -43,7 +48,7 @@ const WelcomeScreen = () => {
       </Animated.Text>
 
       <AppButton
-        disableAnimation={true}
+        disableAnimation={disableAnimation}
         position="bottom"
         title={t("getStarted")}
         onPress={() => navigation.navigate("Onboarding")}
