@@ -13,7 +13,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import {
+  RouteProp,
+  StackActions,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import {
@@ -36,6 +41,16 @@ import FullPageSpinner from "../components/FullPageSpinner";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute<
+    RouteProp<
+      {
+        params: {
+          selectedDate: string;
+        };
+      },
+      "params"
+    >
+  >();
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
   const [mealDescription, setMealDescription] = useState("");
@@ -112,22 +127,19 @@ const LogMealScreen = () => {
       response = await createGeminiCompletion(prompt, "analyzedMeal");
     }
 
-    console.log("response", response);
     const meal: IMeal = JSON.parse(
       response.response.candidates[0].content.parts[0].text
     );
 
-    console.log("meal", meal);
+    meal.date = new Date(route.params.selectedDate)?.toLocaleDateString(
+      "en-US"
+    );
 
-    if (!meal.mealType) {
-      return null;
+    if (!meal.errorMessage) {
+      const meals = useMealsStore.getState().loggedMeals;
+      useMealsStore.setState({ loggedMeals: [...meals, meal] });
     }
-
-    meal.date = new Date().toLocaleDateString("en-US");
-
     // Add new meal to the meals array
-    const meals = useMealsStore.getState().loggedMeals;
-    useMealsStore.setState({ loggedMeals: [...meals, meal] });
     // storageService.setItem("meals", [...meals, meal]);
     return meal;
   };
@@ -135,23 +147,27 @@ const LogMealScreen = () => {
   const handleSaveMeal = async () => {
     if (!mealDescription.trim() && !image) return;
     setIsAnalyzing(true);
-    const meal = await handleAddMeal(mealDescription, selectedMealType);
+    try {
+      const meal = await handleAddMeal(mealDescription, selectedMealType);
 
-    setIsAnalyzing(false);
+      if (meal.errorMessage) {
+        setIsAnalyzing(false);
+        Alert.alert(
+          "Meal could not be analyzed",
+          meal.errorMessage ?? "Please try again later."
+        );
+        return;
+      }
 
-    if (!meal) {
-      Alert.alert(
-        "Meal could not be analyzed",
-        "Please make sure the meal description is a valid food item."
+      navigation.dispatch(
+        StackActions.replace("AnalyzedMeal", {
+          meal,
+        })
       );
-      return;
+    } catch (error) {
+      console.error("Error analyzing meal:", error);
+      setIsAnalyzing(false);
     }
-
-    navigation.dispatch(
-      StackActions.replace("AnalyzedMeal", {
-        meal,
-      })
-    );
   };
 
   const closeModal = () => {

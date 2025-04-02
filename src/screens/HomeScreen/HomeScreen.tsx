@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import EmptyState from "./components/EmptyState";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
+import { storageService } from "../../storage/AsyncStorageService";
 
 const MealTypeSection = ({
   title,
@@ -56,8 +57,6 @@ const LoggedMealsScreen = () => {
     (m) => m.date === selectedDate.toLocaleDateString("en-US")
   );
 
-  console.log("useMealsStore", useMealsStore.getState());
-
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -89,7 +88,9 @@ const LoggedMealsScreen = () => {
   };
 
   const navigateLogMeal = () => {
-    navigation.navigate("LogMeal");
+    navigation.navigate("LogMeal", {
+      selectedDate: selectedDate.toISOString(),
+    });
   };
 
   const isToday =
@@ -165,7 +166,7 @@ const LoggedMealsScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* <DailySummary meals={meals} /> */}
+          <DailySummary meals={meals} />
 
           <MealTypeSection
             title={t("breakfast")}

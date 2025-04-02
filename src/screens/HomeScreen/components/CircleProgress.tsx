@@ -9,7 +9,7 @@ type Props = {
   progress: number; // 0 to 1
   color?: string;
   label: string;
-  value: number;
+  value: string;
   goal: number;
   unit?: string;
   size?: number;
@@ -56,16 +56,30 @@ const CircleProgress: React.FC<Props> = ({
         />
       </Svg>
       <View style={styles.valueContainer}>
-        <Text style={fontStyles.footnote}>
+        <Text
+          style={[
+            fontStyles.footnote,
+            {
+              textAlign: "center",
+            },
+          ]}
+        >
           {value}
           {unit}
         </Text>
-        <Text style={fontStyles.footnote}>
-          / {goal}
+        <Text
+          style={[
+            fontStyles.footnote,
+            {
+              textAlign: "center",
+            },
+          ]}
+        >
+          /{goal}
           {unit}
         </Text>
       </View>
-      <Text style={[fontStyles.caption, { marginTop: scale(2) }]}>{label}</Text>
+      <Text style={[fontStyles.body1, { marginTop: scale(4) }]}>{label}</Text>
     </View>
   );
 };
@@ -74,7 +88,7 @@ const styles = StyleSheet.create({
   valueContainer: {
     position: "absolute",
     alignItems: "center",
-    top: "20%",
+    top: "30%",
   },
 });
 

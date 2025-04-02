@@ -86,7 +86,9 @@ type RootStackParamList = {
   AnalyzedMeal: {
     meal: IMeal;
   };
-  LogMeal: undefined;
+  LogMeal: {
+    selectedDate: string;
+  };
   MealDetail: {
     meal: IMeal;
   };

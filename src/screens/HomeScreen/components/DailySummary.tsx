@@ -5,16 +5,24 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Text,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import CircleProgress from "./CircleProgress";
+import { IMeal } from "../../../services/apiTypes";
 
-const DailySummary = ({ meals }) => {
+const macroColors: Record<string, string> = {
+  calories: colors["color-warning-400"], // golden yellow, attention-grabbing
+  proteins: colors["color-success-500"], // healthy green
+  carbs: colors["color-info-400"], // light blue, energetic feel
+  fats: colors["color-danger-400"], // warm red-orange, rich
+};
+
+const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const userGoals = {
     calories: 2000,
@@ -60,27 +68,12 @@ const DailySummary = ({ meals }) => {
     fats: Math.min(totals.fats / userGoals.fats, 1),
   };
 
-  const getScoreColor = (score) => {
-    if (score >= 80) return colors["color-success-400"];
-    if (score >= 60) return colors["color-warning-400"];
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return colors["color-success-400"];
+    if (score >= 6) return colors["color-warning-400"];
+    if (score >= 4) return colors["color-info-400"];
+    if (score >= 2) return colors["color-warning-500"];
     return colors["color-danger-400"];
-  };
-
-  const getProgressColor = (progressValue, type) => {
-    if (type === "calories") {
-      if (progressValue > 1) return colors["color-danger-400"];
-      if (progressValue > 0.9) return colors["color-warning-400"];
-      return colors["color-success-400"];
-    } else {
-      if (progressValue >= 0.9) return colors["color-success-400"];
-      if (progressValue >= 0.6) return colors["color-warning-400"];
-      return colors["color-danger-400"];
-    }
-  };
-
-  const toggleExpanded = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setIsExpanded((prev) => !prev);
   };
 
   const circleData = [
@@ -124,16 +117,17 @@ const DailySummary = ({ meals }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
       <View style={styles.progressContainer}>
-        {circleData.slice(0, isExpanded ? 4 : 1).map((data, index) => (
+        {circleData.map((data) => (
           <View key={data.label} style={[styles.calorieCircleContainer]}>
             <CircleProgress
               progress={data.progress}
-              color={getProgressColor(data.progress, data.type)}
-              size={scale(70)}
-              strokeWidth={scale(7)}
+              color={macroColors[data.type]}
+              size={scale(95)}
+              strokeWidth={scale(12)}
               label={data.label}
-              value={data.value.toFixed(1)}
+              value={data.value.toFixed(0)}
               goal={data.goal}
               unit={data.unit}
             />
@@ -141,20 +135,15 @@ const DailySummary = ({ meals }) => {
         ))}
       </View>
 
-      {/* <View
-        style={{ flexDirection: "row", alignItems: "center", gap: scale(8) }}
+      <View
+        style={[
+          styles.scoreCircle,
+          { backgroundColor: getScoreColor(averageScore) },
+        ]}
       >
-        <Text style={styles.summaryTitle}>{t("dailyGoals")}</Text>
-        <View
-          style={[
-            styles.scoreCircle,
-            { backgroundColor: getScoreColor(averageScore) },
-          ]}
-        >
-          <Text style={styles.scoreValue}>{averageScore}</Text>
-          <Text style={styles.scoreLabel}>{t("score")}</Text>
-        </View>
-      </View> */}
+        <Text style={styles.scoreValue}>{averageScore}</Text>
+        <Text style={styles.scoreLabel}>{t("averageScore")}</Text>
+      </View>
     </View>
   );
 };
@@ -180,9 +169,10 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap",
     marginTop: scale(8),
+    gap: scale(8),
   },
   calorieCircleContainer: {
     // justifyContent: "center",
@@ -238,20 +228,24 @@ const styles = StyleSheet.create({
     color: colors["color-primary-500"],
   },
   scoreCircle: {
-    width: scale(50),
-    height: scale(50),
-    borderRadius: scale(30),
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(40),
     justifyContent: "center",
     alignItems: "center",
     margin: scale(4),
+    position: "absolute",
+    right: scale(10),
+    top: "50%",
+    transform: [{ translateY: -scale(20) }],
   },
   scoreValue: {
-    ...fontStyles.headline4,
+    ...fontStyles.headline3,
     color: "white",
     fontWeight: "bold",
   },
   scoreLabel: {
-    ...fontStyles.footnote,
+    ...fontStyles.caption,
     color: "white",
   },
 });

@@ -24,7 +24,7 @@ import useUserStore from "../../../zustand/useUserStore";
 
 const { width } = Dimensions.get("window");
 
-const AnalyzingScreen = ({ focused }) => {
+const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const [currentStatus, setCurrentStatus] = React.useState(0);

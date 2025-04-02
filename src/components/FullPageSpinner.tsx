@@ -1,7 +1,7 @@
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 import GradientSpinner from "./GradientSpinner";
 
-const FullPageSpinner = ({ visible }) => {
+const FullPageSpinner = ({ visible }: { visible: boolean }) => {
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.container}>

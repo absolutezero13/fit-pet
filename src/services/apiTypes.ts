@@ -170,6 +170,11 @@ const analyzedMealSchema: Schema = {
       description: "Localized meal type",
       nullable: false,
     },
+    errorMessage: {
+      type: SchemaType.STRING,
+      description: "Error message",
+      nullable: true,
+    },
   },
   required: [
     "calories",
@@ -240,6 +245,7 @@ export interface IMeal {
   id: string;
   date: string;
   mealTypeLocalized: string;
+  errorMessage?: string;
 }
 
 export const exampleMeal: IMeal = {

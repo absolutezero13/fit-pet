@@ -14,7 +14,7 @@ const ChatMessage = ({
   message,
   loading,
 }: {
-  message: IChatMessage;
+  message?: IChatMessage;
   loading?: boolean;
 }) => {
   const time = message?.timestamp.toLocaleTimeString("tr-TR", {
@@ -23,7 +23,7 @@ const ChatMessage = ({
     hour12: false,
   });
 
-  const isUser = !loading && message.role === "user";
+  const isUser = !loading && message?.role === "user";
 
   return (
     <View
@@ -43,7 +43,7 @@ const ChatMessage = ({
                 isUser ? styles.userMessageText : styles.botMessageText,
               ]}
             >
-              {message.text}
+              {message?.text}
             </Text>
           </View>
           <Text

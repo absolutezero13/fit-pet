@@ -99,6 +99,8 @@ export const resources = {
       score8: "Bugün sağlıklı kararlar krallığına adım attın.",
       score9: "Vücut şükrediyor, melekler alkışlıyor.",
       score10: "Mükemmel. Herkes seni konuşuyor. Bravo gerçekten.",
+      dailySummary: "Günün Özeti",
+      averageScore: "Ort. Puan",
     },
   },
   en: {
@@ -201,6 +203,8 @@ export const resources = {
       score8: "Well, Aren't You Virtuous Today",
       score9: "Trophy-Worthy, You Smug Health God",
       score10: "Perfect. We're All Very Impressed. Really.",
+      dailySummary: "Daily Summary",
+      averageScore: "Avg. Score",
     },
   },
 };
