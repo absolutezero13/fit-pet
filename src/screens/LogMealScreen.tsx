@@ -38,6 +38,9 @@ import {
 import Animated from "react-native-reanimated";
 import promptBuilder from "../utils/promptBuilder";
 import FullPageSpinner from "../components/FullPageSpinner";
+import AppButton from "../components/AppButton";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
@@ -134,6 +137,7 @@ const LogMealScreen = () => {
     meal.date = new Date(route.params.selectedDate)?.toLocaleDateString(
       "en-US"
     );
+    meal.id = uuidv4();
 
     if (!meal.errorMessage) {
       const meals = useMealsStore.getState().loggedMeals;
@@ -302,23 +306,16 @@ const LogMealScreen = () => {
           style={{
             ...styles.buttonView,
             transform: [{ translateY: height }],
+            paddingBottom: bottom,
           }}
         >
-          <TouchableOpacity
-            style={[
-              styles.analyzeButton,
-              (isAnalyzing || !contentExists) && styles.disabledButton,
-              { marginBottom: bottom },
-            ]}
+          <AppButton
+            loading={isAnalyzing}
+            title={t("analyzeMeal")}
+            backgroundColor={colors["color-success-400"]}
             onPress={handleSaveMeal}
             disabled={isAnalyzing || !contentExists}
-          >
-            {isAnalyzing ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.buttonText}>{t("analyzeMeal")}</Text>
-            )}
-          </TouchableOpacity>
+          />
         </Animated.View>
       </View>
       <FullPageSpinner visible={isAnalyzing} />
@@ -481,7 +478,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    alignItems: "center",
     marginHorizontal: scale(24),
   },
   analyzeButton: {

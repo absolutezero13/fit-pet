@@ -37,6 +37,9 @@ score the meal from 1 to 10 based on the quality of the meal.
 fill errorMessage field if there is an error.
 Answer in user's language: ${getLanguage()}.
 mealType can be breakfast, lunch, dinner, or snack no matter the language. 
+Lastly, there is an emoji field, which is a single emoji that represents the meal.
+But for example, if there is a lot of that food, for example eggs (5 eggs etc.) you can return up to 3 emojis side by side 🍳🍳🍳.
+Also if there is more than one type of food, for example chicken and rice, you can return 2 emojis side by side 🍗🍚. The limit is 3.
 Use this data:
 User info:${stringifyUserInfo(userInfo)}
 User's other meals in the day: ${JSON.stringify(

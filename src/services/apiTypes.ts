@@ -170,6 +170,11 @@ const analyzedMealSchema: Schema = {
       description: "Localized meal type",
       nullable: false,
     },
+    emoji: {
+      type: SchemaType.STRING,
+      description: "Emoji of the meal",
+      nullable: false,
+    },
     errorMessage: {
       type: SchemaType.STRING,
       description: "Error message",
@@ -187,6 +192,7 @@ const analyzedMealSchema: Schema = {
     "mealType",
     "id",
     "mealTypeLocalized",
+    "emoji",
   ],
 };
 
@@ -246,6 +252,7 @@ export interface IMeal {
   date: string;
   mealTypeLocalized: string;
   errorMessage?: string;
+  emoji: string;
 }
 
 export const exampleMeal: IMeal = {
@@ -264,4 +271,5 @@ export const exampleMeal: IMeal = {
   score: 6.5,
   id: "placeholder",
   date: new Date().toISOString(),
+  emoji: "🍗", //string
 };

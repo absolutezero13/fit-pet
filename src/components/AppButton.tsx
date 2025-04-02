@@ -1,11 +1,12 @@
 import React, { FC } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GradientSpinner from "./GradientSpinner";
 
 interface Props {
   title: string;
@@ -23,6 +24,7 @@ interface Props {
   position?: "bottom" | "top";
   disabled?: boolean;
   disableAnimation?: boolean;
+  loading?: boolean;
 }
 
 const AppButton: FC<Props> = ({
@@ -33,6 +35,7 @@ const AppButton: FC<Props> = ({
   position,
   disabled,
   disableAnimation = false,
+  loading,
 }) => {
   const { bottom } = useSafeAreaInsets();
 
@@ -49,11 +52,16 @@ const AppButton: FC<Props> = ({
           alignItems: "center",
           justifyContent: "center",
           opacity: disabled ? 0.5 : 1,
+          height: scale(56),
         },
       ]}
       onPress={onPress}
     >
-      <Text style={[fontStyles.headline4, { color: "white" }]}>{title}</Text>
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={[fontStyles.headline4, { color: "white" }]}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 
