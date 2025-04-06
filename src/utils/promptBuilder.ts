@@ -4,6 +4,11 @@ import useMealsStore from "../zustand/useMealsStore";
 const getLanguage = () => i18next.language;
 const getCurrentDate = () => new Date().toISOString();
 
+const languageMapping: Record<string, string> = {
+  tr: "Turkish",
+  en: "English",
+};
+
 const stringifyUserInfo = (userInfo: {}) => JSON.stringify(userInfo, null, 2); // Pretty formatting for clarity (optional)
 
 const createMealPrompt = (userInfo: {}): string => `
@@ -14,7 +19,9 @@ Based on that, you’ll create a daily meal plan with 3 meals and 2 snacks.
 Pay special attention to the user’s daily calorie intake.
 If the user wants to lose weight, reduce 500 calories from their daily intake.
 Description of the meal should be brief explanation of the meal like “Chicken salad with quinoa and veggies”.
-Answer in the user's language: ${getLanguage()}.
+Answer in the user's language: ${
+  languageMapping[getLanguage()] ?? getLanguage()
+}.
 User info:
 ${stringifyUserInfo(userInfo)}
 `;
@@ -35,24 +42,17 @@ Use the errorMessage field only when:
 The meal is vague or not a meal.
 The input is outrageously unrealistic (e.g., 50 eggs, 10kg rice) → return localized: "Something went wrong, check your input".
 If the food is unhealthy but real, analyze it anyway—just roast it accordingly.
-Respond in the user’s language: ${getLanguage()}
+Respond in the user’s language: ${
+  languageMapping[getLanguage() ?? getLanguage()]
+}
 mealType must be one of: breakfast, lunch, dinner, or snack—language doesn’t matter.
 Include one to three emojis based on what’s in the meal.
 Repetition? Stack it. (e.g., 5 eggs → 🍳🍳🍳)
 Multiple items? Show them. (e.g., chicken & rice → 🍗🍚)
 Max limit: 3 emojis total.
-Use this data: User info: ${stringifyUserInfo(
-  userInfo
-)} User's other meals today: ${JSON.stringify(
-  useMealsStore
-    .getState()
-    .loggedMeals.filter(
-      (meal) => meal.date === new Date().toLocaleDateString("en-US")
-    )
+Use this data: User info: ${stringifyUserInfo(userInfo)} 
 )} Meal Description: ${meal} Meal Type: ${mealType}
-Brief Description: Write one short, clear sentence like “Chicken salad with quinoa and veggies.” Just define the meal, no need for a full-on essay.
-
-Now go ahead—pick that meal apart like it owes you money.
+If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies.” Just define the meal, no need for a full-on essay.
 `;
 
 const createChatPrompt = (userInfo: {}): string => `
@@ -62,7 +62,7 @@ You speak only about health, fitness, and nutrition—no cats, no horoscopes.
 Use the user info only when helpful. Don’t show off with it.
 Tone: Honest, witty, brief. Like a dietitian with stand-up potential.
 Ask questions if needed. Roast gently when deserved.
-Answer in user's language: ${getLanguage()}.
+Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 User info: ${Object.values(userInfo).join(", ")}
 `;
 
