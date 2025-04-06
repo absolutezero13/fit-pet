@@ -82,7 +82,7 @@ const LoggedMealsScreen = () => {
   const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal: IMeal) => {
-    navigation.navigate("AnalyzedMeal", { meal });
+    navigation.navigate("AnalyzedMeal", { mealId: meal.id });
   };
 
   const navigateLogMeal = () => {

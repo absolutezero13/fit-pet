@@ -171,14 +171,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalMacroValue: {
-    ...fontStyles.headline2,
+    ...fontStyles.headline3,
     color: colors["color-info-500"],
     marginBottom: scale(6),
   },
   totalMacroLabel: {
-    ...fontStyles.caption,
+    ...fontStyles.footnote,
     color: colors["color-primary-400"],
-    textTransform: "uppercase",
+    textAlign: "center",
   },
   macroPercentagesContainer: {
     marginTop: scale(8),

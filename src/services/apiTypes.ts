@@ -246,7 +246,7 @@ export interface IMeal {
   instructions: string[];
   ingredients: string[];
   insights: string[];
-  image: string;
+  image: string | null;
   score: number;
   id: string;
   date: string;

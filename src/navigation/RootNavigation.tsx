@@ -84,10 +84,11 @@ type RootStackParamList = {
   NotFound: undefined;
   Onboarding: undefined;
   AnalyzedMeal: {
-    meal: IMeal;
+    mealId: string;
   };
   LogMeal: {
     selectedDate: string;
+    mealId?: string;
   };
   MealDetail: {
     meal: IMeal;

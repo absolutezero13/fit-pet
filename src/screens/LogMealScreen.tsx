@@ -49,6 +49,7 @@ const LogMealScreen = () => {
       {
         params: {
           selectedDate: string;
+          mealId?: string;
         };
       },
       "params"
@@ -56,8 +57,15 @@ const LogMealScreen = () => {
   >();
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
-  const [mealDescription, setMealDescription] = useState("");
-  const [selectedMealType, setSelectedMealType] = useState(t("breakfast"));
+  const mealToEdit = useMealsStore((state) =>
+    state.loggedMeals.find((meal) => meal.id === route.params.mealId)
+  );
+  const [mealDescription, setMealDescription] = useState(
+    mealToEdit?.description ?? ""
+  );
+  const [selectedMealType, setSelectedMealType] = useState(
+    t(mealToEdit?.mealType ?? "breakfast")
+  );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
@@ -108,8 +116,6 @@ const LogMealScreen = () => {
     }
   };
 
-  console.log("image", image?.uri, "type", image);
-
   const handleAddMeal = async (mealDescription: string, mealType: string) => {
     const prompt = promptBuilder.createAnalysisPrompt(
       useOnboardingStore.getState(),
@@ -137,15 +143,25 @@ const LogMealScreen = () => {
       response.response.candidates[0].content.parts[0].text
     );
 
-    meal.date = new Date(route.params.selectedDate)?.toLocaleDateString(
-      "en-US"
-    );
-    meal.id = uuidv4();
-    console.log("meal", meal);
+    if (!mealToEdit) {
+      meal.date = new Date(route.params.selectedDate)?.toLocaleDateString(
+        "en-US"
+      );
+      meal.id = uuidv4();
+      meal.image = image?.uri ?? null;
+    } else {
+      meal.id = mealToEdit.id;
+      meal.date = mealToEdit.date;
+      meal.image = image?.uri ?? mealToEdit.image;
+    }
 
     if (!meal.errorMessage) {
+      console.log("Saving the meal", meal);
       const meals = useMealsStore.getState().loggedMeals;
-      useMealsStore.setState({ loggedMeals: [...meals, meal] });
+      console.log("Meals before saving", meals.length);
+      const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
+      console.log("Meals after filtering", newMeals.length);
+      useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
     }
     return meal;
   };
@@ -165,9 +181,14 @@ const LogMealScreen = () => {
         return;
       }
 
+      if (mealToEdit) {
+        navigation.goBack();
+        return;
+      }
+
       navigation.dispatch(
         StackActions.replace("AnalyzedMeal", {
-          meal,
+          mealId: meal.id,
         })
       );
     } catch (error) {

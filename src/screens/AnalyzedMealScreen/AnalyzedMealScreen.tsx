@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -18,14 +19,21 @@ import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 
 type AnalyzedMealScreenProps = {
-  meal: IMeal;
+  mealId: string;
 };
 
 const AnalyzedMealScreen = () => {
-  const { meal } = useRoute().params as AnalyzedMealScreenProps;
+  const { mealId } = useRoute().params as AnalyzedMealScreenProps;
+  const meal = useMealsStore((state) =>
+    state.loggedMeals.find((meal) => meal.id === mealId)
+  );
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
+
+  if (!meal) {
+    return null;
+  }
 
   const handleDelete = async () => {
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
@@ -62,6 +70,13 @@ const AnalyzedMealScreen = () => {
 
   const getScoreLabel = (score: number) => {
     return t("score" + Math.floor(score));
+  };
+
+  const handleEdit = () => {
+    navigation.navigate("LogMeal", {
+      mealId: meal.id,
+      selectedDate: meal.date,
+    });
   };
 
   const renderMacroIcon = (type: string) => {
@@ -122,13 +137,19 @@ const AnalyzedMealScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Meal Type and Date Section */}
-        <View style={styles.topSection}>
-          <View>
-            <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
-          </View>
-        </View>
-
+        {meal.image && (
+          <Image
+            source={{ uri: meal.image }}
+            style={{
+              width: scale(100),
+              height: scale(100),
+              borderRadius: scale(16),
+              marginRight: scale(16),
+              alignSelf: "center",
+              marginTop: scale(12),
+            }}
+          />
+        )}
         {/* Meal Description and Calories */}
         <View style={styles.descriptionSection}>
           <Text style={styles.mealName}>{meal.description}</Text>
@@ -203,13 +224,55 @@ const AnalyzedMealScreen = () => {
 
         {/* Action Buttons */}
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <TouchableOpacity
+            style={[
+              styles.deleteButton,
+              {
+                borderColor: colors["color-danger-300"],
+              },
+            ]}
+            onPress={handleDelete}
+          >
             <MaterialCommunityIcons
               name="delete-outline"
               size={scale(20)}
               color={colors["color-danger-500"]}
             />
-            <Text style={styles.deleteText}>{t("delete")}</Text>
+            <Text
+              style={[
+                styles.deleteText,
+                {
+                  color: colors["color-danger-500"],
+                },
+              ]}
+            >
+              {t("delete")}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.deleteButton,
+              {
+                borderColor: colors["color-primary-300"],
+              },
+            ]}
+            onPress={handleEdit}
+          >
+            <MaterialCommunityIcons
+              name="pencil-outline"
+              size={scale(20)}
+              color={colors["color-primary-500"]}
+            />
+            <Text
+              style={[
+                styles.deleteText,
+                {
+                  color: colors["color-primary-500"],
+                },
+              ]}
+            >
+              {t("edit")}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -255,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scale(12),
+    marginVertical: scale(12),
     backgroundColor: "white",
     padding: scale(16),
     borderRadius: scale(16),
@@ -427,7 +490,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: scale(14),
     borderWidth: 1,
-    borderColor: colors["color-danger-300"],
     borderRadius: scale(12),
     flex: 1,
     marginLeft: scale(8),
@@ -435,7 +497,6 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     ...fontStyles.body2,
-    color: colors["color-danger-500"],
     marginLeft: scale(8),
     fontWeight: "500",
   },
