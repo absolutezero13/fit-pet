@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
@@ -20,7 +19,6 @@ import { useTranslation } from "react-i18next";
 import EmptyState from "./components/EmptyState";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
-import { storageService } from "../../storage/AsyncStorageService";
 
 const MealTypeSection = ({
   title,

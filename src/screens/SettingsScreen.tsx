@@ -23,6 +23,7 @@ import { fontStyles } from "../theme/fontStyles";
 import useAuthService from "../services/auth";
 import { goalItems } from "./OnboardingScreen/components/Goal";
 import useUserStore, { UserStore } from "../zustand/useUserStore";
+import AppButton from "../components/AppButton";
 
 type GoalItem = { title: string; key: string };
 type LanguageOption = { code: string; name: string; localName: string };
@@ -188,7 +189,12 @@ const SettingsScreen = () => {
               <TouchableOpacity
                 key={goal.key}
                 style={styles.goalRow}
-                onPress={() => toggleGoal(goal)}
+                onPress={() =>
+                  toggleGoal({
+                    key: goal.key,
+                    title: t(goal.titleKey),
+                  })
+                }
               >
                 <Text style={styles.goalText}>{t(goal.titleKey)}</Text>
                 <View style={styles.checkboxContainer}>
@@ -283,12 +289,20 @@ const SettingsScreen = () => {
         </View>
       </Modal>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.saveButton, { marginBottom: bottom + scale(16) }]}
         onPress={saveChanges}
       >
         <Text style={styles.buttonText}>{t("saveChanges")}</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <AppButton
+        title={t("saveChanges")}
+        onPress={saveChanges}
+        margin={{
+          marginBottom: bottom + scale(32),
+          marginHorizontal: scale(24),
+        }}
+      />
     </View>
   );
 };
@@ -314,7 +328,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: scale(120),
+    paddingBottom: scale(48),
   },
   section: {
     marginBottom: scale(24),

@@ -85,7 +85,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
         style={{
           width: (SCREEN_WIDTH - scale(60)) / 2,
           height: scale(110),
-          paddingHorizontal: scale(24),
+          paddingHorizontal: scale(20),
           borderRadius: scale(8),
           alignItems: "center",
           justifyContent: "center",
@@ -100,6 +100,8 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
             }
           />
           <Text
+            adjustsFontSizeToFit
+            numberOfLines={2}
             style={[
               fontStyles.headline3,
               {

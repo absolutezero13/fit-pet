@@ -41,7 +41,7 @@ class AuthService {
       };
     }
 
-    useUserStore.setState({ user });
+    // useUserStore.setState({ user });
 
     return {
       success: true,
@@ -52,7 +52,7 @@ class AuthService {
     try {
       const res = await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      useUserStore.setState({ user: userInfo.data });
+      // useUserStore.setState({ user: userInfo.data });
       return {
         success: true,
       };
@@ -64,9 +64,7 @@ class AuthService {
     }
   }
 
-  public async logout(
-    navigationRef: NavigationProp<ReactNavigation.RootParamList>
-  ) {
+  public async logout(navigationRef: any) {
     //TODO: Implement logout API
 
     useMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);

@@ -1,12 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  LayoutAnimation,
-  Platform,
-  UIManager,
-  Text,
-} from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";

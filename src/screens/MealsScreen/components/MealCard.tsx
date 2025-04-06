@@ -1,11 +1,12 @@
 import React, { FC } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IMeal } from "../../../services/apiTypes";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 type Props = {
   meal: IMeal;
@@ -13,7 +14,11 @@ type Props = {
 };
 
 const MealCard: FC<Props> = ({ meal, onPress }) => (
-  <Pressable style={styles.mealCard} onPress={() => onPress(meal)}>
+  <TouchableOpacity
+    activeOpacity={0.8}
+    style={styles.mealCard}
+    onPress={() => onPress(meal)}
+  >
     <View style={styles.mealHeader}>
       <View style={styles.mealTitleContainer}>
         <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
@@ -56,7 +61,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => (
         <Text style={styles.macroLabel}>fats</Text>
       </View>
     </View>
-  </Pressable>
+  </TouchableOpacity>
 );
 
 export default MealCard;

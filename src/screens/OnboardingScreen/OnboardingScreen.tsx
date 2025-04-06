@@ -17,6 +17,7 @@ import Analyzing from "./components/Analyzing";
 import Goal from "./components/Goal";
 import WeightHeight from "./components/WeightHeight";
 import Gender from "./components/Gender";
+import DietType from "./components/DietType";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
@@ -46,6 +47,11 @@ const OnboardingScreen = () => {
       component: WeightHeight,
       disabled:
         onboardingStore.weight === null || onboardingStore.height === null,
+    },
+    {
+      title: t("dietTypesTitle"),
+      component: DietType,
+      disabled: onboardingStore.dietTypes?.length === 0,
     },
     {
       title: "",

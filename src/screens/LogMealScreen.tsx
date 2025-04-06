@@ -76,6 +76,7 @@ const LogMealScreen = () => {
       }
 
       result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
@@ -94,7 +95,7 @@ const LogMealScreen = () => {
       }
 
       result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
@@ -106,6 +107,8 @@ const LogMealScreen = () => {
       setImage(result.assets[0]);
     }
   };
+
+  console.log("image", image?.uri, "type", image);
 
   const handleAddMeal = async (mealDescription: string, mealType: string) => {
     const prompt = promptBuilder.createAnalysisPrompt(
@@ -120,7 +123,7 @@ const LogMealScreen = () => {
       response = await createGeminiVisionCompletion(
         {
           uri: image.uri,
-          mimeType: image.type ?? "image/jpeg",
+          mimeType: image.mimeType ?? "image/jpeg",
         },
 
         prompt ?? null,
@@ -138,13 +141,12 @@ const LogMealScreen = () => {
       "en-US"
     );
     meal.id = uuidv4();
+    console.log("meal", meal);
 
     if (!meal.errorMessage) {
       const meals = useMealsStore.getState().loggedMeals;
       useMealsStore.setState({ loggedMeals: [...meals, meal] });
     }
-    // Add new meal to the meals array
-    // storageService.setItem("meals", [...meals, meal]);
     return meal;
   };
 
@@ -170,6 +172,7 @@ const LogMealScreen = () => {
       );
     } catch (error) {
       console.error("Error analyzing meal:", error);
+      Alert.alert(t("globalError"), t("globalErrorMessage"));
       setIsAnalyzing(false);
     }
   };

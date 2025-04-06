@@ -83,15 +83,16 @@ export function App() {
     return null;
   }
 
+  const onReady = async () => {
+    setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 200);
+  };
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <KeyboardProvider>
-          <NavigationContainer
-            onReady={() => {
-              SplashScreen.hideAsync();
-            }}
-          >
+          <NavigationContainer onReady={onReady}>
             <RootNavigator />
           </NavigationContainer>
         </KeyboardProvider>

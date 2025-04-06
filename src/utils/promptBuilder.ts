@@ -34,7 +34,7 @@ You have information about the user's lifestyle and body. Use it.
 Analyze the meal for *this* user—not a generic gym bro.
 Give accurate calories and macros. No lazy rounding. No sugar-coating (pun intended).
 score the meal from 1 to 10 based on the quality of the meal.
-fill errorMessage field if there is an error.
+fill errorMessage field only if there is an error like meal being too vague or not a meal.
 Answer in user's language: ${getLanguage()}.
 mealType can be breakfast, lunch, dinner, or snack no matter the language. 
 Lastly, there is an emoji field, which is a single emoji that represents the meal.

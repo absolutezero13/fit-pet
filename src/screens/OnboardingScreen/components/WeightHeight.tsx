@@ -28,7 +28,7 @@ const weightData = Array.from({ length: 160 })
   .fill(0)
   .map((_, i) => i + 40);
 
-const WeightHeight = ({ focused }) => {
+const WeightHeight = ({ focused }: { focused: boolean }) => {
   const { height, weight } = useOnboardingStore();
 
   return (

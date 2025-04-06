@@ -173,7 +173,15 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     }))
   );
 
-  const InfoCard = ({ label, value, style }) => (
+  const InfoCard = ({
+    label,
+    value,
+    style,
+  }: {
+    label: string;
+    value: string | null;
+    style: any;
+  }) => (
     <Animated.View style={[styles.infoCard, style]}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.infoValue}>{value}</Text>

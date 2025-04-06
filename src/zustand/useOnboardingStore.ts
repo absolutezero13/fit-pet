@@ -7,6 +7,7 @@ export interface OnboardingStore {
   age: number | null;
   weight: number | null;
   height: number | null;
+  dietTypes: { title: string; key: string }[];
 }
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
@@ -15,6 +16,7 @@ export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
   age: 24,
   weight: null,
   height: null,
+  dietTypes: [],
 };
 const useOnboardingStore = create<OnboardingStore>(
   () => INITIAL_ONBOARDING_STATE

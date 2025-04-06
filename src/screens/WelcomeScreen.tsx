@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Platform, Image } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
 import { colors } from "../theme/colors";
@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import { storageService } from "../storage/AsyncStorageService";
 import { useTranslation } from "react-i18next";
+import badger from "./assets/badger-welcome.png";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -47,6 +48,14 @@ const WelcomeScreen = () => {
         {t("appName")}
       </Animated.Text>
 
+      <Image
+        source={badger}
+        style={{
+          width: scale(250),
+          height: scale(375),
+          marginTop: scale(32),
+        }}
+      />
       <AppButton
         disableAnimation={disableAnimation}
         position="bottom"

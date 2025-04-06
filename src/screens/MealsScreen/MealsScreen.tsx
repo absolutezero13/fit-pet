@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
 import promptBuilder from "../../utils/promptBuilder";
+import useUserStore from "../../zustand/useUserStore";
 
 const MealsScreen = () => {
   const { t } = useTranslation();
@@ -28,20 +29,14 @@ const MealsScreen = () => {
 
   const meals = useMealsStore((state) => state.suggestedMeals);
   const getMeals = async () => {
-    const storageItem = await storageService.getItem("User");
-
-    useOnboardingStore.setState({
-      age: storageItem?.age,
-      weight: storageItem?.weight,
-      height: storageItem?.height,
-      gender: storageItem?.gender,
-      goals: storageItem?.goals,
-    });
+    if (meals.length > 0) {
+      return;
+    }
 
     setLoading(true);
     try {
       const data = await createGeminiCompletion(
-        promptBuilder.createMealPrompt(storageItem),
+        promptBuilder.createMealPrompt(useUserStore.getState() as any),
         "recipe"
       );
 
@@ -50,18 +45,6 @@ const MealsScreen = () => {
           data.response.candidates[0].content.parts[0].text
         ) as IMeal[],
       });
-
-      if (storageItem) {
-        storageService.setItem("User", {
-          ...storageItem,
-          mealInfo: {
-            date: new Date().toLocaleDateString("en-US"),
-            meals: JSON.parse(
-              data.response.candidates[0].content.parts[0].text
-            ) as IMeal[],
-          },
-        });
-      }
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
       console.log("error", error);
