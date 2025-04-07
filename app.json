@@ -19,9 +19,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ilks.fitpet",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,7 +40,14 @@
         }
       ],
       "react-native-edge-to-edge",
-      "expo-font"
+      "expo-font",
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+        }
+      ]
+      ]
     ],
     "extra": {
       "eas": {
