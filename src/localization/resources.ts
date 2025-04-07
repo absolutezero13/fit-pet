@@ -116,6 +116,7 @@ export const resources = {
       dietWestern: "Batı Tipi",
       dietTypesTitle: "Beslenme Düzenin",
       save: "Kaydet",
+      adjustNutritionGoals: "Beslenme Hedefleri",
     },
   },
   en: {
@@ -235,6 +236,7 @@ export const resources = {
       dietWestern: "Western",
       dietTypesTitle: "Your Diet Type",
       save: "Save",
+      adjustNutritionGoals: "Adjust nutrition goals",
     },
   },
 };
