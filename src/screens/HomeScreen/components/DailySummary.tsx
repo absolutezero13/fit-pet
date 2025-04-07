@@ -1,11 +1,22 @@
 import React, { useMemo, useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import CircleProgress from "./CircleProgress";
 import { IMeal } from "../../../services/apiTypes";
+import Icon from "@expo/vector-icons/MaterialCommunityIcons";
+import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
+import { getGramGoal } from "./utils";
 
 const macroColors: Record<string, string> = {
   calories: colors["color-warning-400"], // golden yellow, attention-grabbing
@@ -16,17 +27,13 @@ const macroColors: Record<string, string> = {
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
-
-  const userGoals = {
-    calories: 2000,
-    proteins: 140,
-    carbs: 250,
-    fats: 65,
-  };
+  const [modalVisible, setModalVisible] = useState(false);
+  const currentMacroGoals = useUserStore((state) => state.user?.macroGoals);
+  const [goals, setGoals] = useState<MacroGoals>(
+    currentMacroGoals as MacroGoals
+  );
 
   const totals = useMemo(() => {
-    if (!meals || meals.length === 0) return null;
-
     const initialTotals = {
       calories: 0,
       proteins: 0,
@@ -52,13 +59,35 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     return Math.round(totals.score / meals.length);
   }, [totals, meals]);
 
-  if (!totals) return null;
-
   const progress = {
-    calories: Math.min(totals.calories / userGoals.calories, 1),
-    proteins: Math.min(totals.proteins / userGoals.proteins, 1),
-    carbs: Math.min(totals.carbs / userGoals.carbs, 1),
-    fats: Math.min(totals.fats / userGoals.fats, 1),
+    calories: Math.min(totals.calories / goals.calories, 1),
+    proteins: Math.min(
+      totals.proteins /
+        getGramGoal({
+          calorieGoal: goals.calories,
+          kcalCoefficent: 4,
+          percentage: goals.proteins,
+        }),
+      1
+    ),
+    carbs: Math.min(
+      totals.carbs /
+        getGramGoal({
+          calorieGoal: goals.calories,
+          kcalCoefficent: 4,
+          percentage: goals.carbs,
+        }),
+      1
+    ),
+    fats: Math.min(
+      totals.fats /
+        getGramGoal({
+          calorieGoal: goals.calories,
+          kcalCoefficent: 9,
+          percentage: goals.fats,
+        }),
+      1
+    ),
   };
 
   const getScoreColor = (score: number) => {
@@ -74,7 +103,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       type: "calories",
       label: t("calories"),
       value: totals.calories,
-      goal: userGoals.calories,
+      goal: goals.calories,
       progress: progress.calories,
       unit: "kcal",
       icon: "food",
@@ -83,34 +112,75 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       type: "proteins",
       label: t("proteins"),
       value: totals.proteins,
-      goal: userGoals.proteins,
+      goal: goals.proteins,
       progress: progress.proteins,
       unit: "g",
       icon: "weight-lifter",
+      kcalValue: 4,
     },
     {
       type: "carbs",
       label: t("carbs"),
       value: totals.carbs,
-      goal: userGoals.carbs,
+      goal: goals.carbs,
       progress: progress.carbs,
       unit: "g",
       icon: "bread-slice",
+      kcalValue: 4,
     },
     {
       type: "fats",
       label: t("fats"),
       value: totals.fats,
-      goal: userGoals.fats,
+      goal: goals.fats,
       progress: progress.fats,
       unit: "g",
-      icon: "avocado",
+      icon: "oil",
+      kcalValue: 9,
     },
   ];
 
+  const saveGoals = () => {
+    const currentState = useUserStore.getState();
+    const newState = {
+      user: {
+        ...currentState.user,
+        macroGoals: goals,
+      },
+    };
+    useUserStore.setState(newState);
+    setModalVisible(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    const numValue = parseInt(value) || 0;
+    setGoals((prev) => ({
+      ...prev,
+      [field]: numValue,
+    }));
+  };
+
+  const macroGoalsTotal = goals.proteins + goals.fats + goals.carbs;
+  const isMacroGoalsValid = macroGoalsTotal === 100;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => {
+            setModalVisible(true);
+          }}
+        >
+          <Icon
+            name="cog"
+            size={scale(24)}
+            color={colors["color-primary-500"]}
+          />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.progressContainer}>
         {circleData.map((data) => (
           <View key={data.label} style={[styles.calorieCircleContainer]}>
@@ -121,7 +191,15 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               strokeWidth={scale(12)}
               label={data.label}
               value={data.value.toFixed(0)}
-              goal={data.goal}
+              goal={
+                data.type === "calories"
+                  ? data.goal
+                  : (
+                      (goals[data.type] * goals.calories) /
+                      100 /
+                      data.kcalValue
+                    ).toFixed(1)
+              }
               unit={data.unit}
             />
           </View>
@@ -137,11 +215,99 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         <Text style={styles.scoreValue}>{averageScore}</Text>
         <Text style={styles.scoreLabel}>{t("averageScore")}</Text>
       </View>
+
+      {/* Settings Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t("adjustNutritionGoals")}</Text>
+
+            {circleData.map((data) => (
+              <View key={data.type}>
+                <View style={styles.inputRow}>
+                  <View style={styles.labelContainer}>
+                    <Icon
+                      name={data.icon}
+                      size={scale(18)}
+                      color={macroColors[data.type]}
+                      style={styles.inputIcon}
+                    />
+                    <Text style={styles.inputLabel}>{data.label}</Text>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      keyboardType="numeric"
+                      value={goals[data.type].toString()}
+                      onChangeText={(value) =>
+                        handleInputChange(data.type, value)
+                      }
+                    />
+                    <Text style={styles.inputUnit}>
+                      {data.type === "calories" ? "kcal" : "%"}{" "}
+                    </Text>
+                  </View>
+                </View>
+                {data.type !== "calories" && (
+                  <Text
+                    style={{
+                      ...fontStyles.footnote,
+                      alignSelf: "flex-end",
+                      position: "absolute",
+                      zIndex: 99,
+                      right: scale(42),
+                      bottom: scale(0),
+                    }}
+                  >
+                    {(
+                      (goals[data.type] * goals.calories) /
+                      100 /
+                      data.kcalValue
+                    ).toFixed(1)}{" "}
+                    g
+                  </Text>
+                )}
+              </View>
+            ))}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>{t("cancel")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.saveButton,
+                  {
+                    backgroundColor: isMacroGoalsValid
+                      ? colors["color-primary-500"]
+                      : colors["color-primary-300"],
+                  },
+                ]}
+                onPress={saveGoals}
+                disabled={!isMacroGoalsValid}
+              >
+                <Text style={styles.buttonText}>{t("save")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(10),
@@ -155,10 +321,18 @@ const styles = StyleSheet.create({
     shadowRadius: scale(8),
     elevation: 3,
   },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: scale(16),
+  },
+  settingsButton: {
+    padding: scale(4),
+  },
   summaryTitle: {
     ...fontStyles.headline3,
     color: colors["color-primary-500"],
-    marginBottom: scale(16),
   },
   progressContainer: {
     flexDirection: "row",
@@ -239,6 +413,101 @@ const styles = StyleSheet.create({
   },
   scoreLabel: {
     ...fontStyles.caption,
+    color: "white",
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: scale(20),
+  },
+  modalContent: {
+    marginTop: scale(120),
+    backgroundColor: "white",
+    borderRadius: scale(16),
+    padding: scale(20),
+    width: "90%",
+    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: scale(4),
+    elevation: 5,
+  },
+  modalTitle: {
+    ...fontStyles.headline3,
+    color: colors["color-primary-500"],
+    marginBottom: scale(16),
+    textAlign: "center",
+  },
+  formContainer: {
+    maxHeight: scale(300),
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: scale(16),
+    paddingHorizontal: scale(4),
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  inputIcon: {
+    marginRight: scale(8),
+  },
+  inputLabel: {
+    ...fontStyles.body1,
+    color: colors["color-primary-700"],
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    minWidth: scale(100),
+  },
+  input: {
+    ...fontStyles.body1,
+    borderWidth: 1,
+    borderColor: colors["color-primary-300"],
+    borderRadius: scale(8),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(8),
+    textAlign: "right",
+    width: scale(80),
+  },
+  inputUnit: {
+    ...fontStyles.body1,
+    color: colors["color-primary-500"],
+    marginLeft: scale(8),
+    width: scale(30),
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: scale(20),
+  },
+  button: {
+    paddingVertical: scale(12),
+    paddingHorizontal: scale(24),
+    borderRadius: scale(8),
+    minWidth: "45%",
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: colors["color-warning-600"],
+  },
+  saveButton: {
+    backgroundColor: colors["color-primary-500"],
+  },
+  buttonText: {
+    ...fontStyles.body1,
     color: "white",
   },
 });

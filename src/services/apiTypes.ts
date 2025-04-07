@@ -111,6 +111,33 @@ const recipeSchema: Schema = {
   },
 };
 
+const macroGoalsSchema: Schema = {
+  description: "Macro Goals",
+  type: SchemaType.OBJECT,
+  properties: {
+    calories: {
+      type: SchemaType.NUMBER,
+      description: "Calories",
+      nullable: false,
+    },
+    proteins: {
+      type: SchemaType.NUMBER,
+      description: "Proteins as percentage",
+      nullable: false,
+    },
+    fats: {
+      type: SchemaType.NUMBER,
+      description: "Fats as percentage",
+      nullable: false,
+    },
+    carbs: {
+      type: SchemaType.NUMBER,
+      description: "Carbs as percentage",
+      nullable: false,
+    },
+  },
+};
+
 const analyzedMealSchema: Schema = {
   description: "Analyzed meal",
   type: SchemaType.OBJECT,
@@ -199,6 +226,7 @@ const analyzedMealSchema: Schema = {
 export const schemas: Record<string, Schema> = {
   recipe: recipeSchema,
   analyzedMeal: analyzedMealSchema,
+  macroGoals: macroGoalsSchema,
 };
 
 export interface GeminiResponse {

@@ -21,6 +21,8 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import useUserStore from "../../../zustand/useUserStore";
+import { createGeminiCompletion } from "../../../services/gptApi";
+import promptBuilder from "../../../utils/promptBuilder";
 
 const { width } = Dimensions.get("window");
 
@@ -56,18 +58,36 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     }, 200);
   };
 
+  const updateUser = async () => {
+    storageService.setItem("User", {
+      ...useOnboardingStore.getState(),
+    });
+
+    const geminiRes = await createGeminiCompletion(
+      promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
+      "macroGoals"
+    );
+
+    console.log(
+      "Gemini response: ",
+      geminiRes.response.candidates[0].content.parts
+    );
+
+    const macroGoals = JSON.parse(
+      geminiRes.response.candidates[0].content.parts[0].text
+    );
+
+    useUserStore.setState({
+      user: { ...useOnboardingStore.getState(), macroGoals },
+    });
+  };
+
   useEffect(() => {
     if (!focused) {
       return;
     }
 
-    storageService.setItem("User", {
-      ...useOnboardingStore.getState(),
-    });
-
-    useUserStore.setState({
-      user: useOnboardingStore.getState(),
-    });
+    updateUser();
 
     setTimeout(() => {
       navigation.navigate("HomeTabs");

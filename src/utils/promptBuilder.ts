@@ -15,9 +15,9 @@ const createMealPrompt = (userInfo: {}): string => `
 date: ${getCurrentDate()}
 You are a meal planner.
 You’ll receive lifestyle and body information about the user.
-Based on that, you’ll create a daily meal plan with 3 meals and 2 snacks.
-Pay special attention to the user’s daily calorie intake.
-If the user wants to lose weight, reduce 500 calories from their daily intake.
+Based on that, you’ll create a daily meal plan up to 3 meals and 2 snacks but it might change based on user's diet habits.
+Beware of user's macro goals that will be provided later, please.
+ Meal should have exactly the same amoutn of calories. But Fats,proteins and carbs are in percentage, beweare of that as well. 
 Description of the meal should be brief explanation of the meal like “Chicken salad with quinoa and veggies”.
 Answer in the user's language: ${
   languageMapping[getLanguage()] ?? getLanguage()
@@ -29,7 +29,8 @@ ${stringifyUserInfo(userInfo)}
 const createAnalysisPrompt = (
   userInfo: {},
   meal: string,
-  mealType: string
+  mealType: string,
+  selectedDate: string
 ): string => `You're a brutally honest, razor-sharp meal analyst with the charm of a Gordon Ramsay meltdown and the precision of a sniper.
 Your tone? Judgmental, sarcastic, and so dry it could dehydrate spinach. No fluff. No fake praise. Just facts and fire.
 You're here to dissect meals with surgical sarcasm and nutritional savagery.
@@ -50,7 +51,10 @@ Include one to three emojis based on what’s in the meal.
 Repetition? Stack it. (e.g., 5 eggs → 🍳🍳🍳)
 Multiple items? Show them. (e.g., chicken & rice → 🍗🍚)
 Max limit: 3 emojis total.
-Use this data: User info: ${stringifyUserInfo(userInfo)} 
+User info: ${stringifyUserInfo(userInfo)} 
+user's todays meal logs: ${useMealsStore
+  .getState()
+  .loggedMeals.filter((m) => m.date === selectedDate)}
 )} Meal Description: ${meal} Meal Type: ${mealType}
 If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies.” Just define the meal, no need for a full-on essay.
 `;
@@ -66,10 +70,21 @@ Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 User info: ${Object.values(userInfo).join(", ")}
 `;
 
+const createMacroGoalsPrompt = (userInfo: {}) => `
+date: ${getCurrentDate()}
+You are a nutritionist. You will receive lifestyle and body information about the user.
+Based on that, you’ll create a daily macro goals.
+Pay special attention to the user’s daily calorie intake.
+fats, carbs and protein should have percentage value, total of 100%.
+calories should be kcal, example: 2000.
+userInfo: ${stringifyUserInfo(userInfo)}
+`;
+
 const promptBuilder = {
   createMealPrompt,
   createAnalysisPrompt,
   createChatPrompt,
+  createMacroGoalsPrompt,
 };
 
 export default promptBuilder;

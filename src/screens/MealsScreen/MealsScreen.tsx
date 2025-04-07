@@ -5,8 +5,6 @@ import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { createGeminiCompletion } from "../../services/gptApi";
 import GradientSpinner from "../../components/GradientSpinner";
-import { storageService } from "../../storage/AsyncStorageService";
-import useOnboardingStore from "../../zustand/useOnboardingStore";
 import { IMeal } from "../../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import useMealsStore from "../../zustand/useMealsStore";
@@ -29,7 +27,10 @@ const MealsScreen = () => {
 
   const meals = useMealsStore((state) => state.suggestedMeals);
   const getMeals = async () => {
-    if (meals.length > 0) {
+    const todaysMeals = meals.filter(
+      (m) => m.date === new Date().toLocaleDateString("en-US")
+    );
+    if (todaysMeals.length > 0) {
       return;
     }
 

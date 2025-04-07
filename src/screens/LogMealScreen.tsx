@@ -120,7 +120,8 @@ const LogMealScreen = () => {
     const prompt = promptBuilder.createAnalysisPrompt(
       useOnboardingStore.getState(),
       mealDescription,
-      mealType
+      mealType,
+      new Date(route.params.selectedDate).toLocaleDateString("en-US")
     );
 
     let response: { response: GeminiResponse };
@@ -144,7 +145,7 @@ const LogMealScreen = () => {
     );
 
     if (!mealToEdit) {
-      meal.date = new Date(route.params.selectedDate)?.toLocaleDateString(
+      meal.date = new Date(route.params.selectedDate).toLocaleDateString(
         "en-US"
       );
       meal.id = uuidv4();

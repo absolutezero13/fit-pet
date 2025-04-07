@@ -4,9 +4,20 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { OnboardingStore } from "./useOnboardingStore";
 
+export type MacroGoals = {
+  calories: number;
+  carbs: number;
+  proteins: number;
+  fats: number;
+};
+
 export type UserStore = {
   // FIXME: change type after google sign in
-  user: OnboardingStore | null;
+  user:
+    | (OnboardingStore & {
+        macroGoals: MacroGoals;
+      })
+    | null;
 };
 
 export const INITIAL_USER_STORE: UserStore = {

@@ -91,8 +91,8 @@ export const resources = {
       deleteFailed: "Silme işlemi başarısız oldu",
       score1: "Beslenme değil bu, biyolojik sabotaj.",
       score2: "Vücudun resmen istifa etmeye hazırlanıyor.",
-      score3: "Bir iddia mı kaybettin? Yoksa ceza mı bu?",
-      score4: "Dibin de dibi bu... Tabak değil, trajedi.",
+      score3: "Kendini mi cezalandırıyorsun?",
+      score4: "Vasat bile diyemiyorum.",
       score5: "Vasatın da alt sınırındasın.",
       score6: "Ne iyi ne kötü... İşte öyle bir şey.",
       score7: "Kendine biraz değer vermeye başlamışsın sanki.",
@@ -115,6 +115,7 @@ export const resources = {
       dietPaleo: "Paleo",
       dietWestern: "Batı Tipi",
       dietTypesTitle: "Beslenme Düzenin",
+      save: "Kaydet",
     },
   },
   en: {
@@ -233,6 +234,7 @@ export const resources = {
       dietPaleo: "Paleo",
       dietWestern: "Western",
       dietTypesTitle: "Your Diet Type",
+      save: "Save",
     },
   },
 };
