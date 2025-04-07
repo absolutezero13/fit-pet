@@ -47,7 +47,6 @@
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
         }
       ]
-      ]
     ],
     "extra": {
       "eas": {
