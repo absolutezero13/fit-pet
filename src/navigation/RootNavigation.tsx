@@ -1,13 +1,13 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen/OnboardingScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import LogMealScreen from "../screens/LogMealScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import { IMeal } from "../services/apiTypes";
 import { createNavigationContainerRef } from "@react-navigation/native";
+import LogMealScreen from "../screens/LogMealScreen/LogMealScreen";
 
 const Stack = createNativeStackNavigator();
 

@@ -47,27 +47,13 @@ const MealTypeSection = ({
 };
 
 const LoggedMealsScreen = () => {
+  const navigation = useNavigation();
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
-  const [modalVisible, setModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const meals = useMealsStore((state) => state.loggedMeals).filter(
     (m) => m.date === selectedDate.toLocaleDateString("en-US")
   );
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    if (modalVisible) {
-      navigation.setOptions({
-        tabBarVisible: false,
-      });
-    } else {
-      navigation.setOptions({
-        tabBarVisible: true,
-      });
-    }
-  }, [modalVisible]);
 
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
@@ -93,6 +79,13 @@ const LoggedMealsScreen = () => {
 
   const isToday =
     selectedDate.toLocaleDateString() === new Date().toLocaleDateString();
+
+  const mealTypesData = [
+    { type: "breakfast", meals: breakfastMeals },
+    { type: "lunch", meals: lunchMeals },
+    { type: "dinner", meals: dinnerMeals },
+    { type: "snack", meals: snackMeals },
+  ];
 
   return (
     <View style={styles.container}>
@@ -165,35 +158,18 @@ const LoggedMealsScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <DailySummary meals={meals} />
-
-          <MealTypeSection
-            title={t("breakfast")}
-            meals={breakfastMeals}
-            onPressItem={handleMealPress}
-          />
-
-          <MealTypeSection
-            title={t("lunch")}
-            meals={lunchMeals}
-            onPressItem={handleMealPress}
-          />
-
-          <MealTypeSection
-            title={t("dinner")}
-            meals={dinnerMeals}
-            onPressItem={handleMealPress}
-          />
-
-          <MealTypeSection
-            title={t("snack")}
-            meals={snackMeals}
-            onPressItem={handleMealPress}
-          />
+          {mealTypesData.map(({ type, meals }) => (
+            <MealTypeSection
+              key={type}
+              title={t(type)}
+              meals={meals}
+              onPressItem={handleMealPress}
+            />
+          ))}
         </ScrollView>
       ) : (
         <EmptyState onPress={navigateLogMeal} />
       )}
-
       {meals.length > 0 && (
         <TouchableOpacity
           style={[
@@ -238,86 +214,6 @@ const styles = StyleSheet.create({
     color: colors["color-primary-400"],
     textAlign: "center",
   },
-  // New compact summary styles
-  dailySummaryContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: scale(20),
-  },
-  macroCard: {
-    flex: 3,
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(12),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
-    marginRight: scale(10),
-  },
-  summaryTitle: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-500"],
-    marginBottom: scale(8),
-  },
-  macroGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  macroItem: {
-    width: "48%",
-    marginBottom: scale(8),
-  },
-  macroValue: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-800"],
-  },
-  macroLabel: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
-  },
-  scoreCard: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(12),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
-  },
-  scoreTitle: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-500"],
-    marginBottom: scale(8),
-    textAlign: "center",
-  },
-  scoreContent: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  scoreCircle: {
-    width: scale(50),
-    height: scale(50),
-    borderRadius: scale(25),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scoreValue: {
-    ...fontStyles.headline3,
-    color: "white",
-    fontWeight: "bold",
-  },
   // Original styles
   scrollView: {
     flex: 1,
@@ -334,91 +230,6 @@ const styles = StyleSheet.create({
     color: colors["color-primary-500"],
     marginBottom: scale(12),
   },
-  mealItem: {
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    marginBottom: scale(12),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
-    overflow: "hidden",
-  },
-  mealItemHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: scale(16),
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
-  },
-  mealItemDetails: {
-    padding: scale(16),
-  },
-  mealItemLeft: {
-    flex: 1,
-  },
-  mealItemTitle: {
-    ...fontStyles.headline3,
-  },
-  mealItemTime: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
-  },
-  mealItemRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  caloriesText: {
-    ...fontStyles.body1,
-    color: colors["color-success-400"],
-    marginRight: scale(8),
-  },
-  // Insights styles
-  detailsBottomRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  insightsContainer: {
-    flex: 1,
-    marginRight: scale(16),
-  },
-  insightsTitleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: scale(8),
-  },
-  insightsTitle: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-500"],
-  },
-  insightsContent: {
-    marginTop: scale(4),
-  },
-  insightRow: {
-    flexDirection: "row",
-    marginBottom: scale(6),
-  },
-  bulletPoint: {
-    width: scale(6),
-    height: scale(6),
-    borderRadius: scale(3),
-    backgroundColor: colors["color-primary-400"],
-    marginRight: scale(8),
-    marginTop: scale(6),
-  },
-  insightText: {
-    ...fontStyles.body2,
-    color: colors["color-primary-400"],
-    flex: 1,
-  },
-  // Score styles
   addButton: {
     position: "absolute",
     bottom: scale(32),
@@ -437,51 +248,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: scale(8),
     elevation: 5,
-  },
-  // Empty state styles
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: scale(32),
-  },
-  emptyStateImage: {
-    width: scale(180),
-    height: scale(180),
-    marginBottom: scale(24),
-  },
-  emptyStateTitle: {
-    ...fontStyles.headline2,
-    color: colors["color-primary-500"],
-    marginBottom: scale(12),
-    textAlign: "center",
-  },
-  emptyStateDescription: {
-    ...fontStyles.body1,
-    color: colors["color-primary-400"],
-    textAlign: "center",
-    marginBottom: scale(32),
-  },
-  emptyStateButton: {
-    backgroundColor: colors["color-success-400"],
-    paddingHorizontal: scale(20),
-    paddingVertical: scale(14),
-    borderRadius: scale(12),
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors["color-success-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: scale(8),
-    elevation: 4,
-  },
-  emptyStateButtonText: {
-    ...fontStyles.headline4,
-    color: "white",
   },
 });
 

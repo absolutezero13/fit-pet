@@ -27,17 +27,14 @@ const ProgressBar: FC<Props> = ({
   goal,
   unit = "",
 }) => {
-  // Calculate the percentage for styling
   const percentage = progress * 100;
 
   return (
     <View style={[styles.progressBarContainer, { width }]}>
-      {/* Label (if provided) */}
       {label && (
         <Text style={[fontStyles.headline4, styles.label]}>{label}</Text>
       )}
 
-      {/* Progress Bar */}
       <View
         style={[
           styles.progressBackground,
@@ -56,8 +53,6 @@ const ProgressBar: FC<Props> = ({
           ]}
         />
       </View>
-
-      {/* Value display */}
       <View style={styles.valueContainer}>
         <Text style={fontStyles.body2}>
           {value}
@@ -70,14 +65,12 @@ const ProgressBar: FC<Props> = ({
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   progressBarContainer: {},
   label: {
     marginBottom: scale(5),
   },
   progressBackground: {
-    // width: "100%",
     overflow: "hidden",
   },
   progressForeground: {

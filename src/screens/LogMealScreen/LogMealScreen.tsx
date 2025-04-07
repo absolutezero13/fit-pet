@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import {
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -10,9 +9,6 @@ import {
   Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { scale } from "../theme/utils";
-import { colors } from "../theme/colors";
-import { fontStyles } from "../theme/fontStyles";
 import {
   RouteProp,
   StackActions,
@@ -20,27 +16,30 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import useOnboardingStore from "../zustand/useOnboardingStore";
-import {
-  createGeminiCompletion,
-  createGeminiVisionCompletion,
-} from "../services/gptApi";
-import useMealsStore from "../zustand/useMealsStore";
 import * as ImagePicker from "expo-image-picker";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { GeminiResponse, IMeal } from "../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import {
   KeyboardGestureArea,
   useReanimatedKeyboardAnimation,
 } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
-import promptBuilder from "../utils/promptBuilder";
-import FullPageSpinner from "../components/FullPageSpinner";
-import AppButton from "../components/AppButton";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
+import AppButton from "../../components/AppButton";
+import FullPageSpinner from "../../components/FullPageSpinner";
+import { GeminiResponse, IMeal } from "../../services/apiTypes";
+import {
+  createGeminiVisionCompletion,
+  createGeminiCompletion,
+} from "../../services/gptApi";
+import { colors } from "../../theme/colors";
+import { fontStyles } from "../../theme/fontStyles";
+import { scale } from "../../theme/utils";
+import promptBuilder from "../../utils/promptBuilder";
+import useMealsStore from "../../zustand/useMealsStore";
+import useOnboardingStore from "../../zustand/useOnboardingStore";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
