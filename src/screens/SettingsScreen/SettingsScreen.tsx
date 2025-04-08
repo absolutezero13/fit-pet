@@ -7,23 +7,20 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Modal,
-  FlatList,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { scale } from "../theme/utils";
-import { colors } from "../theme/colors";
+import { scale } from "../../theme/utils";
+import { colors } from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import useOnboardingStore, {
-  OnboardingStore,
-} from "../zustand/useOnboardingStore";
+import { OnboardingStore } from "../../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
-import { fontStyles } from "../theme/fontStyles";
-import useAuthService from "../services/auth";
-import { goalItems } from "./OnboardingScreen/components/Goal";
-import useUserStore, { UserStore } from "../zustand/useUserStore";
-import AppButton from "../components/AppButton";
+import { fontStyles } from "../../theme/fontStyles";
+import useAuthService from "../../services/auth";
+import { goalItems } from "../OnboardingScreen/components/Goal";
+import useUserStore, { UserStore } from "../../zustand/useUserStore";
+import AppButton from "../../components/AppButton";
+import LanguageSelection from "./components/LanguageSelection";
 
 type GoalItem = { title: string; key: string };
 type LanguageOption = { code: string; name: string; localName: string };
@@ -81,11 +78,11 @@ const SettingsScreen = () => {
       return;
     }
 
-    const onboardingState = useUserStore.getState().user as OnboardingStore;
+    const onboardingState = useUserStore.getState() as UserStore;
 
     useUserStore.setState({
       user: {
-        ...onboardingState,
+        ...onboardingState.user,
         weight: weightNum,
         height: heightNum,
         goals: selectedGoals,
@@ -95,7 +92,6 @@ const SettingsScreen = () => {
     navigation.goBack();
   };
 
-  // Find current language name
   const currentLanguage =
     languageOptions.find((lang) => lang.code === i18n.language) ||
     languageOptions[0];
@@ -164,7 +160,6 @@ const SettingsScreen = () => {
               </View>
             </View>
 
-            {/* Height */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>{t("height")}</Text>
               <View style={styles.inputWrapper}>
@@ -181,7 +176,6 @@ const SettingsScreen = () => {
           </View>
         </View>
 
-        {/* Goals Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("goals")}</Text>
           <View style={styles.card}>
@@ -229,77 +223,16 @@ const SettingsScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Language Selection Modal */}
-      <Modal
+      <LanguageSelection
         visible={isLanguageModalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setIsLanguageModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {t("settings.selectLanguage")}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setIsLanguageModalVisible(false)}
-              >
-                <MaterialCommunityIcons
-                  name="close"
-                  size={scale(24)}
-                  color={colors["color-primary-500"]}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              data={languageOptions}
-              keyExtractor={(item) => item.code}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.languageOption,
-                    item.code === i18n.language &&
-                      styles.languageOptionSelected,
-                  ]}
-                  onPress={() => changeLanguage(item.code)}
-                >
-                  <Text
-                    style={[
-                      styles.languageText,
-                      item.code === i18n.language &&
-                        styles.languageTextSelected,
-                    ]}
-                  >
-                    {item.localName}
-                  </Text>
-                  {item.code === i18n.language && (
-                    <Ionicons
-                      name="checkmark"
-                      size={scale(24)}
-                      color={colors["color-primary-500"]}
-                    />
-                  )}
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={styles.languageList}
-            />
-          </View>
-        </View>
-      </Modal>
-
-      {/* <TouchableOpacity
-        style={[styles.saveButton, { marginBottom: bottom + scale(16) }]}
-        onPress={saveChanges}
-      >
-        <Text style={styles.buttonText}>{t("saveChanges")}</Text>
-      </TouchableOpacity> */}
+        onClose={() => setIsLanguageModalVisible(false)}
+        languageOptions={languageOptions}
+      />
       <AppButton
         title={t("saveChanges")}
         onPress={saveChanges}
         margin={{
-          marginBottom: bottom + scale(32),
+          marginBottom: bottom,
           marginHorizontal: scale(24),
         }}
       />

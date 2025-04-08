@@ -59,17 +59,17 @@ const LogMealScreen = () => {
   const mealToEdit = useMealsStore((state) =>
     state.loggedMeals.find((meal) => meal.id === route.params.mealId)
   );
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const textInputRef = useRef<TextInput>(null);
+  const { height } = useReanimatedKeyboardAnimation();
+
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [mealDescription, setMealDescription] = useState(
     mealToEdit?.description ?? ""
   );
   const [selectedMealType, setSelectedMealType] = useState(
     t(mealToEdit?.mealType ?? "breakfast")
   );
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const textInputRef = useRef<TextInput>(null);
-  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
-
-  const { height } = useReanimatedKeyboardAnimation();
 
   const pickImage = async (source: "camera" | "gallery") => {
     let result;
@@ -149,18 +149,17 @@ const LogMealScreen = () => {
       );
       meal.id = uuidv4();
       meal.image = image?.uri ?? null;
+      meal.description = mealDescription;
     } else {
       meal.id = mealToEdit.id;
       meal.date = mealToEdit.date;
+      meal.description = mealDescription;
       meal.image = image?.uri ?? mealToEdit.image;
     }
 
     if (!meal.errorMessage) {
-      console.log("Saving the meal", meal);
       const meals = useMealsStore.getState().loggedMeals;
-      console.log("Meals before saving", meals.length);
       const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
-      console.log("Meals after filtering", newMeals.length);
       useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
     }
     return meal;
@@ -348,100 +347,12 @@ const LogMealScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  bottomSheet: {
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-  },
-  bottomSheetContent: {
-    paddingHorizontal: scale(24),
-    paddingBottom: scale(24),
-  },
   container: {
     flex: 1,
     paddingHorizontal: scale(24),
     paddingTop: scale(24),
   },
-  header: {
-    padding: scale(24),
-    paddingTop: scale(60),
-    paddingBottom: scale(32),
-    backgroundColor: colors["color-primary-200"],
-    borderBottomLeftRadius: scale(30),
-    borderBottomRightRadius: scale(30),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(12),
-  },
-  title: {
-    ...fontStyles.headline1,
-  },
-  date: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-400"],
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: scale(24),
-    paddingBottom: scale(100),
-  },
-  sectionContainer: {
-    marginBottom: scale(24),
-  },
-  sectionTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-    marginBottom: scale(12),
-  },
-  mealItem: {
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(16),
-    marginBottom: scale(12),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
-  },
-  mealItemContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  mealItemLeft: {
-    flex: 1,
-  },
-  mealItemTitle: {
-    ...fontStyles.headline4,
-    marginBottom: scale(4),
-  },
-  mealItemTime: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
-  },
-  mealItemRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  caloriesText: {
-    ...fontStyles.body2,
-    color: colors["color-success-400"],
-    marginRight: scale(8),
-  },
+
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -496,69 +407,12 @@ const styles = StyleSheet.create({
   mealTypeTextActive: {
     color: "white",
   },
-
   buttonView: {
     marginTop: "auto",
     position: "absolute",
     bottom: 0,
     width: "100%",
     marginHorizontal: scale(24),
-  },
-  analyzeButton: {
-    backgroundColor: colors["color-success-400"],
-    padding: scale(16),
-    borderRadius: scale(12),
-    alignSelf: "center",
-    alignItems: "center",
-    width: "100%",
-  },
-  disabledButton: {
-    backgroundColor: colors["color-primary-300"],
-    opacity: 0.7,
-  },
-  saveButton: {
-    backgroundColor: colors["color-primary-500"],
-    padding: scale(16),
-    borderRadius: scale(12),
-    alignItems: "center",
-    marginTop: scale(16),
-  },
-  buttonText: {
-    ...fontStyles.headline4,
-    color: "white",
-  },
-  nutritionContainer: {
-    marginTop: scale(24),
-    backgroundColor: colors["color-primary-100"],
-    borderRadius: scale(16),
-    padding: scale(16),
-  },
-  nutritionTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-    marginBottom: scale(16),
-    textAlign: "center",
-  },
-  nutritionGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  nutritionItem: {
-    width: "48%",
-    backgroundColor: "white",
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginBottom: scale(12),
-    alignItems: "center",
-  },
-  nutritionValue: {
-    ...fontStyles.headline2,
-    color: colors["color-primary-500"],
-  },
-  nutritionLabel: {
-    ...fontStyles.body2,
-    color: colors["color-primary-400"],
   },
   textInputWrapper: {
     position: "relative",

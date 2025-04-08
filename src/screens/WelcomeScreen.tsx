@@ -74,10 +74,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-200"],
     paddingHorizontal: scale(24),
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
 });
 
 export default WelcomeScreen;

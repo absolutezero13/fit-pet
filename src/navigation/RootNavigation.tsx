@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen/OnboardingScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import SettingsScreen from "../screens/SettingsScreen";
+import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
