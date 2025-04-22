@@ -197,7 +197,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                   : (
                       (goals[data.type] * goals.calories) /
                       100 /
-                      data.kcalValue
+                      (data.kcalValue ?? 1)
                     ).toFixed(1)
               }
               unit={data.unit}
@@ -232,7 +232,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 <View style={styles.inputRow}>
                   <View style={styles.labelContainer}>
                     <Icon
-                      name={data.icon}
+                      name={data.icon as any}
                       size={scale(18)}
                       color={macroColors[data.type]}
                       style={styles.inputIcon}

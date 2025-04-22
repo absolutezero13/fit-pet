@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "fit-panda",
-    "slug": "fit-panda",
+    "name": "fit-pet",
+    "slug": "fit-pet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "scheme": "fitpanda",
+    "scheme": "fitpet",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.fit-panda"
+      "bundleIdentifier": "com.ilks.fitpet"
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -40,13 +40,7 @@
         }
       ],
       "react-native-edge-to-edge",
-      "expo-font",
-      [
-        "react-native-vision-camera",
-        {
-          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
-        }
-      ]
+      "expo-font"
     ],
     "extra": {
       "eas": {

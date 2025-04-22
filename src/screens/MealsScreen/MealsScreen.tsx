@@ -3,7 +3,10 @@ import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
-import { createGeminiCompletion } from "../../services/gptApi";
+import {
+  createGeminiCompletion,
+  createGeminiImage,
+} from "../../services/gptApi";
 import GradientSpinner from "../../components/GradientSpinner";
 import { IMeal } from "../../services/apiTypes";
 import { useTranslation } from "react-i18next";
@@ -30,6 +33,7 @@ const MealsScreen = () => {
     const todaysMeals = meals.filter(
       (m) => m.date === new Date().toLocaleDateString("en-US")
     );
+
     if (todaysMeals.length > 0) {
       return;
     }
@@ -40,11 +44,28 @@ const MealsScreen = () => {
         promptBuilder.createMealPrompt(useUserStore.getState() as any),
         "recipe"
       );
+      const responseMeals = JSON.parse(
+        data.response.candidates[0].content.parts[0].text
+      ) as IMeal[];
+
+      const imagePromises = responseMeals.map((meal) => {
+        return createGeminiImage(
+          `You will create a realistic and minimalistic image of a meal, meal description is ${meal.description}.
+          Aspect ratio is 1:1.
+           Image should only contain the meal itself, no text.
+          `
+        );
+      });
+      const images = await Promise.all(imagePromises);
+
+      const mealsWithImages = responseMeals.map((meal, index) => ({
+        ...meal,
+        date: new Date().toLocaleDateString("en-US"),
+        image: images[index].data,
+      }));
 
       useMealsStore.setState({
-        suggestedMeals: JSON.parse(
-          data.response.candidates[0].content.parts[0].text
-        ) as IMeal[],
+        suggestedMeals: mealsWithImages,
       });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
@@ -53,10 +74,9 @@ const MealsScreen = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    if (meals.length === 0) {
-      getMeals();
-    }
+    getMeals();
   }, []);
 
   return (

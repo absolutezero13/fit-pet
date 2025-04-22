@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Fit Pet</string>
+    <string>fit-pet</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -27,14 +27,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>fitpanda</string>
-          <string>com.anonymous.fit-panda</string>
+          <string>fitpet</string>
+          <string>com.ilks.fitpet</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+fit-panda</string>
+          <string>exp+fit-pet</string>
         </array>
       </dict>
     </array>

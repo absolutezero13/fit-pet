@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'fit-panda'
+rootProject.name = 'fit-pet'
 
 dependencyResolutionManagement {
   versionCatalogs {

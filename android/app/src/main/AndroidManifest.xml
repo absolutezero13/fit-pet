@@ -29,6 +29,8 @@
         <data android:scheme="fitpanda"/>
         <data android:scheme="com.ilks.fitpet"/>
         <data android:scheme="exp+fit-panda"/>
+        <data android:scheme="fitpet"/>
+        <data android:scheme="exp+fit-pet"/>
       </intent-filter>
     </activity>
   </application>

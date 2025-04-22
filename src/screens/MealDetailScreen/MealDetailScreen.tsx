@@ -17,11 +17,13 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
-import { scale } from "../../theme/utils";
+import { scale, SCREEN_WIDTH } from "../../theme/utils";
 
 type MealDetailScreenProps = {
   meal: IMeal;
 };
+const start = scale(50);
+const end = scale(200);
 
 const MealDetailScreen = () => {
   const { meal } = useRoute().params as MealDetailScreenProps;
@@ -31,8 +33,9 @@ const MealDetailScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
 
   // Calculate header opacity based on scroll position
+
   const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
+    inputRange: [start, end],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
@@ -138,8 +141,7 @@ const MealDetailScreen = () => {
           styles.animatedHeader,
           {
             opacity: headerOpacity,
-            paddingTop: top + scale(10),
-            height: top + scale(60),
+            paddingTop: scale(24),
           },
         ]}
       >
@@ -176,7 +178,7 @@ const MealDetailScreen = () => {
         scrollEventThrottle={16}
       >
         {/* Header section with back button */}
-        <View style={[styles.headerSection, { paddingTop: top + scale(16) }]}>
+        <View style={[styles.headerSection, { paddingTop: scale(24) }]}>
           <TouchableOpacity
             style={styles.backButtonTransparent}
             onPress={() => navigation.goBack()}
@@ -203,7 +205,7 @@ const MealDetailScreen = () => {
         <View style={styles.imageContainer}>
           {meal.image ? (
             <Image
-              source={{ uri: meal.image }}
+              source={{ uri: `data:image/jpeg;base64,${meal.image}` }}
               style={styles.mealImage}
               resizeMode="cover"
             />
@@ -377,9 +379,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    backgroundColor: "white",
   },
   scrollContent: {
-    paddingBottom: scale(40),
+    paddingBottom: scale(100),
   },
   headerSection: {
     paddingHorizontal: scale(16),
@@ -410,12 +413,12 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: scale(250),
+    height: SCREEN_WIDTH,
     backgroundColor: colors["color-primary-200"],
   },
   mealImage: {
-    width: "100%",
-    height: "100%",
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH,
   },
   placeholderImage: {
     width: "100%",
@@ -431,14 +434,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: scale(30),
     padding: scale(24),
     paddingTop: scale(30),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(-4),
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: scale(8),
-    elevation: 5,
   },
   mealHeader: {
     flexDirection: "row",

@@ -153,3 +153,24 @@ export const swapRecipe = async (
     return error as any;
   }
 };
+
+export const createGeminiImage = async (
+  content: string
+): Promise<{ response: GeminiResponse }> => {
+  try {
+    const res = await fetch(ENDPOINT + "/chat/gemini-image", {
+      method: "POST",
+      body: JSON.stringify({
+        prompt: content,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return res.json();
+  } catch (error) {
+    console.log("GEMINI ERROR", error);
+    return error as any;
+  }
+};

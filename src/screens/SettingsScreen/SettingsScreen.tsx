@@ -232,7 +232,7 @@ const SettingsScreen = () => {
         title={t("saveChanges")}
         onPress={saveChanges}
         margin={{
-          marginBottom: bottom,
+          marginBottom: bottom + scale(48),
           marginHorizontal: scale(24),
         }}
       />
