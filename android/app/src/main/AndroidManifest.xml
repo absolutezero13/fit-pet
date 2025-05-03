@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
-  <uses-permission android:name="android.permission.CAMERA"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permissions.INTERNET"/>
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
@@ -26,10 +26,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="fitpanda"/>
-        <data android:scheme="com.ilks.fitpet"/>
-        <data android:scheme="exp+fit-panda"/>
         <data android:scheme="fitpet"/>
+        <data android:scheme="com.ilks.fitpet"/>
         <data android:scheme="exp+fit-pet"/>
       </intent-filter>
     </activity>

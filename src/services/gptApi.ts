@@ -2,7 +2,7 @@ import { Part } from "@google/generative-ai";
 import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
-import { ENDPOINT } from "./api";
+import { getCommonHeaders, ENDPOINT } from "./api";
 
 export const createChatCompletion = async (
   content: string
@@ -25,9 +25,7 @@ export const createChatCompletion = async (
     const res = await fetch(ENDPOINT + "/chat", {
       method: "POST",
       body,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();
@@ -42,6 +40,7 @@ export const createGeminiCompletion = async (
   images?: { data: string; mimeType: string }[]
 ): Promise<{ response: GeminiResponse }> => {
   try {
+    console.log("heders", await getCommonHeaders());
     const res = await fetch(ENDPOINT + "/chat/gemini", {
       method: "POST",
       body: JSON.stringify({
@@ -49,9 +48,7 @@ export const createGeminiCompletion = async (
         schema: schemas[schema],
         images,
       }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();
@@ -86,9 +83,7 @@ export const createGeminiVisionCompletion = async (
     const res = await fetch(ENDPOINT + "/vision", {
       method: "POST",
       body: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();
@@ -117,9 +112,7 @@ export const createGeminiStream = async (
         history,
         prompt: content,
       }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();
@@ -142,9 +135,7 @@ export const swapRecipe = async (
         prompt: content,
         schema: schemas[schema],
       }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();
@@ -163,9 +154,7 @@ export const createGeminiImage = async (
       body: JSON.stringify({
         prompt: content,
       }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: await getCommonHeaders(),
     });
 
     return res.json();

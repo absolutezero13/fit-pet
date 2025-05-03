@@ -16,7 +16,7 @@ export type UserStore = {
   user:
     | (OnboardingStore & {
         macroGoals: MacroGoals;
-      })
+      } & User)
     | null;
 };
 

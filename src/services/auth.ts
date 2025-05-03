@@ -8,6 +8,11 @@ import useOnboardingStore, {
 } from "../zustand/useOnboardingStore";
 import { storageService } from "../storage/AsyncStorageService";
 import { NavigationProp } from "@react-navigation/native";
+import auth, {
+  GoogleAuthProvider,
+  signInAnonymously,
+  signInWithPopup,
+} from "@react-native-firebase/auth";
 
 export enum LoginType {
   Google,
@@ -50,9 +55,16 @@ class AuthService {
 
   private async handleGoogleLogin() {
     try {
+      const currentUser = await GoogleSignin.getCurrentUser();
+      console.log("Current User: ", currentUser);
       const res = await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      // useUserStore.setState({ user: userInfo.data });
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        userInfo.data?.idToken ?? null
+      );
+
+      auth().signInWithCredential(googleCredential);
+
       return {
         success: true,
       };
@@ -64,18 +76,35 @@ class AuthService {
     }
   }
 
-  public async logout(navigationRef: any) {
-    //TODO: Implement logout API
+  public async handleAnonymousLogin() {
+    try {
+      const userCredential = await signInAnonymously(auth());
+      const user = userCredential.user;
+      console.log("Anonymous User: ", user);
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.log("Anonymous login error: ", error);
+      return {
+        success: false,
+      };
+    }
+  }
 
+  public async logout(navigationRef: any) {
     useMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
     useUserStore.setState({ user: null });
     useOnboardingStore.setState(INITIAL_ONBOARDING_STATE);
+    // await GoogleSignin.revokeAccess();
+    // await GoogleSignin.signOut();
+    await auth().signOut();
+
+    storageService.removeItem("User");
     navigationRef?.reset({
       index: 0,
       routes: [{ name: "Welcome" }],
     });
-
-    storageService.removeItem("User");
   }
 }
 

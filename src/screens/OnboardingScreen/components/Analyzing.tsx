@@ -63,6 +63,8 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       ...useOnboardingStore.getState(),
     });
 
+    console.log("user", useOnboardingStore.getState());
+
     const geminiRes = await createGeminiCompletion(
       promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
       "macroGoals"

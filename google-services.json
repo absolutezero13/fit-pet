@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "315038553874",
+    "project_id": "fit-pet-1bc72",
+    "storage_bucket": "fit-pet-1bc72.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315038553874:android:cf5324f28c9900a674c5cb",
+        "android_client_info": {
+          "package_name": "com.ilks.fitpet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNTMhNXOxyQ2-2gU6eYvAgQXZnGvZ9qtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "315038553874-p3200hohce3tcl2c4u5kh4tlh0jlviu2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ilks.fitpet"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
