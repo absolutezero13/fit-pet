@@ -147,7 +147,7 @@ export const swapRecipe = async (
 
 export const createGeminiImage = async (
   content: string
-): Promise<{ response: GeminiResponse }> => {
+): Promise<{ data: string }> => {
   try {
     const res = await fetch(ENDPOINT + "/chat/gemini-image", {
       method: "POST",

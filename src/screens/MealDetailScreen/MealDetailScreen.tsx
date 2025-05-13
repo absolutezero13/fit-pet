@@ -205,7 +205,7 @@ const MealDetailScreen = () => {
         <View style={styles.imageContainer}>
           {meal.image ? (
             <Image
-              source={{ uri: `data:image/jpeg;base64,${meal.image}` }}
+              source={{ uri: meal.image }}
               style={styles.mealImage}
               resizeMode="cover"
             />
