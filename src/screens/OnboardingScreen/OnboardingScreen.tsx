@@ -40,7 +40,7 @@ const OnboardingScreen = () => {
     {
       title: t("yourAge"),
       component: Age,
-      disabled: onboardingStore.age === null,
+      disabled: onboardingStore.yearOfBirth === null,
     },
     {
       title: t("getPhysical"),

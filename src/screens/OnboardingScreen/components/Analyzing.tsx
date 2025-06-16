@@ -23,6 +23,7 @@ import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import useUserStore from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
+import userService from "../../../services/user";
 
 const { width } = Dimensions.get("window");
 
@@ -231,7 +232,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           <View style={styles.infoRow}>
             <InfoCard
               label={t("age")}
-              value={`${useOnboardingStore.getState().age} years`}
+              value={`${
+                new Date().getFullYear() -
+                (useOnboardingStore.getState().yearOfBirth ?? 1990)
+              } years`}
               style={cardAnimations[0]}
             />
             <InfoCard

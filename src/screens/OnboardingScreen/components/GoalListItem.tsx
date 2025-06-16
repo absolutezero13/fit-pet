@@ -15,10 +15,11 @@ import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
+import { GoalEnum } from "../../../zustand/useOnboardingStore";
 
 export type GoalItem = {
   titleKey: string;
-  key: string;
+  key: GoalEnum;
   iconComponent: ({ color }: { color?: string }) => JSX.Element;
 };
 

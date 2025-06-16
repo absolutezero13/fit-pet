@@ -15,6 +15,7 @@ const createMealPrompt = (userInfo: {}): string => `
 date: ${getCurrentDate()}
 You are a meal planner.
 You’ll receive lifestyle and body information about the user.
+Be careful their meal preferences (e.g., vegetarian, vegan, etc.).
 Based on that, you’ll create a daily meal plan up to 3 meals and 2 snacks but it might change based on user's diet habits.
 Beware of user's macro goals that will be provided later, please.
 The total calories should be exactly the same as the user's daily calorie intake.

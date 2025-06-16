@@ -1,8 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "@react-native-google-signin/google-signin";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { OnboardingStore } from "./useOnboardingStore";
+import { DietTypeEnum, GenderEnum, GoalEnum } from "./useOnboardingStore";
 
 export type MacroGoals = {
   calories: number;
@@ -11,21 +10,25 @@ export type MacroGoals = {
   fats: number;
 };
 
-export type UserStore = {
-  // FIXME: change type after google sign in
-  user:
-    | (OnboardingStore & {
-        macroGoals: MacroGoals;
-      } & User)
-    | null;
-};
+export interface IUser {
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  onboarding: {
+    goals: GoalEnum;
+    gender: GenderEnum | null;
+    age: number | null;
+    weight: number | null;
+    height: number | null;
+    dietTypes: DietTypeEnum;
+  };
+  macroGoals: MacroGoals;
+}
 
-export const INITIAL_USER_STORE: UserStore = {
-  user: null,
-};
+export const INITIAL_USER_STORE = null;
 
 const useUserStore = create(
-  persist<UserStore>(() => INITIAL_USER_STORE, {
+  persist<IUser | null>(() => INITIAL_USER_STORE, {
     name: "user-storage",
     storage: createJSONStorage(() => AsyncStorage),
   })

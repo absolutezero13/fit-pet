@@ -30,8 +30,6 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import auth from "@react-native-firebase/auth";
-import { checkApi } from "./services/utilApi";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -78,19 +76,6 @@ export function App() {
     Nunito_900Black_Italic,
   });
 
-  function onAuthStateChanged(user) {
-    if (user) {
-      console.log("APp.tsx user", user);
-    } else {
-    }
-  }
-
-  React.useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  console.log("app.tsx", auth().currentUser);
   if (!fontLoaded) {
     return null;
   }

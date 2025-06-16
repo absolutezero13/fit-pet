@@ -8,12 +8,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
-import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import useOnboardingStore, {
+  GoalEnum,
+} from "../../../zustand/useOnboardingStore";
 
 export const goalItems: GoalItem[] = [
   {
     titleKey: "loseWeight",
-    key: "1",
+    key: GoalEnum.LoseWeight,
     iconComponent: ({ color }) => (
       <FontAwesome6
         name="weight-scale"
@@ -24,7 +26,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "gainMuscle",
-    key: "2",
+    key: GoalEnum.GainMuscle,
     iconComponent: ({ color }) => (
       <FontAwesome6
         name="dumbbell"
@@ -34,8 +36,8 @@ export const goalItems: GoalItem[] = [
     ),
   },
   {
-    titleKey: "eatHeathier",
-    key: "3",
+    titleKey: "eatHealthier",
+    key: GoalEnum.EatHealthier,
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="food-apple"
@@ -46,7 +48,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "getMoreSleep",
-    key: "4",
+    key: GoalEnum.GetMoreSleep,
     iconComponent: ({ color }) => (
       <FontAwesome6
         name="bed"
@@ -57,7 +59,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "drinkMoreWater",
-    key: "5",
+    key: GoalEnum.DrinkMoreWater,
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="water"
@@ -68,7 +70,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "reduceStress",
-    key: "6",
+    key: GoalEnum.ReduceStress,
     iconComponent: ({ color }) => (
       <FontAwesome6
         name="spa"
@@ -79,7 +81,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "reduceAlcohol",
-    key: "7",
+    key: GoalEnum.ReduceAlcohol,
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="beer-outline"
@@ -90,7 +92,7 @@ export const goalItems: GoalItem[] = [
   },
   {
     titleKey: "getMoreActive",
-    key: "8",
+    key: GoalEnum.GetMoreActive,
     iconComponent: ({ color }) => (
       <MaterialCommunityIcons
         name="run-fast"
@@ -106,24 +108,18 @@ const Goal = () => {
   const { t } = useTranslation();
   const selectedGoals = useOnboardingStore((state) => state.goals);
   const renderItem = ({ item, index }: { item: GoalItem; index: number }) => {
-    const isSelected = selectedGoals?.find((goal) => goal.key === item.key);
+    const isSelected = selectedGoals?.find((goal) => goal === item.key);
 
     const onSelect = () => {
       if (isSelected) {
         useOnboardingStore.setState({
-          goals: selectedGoals?.filter((goal) => goal.key !== item.key),
+          goals: selectedGoals?.filter((goal) => goal !== item.key),
         });
         return;
       }
 
       useOnboardingStore.setState({
-        goals: [
-          ...selectedGoals,
-          {
-            key: item.key,
-            title: t(item.titleKey),
-          },
-        ],
+        goals: [...selectedGoals, item.key],
       });
     };
     return (
