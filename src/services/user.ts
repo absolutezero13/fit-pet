@@ -6,7 +6,6 @@ class UserService {
     const res = await fetch(ENDPOINT + "/user/update", {
       method: "POST",
       body: JSON.stringify(user),
-      headers: await getCommonHeaders(),
     });
 
     const data = await res.json();

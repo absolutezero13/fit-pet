@@ -2,7 +2,7 @@ import { Part } from "@google/generative-ai";
 import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
-import { getCommonHeaders, ENDPOINT } from "./api";
+import api, { getCommonHeaders, ENDPOINT } from "./api";
 
 export const createChatCompletion = async (
   content: string
@@ -41,17 +41,25 @@ export const createGeminiCompletion = async (
 ): Promise<{ response: GeminiResponse }> => {
   try {
     console.log("heders", await getCommonHeaders());
-    const res = await fetch(ENDPOINT + "/chat/gemini", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt: content,
-        schema: schemas[schema],
-        images,
-      }),
-      headers: await getCommonHeaders(),
+    // const res = await fetch(ENDPOINT + "/chat/gemini", {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     prompt: content,
+    //     schema: schemas[schema],
+    //     images,
+    //   }),
+    // });
+
+    const res = await api.post("/chat/gemini", {
+      prompt: content,
+      schema: schemas[schema],
+      images,
+      systemPrompt: promptBuilder.createChatPrompt(
+        useOnboardingStore.getState()
+      ),
     });
 
-    return res.json();
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;

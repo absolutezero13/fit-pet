@@ -13,16 +13,19 @@ export type MacroGoals = {
 export interface IUser {
   email: string;
   displayName?: string;
-  photoURL?: string;
-  onboarding: {
-    goals: GoalEnum;
+  picture?: string;
+  onboarding?: {
+    goals: { title: string; key: string }[];
     gender: GenderEnum | null;
     age: number | null;
     weight: number | null;
     height: number | null;
-    dietTypes: DietTypeEnum;
+    dietTypes: { title: string; key: string }[];
   };
-  macroGoals: MacroGoals;
+  macroGoals?: MacroGoals;
+  createdAt: Date;
+  name?: string;
+  onboardingCompleted?: boolean;
 }
 
 export const INITIAL_USER_STORE = null;
