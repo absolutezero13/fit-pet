@@ -1,5 +1,5 @@
 import { IUser } from "../zustand/useUserStore";
-import api, { ENDPOINT, getCommonHeaders } from "./api";
+import api, { ENDPOINT } from "./api";
 
 class UserService {
   async createOrUpdateUser(user: IUser) {

@@ -12,12 +12,6 @@ const DEV_ENDPOINT = Platform.select({
 
 export const ENDPOINT = DEV_ENDPOINT;
 
-export const getCommonHeaders = () => {
-  return {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
-};
 const api = axios.create({
   baseURL: ENDPOINT,
 });
