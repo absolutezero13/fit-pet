@@ -1,15 +1,13 @@
 import { IUser } from "../zustand/useUserStore";
-import { ENDPOINT, getCommonHeaders } from "./api";
+import api, { ENDPOINT, getCommonHeaders } from "./api";
 
 class UserService {
   async createOrUpdateUser(user: IUser) {
-    const res = await fetch(ENDPOINT + "/user/update", {
-      method: "POST",
-      body: JSON.stringify(user),
+    const res = await api.post(ENDPOINT + "/user/update", {
+      fields: user,
     });
 
-    const data = await res.json();
-    return data;
+    return res.data;
   }
 }
 

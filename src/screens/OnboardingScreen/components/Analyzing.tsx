@@ -20,7 +20,7 @@ import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
-import useUserStore from "../../../zustand/useUserStore";
+import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
@@ -76,13 +76,17 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       geminiRes.response.candidates[0].content.parts
     );
 
-    const macroGoals = JSON.parse(
+    const macroGoals: MacroGoals = JSON.parse(
       geminiRes.response.candidates[0].content.parts[0].text
     );
 
-    useUserStore.setState({
-      user: { ...useOnboardingStore.getState(), macroGoals },
+    await userService.createOrUpdateUser({
+      macroGoals,
+      onboarding: useOnboardingStore.getState(),
+      onboardingCompleted: true,
     });
+
+    // useUserStore.setState({});
   };
 
   useEffect(() => {

@@ -37,7 +37,6 @@ export interface OnboardingStore {
   weight: number | null;
   height: number | null;
   dietTypes: DietTypeEnum[];
-  onboardingCompleted: boolean;
 }
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
@@ -47,7 +46,6 @@ export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
   weight: 65,
   height: 170,
   dietTypes: [],
-  onboardingCompleted: false,
 };
 const useOnboardingStore = create<OnboardingStore>(
   () => INITIAL_ONBOARDING_STATE

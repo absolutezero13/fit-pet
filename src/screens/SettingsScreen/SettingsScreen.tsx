@@ -21,6 +21,7 @@ import { goalItems } from "../OnboardingScreen/components/Goal";
 import useUserStore, { UserStore } from "../../zustand/useUserStore";
 import AppButton from "../../components/AppButton";
 import LanguageSelection from "./components/LanguageSelection";
+import userService from "../../services/user";
 
 type GoalItem = { title: string; key: string };
 type LanguageOption = { code: string; name: string; localName: string };
@@ -65,7 +66,7 @@ const SettingsScreen = () => {
     }
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     // Validate inputs
     const weightNum = parseFloat(localWeight);
     const heightNum = parseFloat(localHeight);
@@ -79,6 +80,14 @@ const SettingsScreen = () => {
     }
 
     const onboardingState = useUserStore.getState() as UserStore;
+
+    const response = await userService.createOrUpdateUser({
+      onboarding: {
+        goals: selectedGoals.map((goal) => goal.key),
+      },
+    });
+
+    console.log("User updated:", response);
 
     useUserStore.setState({
       user: {

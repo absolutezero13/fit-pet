@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { DietTypeEnum, GenderEnum, GoalEnum } from "./useOnboardingStore";
+import { OnboardingStore } from "./useOnboardingStore";
 
 export type MacroGoals = {
   calories: number;
@@ -11,19 +11,12 @@ export type MacroGoals = {
 };
 
 export interface IUser {
-  email: string;
+  email?: string;
   displayName?: string;
   picture?: string;
-  onboarding?: {
-    goals: { title: string; key: string }[];
-    gender: GenderEnum | null;
-    age: number | null;
-    weight: number | null;
-    height: number | null;
-    dietTypes: { title: string; key: string }[];
-  };
+  onboarding?: OnboardingStore;
   macroGoals?: MacroGoals;
-  createdAt: Date;
+  createdAt?: Date;
   name?: string;
   onboardingCompleted?: boolean;
 }
