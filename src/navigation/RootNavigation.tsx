@@ -8,12 +8,15 @@ import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen
 import { IMeal } from "../services/apiTypes";
 import { createNavigationContainerRef } from "@react-navigation/native";
 import LogMealScreen from "../screens/LogMealScreen/LogMealScreen";
+import auth from "@react-native-firebase/auth";
 
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
+  const user = auth().currentUser;
   return (
-    <Stack.Navigator initialRouteName="Welcome">
+    // TODO: check if onboarding is completed
+    <Stack.Navigator initialRouteName={user ? "HomeTabs" : "Welcome"}>
       <Stack.Screen
         options={{
           headerShown: false,

@@ -19,10 +19,13 @@ import { storageService } from "../../../storage/AsyncStorageService";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
-import useOnboardingStore from "../../../zustand/useOnboardingStore";
-import useUserStore from "../../../zustand/useUserStore";
+import useOnboardingStore, {
+  GenderEnum,
+} from "../../../zustand/useOnboardingStore";
+import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
+import userService from "../../../services/user";
 
 const { width } = Dimensions.get("window");
 
@@ -63,6 +66,8 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       ...useOnboardingStore.getState(),
     });
 
+    console.log("user", useOnboardingStore.getState());
+
     const geminiRes = await createGeminiCompletion(
       promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
       "macroGoals"
@@ -73,12 +78,14 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       geminiRes.response.candidates[0].content.parts
     );
 
-    const macroGoals = JSON.parse(
+    const macroGoals: MacroGoals = JSON.parse(
       geminiRes.response.candidates[0].content.parts[0].text
     );
 
-    useUserStore.setState({
-      user: { ...useOnboardingStore.getState(), macroGoals },
+    await userService.createOrUpdateUser({
+      macroGoals,
+      onboarding: useOnboardingStore.getState(),
+      onboardingCompleted: true,
     });
   };
 
@@ -229,7 +236,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           <View style={styles.infoRow}>
             <InfoCard
               label={t("age")}
-              value={`${useOnboardingStore.getState().age} years`}
+              value={`${
+                new Date().getFullYear() -
+                (useOnboardingStore.getState().yearOfBirth ?? 1990)
+              } years`}
               style={cardAnimations[0]}
             />
             <InfoCard
@@ -246,7 +256,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             />
             <InfoCard
               label={t("gender")}
-              value={useOnboardingStore.getState().gender}
+              value={useOnboardingStore.getState().gender as GenderEnum}
               style={cardAnimations[3]}
             />
           </View>

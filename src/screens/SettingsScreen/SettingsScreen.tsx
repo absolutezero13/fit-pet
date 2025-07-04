@@ -13,16 +13,17 @@ import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { OnboardingStore } from "../../zustand/useOnboardingStore";
+import { GoalEnum } from "../../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
 import { fontStyles } from "../../theme/fontStyles";
 import useAuthService from "../../services/auth";
 import { goalItems } from "../OnboardingScreen/components/Goal";
-import useUserStore, { UserStore } from "../../zustand/useUserStore";
+import useUserStore from "../../zustand/useUserStore";
 import AppButton from "../../components/AppButton";
 import LanguageSelection from "./components/LanguageSelection";
+import userService from "../../services/user";
 
-type GoalItem = { title: string; key: string };
+type GoalItem = { title: string; key: GoalEnum };
 type LanguageOption = { code: string; name: string; localName: string };
 
 const SettingsScreen = () => {
@@ -31,17 +32,18 @@ const SettingsScreen = () => {
   const authService = useAuthService();
   const { top, bottom } = useSafeAreaInsets();
 
-  const userStore = useUserStore() as UserStore;
-
-  const { goals, height, weight } = (userStore.user as OnboardingStore) || {};
+  const user = useUserStore();
 
   const [localWeight, setLocalWeight] = useState(
-    weight ? weight.toString() : ""
+    user?.onboarding?.weight ? user.onboarding.weight.toString() : ""
   );
   const [localHeight, setLocalHeight] = useState(
-    height ? height.toString() : ""
+    user?.onboarding?.height ? user.onboarding.height.toString() : ""
   );
   const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
+  const [selectedGoals, setSelectedGoals] = useState<GoalEnum[]>(
+    user?.onboarding?.goals || []
+  );
 
   // Language options - easily expandable for future languages
   const languageOptions: LanguageOption[] = [
@@ -49,23 +51,24 @@ const SettingsScreen = () => {
     { code: "tr", name: "Turkish", localName: "Türkçe" },
     // Add more languages here in the future
   ];
-
-  const [selectedGoals, setSelectedGoals] = useState<GoalItem[]>(goals || []);
-
   const changeLanguage = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
     setIsLanguageModalVisible(false);
   };
 
-  const toggleGoal = (goal: GoalItem) => {
-    if (selectedGoals.some((g) => g.key === goal.key)) {
-      setSelectedGoals(selectedGoals.filter((g) => g.key !== goal.key));
+  // if (!user?.onboarding) {
+  //   return null;
+  // }
+
+  const toggleGoal = (key: GoalEnum) => {
+    if (selectedGoals.includes(key)) {
+      setSelectedGoals(selectedGoals.filter((g) => g !== key));
     } else {
-      setSelectedGoals([...selectedGoals, goal]);
+      setSelectedGoals([...selectedGoals, key]);
     }
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     // Validate inputs
     const weightNum = parseFloat(localWeight);
     const heightNum = parseFloat(localHeight);
@@ -78,14 +81,11 @@ const SettingsScreen = () => {
       return;
     }
 
-    const onboardingState = useUserStore.getState() as UserStore;
-
-    useUserStore.setState({
-      user: {
-        ...onboardingState.user,
-        weight: weightNum,
-        height: heightNum,
+    await userService.createOrUpdateUser({
+      onboarding: {
         goals: selectedGoals,
+        height: heightNum,
+        weight: weightNum,
       },
     });
 
@@ -183,23 +183,18 @@ const SettingsScreen = () => {
               <TouchableOpacity
                 key={goal.key}
                 style={styles.goalRow}
-                onPress={() =>
-                  toggleGoal({
-                    key: goal.key,
-                    title: t(goal.titleKey),
-                  })
-                }
+                onPress={() => toggleGoal(goal.key)}
               >
                 <Text style={styles.goalText}>{t(goal.titleKey)}</Text>
                 <View style={styles.checkboxContainer}>
                   <View
                     style={[
                       styles.checkbox,
-                      selectedGoals.some((g) => g.key === goal.key) &&
+                      selectedGoals.some((g) => g === goal.key) &&
                         styles.checkboxSelected,
                     ]}
                   >
-                    {selectedGoals.some((g) => g.key === goal.key) && (
+                    {selectedGoals.some((g) => g === goal.key) && (
                       <Ionicons
                         name="checkmark"
                         size={scale(16)}

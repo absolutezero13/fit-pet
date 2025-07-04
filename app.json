@@ -10,21 +10,34 @@
     "scheme": "fitpet",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ilks.fitpet"
+      "bundleIdentifier": "com.ilks.fitpet",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.ilks.fitpet",
-      "permissions": ["android.permission.RECORD_AUDIO"]
+      "permissions": ["android.permission.INTERNET"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      ["@react-native-google-signin/google-signin"],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {

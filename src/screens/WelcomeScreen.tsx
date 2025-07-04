@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, Platform, Image } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
@@ -6,26 +6,35 @@ import { colors } from "../theme/colors";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
-import { storageService } from "../storage/AsyncStorageService";
 import { useTranslation } from "react-i18next";
 import badger from "./assets/badger-welcome.png";
+import useAuthService, { LoginType } from "../services/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const disableAnimation = Platform.OS === "android";
+
+GoogleSignin.configure({});
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const authService = useAuthService();
 
-  useEffect(() => {
-    storageService.getItem("User").then((user) => {
-      if (user) {
-        navigation.reset({
-          routes: [{ name: "HomeTabs" }],
-          index: 0,
-        });
-      }
-    });
-  }, []);
+  const handleGoogleLogin = async () => {
+    const { success, user } = await authService.handleLogin(LoginType.Google);
+    console.log("Google login success:", success);
+    if (user.onboardingCompleted) {
+      navigation.reset({
+        routes: [{ name: "HomeTabs" }],
+        index: 0,
+      });
+    } else {
+      navigation.reset({
+        routes: [{ name: "Onboarding" }],
+        index: 0,
+      });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -48,19 +57,12 @@ const WelcomeScreen = () => {
         {t("appName")}
       </Animated.Text>
 
-      <Image
-        source={badger}
-        style={{
-          width: scale(250),
-          height: scale(375),
-          marginTop: scale(32),
-        }}
-      />
+      <Image source={badger} style={styles.image} />
       <AppButton
         disableAnimation={disableAnimation}
         position="bottom"
         title={t("getStarted")}
-        onPress={() => navigation.navigate("Onboarding")}
+        onPress={handleGoogleLogin}
       />
     </View>
   );
@@ -73,6 +75,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors["color-primary-200"],
     paddingHorizontal: scale(24),
+  },
+  image: {
+    width: scale(250),
+    height: scale(375),
+    marginTop: scale(32),
   },
 });
 

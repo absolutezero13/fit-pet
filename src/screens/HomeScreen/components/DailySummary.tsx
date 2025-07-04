@@ -17,6 +17,7 @@ import { IMeal } from "../../../services/apiTypes";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { getGramGoal } from "./utils";
+import userService from "../../../services/user";
 
 const macroColors: Record<string, string> = {
   calories: colors["color-warning-400"], // golden yellow, attention-grabbing
@@ -28,7 +29,7 @@ const macroColors: Record<string, string> = {
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
-  const currentMacroGoals = useUserStore((state) => state.user?.macroGoals);
+  const currentMacroGoals = useUserStore((state) => state?.macroGoals);
   const [goals, setGoals] = useState<MacroGoals>(
     currentMacroGoals as MacroGoals
   );
@@ -140,15 +141,10 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     },
   ];
 
-  const saveGoals = () => {
-    const currentState = useUserStore.getState();
-    const newState = {
-      user: {
-        ...currentState.user,
-        macroGoals: goals,
-      },
-    };
-    useUserStore.setState(newState);
+  const saveGoals = async () => {
+    userService.createOrUpdateUser({
+      macroGoals: goals,
+    });
     setModalVisible(false);
   };
 

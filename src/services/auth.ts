@@ -1,5 +1,8 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import useUserStore from "../zustand/useUserStore";
+import useUserStore, {
+  INITIAL_USER_STORE,
+  IUser,
+} from "../zustand/useUserStore";
 import useMealsStore, {
   INITIAL_LOGGED_MEAL_STATE,
 } from "../zustand/useMealsStore";
@@ -7,14 +10,17 @@ import useOnboardingStore, {
   INITIAL_ONBOARDING_STATE,
 } from "../zustand/useOnboardingStore";
 import { storageService } from "../storage/AsyncStorageService";
-import { NavigationProp } from "@react-navigation/native";
+import auth from "@react-native-firebase/auth";
+import api from "./api";
 
 export enum LoginType {
   Google,
 }
 
 class AuthService {
-  public async handleLogin(type: LoginType): Promise<{ success: boolean }> {
+  public async handleLogin(
+    type: LoginType
+  ): Promise<{ success: boolean; user?: IUser }> {
     let response: { success: boolean };
     switch (type) {
       case LoginType.Google:
@@ -27,34 +33,35 @@ class AuthService {
     return response;
   }
 
-  public async checkUser(): Promise<{ success: boolean }> {
-    if (!GoogleSignin.hasPreviousSignIn()) {
-      return {
-        success: false,
-      };
-    }
-    const user = GoogleSignin.getCurrentUser();
-
-    if (!user) {
-      return {
-        success: false,
-      };
-    }
-
-    // useUserStore.setState({ user });
-
-    return {
-      success: true,
-    };
-  }
-
   private async handleGoogleLogin() {
     try {
-      const res = await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      // useUserStore.setState({ user: userInfo.data });
+      await GoogleSignin.hasPlayServices();
+      const user = await GoogleSignin.signIn();
+      if (!user?.data?.idToken) {
+        return { success: false };
+      }
+
+      console.log("Google user data:", user.data);
+
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        user.data?.idToken
+      );
+      await auth().signInWithCredential(googleCredential);
+      const response = await api.post("/auth/login/google", {
+        idToken: await auth().currentUser?.getIdToken(),
+      });
+
+      if (response.data) {
+        const { user } = response.data;
+        console.log("User data from server:", user);
+        storageService.setItem("User", user);
+        return {
+          success: true,
+          user,
+        };
+      }
       return {
-        success: true,
+        success: false,
       };
     } catch (error) {
       console.log(error);
@@ -65,17 +72,16 @@ class AuthService {
   }
 
   public async logout(navigationRef: any) {
-    //TODO: Implement logout API
-
     useMealsStore.setState(INITIAL_LOGGED_MEAL_STATE);
-    useUserStore.setState({ user: null });
+    useUserStore.setState(INITIAL_USER_STORE);
     useOnboardingStore.setState(INITIAL_ONBOARDING_STATE);
+    await auth().signOut();
+
+    storageService.removeItem("User");
     navigationRef?.reset({
       index: 0,
       routes: [{ name: "Welcome" }],
     });
-
-    storageService.removeItem("User");
   }
 }
 

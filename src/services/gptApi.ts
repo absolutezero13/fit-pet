@@ -2,7 +2,7 @@ import { Part } from "@google/generative-ai";
 import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
-import { ENDPOINT } from "./api";
+import api, { ENDPOINT } from "./api";
 
 export const createChatCompletion = async (
   content: string
@@ -22,15 +22,9 @@ export const createChatCompletion = async (
       ],
     });
 
-    const res = await fetch(ENDPOINT + "/chat", {
-      method: "POST",
-      body,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await api.post("/chat", body);
 
-    return res.json();
+    return res.data;
   } catch (error) {
     return error as any;
   }
@@ -42,19 +36,16 @@ export const createGeminiCompletion = async (
   images?: { data: string; mimeType: string }[]
 ): Promise<{ response: GeminiResponse }> => {
   try {
-    const res = await fetch(ENDPOINT + "/chat/gemini", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt: content,
-        schema: schemas[schema],
-        images,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const res = await api.post("/chat/gemini", {
+      prompt: content,
+      schema: schemas[schema],
+      images,
+      systemPrompt: promptBuilder.createChatPrompt(
+        useOnboardingStore.getState()
+      ),
     });
 
-    return res.json();
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;
@@ -83,15 +74,10 @@ export const createGeminiVisionCompletion = async (
     if (schema) {
       formData.append("schema", JSON.stringify(schemas[schema]));
     }
-    const res = await fetch(ENDPOINT + "/vision", {
-      method: "POST",
-      body: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
 
-    return res.json();
+    const res = await api.post("/chat/gemini-vision", formData, {});
+
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;
@@ -108,21 +94,15 @@ export const createGeminiStream = async (
   history: Content[]
 ): Promise<{ response: GeminiResponse }> => {
   try {
-    const res = await fetch(ENDPOINT + "/chat/gemini-stream", {
-      method: "POST",
-      body: JSON.stringify({
-        systemPrompt: promptBuilder.createChatPrompt(
-          useOnboardingStore.getState()
-        ),
-        history,
-        prompt: content,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const res = await api.post("/chat/gemini-stream", {
+      systemPrompt: promptBuilder.createChatPrompt(
+        useOnboardingStore.getState()
+      ),
+      history,
+      prompt: content,
     });
 
-    return res.json();
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;
@@ -135,19 +115,16 @@ export const swapRecipe = async (
   schema: string
 ): Promise<{ response: GeminiResponse }> => {
   try {
-    const res = await fetch(ENDPOINT + "/chat/gemini", {
-      method: "POST",
-      body: JSON.stringify({
-        recipe,
-        prompt: content,
-        schema: schemas[schema],
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const res = await api.post("/chat/gemini", {
+      recipe,
+      prompt: content,
+      schema: schemas[schema],
+      systemPrompt: promptBuilder.createChatPrompt(
+        useOnboardingStore.getState()
+      ),
     });
 
-    return res.json();
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;
@@ -156,19 +133,13 @@ export const swapRecipe = async (
 
 export const createGeminiImage = async (
   content: string
-): Promise<{ response: GeminiResponse }> => {
+): Promise<{ data: string }> => {
   try {
-    const res = await fetch(ENDPOINT + "/chat/gemini-image", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt: content,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const res = await api.post("/chat/gemini-image", {
+      prompt: content,
     });
 
-    return res.json();
+    return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
     return error as any;

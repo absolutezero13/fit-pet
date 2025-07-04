@@ -7,13 +7,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
-import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import useOnboardingStore, {
+  DietTypeEnum,
+} from "../../../zustand/useOnboardingStore";
 import GoalListItem from "./GoalListItem";
 
 export const dietTypeItems: any[] = [
   {
     titleKey: "dietRegular",
-    key: "1",
+    key: DietTypeEnum.Regular,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="silverware-fork-knife"
@@ -24,7 +26,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietVegetarian",
-    key: "2",
+    key: DietTypeEnum.Vegetarian,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="food-apple-outline"
@@ -35,7 +37,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietVegan",
-    key: "3",
+    key: DietTypeEnum.Vegan,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="leaf"
@@ -46,7 +48,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietPescatarian",
-    key: "4",
+    key: DietTypeEnum.Pescatarian,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="fish"
@@ -57,7 +59,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietFlexitarian",
-    key: "5",
+    key: DietTypeEnum.Flexitarian,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="food-variant"
@@ -68,7 +70,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietKeto",
-    key: "6",
+    key: DietTypeEnum.Keto,
     iconComponent: ({ color }: { color?: string }) => (
       <FontAwesome6
         name="bacon"
@@ -79,7 +81,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietLowCarb",
-    key: "7",
+    key: DietTypeEnum.LowCarb,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="bread-slice-outline"
@@ -90,7 +92,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietIntermittentFasting",
-    key: "8",
+    key: DietTypeEnum.IntermittentFasting,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="clock-outline"
@@ -101,7 +103,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietPaleo",
-    key: "9",
+    key: DietTypeEnum.Paleo,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="bone"
@@ -112,7 +114,7 @@ export const dietTypeItems: any[] = [
   },
   {
     titleKey: "dietWestern",
-    key: "10",
+    key: DietTypeEnum.Western,
     iconComponent: ({ color }: { color?: string }) => (
       <MaterialCommunityIcons
         name="hamburger"
@@ -131,24 +133,18 @@ const DietType = () => {
   );
 
   const renderItem = ({ item, index }: { item: any; index: number }) => {
-    const isSelected = selectedDietTypes?.find((diet) => diet.key === item.key);
+    const isSelected = selectedDietTypes?.find((diet) => diet === item.key);
 
     const onSelect = () => {
       if (isSelected) {
         useOnboardingStore.setState({
-          dietTypes: selectedDietTypes?.filter((diet) => diet.key !== item.key),
+          dietTypes: selectedDietTypes?.filter((diet) => diet !== item.key),
         });
         return;
       }
 
       useOnboardingStore.setState({
-        dietTypes: [
-          ...selectedDietTypes,
-          {
-            key: item.key,
-            title: t(item.titleKey),
-          },
-        ],
+        dietTypes: [...selectedDietTypes, item.key],
       });
     };
 

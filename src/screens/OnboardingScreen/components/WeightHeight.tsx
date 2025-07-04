@@ -1,24 +1,29 @@
-import { Image, ImageSourcePropType, Text, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import {
+  Image,
+  ImageSourcePropType,
+  Text,
+  View,
+  StyleSheet,
+} from "react-native";
 import maleStandingPerson from "../../assets/male-person-standing.png";
 import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
 import femaleStandingPerson from "../../assets/female-person-standing.png";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Gender } from "./types";
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IS_SMALL_SCREEN, scale } from "../../../theme/utils";
-import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import useOnboardingStore, {
+  GenderEnum,
+} from "../../../zustand/useOnboardingStore";
+import { Picker } from "@react-native-picker/picker";
 
-const imageMapping: Record<Gender, ImageSourcePropType> = {
-  [Gender.Female]: femaleStandingPerson,
-  [Gender.Male]: maleStandingPerson,
-  [Gender.Nonbinary]: nonbinaryStandingPerson,
+const imageMapping: Record<GenderEnum, ImageSourcePropType> = {
+  [GenderEnum.Female]: femaleStandingPerson,
+  [GenderEnum.Male]: maleStandingPerson,
+  [GenderEnum.Other]: nonbinaryStandingPerson,
 };
 
-const LIST_HEIGHT = IS_SMALL_SCREEN ? scale(300) : scale(400);
+const LIST_HEIGHT = IS_SMALL_SCREEN ? scale(250) : scale(350);
 
 const heightData = Array.from({ length: 120 })
   .fill(0)
@@ -28,133 +33,125 @@ const weightData = Array.from({ length: 160 })
   .fill(0)
   .map((_, i) => i + 40);
 
-const WeightHeight = ({ focused }: { focused: boolean }) => {
-  const { height, weight } = useOnboardingStore();
+const WeightHeight = () => {
+  const { height, weight, gender } = useOnboardingStore();
+
+  const onHeightValueChange = (itemValue: number) => {
+    if (itemValue !== height) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      useOnboardingStore.setState({ height: itemValue });
+    }
+  };
+
+  const onWeightValueChange = (itemValue: number) => {
+    if (itemValue !== weight) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      useOnboardingStore.setState({ weight: itemValue });
+    }
+  };
 
   return (
-    <View>
+    <View style={styles.container}>
       <Image
-        source={
-          imageMapping[useOnboardingStore.getState().gender || Gender.Female]
-        }
-        style={{
-          aspectRatio: 1 / 2,
-          height: LIST_HEIGHT,
-          resizeMode: "contain",
-          alignSelf: "center",
-          position: "absolute",
-          top: scale(64),
-        }}
+        source={imageMapping[gender || GenderEnum.Female]}
+        style={styles.personImage}
       />
-      <Animated.Text
-        layout={FadeInDown}
-        style={[
-          fontStyles.headline1,
-          {
-            marginHorizontal: scale(24),
-            marginTop: scale(24),
-            alignSelf: "center",
-          },
-        ]}
-      >
-        {height} cm
-      </Animated.Text>
 
-      {focused && (
-        <FlatList
-          removeClippedSubviews
-          initialNumToRender={20}
-          initialScrollIndex={20}
-          bounces={false}
-          data={heightData}
-          keyExtractor={(item) => item.toString()}
-          onScroll={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.y / scale(20));
-            if (heightData[index] !== height && heightData[index]) {
-              console.log(heightData[index]);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              useOnboardingStore.setState({ height: heightData[index] });
-            }
-          }}
-          getItemLayout={(data, index) => ({
-            length: scale(40),
-            offset: scale(40) * index,
-            index,
-          })}
-          showsVerticalScrollIndicator={false}
-          style={{
-            height: LIST_HEIGHT,
-          }}
-          renderItem={({ item, index }) => (
-            <View
-              style={{
-                height: index % 5 === 0 ? scale(4) : scale(2),
-                width: index % 5 === 0 ? scale(50) : scale(25),
-                marginTop: scale(20),
-                backgroundColor: colors["color-primary-900"],
-                alignSelf: "flex-end",
-              }}
-            />
-          )}
-        />
-      )}
-      <Text
-        style={[
-          fontStyles.headline1,
-          {
-            marginHorizontal: scale(24),
-            marginTop: scale(24),
-            alignSelf: "center",
-          },
-        ]}
-      >
-        {weight} kg
-      </Text>
+      <View style={styles.pickersContainer}>
+        <View style={styles.pickerColumn}>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={height ?? undefined}
+              onValueChange={onHeightValueChange}
+              style={styles.picker}
+              enabled={true}
+              mode="dropdown"
+              selectionColor={colors["color-primary-900"]}
+            >
+              {heightData.map((value) => (
+                <Picker.Item
+                  key={value.toString()}
+                  label={value.toString()}
+                  value={value}
+                  style={styles.pickerLabel}
+                />
+              ))}
+            </Picker>
+            <Text style={styles.pickerLabel}>cm</Text>
+          </View>
+        </View>
 
-      {focused && (
-        <FlatList
-          removeClippedSubviews
-          initialNumToRender={30}
-          data={weightData}
-          keyExtractor={(item) => item.toString()}
-          horizontal
-          initialScrollIndex={25}
-          showsHorizontalScrollIndicator={false}
-          bounces={false}
-          getItemLayout={(data, index) => ({
-            length: scale(6.2),
-            offset: scale(6.2) * index,
-            index,
-          })}
-          onScroll={(e) => {
-            e.preventDefault();
-            const index = Math.round(
-              e.nativeEvent.contentOffset.x / scale(5.4)
-            );
-            if (weightData[index] !== weight && weightData[index]) {
-              console.log(weightData[index]);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              useOnboardingStore.setState({ weight: weightData[index] });
-            }
-          }}
-          contentContainerStyle={{
-            paddingHorizontal: SCREEN_WIDTH / 2 - scale(24),
-          }}
-          renderItem={({ item, index }) => (
-            <View
-              style={{
-                width: index % 5 === 0 ? scale(2) : scale(1),
-                height: index % 5 === 0 ? scale(30) : scale(15),
-                marginLeft: scale(5),
-                backgroundColor: colors["color-primary-900"],
-                alignSelf: "flex-end",
-              }}
-            />
-          )}
-        />
-      )}
+        <View style={styles.pickerColumn}>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={weight ?? undefined}
+              onValueChange={onWeightValueChange}
+              style={styles.picker}
+              itemStyle={styles.pickerItem}
+              enabled={true}
+              mode="dropdown"
+            >
+              {weightData.map((value) => (
+                <Picker.Item
+                  key={value.toString()}
+                  label={value.toString()}
+                  value={value}
+                  style={styles.pickerLabel}
+                />
+              ))}
+            </Picker>
+            <Text style={styles.pickerLabel}>kg</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+  },
+  personImage: {
+    aspectRatio: 1 / 2,
+    height: LIST_HEIGHT,
+    resizeMode: "contain",
+    alignSelf: "center",
+    position: "absolute",
+    top: scale(64),
+  },
+  pickersContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: scale(LIST_HEIGHT + 40),
+  },
+  pickerColumn: {
+    alignItems: "center",
+    width: "45%",
+  },
+  pickerLabel: {
+    ...fontStyles.headline1,
+    marginBottom: scale(8),
+    position: "absolute",
+    right: scale(48),
+    top: scale(14),
+  },
+  pickerWrapper: {
+    width: "100%",
+    overflow: "hidden",
+    borderRadius: scale(8),
+    backgroundColor: colors["color-primary-100"],
+    paddingLeft: scale(8),
+  },
+  picker: {
+    width: "100%",
+  },
+  pickerItem: {
+    color: colors["color-primary-900"],
+    fontSize: scale(18),
+  },
+});
 
 export default WeightHeight;

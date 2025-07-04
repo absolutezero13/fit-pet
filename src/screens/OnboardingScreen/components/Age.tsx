@@ -33,6 +33,8 @@ const Age = () => {
     }
   };
 
+  const yearOfBirth = new Date().getFullYear() - ageRef.current;
+
   return (
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
@@ -41,7 +43,7 @@ const Age = () => {
           onScroll={onScroll}
           ref={scrollRef}
           onMomentumScrollEnd={() =>
-            useOnboardingStore.setState({ age: ageRef.current })
+            useOnboardingStore.setState({ yearOfBirth })
           }
           snapToInterval={AGE_ITEM_SIZE}
           showsHorizontalScrollIndicator={false}
@@ -58,7 +60,6 @@ const Age = () => {
           renderItem={({ item, index }) => (
             <Pressable
               onPress={() => {
-                useOnboardingStore.setState({ age: item });
                 scrollRef.current?.scrollToIndex({
                   index,
                   animated: true,
