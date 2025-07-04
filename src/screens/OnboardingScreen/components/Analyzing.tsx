@@ -19,7 +19,9 @@ import { storageService } from "../../../storage/AsyncStorageService";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
-import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import useOnboardingStore, {
+  GenderEnum,
+} from "../../../zustand/useOnboardingStore";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
@@ -85,8 +87,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       onboarding: useOnboardingStore.getState(),
       onboardingCompleted: true,
     });
-
-    // useUserStore.setState({});
   };
 
   useEffect(() => {
@@ -256,7 +256,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             />
             <InfoCard
               label={t("gender")}
-              value={useOnboardingStore.getState().gender}
+              value={useOnboardingStore.getState().gender as GenderEnum}
               style={cardAnimations[3]}
             />
           </View>

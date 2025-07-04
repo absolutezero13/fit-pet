@@ -12,7 +12,6 @@ import useOnboardingStore, {
 import { storageService } from "../storage/AsyncStorageService";
 import auth from "@react-native-firebase/auth";
 import api from "./api";
-import { Alert } from "react-native";
 
 export enum LoginType {
   Google,

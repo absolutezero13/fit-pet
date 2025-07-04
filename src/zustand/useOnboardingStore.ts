@@ -31,12 +31,12 @@ export enum GenderEnum {
 }
 
 export interface OnboardingStore {
-  goals: GoalEnum[];
-  gender: GenderEnum | null;
-  yearOfBirth: number;
-  weight: number | null;
-  height: number | null;
-  dietTypes: DietTypeEnum[];
+  goals?: GoalEnum[];
+  gender?: GenderEnum | null;
+  yearOfBirth?: number;
+  weight?: number | null;
+  height?: number | null;
+  dietTypes?: DietTypeEnum[];
 }
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {
