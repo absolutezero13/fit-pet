@@ -13,11 +13,6 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const disableAnimation = Platform.OS === "android";
 
-GoogleSignin.configure({
-  webClientId:
-    "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com",
-});
-
 const WelcomeScreen = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -26,6 +21,11 @@ const WelcomeScreen = () => {
   const handleGoogleLogin = async () => {
     const { success, user } = await authService.handleLogin(LoginType.Google);
     console.log("Google login success:", success);
+    if (!success || !user) {
+      console.error("Google login failed");
+      return;
+    }
+
     if (user.onboardingCompleted) {
       navigation.reset({
         routes: [{ name: "HomeTabs" }],

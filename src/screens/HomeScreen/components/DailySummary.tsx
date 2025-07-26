@@ -110,7 +110,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       icon: "food",
     },
     {
-      type: "protein",
+      type: "proteins",
       label: t("proteins"),
       value: totals.proteins,
       goal: goals.proteins,
@@ -130,7 +130,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       kcalValue: 4,
     },
     {
-      type: "fat",
+      type: "fats",
       label: t("fats"),
       value: totals.fats,
       goal: goals.fats,

@@ -78,6 +78,11 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       geminiRes.response.candidates[0].content.parts
     );
 
+    console.log(
+      "Parsed macro goals: ",
+      JSON.parse(geminiRes.response.candidates[0].content.parts[0].text)
+    );
+
     const macroGoals: MacroGoals = JSON.parse(
       geminiRes.response.candidates[0].content.parts[0].text
     );

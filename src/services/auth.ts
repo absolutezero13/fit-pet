@@ -13,11 +13,20 @@ import { storageService } from "../storage/AsyncStorageService";
 import auth from "@react-native-firebase/auth";
 import api from "./api";
 
+const GOOGLE_WEB_CLIENT_ID =
+  "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com";
+
 export enum LoginType {
   Google,
 }
 
 class AuthService {
+  constructor() {
+    GoogleSignin.configure({
+      webClientId: GOOGLE_WEB_CLIENT_ID,
+    });
+  }
+
   public async handleLogin(
     type: LoginType
   ): Promise<{ success: boolean; user?: IUser }> {
@@ -38,12 +47,9 @@ class AuthService {
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const user = await GoogleSignin.signIn();
-      console.log("Google user data:", user.data);
       if (!user?.data?.idToken) {
         return { success: false };
       }
-
-      console.log("Google user data:", user.data);
 
       const googleCredential = auth.GoogleAuthProvider.credential(
         user.data?.idToken
@@ -55,7 +61,6 @@ class AuthService {
 
       if (response.data) {
         const { user } = response.data;
-        console.log("User data from server:", user);
         storageService.setItem("User", user);
         return {
           success: true,
