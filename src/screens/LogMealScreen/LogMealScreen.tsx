@@ -40,6 +40,7 @@ import { scale } from "../../theme/utils";
 import promptBuilder from "../../utils/promptBuilder";
 import useMealsStore from "../../zustand/useMealsStore";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
+import { createMeal, updateMeal } from "../../services/mealAnalysis";
 
 const LogMealScreen = () => {
   const navigation = useNavigation();
@@ -150,11 +151,13 @@ const LogMealScreen = () => {
       meal.id = uuidv4();
       meal.image = image?.uri ?? null;
       meal.description = mealDescription;
+      await createMeal(meal);
     } else {
       meal.id = mealToEdit.id;
       meal.date = mealToEdit.date;
       meal.description = mealDescription;
       meal.image = image?.uri ?? mealToEdit.image;
+      await updateMeal(meal);
     }
 
     if (!meal.errorMessage) {

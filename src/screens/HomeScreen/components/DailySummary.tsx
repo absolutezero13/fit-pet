@@ -110,7 +110,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       icon: "food",
     },
     {
-      type: "proteins",
+      type: "protein",
       label: t("proteins"),
       value: totals.proteins,
       goal: goals.proteins,
@@ -130,7 +130,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       kcalValue: 4,
     },
     {
-      type: "fats",
+      type: "fat",
       label: t("fats"),
       value: totals.fats,
       goal: goals.fats,
@@ -158,6 +158,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 
   const macroGoalsTotal = goals.proteins + goals.fats + goals.carbs;
   const isMacroGoalsValid = macroGoalsTotal === 100;
+  console.log("goals", goals);
 
   return (
     <View style={styles.container}>

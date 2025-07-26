@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import EmptyState from "./components/EmptyState";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
+import { getMealsByDate } from "../../services/mealAnalysis";
 
 const MealTypeSection = ({
   title,
@@ -51,10 +52,7 @@ const LoggedMealsScreen = () => {
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const meals = useMealsStore((state) => state.loggedMeals).filter(
-    (m) => m.date === selectedDate.toLocaleDateString("en-US")
-  );
-
+  const meals = useMealsStore((state) => state.loggedMeals);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -86,6 +84,14 @@ const LoggedMealsScreen = () => {
     { type: "dinner", meals: dinnerMeals },
     { type: "snack", meals: snackMeals },
   ];
+
+  useEffect(() => {
+    getMealsByDate(selectedDate.toISOString()).then((fetchedMeals) => {
+      if (fetchedMeals) {
+        useMealsStore.setState({ loggedMeals: fetchedMeals });
+      }
+    });
+  }, [selectedDate]);
 
   return (
     <View style={styles.container}>
