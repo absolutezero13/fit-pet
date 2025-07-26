@@ -13,7 +13,10 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const disableAnimation = Platform.OS === "android";
 
-GoogleSignin.configure({});
+GoogleSignin.configure({
+  webClientId:
+    "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com",
+});
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();

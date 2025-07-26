@@ -35,8 +35,10 @@ class AuthService {
 
   private async handleGoogleLogin() {
     try {
+      await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const user = await GoogleSignin.signIn();
+      console.log("Google user data:", user.data);
       if (!user?.data?.idToken) {
         return { success: false };
       }
@@ -64,7 +66,10 @@ class AuthService {
         success: false,
       };
     } catch (error) {
-      console.log(error);
+      console.log(
+        "Error during Google login:",
+        error instanceof Error ? error.message : "Unknown error"
+      );
       return {
         success: false,
       };

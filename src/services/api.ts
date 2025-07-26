@@ -6,7 +6,6 @@ export const LIVE_ENDPOINT =
   "https://fit-pet-be-git-master-absolutezero13s-projects.vercel.app/api";
 
 const DEV_ENDPOINT = Platform.select({
-  ios: "http://localhost:3000/api",
   default: "http://10.0.2.2:3000/api",
 });
 
