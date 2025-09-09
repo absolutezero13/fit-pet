@@ -25,7 +25,7 @@ export const deleteMeal = async (id: string) => {
 
 export const updateMeal = async (meal: IMeal) => {
   try {
-    const res = await api.put(`/meal-analysis/${meal.id}`, meal);
+    const res = await api.put(`/meal-analysis/${meal._id}`, meal);
     return res.data;
   } catch (error) {
     console.log("UPDATE MEAL ERROR", error);

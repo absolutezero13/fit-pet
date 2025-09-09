@@ -158,7 +158,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 
   const macroGoalsTotal = goals.proteins + goals.fats + goals.carbs;
   const isMacroGoalsValid = macroGoalsTotal === 100;
-  console.log("goals", goals);
 
   return (
     <View style={styles.container}>

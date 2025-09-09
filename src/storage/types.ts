@@ -8,5 +8,8 @@ export interface StorageItems {
   User: OnboardingStore;
   token: string;
   meals: IMeal[];
+  language: {
+    code: string;
+  };
   // Add other storage keys and their types here
 }

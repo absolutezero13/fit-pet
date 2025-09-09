@@ -142,7 +142,7 @@ const analyzedMealSchema: Schema = {
   description: "Analyzed meal",
   type: SchemaType.OBJECT,
   properties: {
-    id: {
+    _id: {
       type: SchemaType.STRING,
       description: "unique id, create it with uuid",
       nullable: false,
@@ -217,7 +217,7 @@ const analyzedMealSchema: Schema = {
     "score",
     "insights",
     "mealType",
-    "id",
+    "_id",
     "mealTypeLocalized",
     "emoji",
   ],
@@ -276,7 +276,7 @@ export interface IMeal {
   insights: string[];
   image: string | null;
   score: number;
-  id: string;
+  _id?: string;
   date: string;
   mealTypeLocalized: string;
   errorMessage?: string;
@@ -297,7 +297,7 @@ export const exampleMeal: IMeal = {
   insights: ["High in protein", "High in carbs"], //string[]
   image: "/api/placeholder/400/250",
   score: 6.5,
-  id: "placeholder",
+  _id: "placeholder",
   date: new Date().toISOString(),
   emoji: "🍗", //string
 };

@@ -58,7 +58,7 @@ const LogMealScreen = () => {
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
   const mealToEdit = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal.id === route.params.mealId)
+    state.loggedMeals.find((meal) => meal._id === route.params.mealId)
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
@@ -145,15 +145,13 @@ const LogMealScreen = () => {
     );
 
     if (!mealToEdit) {
-      meal.date = new Date(route.params.selectedDate).toLocaleDateString(
-        "en-US"
-      );
-      meal.id = uuidv4();
+      meal.date = new Date(route.params.selectedDate).toISOString();
+      meal._id = undefined;
       meal.image = image?.uri ?? null;
       meal.description = mealDescription;
       await createMeal(meal);
     } else {
-      meal.id = mealToEdit.id;
+      meal._id = mealToEdit._id;
       meal.date = mealToEdit.date;
       meal.description = mealDescription;
       meal.image = image?.uri ?? mealToEdit.image;
@@ -162,7 +160,7 @@ const LogMealScreen = () => {
 
     if (!meal.errorMessage) {
       const meals = useMealsStore.getState().loggedMeals;
-      const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
+      const newMeals = meals.filter((m) => m._id !== mealToEdit?._id);
       useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
     }
     return meal;
@@ -190,7 +188,7 @@ const LogMealScreen = () => {
 
       navigation.dispatch(
         StackActions.replace("AnalyzedMeal", {
-          mealId: meal.id,
+          mealId: meal._id,
         })
       );
     } catch (error) {

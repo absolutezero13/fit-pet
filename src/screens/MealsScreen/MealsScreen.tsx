@@ -48,20 +48,19 @@ const MealsScreen = () => {
         data.response.candidates[0].content.parts[0].text
       ) as IMeal[];
 
-      const imagePromises = responseMeals.map((meal) => {
-        return createGeminiImage(
-          `You will create a realistic and minimalistic image of a meal, meal description is ${meal.description}.
-          Aspect ratio is 1:1.
-           Image should only contain the meal itself, no text.
-          `
-        );
-      });
-      const images = await Promise.all(imagePromises);
+      // const imagePromises = responseMeals.map((meal) => {
+      //   return createGeminiImage(
+      //     `You will create a realistic and minimalistic image of a meal, meal description is ${meal.description}.
+      //     Aspect ratio is 1:1.
+      //      Image should only contain the meal itself, no text.
+      //     `
+      //   );
+      // });
+      // const images = await Promise.all(imagePromises);
 
-      const mealsWithImages = responseMeals.map((meal, index) => ({
+      const mealsWithImages = responseMeals.map((meal) => ({
         ...meal,
         date: new Date().toLocaleDateString("en-US"),
-        image: images[index].data,
       }));
 
       useMealsStore.setState({

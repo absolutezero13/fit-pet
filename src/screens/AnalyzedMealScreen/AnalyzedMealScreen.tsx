@@ -17,6 +17,7 @@ import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
+import { deleteMeal } from "../../services/mealAnalysis";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -25,7 +26,7 @@ type AnalyzedMealScreenProps = {
 const AnalyzedMealScreen = () => {
   const { mealId } = useRoute().params as AnalyzedMealScreenProps;
   const meal = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal.id === mealId)
+    state.loggedMeals.find((meal) => meal._id === mealId)
   );
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
@@ -48,8 +49,9 @@ const AnalyzedMealScreen = () => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m.id !== meal.id
+                (m) => m._id !== meal._id
               );
+              deleteMeal(meal._id);
               return { loggedMeals: newMeals };
             });
             navigation.goBack();
@@ -74,7 +76,7 @@ const AnalyzedMealScreen = () => {
 
   const handleEdit = () => {
     navigation.navigate("LogMeal", {
-      mealId: meal.id,
+      mealId: meal._id,
       selectedDate: meal.date,
     });
   };

@@ -66,7 +66,7 @@ const LoggedMealsScreen = () => {
   const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal: IMeal) => {
-    navigation.navigate("AnalyzedMeal", { mealId: meal.id });
+    navigation.navigate("AnalyzedMeal", { mealId: meal._id });
   };
 
   const navigateLogMeal = () => {
@@ -88,6 +88,7 @@ const LoggedMealsScreen = () => {
   useEffect(() => {
     getMealsByDate(selectedDate.toISOString()).then((fetchedMeals) => {
       if (fetchedMeals) {
+        console.log("fetchedMeals", fetchedMeals);
         useMealsStore.setState({ loggedMeals: fetchedMeals });
       }
     });
