@@ -26,20 +26,28 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Platform, UIManager } from "react-native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import i18next from "i18next";
+import i18next, { changeLanguage } from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import auth from "@react-native-firebase/auth";
 import userService from "./services/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storageService } from "./storage/AsyncStorageService";
 
 i18next.use(initReactI18next).init({
   resources,
-  lng: "tr", // Default language
+  lng: "en", // Default language
   interpolation: {
     escapeValue: false, // React already escapes values
   },
 });
+
+const initializeLanguage = async () => {
+  const language = await storageService.getItem("language");
+  console.log("language", language);
+  changeLanguage(language?.code || "en");
+};
 
 // NavigationBar.setBackgroundColorAsync("#ffffff00");
 
@@ -93,10 +101,14 @@ export function App() {
       }
     }
 
-    setTimeout(() => {
+    await initializeLanguage();
+    console.log("App ready async");
+    setTimeout(async () => {
       SplashScreen.hideAsync();
-    }, 200);
+    }, 300);
   };
+
+  console.log("App ready");
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>

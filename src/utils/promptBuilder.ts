@@ -22,7 +22,7 @@ The total calories should be exactly the same as the user's daily calorie intake
 The meals should be realistic and easy to prepare.
 The meals should be healthy and nutritious.
 The meals should be diverse and not repetitive.
-Macro goals except calories, are in percentage form. Based on that, you’ll calculate the grams of protein, carbs and fats.
+Macro goals that I provide, except calories, are in percentage form. Based on that, you’ll calculate the total grams of protein, carbs and fats user needs.
 Description of the meal should be brief explanation of the meal like “Chicken salad with quinoa and veggies”.
 Answer in the user's language: ${
   languageMapping[getLanguage()] ?? getLanguage()

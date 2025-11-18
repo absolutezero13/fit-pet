@@ -29,22 +29,22 @@ const recipeSchema: Schema = {
     type: SchemaType.OBJECT,
     properties: {
       calories: {
-        type: SchemaType.NUMBER,
+        type: SchemaType.INTEGER,
         description: "Calories",
         nullable: false,
       },
       proteins: {
-        type: SchemaType.NUMBER,
+        type: SchemaType.INTEGER,
         description: "Proteins",
         nullable: false,
       },
       carbs: {
-        type: SchemaType.NUMBER,
+        type: SchemaType.INTEGER,
         description: "Carbs",
         nullable: false,
       },
       fats: {
-        type: SchemaType.NUMBER,
+        type: SchemaType.INTEGER,
         description: "Fats",
         nullable: false,
       },

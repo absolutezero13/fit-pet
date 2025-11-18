@@ -57,7 +57,7 @@ const MealsScreen = () => {
       //   );
       // });
       // const images = await Promise.all(imagePromises);
-
+      console.log("responseMeals", responseMeals);
       const mealsWithImages = responseMeals.map((meal) => ({
         ...meal,
         date: new Date().toLocaleDateString("en-US"),

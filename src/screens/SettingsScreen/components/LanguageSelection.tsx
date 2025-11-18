@@ -13,19 +13,41 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "i18next";
+import { storageService } from "../../../storage/AsyncStorageService";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  options: {
+  languageOptions: {
     code: string;
     localName: string;
     name: string;
   }[];
 };
 
-const LanguageSelection: FC<Props> = ({ visible, onClose, options }) => {
+const LanguageSelection: FC<Props> = ({
+  visible,
+  onClose,
+  languageOptions,
+}) => {
   const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = async (languageCode: string) => {
+    try {
+      // Change the language in i18next
+      await changeLanguage(languageCode);
+
+      // Persist the language choice to storage
+      await storageService.setItem("language", { code: languageCode });
+
+      // Close the modal
+      onClose();
+    } catch (error) {
+      console.error("Error changing language:", error);
+      // Still close the modal even if storage fails
+      onClose();
+    }
+  };
 
   return (
     <Modal
@@ -37,9 +59,7 @@ const LanguageSelection: FC<Props> = ({ visible, onClose, options }) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {t("settings.selectLanguage")}
-            </Text>
+            <Text style={styles.modalTitle}>{t("selectLanguage")}</Text>
             <TouchableOpacity onPress={onClose}>
               <MaterialCommunityIcons
                 name="close"
@@ -50,7 +70,7 @@ const LanguageSelection: FC<Props> = ({ visible, onClose, options }) => {
           </View>
 
           <FlatList
-            data={options}
+            data={languageOptions}
             keyExtractor={(item) => item.code}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -58,7 +78,7 @@ const LanguageSelection: FC<Props> = ({ visible, onClose, options }) => {
                   styles.languageOption,
                   item.code === i18n.language && styles.languageOptionSelected,
                 ]}
-                onPress={() => changeLanguage(item.code)}
+                onPress={() => handleLanguageChange(item.code)}
               >
                 <Text
                   style={[
