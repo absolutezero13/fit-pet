@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
@@ -20,6 +21,8 @@ import EmptyState from "./components/EmptyState";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
 import { getMealsByDate } from "../../services/mealAnalysis";
+import { LiquidGlassView } from "@callstack/liquid-glass";
+import GradientSpinner from "../../components/GradientSpinner";
 
 const MealTypeSection = ({
   title,
@@ -52,6 +55,7 @@ const LoggedMealsScreen = () => {
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
   const meals = useMealsStore((state) => state.loggedMeals);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
@@ -86,17 +90,25 @@ const LoggedMealsScreen = () => {
   ];
 
   useEffect(() => {
-    getMealsByDate(selectedDate.toISOString()).then((fetchedMeals) => {
-      if (fetchedMeals) {
-        console.log("fetchedMeals", fetchedMeals);
+    const getMeals = async () => {
+      try {
+        setLoading(true);
+        const fetchedMeals = await getMealsByDate(selectedDate.toISOString());
         useMealsStore.setState({ loggedMeals: fetchedMeals });
+      } catch (error) {
+        console.error("fetch meal error");
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+    getMeals();
   }, [selectedDate]);
 
   return (
     <View style={styles.container}>
-      <View
+      <LiquidGlassView
+        effect={"clear"}
+        tintColor={colors["color-primary-200"]}
         style={[
           styles.header,
           {
@@ -156,7 +168,7 @@ const LoggedMealsScreen = () => {
             color={colors["color-primary-500"]}
           />
         </TouchableOpacity>
-      </View>
+      </LiquidGlassView>
 
       {meals.length > 0 ? (
         <ScrollView
@@ -174,21 +186,38 @@ const LoggedMealsScreen = () => {
             />
           ))}
         </ScrollView>
+      ) : loading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <GradientSpinner />
+        </View>
       ) : (
         <EmptyState onPress={navigateLogMeal} />
       )}
       {meals.length > 0 && (
-        <TouchableOpacity
-          style={[
-            styles.addButton,
-            {
-              bottom: TAB_BAR_HEIGHT + bottom + scale(16),
-            },
-          ]}
-          onPress={navigateLogMeal}
+        <LiquidGlassView
+          effect={"clear"}
+          interactive
+          style={{
+            position: "absolute",
+            bottom: TAB_BAR_HEIGHT + bottom + scale(16),
+            right: scale(32),
+            borderRadius: scale(32),
+          }}
         >
-          <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
-        </TouchableOpacity>
+          <Pressable style={[styles.addButton, {}]} onPress={navigateLogMeal}>
+            <MaterialCommunityIcons
+              name="plus"
+              size={scale(24)}
+              color="white"
+            />
+          </Pressable>
+        </LiquidGlassView>
       )}
     </View>
   );
@@ -202,16 +231,11 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: scale(24),
     paddingBottom: scale(24),
-    backgroundColor: colors["color-primary-200"],
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(12),
+    position: "absolute",
+    width: "100%",
+    zIndex: 10,
   },
   title: {
     ...fontStyles.headline1,
@@ -228,6 +252,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: scale(24),
     paddingBottom: TAB_BAR_HEIGHT + scale(72),
+    paddingTop: scale(180),
   },
   sectionContainer: {
     marginBottom: scale(12),
@@ -238,9 +263,6 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   addButton: {
-    position: "absolute",
-    bottom: scale(32),
-    right: scale(32),
     width: scale(64),
     height: scale(64),
     borderRadius: scale(32),

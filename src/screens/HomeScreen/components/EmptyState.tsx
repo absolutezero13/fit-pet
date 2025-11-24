@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: scale(32),
+    paddingTop: scale(180),
   },
   emptyStateImage: {
     width: scale(150),

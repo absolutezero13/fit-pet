@@ -12,7 +12,6 @@ import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GoalEnum } from "../../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
 import { fontStyles } from "../../theme/fontStyles";
@@ -22,6 +21,7 @@ import useUserStore from "../../zustand/useUserStore";
 import AppButton from "../../components/AppButton";
 import LanguageSelection from "./components/LanguageSelection";
 import userService from "../../services/user";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type GoalItem = { title: string; key: GoalEnum };
 type LanguageOption = { code: string; name: string; localName: string };
@@ -30,7 +30,6 @@ const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
   const navigation = useNavigation();
   const authService = useAuthService();
-  const { top, bottom } = useSafeAreaInsets();
 
   const user = useUserStore();
 
@@ -51,14 +50,6 @@ const SettingsScreen = () => {
     { code: "tr", name: "Turkish", localName: "Türkçe" },
     // Add more languages here in the future
   ];
-  const changeLanguage = (languageCode: string) => {
-    i18n.changeLanguage(languageCode);
-    setIsLanguageModalVisible(false);
-  };
-
-  // if (!user?.onboarding) {
-  //   return null;
-  // }
 
   const toggleGoal = (key: GoalEnum) => {
     if (selectedGoals.includes(key)) {
@@ -97,8 +88,12 @@ const SettingsScreen = () => {
     languageOptions[0];
 
   return (
-    <View style={[styles.container, { paddingTop: 0, paddingBottom: 0 }]}>
-      <View style={styles.header}>
+    <View style={[styles.container]}>
+      <LiquidGlassView
+        effect={"clear"}
+        style={styles.header}
+        tintColor={colors["color-primary-100"]}
+      >
         <MaterialCommunityIcons
           name="chevron-left"
           size={scale(40)}
@@ -107,7 +102,7 @@ const SettingsScreen = () => {
         />
 
         <Text style={styles.title}>{t("settingsTitle")}</Text>
-      </View>
+      </LiquidGlassView>
 
       <ScrollView
         style={styles.scrollView}
@@ -235,11 +230,12 @@ const SettingsScreen = () => {
         onClose={() => setIsLanguageModalVisible(false)}
         languageOptions={languageOptions}
       />
+
       <AppButton
         title={t("saveChanges")}
         onPress={saveChanges}
+        position="bottom"
         margin={{
-          marginBottom: bottom + scale(48),
           marginHorizontal: scale(24),
         }}
       />
@@ -258,6 +254,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: scale(4),
+    position: "absolute",
+    width: "100%",
+    zIndex: 1,
   },
   title: {
     ...fontStyles.headline1,
@@ -268,7 +267,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: scale(48),
+    paddingBottom: scale(72),
+    paddingTop: scale(96),
   },
   section: {
     marginBottom: scale(24),

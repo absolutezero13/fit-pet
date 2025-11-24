@@ -46,6 +46,9 @@ const EmptyState = () => {
   );
 };
 
+const AnimatedLiquidGlassView =
+  Animated.createAnimatedComponent(LiquidGlassView);
+
 // Suggestion Bubble Component
 const SuggestionBubble = ({
   suggestion,
@@ -168,7 +171,9 @@ const ChatScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View
+      <AnimatedLiquidGlassView
+        effect="clear"
+        tintColor={colors["color-primary-200"]}
         layout={FadeInUp}
         style={[
           styles.header,
@@ -193,7 +198,7 @@ const ChatScreen = () => {
         >
           {t("nutritionAssistant")}
         </Text>
-      </Animated.View>
+      </AnimatedLiquidGlassView>
 
       <Image source={doctorImage} style={styles.doctor} />
 
@@ -232,7 +237,7 @@ const ChatScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               width: "100%",
-              marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + bottom,
+              marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + scale(12),
               position: isKeyboardVisible ? "absolute" : undefined,
             },
             {
@@ -285,15 +290,9 @@ const styles = StyleSheet.create({
     padding: scale(24),
     paddingTop: scale(60),
     paddingBottom: scale(32),
-    backgroundColor: colors["color-primary-200"],
-
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(12),
+    position: "absolute",
+    width: "100%",
+    zIndex: 10,
   },
   title: {},
   date: {
@@ -305,9 +304,9 @@ const styles = StyleSheet.create({
   },
   messageListContent: {
     paddingHorizontal: scale(16),
-    paddingTop: scale(24),
     flexGrow: 1,
-    paddingBottom: scale(32),
+    paddingBottom: scale(48),
+    paddingTop: scale(150),
   },
   inputContainer: {
     alignItems: "center",

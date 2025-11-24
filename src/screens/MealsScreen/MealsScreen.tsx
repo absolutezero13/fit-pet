@@ -165,13 +165,6 @@ const styles = StyleSheet.create({
     paddingBottom: scale(24),
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(12),
     position: "absolute",
     zIndex: 1,
     width: "100%",

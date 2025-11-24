@@ -92,7 +92,7 @@ const AppButton: FC<Props> = ({
       <View
         style={{
           position: "absolute",
-          bottom: bottom + scale(16),
+          bottom: bottom,
           width: "100%",
         }}
       >
