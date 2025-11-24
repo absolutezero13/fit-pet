@@ -7,6 +7,7 @@ import { fontStyles } from "../theme/fontStyles";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GradientSpinner from "./GradientSpinner";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 interface Props {
   title: string;
@@ -40,29 +41,36 @@ const AppButton: FC<Props> = ({
   const { bottom } = useSafeAreaInsets();
 
   const renderButton = () => (
-    <TouchableOpacity
-      disabled={disabled}
-      activeOpacity={0.9}
-      style={[
-        margin,
-        {
-          backgroundColor,
-          padding: scale(16),
-          borderRadius: scale(32),
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: disabled ? 0.5 : 1,
-          height: scale(56),
-        },
-      ]}
-      onPress={onPress}
+    <LiquidGlassView
+      effect="clear"
+      interactive
+      style={[{ borderRadius: scale(32) }, margin]}
     >
-      {loading ? (
-        <ActivityIndicator color="white" />
-      ) : (
-        <Text style={[fontStyles.headline4, { color: "white" }]}>{title}</Text>
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+        disabled={disabled}
+        activeOpacity={1}
+        style={[
+          {
+            backgroundColor,
+            padding: scale(16),
+            borderRadius: scale(32),
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: disabled ? 0.5 : 1,
+            height: scale(56),
+          },
+        ]}
+        onPress={onPress}
+      >
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={[fontStyles.headline4, { color: "white" }]}>
+            {title}
+          </Text>
+        )}
+      </TouchableOpacity>
+    </LiquidGlassView>
   );
 
   if (disableAnimation) {
@@ -81,16 +89,15 @@ const AppButton: FC<Props> = ({
 
   if (position === "bottom") {
     return (
-      <Animated.View
+      <View
         style={{
           position: "absolute",
           bottom: bottom + scale(16),
           width: "100%",
         }}
-        entering={disableAnimation ? undefined : FadeInDown.delay(500)}
       >
         {renderButton()}
-      </Animated.View>
+      </View>
     );
   }
 

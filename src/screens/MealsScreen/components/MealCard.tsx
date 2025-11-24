@@ -1,12 +1,12 @@
 import React, { FC } from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IMeal } from "../../../services/apiTypes";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type Props = {
   meal: IMeal;
@@ -14,54 +14,52 @@ type Props = {
 };
 
 const MealCard: FC<Props> = ({ meal, onPress }) => (
-  <TouchableOpacity
-    activeOpacity={0.8}
-    style={styles.mealCard}
-    onPress={() => onPress(meal)}
-  >
-    <View style={styles.mealHeader}>
-      <View style={styles.mealTitleContainer}>
-        <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
-        <View style={styles.timeContainer}>
-          <MaterialCommunityIcons
-            name="clock-outline"
-            size={scale(18)}
-            color={colors["color-success-400"]}
-          />
-          <Text style={styles.mealTime}>{meal.time}</Text>
+  <LiquidGlassView interactive effect="regular" style={styles.mealCard}>
+    <TouchableOpacity activeOpacity={0.8} onPress={() => onPress(meal)}>
+      <View style={styles.mealHeader}>
+        <View style={styles.mealTitleContainer}>
+          <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
+          <View style={styles.timeContainer}>
+            <MaterialCommunityIcons
+              name="clock-outline"
+              size={scale(18)}
+              color={colors["color-success-400"]}
+            />
+            <Text style={styles.mealTime}>{meal.time}</Text>
+          </View>
+        </View>
+        <MaterialCommunityIcons
+          name="food-fork-drink"
+          size={scale(32)}
+          color={colors["color-success-400"]}
+        />
+      </View>
+
+      <Text style={styles.mealDescription}>{meal.description}</Text>
+
+      <View style={styles.macrosContainer}>
+        <View style={styles.macroItem}>
+          <Text style={styles.macroValue}>{meal.calories}</Text>
+          <Text style={styles.macroLabel}>calories</Text>
+        </View>
+        <View style={[styles.macroSeparator]} />
+        <View style={styles.macroItem}>
+          <Text style={styles.macroValue}>{meal.proteins}g</Text>
+          <Text style={styles.macroLabel}>proteins</Text>
+        </View>
+        <View style={[styles.macroSeparator]} />
+        <View style={styles.macroItem}>
+          <Text style={styles.macroValue}>{meal.carbs}g</Text>
+          <Text style={styles.macroLabel}>carbs</Text>
+        </View>
+        <View style={[styles.macroSeparator]} />
+        <View style={styles.macroItem}>
+          <Text style={styles.macroValue}>{meal.fats}g</Text>
+          <Text style={styles.macroLabel}>fats</Text>
         </View>
       </View>
-      <MaterialCommunityIcons
-        name="food-fork-drink"
-        size={scale(32)}
-        color={colors["color-success-400"]}
-      />
-    </View>
-
-    <Text style={styles.mealDescription}>{meal.description}</Text>
-
-    <View style={styles.macrosContainer}>
-      <View style={styles.macroItem}>
-        <Text style={styles.macroValue}>{meal.calories}</Text>
-        <Text style={styles.macroLabel}>calories</Text>
-      </View>
-      <View style={[styles.macroSeparator]} />
-      <View style={styles.macroItem}>
-        <Text style={styles.macroValue}>{meal.proteins}g</Text>
-        <Text style={styles.macroLabel}>proteins</Text>
-      </View>
-      <View style={[styles.macroSeparator]} />
-      <View style={styles.macroItem}>
-        <Text style={styles.macroValue}>{meal.carbs}g</Text>
-        <Text style={styles.macroLabel}>carbs</Text>
-      </View>
-      <View style={[styles.macroSeparator]} />
-      <View style={styles.macroItem}>
-        <Text style={styles.macroValue}>{meal.fats}g</Text>
-        <Text style={styles.macroLabel}>fats</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
+    </TouchableOpacity>
+  </LiquidGlassView>
 );
 
 export default MealCard;

@@ -19,6 +19,13 @@ class UserService {
 
     return res.data as { user: IUser; message: string };
   }
+
+  async deletUser() {
+    const res = await api.delete(ENDPOINT + "/user");
+    useUserStore.setState({} as IUser);
+
+    return res.data as { message: string };
+  }
 }
 
 const userService = new UserService();

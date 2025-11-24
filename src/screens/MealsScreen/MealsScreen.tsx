@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  Text,
+  Switch,
+  SwitchBase,
+} from "react-native";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
@@ -17,6 +25,10 @@ import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
 import promptBuilder from "../../utils/promptBuilder";
 import useUserStore from "../../zustand/useUserStore";
+import { Button, Form, Host, Section, TextField } from "@expo/ui/swift-ui";
+import { glassEffect, padding } from "@expo/ui/swift-ui/modifiers";
+import { storageService } from "../../storage/AsyncStorageService";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 const MealsScreen = () => {
   const { t } = useTranslation();
@@ -30,6 +42,12 @@ const MealsScreen = () => {
 
   const meals = useMealsStore((state) => state.suggestedMeals);
   const getMeals = async () => {
+    const mealsInStore = await storageService.getItem("meals");
+    if (mealsInStore && mealsInStore.length > 0) {
+      useMealsStore.setState({ suggestedMeals: mealsInStore });
+      return;
+    }
+
     const todaysMeals = meals.filter(
       (m) => m.date === new Date().toLocaleDateString("en-US")
     );
@@ -63,9 +81,15 @@ const MealsScreen = () => {
         date: new Date().toLocaleDateString("en-US"),
       }));
 
+      if (mealsWithImages.length === 0) {
+        throw new Error("No meals generated");
+      }
+
       useMealsStore.setState({
         suggestedMeals: mealsWithImages,
       });
+
+      storageService.setItem("meals", useMealsStore.getState().suggestedMeals);
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
       console.log("error", error);
@@ -80,7 +104,9 @@ const MealsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View
+      <LiquidGlassView
+        effect={"clear"}
+        tintColor={colors["color-primary-200"]}
         style={[
           styles.header,
           {
@@ -96,7 +122,7 @@ const MealsScreen = () => {
             day: "numeric",
           })}
         </Text>
-      </View>
+      </LiquidGlassView>
 
       {loading ? (
         <View
@@ -111,7 +137,12 @@ const MealsScreen = () => {
       ) : (
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingTop: top + scale(100),
+            },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {meals.map((meal, index) => (
@@ -132,7 +163,6 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: scale(24),
     paddingBottom: scale(24),
-    backgroundColor: colors["color-primary-200"],
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
     shadowColor: colors["color-primary-500"],
@@ -142,6 +172,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: scale(12),
+    position: "absolute",
+    zIndex: 1,
+    width: "100%",
   },
   title: {
     ...fontStyles.headline1,

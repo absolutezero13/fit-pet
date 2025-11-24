@@ -11,6 +11,7 @@ import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   GenderEnum,
 } from "../../../zustand/useOnboardingStore";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type GenderItem = {
   titleKey: string;
@@ -43,55 +44,67 @@ const Gender = () => {
 
   const renderItem = ({ item }: { item: GenderItem }) => {
     return (
-      <Pressable
-        onPress={() => useOnboardingStore.setState({ gender: item.key })}
+      <LiquidGlassView
+        interactive
+        tintColor={
+          item.key === gender
+            ? colors["color-primary-500"]
+            : colors["color-primary-100"]
+        }
         style={{
-          backgroundColor:
-            item.key === gender
-              ? colors["color-primary-500"]
-              : colors["color-primary-100"],
-          flexDirection: "row",
-          height: scale(100),
           borderRadius: scale(16),
-          alignItems: "center",
         }}
       >
-        <Image
-          source={item.image}
+        <Pressable
+          onPress={() => useOnboardingStore.setState({ gender: item.key })}
           style={{
-            width: scale(100),
+            backgroundColor:
+              item.key === gender
+                ? colors["color-primary-500"]
+                : colors["color-primary-100"],
+            flexDirection: "row",
             height: scale(100),
             borderRadius: scale(16),
-            marginRight: scale(32),
+            alignItems: "center",
           }}
-        />
-        <Text
-          style={[
-            fontStyles.headline2,
-            {
-              textAlign: "center",
-              marginTop: scale(8),
-              color:
-                item.key === gender
-                  ? colors["color-primary-100"]
-                  : colors["color-primary-500"],
-            },
-          ]}
         >
-          {t(item.titleKey)}
-        </Text>
+          <Image
+            source={item.image}
+            style={{
+              width: scale(100),
+              height: scale(100),
+              borderRadius: scale(16),
+              marginRight: scale(32),
+            }}
+          />
+          <Text
+            style={[
+              fontStyles.headline2,
+              {
+                textAlign: "center",
+                marginTop: scale(8),
+                color:
+                  item.key === gender
+                    ? colors["color-primary-100"]
+                    : colors["color-primary-500"],
+              },
+            ]}
+          >
+            {t(item.titleKey)}
+          </Text>
 
-        <FontAwesome6
-          name="circle-check"
-          size={scale(24)}
-          color={colors["color-primary-100"]}
-          style={{
-            position: "absolute",
-            top: scale(16),
-            right: scale(16),
-          }}
-        />
-      </Pressable>
+          <FontAwesome6
+            name="circle-check"
+            size={scale(24)}
+            color={colors["color-primary-100"]}
+            style={{
+              position: "absolute",
+              top: scale(16),
+              right: scale(16),
+            }}
+          />
+        </Pressable>
+      </LiquidGlassView>
     );
   };
 

@@ -1,7 +1,5 @@
 import { NativeScrollEvent, Text, View, StyleSheet } from "react-native";
-import { FlatList, Pressable } from "react-native-gesture-handler";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
@@ -9,14 +7,15 @@ import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
+import { Picker } from "@react-native-picker/picker";
 
 const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
 
 const Age = () => {
   const ageRef = useRef<number>(0);
-  const scrollRef = useRef<FlatList>(null);
   const { t } = useTranslation();
+  const [selectedIndex, setSelectedIndex] = useState(9);
 
   const onScroll = (e: { nativeEvent: NativeScrollEvent }) => {
     const index = Math.floor(
@@ -33,56 +32,32 @@ const Age = () => {
     }
   };
 
-  const yearOfBirth = new Date().getFullYear() - ageRef.current;
+  const renderPicker = () => {
+    return (
+      <Picker
+        selectedValue={ageData[selectedIndex]}
+        onValueChange={(itemValue, itemIndex) => {
+          setSelectedIndex(itemIndex);
+          console.log("itemValue", itemValue);
+          useOnboardingStore.setState({
+            yearOfBirth: new Date().getFullYear() - itemValue,
+          });
+        }}
+        style={{ width: scale(300), height: 400, alignSelf: "center" }}
+        itemStyle={{ height: scale(350), ...fontStyles.headline2 }}
+      >
+        {ageData.map((age) => (
+          <Picker.Item key={age} label={age.toString()} value={age} />
+        ))}
+      </Picker>
+    );
+  };
+
+  console.log("yearOfBirth", useOnboardingStore.getState().yearOfBirth);
 
   return (
     <View style={styles.container}>
-      <View style={styles.pickerContainer}>
-        <FlatList
-          initialScrollIndex={9}
-          onScroll={onScroll}
-          ref={scrollRef}
-          onMomentumScrollEnd={() =>
-            useOnboardingStore.setState({ yearOfBirth })
-          }
-          snapToInterval={AGE_ITEM_SIZE}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          style={styles.flatList}
-          contentContainerStyle={styles.flatListContent}
-          data={ageData}
-          keyExtractor={(item) => item.toString()}
-          getItemLayout={(_, index) => ({
-            length: AGE_ITEM_SIZE,
-            offset: AGE_ITEM_SIZE * index,
-            index,
-          })}
-          renderItem={({ item, index }) => (
-            <Pressable
-              onPress={() => {
-                scrollRef.current?.scrollToIndex({
-                  index,
-                  animated: true,
-                });
-              }}
-              key={item}
-              style={styles.ageItem}
-            >
-              <Text style={fontStyles.headline1}>{item}</Text>
-            </Pressable>
-          )}
-        />
-
-        <View style={styles.selectionIndicatorContainer}>
-          <View style={styles.selectionIndicator}>
-            <AntDesign
-              name="caretup"
-              size={24}
-              color={colors["color-success-700"]}
-            />
-          </View>
-        </View>
-      </View>
+      <View style={styles.pickerContainer}>{renderPicker()}</View>
 
       <View style={styles.infoCard}>
         <Text style={[fontStyles.headline3, styles.infoCardTitle]}>

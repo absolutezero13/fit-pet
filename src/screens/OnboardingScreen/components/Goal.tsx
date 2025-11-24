@@ -132,7 +132,7 @@ const Goal = () => {
     );
   };
   return (
-    <View style={{ paddingHorizontal: scale(24), flex: 1 }}>
+    <View style={{ paddingHorizontal: scale(0), flex: 1 }}>
       <FlatList
         bounces={false}
         data={goalItems}
@@ -147,6 +147,7 @@ const Goal = () => {
         })}
         contentContainerStyle={{
           paddingBottom: bottom + scale(100),
+          paddingHorizontal: scale(24),
         }}
         showsVerticalScrollIndicator={false}
       />

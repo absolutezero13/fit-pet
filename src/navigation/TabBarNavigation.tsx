@@ -9,40 +9,10 @@ import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { MaterialIcons } from "@expo/vector-icons";
-import { TAB_BAR_HEIGHT, TAB_BAR_ICON_SIZE } from "./constants";
+import { TAB_BAR_HEIGHT } from "./constants";
+import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 
-const Tabs = createBottomTabNavigator();
-
-const renderTabBarIcon = (screenName: string, focused: boolean) => {
-  const color = focused
-    ? colors["color-success-400"]
-    : colors["color-primary-400"];
-
-  switch (screenName) {
-    case "Meals":
-      return (
-        <MaterialCommunityIcons
-          name="food-apple"
-          size={TAB_BAR_ICON_SIZE}
-          color={color}
-        />
-      );
-    case "Home":
-      return (
-        <FontAwesome5 name="burn" size={TAB_BAR_ICON_SIZE} color={color} />
-      );
-    case "Chat":
-      return (
-        <MaterialIcons name="chat" size={TAB_BAR_ICON_SIZE} color={color} />
-      );
-
-    default:
-      return null;
-  }
-};
+const Tabs = createNativeBottomTabNavigator();
 
 const TabNavigator = () => {
   const { t } = useTranslation();
@@ -68,8 +38,8 @@ const TabNavigator = () => {
   };
   return (
     <Tabs.Navigator
+      hapticFeedbackEnabled
       screenOptions={{
-        headerShown: false,
         tabBarShowLabel: true,
         tabBarStyle: tabBarDefaultStyles,
         tabBarLabelStyle: {
@@ -86,24 +56,23 @@ const TabNavigator = () => {
         name={t("tabMeals")}
         component={MealsScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTabBarIcon("Meals", focused),
-          headerShown: false,
+          tabBarIcon: ({ focused }) => ({ sfSymbol: "list.star" }),
         }}
       />
       <Tabs.Screen
         name={t("tabHome")}
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTabBarIcon("Home", focused),
-          headerShown: false,
+          tabBarIcon: ({ focused }) => ({
+            sfSymbol: "house.fill",
+          }),
         }}
       />
       <Tabs.Screen
         name={t("tabChat")}
         component={ChatScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTabBarIcon("Chat", focused),
-          headerShown: false,
+          tabBarIcon: ({ focused }) => ({ sfSymbol: "sparkle" }),
         }}
       />
     </Tabs.Navigator>

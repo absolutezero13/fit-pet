@@ -216,6 +216,18 @@ const SettingsScreen = () => {
             <Text>Logout</Text>
           </TouchableOpacity>
         </View>
+
+        <View style={styles.section}>
+          <TouchableOpacity
+            onPress={async () => {
+              await userService.deletUser();
+              authService.logout(navigation);
+            }}
+            style={styles.card}
+          >
+            <Text style={{ color: "red" }}>Delete</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <LanguageSelection

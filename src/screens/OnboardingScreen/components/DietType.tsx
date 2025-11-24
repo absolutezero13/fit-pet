@@ -159,7 +159,7 @@ const DietType = () => {
   };
 
   return (
-    <View style={{ paddingHorizontal: scale(24), flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <FlatList
         bounces={false}
         data={dietTypeItems}
@@ -174,6 +174,7 @@ const DietType = () => {
         })}
         contentContainerStyle={{
           paddingBottom: bottom + scale(100),
+          paddingHorizontal: scale(24),
         }}
         showsVerticalScrollIndicator={false}
       />

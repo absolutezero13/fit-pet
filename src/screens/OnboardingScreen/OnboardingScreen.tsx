@@ -135,11 +135,11 @@ const OnboardingScreen = () => {
       />
       {onboardingItems[step].title && (
         <AppButton
-          margin={{ marginHorizontal: scale(24) }}
-          title={t("proceed")}
+          disableAnimation={false}
           position="bottom"
+          title={t("proceed")}
           onPress={onButtonPress}
-          disabled={onboardingItems[step].disabled}
+          margin={{ marginHorizontal: scale(24) }}
         />
       )}
     </SafeAreaView>

@@ -43,6 +43,6 @@ export const getMealsByDate = async (date: string) => {
     return res.data;
   } catch (error) {
     console.log("GET MEALS BY DATE ERROR", error);
-    return error as any;
+    return [];
   }
 };

@@ -5,6 +5,7 @@ import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 interface Props {
   meal: IMeal;
@@ -13,33 +14,39 @@ interface Props {
 
 const MealCard: FC<Props> = ({ meal, onPress }) => {
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      key={meal.description}
-      style={styles.mealItem}
-      onPress={() => onPress(meal)}
-    >
-      <View style={styles.mealItemLeft}>
-        <Text style={styles.mealItemTitle}>
-          {meal.emoji} {meal.description}
-        </Text>
-      </View>
+    <LiquidGlassView effect="regular" interactive style={styles.mealItem}>
+      <TouchableOpacity
+        activeOpacity={1}
+        key={meal.description}
+        style={styles.liquid}
+        onPress={() => onPress(meal)}
+      >
+        <View style={styles.mealItemLeft}>
+          <Text style={styles.mealItemTitle}>
+            {meal.emoji} {meal.description}
+          </Text>
+        </View>
 
-      <View style={styles.mealItemRight}>
-        <Text style={styles.caloriesText}>{meal.calories} cal</Text>
-        <MaterialCommunityIcons
-          name="chevron-right"
-          size={scale(24)}
-          color={colors["color-primary-300"]}
-        />
-      </View>
-    </TouchableOpacity>
+        <View style={styles.mealItemRight}>
+          <Text style={styles.caloriesText}>{meal.calories} cal</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={scale(24)}
+            color={colors["color-primary-300"]}
+          />
+        </View>
+      </TouchableOpacity>
+    </LiquidGlassView>
   );
 };
 
 export default MealCard;
 
 const styles = StyleSheet.create({
+  liquid: {
+    flexDirection: "row",
+    flex: 1,
+  },
   mealItem: {
     backgroundColor: "white",
     borderRadius: scale(16),

@@ -15,9 +15,10 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
-import { scale } from "../../theme/utils";
+import { scale, shadowStyle } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import { deleteMeal } from "../../services/mealAnalysis";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -51,6 +52,8 @@ const AnalyzedMealScreen = () => {
               const newMeals = state.loggedMeals.filter(
                 (m) => m._id !== meal._id
               );
+              if (!meal._id) return state;
+
               deleteMeal(meal._id);
               return { loggedMeals: newMeals };
             });
@@ -114,7 +117,9 @@ const AnalyzedMealScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View
+      <LiquidGlassView
+        effect="clear"
+        tintColor={colors["color-primary-100"]}
         style={[
           styles.pageHeader,
           {
@@ -129,13 +134,13 @@ const AnalyzedMealScreen = () => {
           onPress={navigation.goBack}
         />
         <Text style={styles.title}>{t("mealAnalysis")}</Text>
-      </View>
+      </LiquidGlassView>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottom + scale(20) },
+          { paddingBottom: bottom + scale(20), paddingTop: top + scale(44) },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -298,6 +303,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: scale(4),
+    position: "absolute",
+    zIndex: 1,
+    width: "100%",
   },
   title: {
     ...fontStyles.headline1,

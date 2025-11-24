@@ -66,7 +66,7 @@ const LoggedMealsScreen = () => {
   const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal: IMeal) => {
-    navigation.navigate("AnalyzedMeal", { mealId: meal._id });
+    navigation.navigate("AnalyzedMeal", { mealId: meal._id ?? "" });
   };
 
   const navigateLogMeal = () => {
@@ -164,7 +164,7 @@ const LoggedMealsScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <DailySummary meals={meals} />
+          {/* <DailySummary meals={meals} /> */}
           {mealTypesData.map(({ type, meals }) => (
             <MealTypeSection
               key={type}

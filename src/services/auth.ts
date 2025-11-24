@@ -20,7 +20,7 @@ export enum LoginType {
   Google,
 }
 
-class AuthService {
+export class AuthService {
   constructor() {
     GoogleSignin.configure({
       webClientId: GOOGLE_WEB_CLIENT_ID,

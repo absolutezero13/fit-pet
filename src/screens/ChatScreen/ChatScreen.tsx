@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   Image,
+  Pressable,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
@@ -24,6 +25,10 @@ import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import ChatMessage, { IChatMessage } from "./components/ChatMessage";
 import doctorImage from "./components/doctor.png"; // Adjust the path as necessary
+import { Button, Form, Host, Section, TextField } from "@expo/ui/swift-ui";
+import { glassEffect, padding } from "@expo/ui/swift-ui/modifiers";
+import { LiquidGlassView } from "@callstack/liquid-glass";
+
 // Suggestion data type
 type Suggestion = {
   text: string;
@@ -50,12 +55,11 @@ const SuggestionBubble = ({
   onPress?: (prompt: string) => void;
 }) => {
   return (
-    <TouchableOpacity
-      style={styles.suggestionBubble}
-      onPress={() => onPress?.(suggestion.prompt)}
-    >
-      <Text style={styles.suggestionBubbleText}>{suggestion.text}</Text>
-    </TouchableOpacity>
+    <LiquidGlassView interactive effect="clear" style={styles.suggestionBubble}>
+      <Pressable onPress={() => onPress?.(suggestion.prompt)}>
+        <Text style={styles.suggestionBubbleText}>{suggestion.text}</Text>
+      </Pressable>
+    </LiquidGlassView>
   );
 };
 
@@ -248,25 +252,24 @@ const ChatScreen = () => {
             ref={textInputRef}
             onSubmitEditing={() => handleSendMessage()}
           />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor:
-                  inputText.trim() === ""
-                    ? colors["color-primary-300"]
-                    : colors["color-success-400"],
-              },
-            ]}
-            onPress={() => handleSendMessage()}
-            disabled={inputText.trim() === "" || loading}
-          >
-            <MaterialCommunityIcons
-              name="send"
-              size={scale(20)}
-              color="white"
+
+          <Host style={styles.sendButton}>
+            <Button
+              color="black"
+              variant="glass"
+              controlSize="large"
+              systemImage="paperplane.fill"
+              modifiers={[
+                glassEffect({
+                  glass: {
+                    variant: "clear",
+                  },
+                }),
+              ]}
+              onPress={() => handleSendMessage()}
+              disabled={false}
             />
-          </TouchableOpacity>
+          </Host>
         </Animated.View>
       </View>
     </View>
@@ -314,7 +317,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-100"],
   },
   input: {
-    flex: 1,
     borderRadius: scale(20),
     backgroundColor: "white",
     paddingHorizontal: scale(16),
@@ -322,6 +324,7 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(16),
     maxHeight: scale(120),
     ...fontStyles.body1,
+    flex: 1,
   },
   sendButton: {
     width: scale(44),
@@ -330,14 +333,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(3),
-    elevation: 3,
   },
   emptyStateContainer: {
     flex: 1,

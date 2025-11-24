@@ -1,9 +1,6 @@
 import React, { FC, useEffect } from "react";
 import { LayoutAnimation, Pressable, Text, View } from "react-native";
 import Animated, {
-  Easing,
-  FadeIn,
-  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -14,13 +11,14 @@ import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { scale, shadowStyle } from "../../../theme/utils";
+import { scale } from "../../../theme/utils";
 import { GoalEnum } from "../../../zustand/useOnboardingStore";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 export type GoalItem = {
   titleKey: string;
   key: GoalEnum;
-  iconComponent: ({ color }: { color?: string }) => JSX.Element;
+  iconComponent: ({ color }: { color?: string }) => React.ReactNode;
 };
 
 type Props = {
@@ -29,6 +27,9 @@ type Props = {
   isSelected: boolean;
   onSelect: () => void;
 };
+
+const AnimatedLiquidGlassView =
+  Animated.createAnimatedComponent(LiquidGlassView);
 
 const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
@@ -56,17 +57,18 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   }, [isSelected]);
 
   return (
-    <Animated.View
+    <AnimatedLiquidGlassView
+      interactive
+      effect="clear"
       key={item.key}
+      tintColor={
+        isSelected ? colors["color-success-800"] : colors["color-primary-100"]
+      }
       style={[
         {
-          backgroundColor: isSelected
-            ? colors["color-success-800"]
-            : colors["color-primary-100"],
           borderRadius: scale(8),
         },
         animatedStyles,
-        shadowStyle,
       ]}
     >
       {isSelected ? (
@@ -118,7 +120,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
           </Text>
         </View>
       </Pressable>
-    </Animated.View>
+    </AnimatedLiquidGlassView>
   );
 };
 

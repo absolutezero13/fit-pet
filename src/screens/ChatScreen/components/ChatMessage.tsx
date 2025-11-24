@@ -2,6 +2,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
+import { CircularProgress, Host } from "@expo/ui/swift-ui";
 
 export type IChatMessage = {
   id: string;
@@ -33,7 +34,12 @@ const ChatMessage = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator size={"small"} />
+        <Host matchContents>
+          <CircularProgress
+            progress={0.5}
+            color={colors["color-primary-500"]}
+          />
+        </Host>
       ) : (
         <>
           <View style={styles.messageContent}>
