@@ -59,7 +59,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   return (
     <AnimatedLiquidGlassView
       interactive
-      effect="clear"
+      effect="regular"
       key={item.key}
       tintColor={
         isSelected ? colors["color-success-800"] : colors["color-primary-100"]

@@ -32,10 +32,11 @@ const WelcomeScreen = () => {
         index: 0,
       });
     } else {
-      navigation.reset({
-        routes: [{ name: "Onboarding" }],
-        index: 0,
-      });
+      // navigation.reset({
+      //   routes: [{ name: "Onboarding" }],
+      //   index: 0,
+      // });
+      navigation.navigate("Onboarding");
     }
   };
 

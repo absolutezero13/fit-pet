@@ -66,7 +66,6 @@ const WeightHeight = () => {
     }
   };
 
-  const imageHeight = BASE_IMAGE_HEIGHT * getHeightScale(height ?? null);
   const imageWidth = BASE_IMAGE_WIDTH * getWeightScale(weight ?? null);
 
   return (
@@ -76,10 +75,9 @@ const WeightHeight = () => {
           source={imageMapping[gender || GenderEnum.Female]}
           resizeMode="stretch"
           style={[
-            styles.personImage,
             {
               width: imageWidth,
-              height: imageHeight,
+              height: BASE_IMAGE_HEIGHT,
             },
           ]}
         />
@@ -154,7 +152,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  personImage: {},
   pickersContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -175,7 +172,6 @@ const styles = StyleSheet.create({
   },
   pickerWrapper: {
     position: "relative",
-    backgroundColor: colors["color-primary-200"],
     borderRadius: scale(12),
     overflow: "hidden",
     minHeight: scale(56),
