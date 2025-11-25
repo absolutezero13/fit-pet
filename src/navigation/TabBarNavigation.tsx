@@ -1,7 +1,6 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, ViewStyle } from "react-native";
+import { ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
@@ -56,14 +55,14 @@ const TabNavigator = () => {
         name={t("tabMeals")}
         component={MealsScreen}
         options={{
-          tabBarIcon: ({ focused }) => ({ sfSymbol: "list.star" }),
+          tabBarIcon: () => ({ sfSymbol: "list.star" }),
         }}
       />
       <Tabs.Screen
         name={t("tabHome")}
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => ({
+          tabBarIcon: () => ({
             sfSymbol: "house.fill",
           }),
         }}
@@ -72,7 +71,7 @@ const TabNavigator = () => {
         name={t("tabChat")}
         component={ChatScreen}
         options={{
-          tabBarIcon: ({ focused }) => ({ sfSymbol: "sparkle" }),
+          tabBarIcon: () => ({ sfSymbol: "sparkle" }),
         }}
       />
     </Tabs.Navigator>

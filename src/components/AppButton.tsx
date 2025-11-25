@@ -1,12 +1,9 @@
 import React, { FC } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-
 import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import GradientSpinner from "./GradientSpinner";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 
 interface Props {

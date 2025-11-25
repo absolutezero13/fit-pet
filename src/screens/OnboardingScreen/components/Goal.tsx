@@ -119,7 +119,7 @@ const Goal = () => {
       }
 
       useOnboardingStore.setState({
-        goals: [...selectedGoals, item.key],
+        goals: [...(selectedGoals ?? []), item.key],
       });
     };
     return (

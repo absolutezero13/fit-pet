@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { IMeal } from "../services/apiTypes";
-import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoggedMealState {
   loggedMeals: IMeal[];

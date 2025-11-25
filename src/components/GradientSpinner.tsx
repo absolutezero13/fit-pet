@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     top: "50%",
     left: "50%",
-    marginLeft: -6,
-    marginTop: -6,
+    marginLeft: scale(-6),
+    marginTop: scale(-6),
   },
   centerCircle: {
     position: "absolute",

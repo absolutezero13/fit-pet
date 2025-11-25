@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 import GradientSpinner from "./GradientSpinner";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 

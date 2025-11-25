@@ -108,7 +108,6 @@ export function App() {
     }, 300);
   };
 
-  console.log("App ready");
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>

@@ -12,7 +12,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { IMeal } from "../../services/apiTypes";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, shadowStyle } from "../../theme/utils";

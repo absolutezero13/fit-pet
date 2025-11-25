@@ -30,7 +30,7 @@ const OnboardingScreen = () => {
     {
       title: t("defineGoals"),
       component: Goal,
-      disabled: onboardingStore.goals.length === 0,
+      disabled: onboardingStore.goals?.length === 0,
     },
     {
       title: t("identify"),

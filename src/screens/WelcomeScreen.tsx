@@ -9,7 +9,6 @@ import AppButton from "../components/AppButton";
 import { useTranslation } from "react-i18next";
 import badger from "./assets/badger-welcome.png";
 import useAuthService, { LoginType } from "../services/auth";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -32,10 +31,6 @@ const WelcomeScreen = () => {
         index: 0,
       });
     } else {
-      // navigation.reset({
-      //   routes: [{ name: "Onboarding" }],
-      //   index: 0,
-      // });
       navigation.navigate("Onboarding");
     }
   };

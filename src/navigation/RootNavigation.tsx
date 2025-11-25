@@ -6,7 +6,6 @@ import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import { IMeal } from "../services/apiTypes";
-import { createNavigationContainerRef } from "@react-navigation/native";
 import LogMealScreen from "../screens/LogMealScreen/LogMealScreen";
 import auth from "@react-native-firebase/auth";
 
