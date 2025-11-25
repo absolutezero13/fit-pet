@@ -336,7 +336,6 @@ const LogMealScreen = () => {
           <AppButton
             loading={isAnalyzing}
             title={t("analyzeMeal")}
-            backgroundColor={colors["color-success-400"]}
             onPress={handleSaveMeal}
             disabled={isAnalyzing || !contentExists}
           />
