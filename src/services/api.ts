@@ -9,7 +9,7 @@ const DEV_ENDPOINT = Platform.select({
   default: "http://localhost:3000/api",
 });
 
-export const ENDPOINT = DEV_ENDPOINT;
+export const ENDPOINT = LIVE_ENDPOINT;
 
 const api = axios.create({
   baseURL: ENDPOINT,
