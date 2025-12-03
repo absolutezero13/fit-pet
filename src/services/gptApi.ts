@@ -75,7 +75,7 @@ export const createGeminiVisionCompletion = async (
       formData.append("schema", JSON.stringify(schemas[schema]));
     }
 
-    const res = await api.post("/chat/gemini-vision", formData, {});
+    const res = await api.post("/vision", formData, {});
 
     return res.data;
   } catch (error) {

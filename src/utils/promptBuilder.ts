@@ -61,9 +61,11 @@ Multiple items? Show them. (e.g., chicken & rice → 🍗🍚)
 Max limit: 3 emojis total.
 Insights should be about the quality of the food and how it fits into the user's goals.
 There should be about 2 to 4 insights,
-User info: ${stringifyUserInfo(userInfo)} 
-Meal Description: ${meal} Meal Type: ${mealType}
-If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies.” Just define the meal, no need for a full-on essay.
+User info: ${stringifyUserInfo(userInfo)}
+Meal Description: ${
+  meal ?? "[YOU SHOULD FILL THE DESCRIPTION]"
+} Meal Type: ${mealType}
+If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies."
 `;
 
 const createChatPrompt = (userInfo: {}): string => `

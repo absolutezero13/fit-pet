@@ -1,7 +1,7 @@
 import api from "./api";
 import { IMeal } from "./apiTypes";
 
-export const createMeal = async (meal: IMeal) => {
+export const createMeal = async (meal: IMeal): Promise<IMeal> => {
   try {
     console.log("CREATE MEAL", meal);
     const res = await api.post("/meal-analysis", meal);

@@ -59,6 +59,7 @@ export class AuthService {
         idToken: await auth().currentUser?.getIdToken(),
       });
 
+      console.log("Google login response:", response.data);
       if (response.data) {
         const { user } = response.data;
         storageService.setItem("User", user);
@@ -73,7 +74,7 @@ export class AuthService {
     } catch (error) {
       console.log(
         "Error during Google login:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error : "Unknown error"
       );
       return {
         success: false,

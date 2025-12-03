@@ -60,6 +60,8 @@ const LogMealScreen = () => {
   const mealToEdit = useMealsStore((state) =>
     state.loggedMeals.find((meal) => meal._id === route.params.mealId)
   );
+
+  console.log("MEAL TO EDIT", mealToEdit);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const { height } = useReanimatedKeyboardAnimation();
@@ -144,12 +146,18 @@ const LogMealScreen = () => {
       response.response.candidates[0].content.parts[0].text
     );
 
+    console.log("ANALYZED MEAL RESPONSE", meal);
+
     if (!mealToEdit) {
       meal.date = new Date(route.params.selectedDate).toISOString();
-      meal._id = undefined;
       meal.image = image?.uri ?? null;
-      meal.description = mealDescription;
-      await createMeal(meal);
+
+      if (!meal.description) {
+        meal.description = mealDescription;
+      }
+      console.log("CREATING MEAL", meal);
+      const responseMeal = await createMeal(meal);
+      meal._id = responseMeal._id;
     } else {
       meal._id = mealToEdit._id;
       meal.date = mealToEdit.date;
@@ -171,7 +179,7 @@ const LogMealScreen = () => {
     setIsAnalyzing(true);
     try {
       const meal = await handleAddMeal(mealDescription, selectedMealType);
-
+      console.log("analyzed meal:", meal);
       if (meal.errorMessage) {
         setIsAnalyzing(false);
         Alert.alert(

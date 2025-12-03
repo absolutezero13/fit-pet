@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, Platform, Image } from "react-native";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
@@ -9,6 +9,7 @@ import AppButton from "../components/AppButton";
 import { useTranslation } from "react-i18next";
 import badger from "./assets/badger-welcome.png";
 import useAuthService, { LoginType } from "../services/auth";
+import api from "../services/api";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -16,11 +17,14 @@ const WelcomeScreen = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const authService = useAuthService();
+  const [loading, setLoading] = React.useState(false);
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
     const { success, user } = await authService.handleLogin(LoginType.Google);
     console.log("Google login success:", success);
     if (!success || !user) {
+      setLoading(false);
       console.error("Google login failed");
       return;
     }
@@ -33,6 +37,7 @@ const WelcomeScreen = () => {
     } else {
       navigation.navigate("Onboarding");
     }
+    setLoading(false);
   };
 
   return (
@@ -61,6 +66,7 @@ const WelcomeScreen = () => {
         disableAnimation={disableAnimation}
         position="bottom"
         title={t("getStarted")}
+        loading={loading}
         onPress={handleGoogleLogin}
       />
     </View>
