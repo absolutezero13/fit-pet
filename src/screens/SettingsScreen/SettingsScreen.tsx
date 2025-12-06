@@ -23,7 +23,6 @@ import LanguageSelection from "./components/LanguageSelection";
 import userService from "../../services/user";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 
-type GoalItem = { title: string; key: GoalEnum };
 type LanguageOption = { code: string; name: string; localName: string };
 
 const SettingsScreen = () => {
@@ -136,11 +135,9 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Profile Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("profile")}</Text>
           <View style={styles.card}>
-            {/* Weight */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>{t("weight")}</Text>
               <View style={styles.inputWrapper}>
@@ -205,22 +202,58 @@ const SettingsScreen = () => {
 
         <View style={styles.section}>
           <TouchableOpacity
-            onPress={() => authService.logout(navigation)}
+            onPress={() => {
+              Alert.alert(
+                t("logoutConfirmation"),
+                t("logoutConfirmationMessage"),
+                [
+                  {
+                    text: t("cancel"),
+                    style: "cancel",
+                  },
+                  {
+                    text: t("logoutConfirmation"),
+                    style: "destructive",
+                    onPress: () => {
+                      authService.logout(navigation);
+                    },
+                  },
+                ]
+              );
+            }}
             style={styles.card}
           >
-            <Text>Logout</Text>
+            <Text>{t("logoutConfirmation")}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
           <TouchableOpacity
             onPress={async () => {
-              await userService.deletUser();
-              authService.logout(navigation);
+              Alert.alert(
+                t("deleteAccountConfirmation"),
+                t("deleteAccountConfirmationMessage"),
+                [
+                  {
+                    text: t("cancel"),
+                    style: "cancel",
+                  },
+                  {
+                    text: t("deleteAccountConfirmation"),
+                    style: "destructive",
+                    onPress: async () => {
+                      await userService.deletUser();
+                      authService.logout(navigation);
+                    },
+                  },
+                ]
+              );
             }}
             style={styles.card}
           >
-            <Text style={{ color: "red" }}>Delete</Text>
+            <Text style={{ color: "red" }}>
+              {t("deleteAccountConfirmation")}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

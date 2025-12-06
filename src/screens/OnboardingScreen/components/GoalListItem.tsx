@@ -34,7 +34,7 @@ const AnimatedLiquidGlassView =
 const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
   const { t } = useTranslation();
-  const opacity = useSharedValue(0);
+  const opacity = useSharedValue(0.1);
 
   const animatedStyles = useAnimatedStyle(() => {
     return {

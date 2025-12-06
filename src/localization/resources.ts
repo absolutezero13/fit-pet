@@ -117,6 +117,11 @@ export const resources = {
       dietTypesTitle: "Beslenme Düzenin",
       save: "Kaydet",
       adjustNutritionGoals: "Beslenme Hedefleri",
+      logoutConfirmation: "Çıkış Yap",
+      logoutConfirmationMessage: "Çıkış yapmak istediğinizden emin misiniz?",
+      deleteAccountConfirmation: "Hesabı Sil",
+      deleteAccountConfirmationMessage:
+        "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     },
   },
   en: {
@@ -237,6 +242,11 @@ export const resources = {
       dietTypesTitle: "Your Diet Type",
       save: "Save",
       adjustNutritionGoals: "Adjust nutrition goals",
+      logoutConfirmation: "Logout",
+      logoutConfirmationMessage: "Are you sure you want to logout?",
+      deleteAccountConfirmation: "Delete Account Confirmation",
+      deleteAccountConfirmationMessage:
+        "Are you sure you want to delete your account? This action is irreversible.",
     },
   },
 };
