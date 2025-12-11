@@ -14,7 +14,7 @@ interface Props {
 
 const MealCard: FC<Props> = ({ meal, onPress }) => {
   return (
-    <LiquidGlassView effect="regular" interactive style={styles.mealItem}>
+    <LiquidGlassView effect="clear" interactive style={styles.mealItem}>
       <TouchableOpacity
         activeOpacity={1}
         key={meal.description}

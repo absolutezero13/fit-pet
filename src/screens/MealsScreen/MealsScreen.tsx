@@ -40,10 +40,15 @@ const MealsScreen = () => {
     navigation.navigate("MealDetail", { meal });
   };
 
-  const meals = useMealsStore((state) => state.suggestedMeals);
+  const mealsStore = useMealsStore((state) => state);
+  const { suggestedMeals: meals, date } = mealsStore;
   const getMeals = async () => {
     const mealsInStore = await storageService.getItem("meals");
-    if (mealsInStore && mealsInStore.length > 0) {
+    if (
+      mealsInStore &&
+      mealsInStore.length > 0 &&
+      date === new Date().toISOString().split("T")[0]
+    ) {
       useMealsStore.setState({ suggestedMeals: mealsInStore });
       return;
     }
@@ -87,6 +92,7 @@ const MealsScreen = () => {
 
       useMealsStore.setState({
         suggestedMeals: mealsWithImages,
+        date: new Date().toISOString().split("T")[0],
       });
 
       storageService.setItem("meals", useMealsStore.getState().suggestedMeals);

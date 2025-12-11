@@ -142,11 +142,6 @@ const analyzedMealSchema: Schema = {
   description: "Analyzed meal",
   type: SchemaType.OBJECT,
   properties: {
-    _id: {
-      type: SchemaType.STRING,
-      description: "unique id, create it with uuid",
-      nullable: false,
-    },
     calories: {
       type: SchemaType.NUMBER,
       description: "Calories",
@@ -217,7 +212,6 @@ const analyzedMealSchema: Schema = {
     "score",
     "insights",
     "mealType",
-    "_id",
     "mealTypeLocalized",
     "emoji",
   ],

@@ -9,7 +9,7 @@ import AppButton from "../components/AppButton";
 import { useTranslation } from "react-i18next";
 import badger from "./assets/badger-welcome.png";
 import useAuthService, { LoginType } from "../services/auth";
-import api from "../services/api";
+import userService from "../services/user";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -30,6 +30,7 @@ const WelcomeScreen = () => {
     }
 
     if (user.onboardingCompleted) {
+      await userService.getUser();
       navigation.reset({
         routes: [{ name: "HomeTabs" }],
         index: 0,

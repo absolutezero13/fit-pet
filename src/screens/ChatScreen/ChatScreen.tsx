@@ -104,7 +104,7 @@ const ChatScreen = () => {
   useEffect(() => {
     navigation.addListener("focus", () => {
       setTimeout(() => {
-        textInputRef.current?.focus();
+        // textInputRef.current?.focus();
       }, 300);
     });
   }, [navigation, textInputRef]);

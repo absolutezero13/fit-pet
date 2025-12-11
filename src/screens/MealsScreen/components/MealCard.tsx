@@ -14,7 +14,7 @@ type Props = {
 };
 
 const MealCard: FC<Props> = ({ meal, onPress }) => (
-  <LiquidGlassView interactive effect="regular" style={styles.mealCard}>
+  <LiquidGlassView interactive effect="clear" style={styles.mealCard}>
     <TouchableOpacity activeOpacity={0.8} onPress={() => onPress(meal)}>
       <View style={styles.mealHeader}>
         <View style={styles.mealTitleContainer}>
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     paddingBottom: scale(100), // Increased to accommodate tab bar
   },
   mealCard: {
-    backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),

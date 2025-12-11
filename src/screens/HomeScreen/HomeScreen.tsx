@@ -176,7 +176,7 @@ const LoggedMealsScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* <DailySummary meals={meals} /> */}
+          <DailySummary meals={meals} />
           {mealTypesData.map(({ type, meals }) => (
             <MealTypeSection
               key={type}
