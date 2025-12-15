@@ -3,6 +3,7 @@ import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
 import api, { ENDPOINT } from "./api";
+import useUserStore from "../zustand/useUserStore";
 
 export const createChatCompletion = async (
   content: string
@@ -40,9 +41,7 @@ export const createGeminiCompletion = async (
       prompt: content,
       schema: schemas[schema],
       images,
-      systemPrompt: promptBuilder.createChatPrompt(
-        useOnboardingStore.getState()
-      ),
+      systemPrompt: promptBuilder.createChatPrompt(useUserStore.getState()),
     });
 
     return res.data;
@@ -95,9 +94,7 @@ export const createGeminiStream = async (
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const res = await api.post("/chat/gemini-stream", {
-      systemPrompt: promptBuilder.createChatPrompt(
-        useOnboardingStore.getState()
-      ),
+      systemPrompt: promptBuilder.createChatPrompt(useUserStore.getState()),
       history,
       prompt: content,
     });
@@ -109,6 +106,7 @@ export const createGeminiStream = async (
   }
 };
 
+// WILL BE IMPLEMENTED
 export const swapRecipe = async (
   recipe: IMeal,
   content: string,
@@ -119,9 +117,7 @@ export const swapRecipe = async (
       recipe,
       prompt: content,
       schema: schemas[schema],
-      systemPrompt: promptBuilder.createChatPrompt(
-        useOnboardingStore.getState()
-      ),
+      systemPrompt: promptBuilder.createChatPrompt(useUserStore.getState()),
     });
 
     return res.data;

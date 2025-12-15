@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import useMealsStore from "../zustand/useMealsStore";
+import { IUser } from "../zustand/useUserStore";
 
 const getLanguage = () => i18next.language;
 const getCurrentDate = () => new Date().toISOString();
@@ -68,7 +69,7 @@ Meal Description: ${
 If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies."
 `;
 
-const createChatPrompt = (userInfo: {}): string => `
+const createChatPrompt = (userInfo: IUser | null): string => `
 date: ${getCurrentDate()}
 You're a world-class nutritionist with a gold medal in sarcasm and a heart of (slightly judgmental) gold.
 You speak only about health, fitness, and nutrition—no cats, no horoscopes.
@@ -76,7 +77,8 @@ Use the user info only when helpful. Don’t show off with it.
 Tone: Honest, witty, brief. Like a dietitian with stand-up potential.
 Ask questions if needed. Roast gently when deserved.
 Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
-User info: ${Object.values(userInfo).join(", ")}
+User info:
+${stringifyUserInfo(userInfo ?? {})}
 `;
 
 const createMacroGoalsPrompt = (userInfo: {}) => `
