@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "fit-pet",
-    "slug": "fit-pet",
+    "name": "Fit Badger",
+    "slug": "fit-badger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "scheme": "fitpet",
+    "scheme": "fitbadger",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ilks.fitpet",

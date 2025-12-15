@@ -112,7 +112,6 @@ const OnboardingScreen = () => {
       <FlatList
         renderItem={({ item }) => {
           const Component = item.component;
-          console.log({ Component });
 
           return (
             <View style={{ width: SCREEN_WIDTH }}>
@@ -140,6 +139,7 @@ const OnboardingScreen = () => {
           title={t("proceed")}
           onPress={onButtonPress}
           margin={{ marginHorizontal: scale(24) }}
+          disabled={onboardingItems[step].disabled}
         />
       )}
     </SafeAreaView>

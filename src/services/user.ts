@@ -7,6 +7,8 @@ class UserService {
       fields: user,
     });
 
+    console.log("UserService createOrUpdateUser", res.data.user);
+
     useUserStore.setState(res.data.user);
 
     return res.data as { user: IUser; message: string };

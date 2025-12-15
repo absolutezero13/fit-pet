@@ -27,6 +27,8 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="fitpet"/>
         <data android:scheme="exp+fit-pet"/>
+        <data android:scheme="fitbadger"/>
+        <data android:scheme="exp+fit-badger"/>
       </intent-filter>
     </activity>
   </application>
