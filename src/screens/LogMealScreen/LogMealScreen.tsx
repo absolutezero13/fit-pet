@@ -255,6 +255,7 @@ const LogMealScreen = () => {
                 },
               ]}
               placeholder={t("exampleMeal")}
+              placeholderTextColor={colors["color-primary-200"]}
               value={mealDescription}
               onChangeText={setMealDescription}
               multiline

@@ -23,6 +23,7 @@ import DailySummary from "./components/DailySummary";
 import { getMealsByDate } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import GradientSpinner from "../../components/GradientSpinner";
+import formatHeaderDate from "../../utils/formatHeaderDate";
 
 const MealTypeSection = ({
   title,
@@ -134,13 +135,7 @@ const LoggedMealsScreen = () => {
             name="chevron-left"
             size={scale(36)}
           />
-          <Text style={styles.date}>
-            {selectedDate.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
-          </Text>
+          <Text style={styles.date}>{formatHeaderDate(selectedDate)}</Text>
           <MaterialCommunityIcons
             disabled={isToday}
             color={isToday ? colors["color-primary-300"] : "black"}

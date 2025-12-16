@@ -102,9 +102,7 @@ const MealDetailScreen = () => {
                 { backgroundColor: colors["color-success-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>
-              {t("proteins").toUpperCase()}
-            </Text>
+            <Text style={styles.macroLegendText}>{t("proteins")}</Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
@@ -113,9 +111,7 @@ const MealDetailScreen = () => {
                 { backgroundColor: colors["color-info-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>
-              {t("carbs").toUpperCase()}
-            </Text>
+            <Text style={styles.macroLegendText}>{t("carbs")}</Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
@@ -124,9 +120,7 @@ const MealDetailScreen = () => {
                 { backgroundColor: colors["color-primary-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>
-              {t("fats").toUpperCase()}
-            </Text>
+            <Text style={styles.macroLegendText}>{t("fats")}</Text>
           </View>
         </View>
       </View>

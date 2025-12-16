@@ -9,7 +9,7 @@ import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
 
-const ageData = Array.from({ length: 50 }, (_, i) => i + 15);
+const ageData = Array.from({ length: 70 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
 
 const Age = () => {

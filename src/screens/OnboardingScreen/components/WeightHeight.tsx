@@ -95,6 +95,7 @@ const WeightHeight = () => {
               mode="dropdown"
               selectionColor={colors["color-primary-500"]}
               dropdownIconColor={colors["color-primary-500"]}
+              itemStyle={styles.pickerItem}
             >
               {heightData.map((value) => (
                 <Picker.Item
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
   unitContainer: {
     position: "absolute",
     right: scale(16),
-    top: -4,
+    top: scale(3),
     bottom: 0,
     justifyContent: "center",
     pointerEvents: "none",

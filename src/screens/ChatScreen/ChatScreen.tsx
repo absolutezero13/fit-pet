@@ -252,6 +252,7 @@ const ChatScreen = () => {
           <TextInput
             style={styles.input}
             placeholder={t("typeYourMessage")}
+            placeholderTextColor={colors["color-primary-200"]}
             value={inputText}
             onChangeText={setInputText}
             ref={textInputRef}

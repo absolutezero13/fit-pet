@@ -406,7 +406,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet;
-				PRODUCT_NAME = "FitBadger";
+				PRODUCT_NAME = FitBadger;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Fit Badger Profile - Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "fitpet/fitpet-Bridging-Header.h";
@@ -444,7 +444,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet;
-				PRODUCT_NAME = "FitBadger";
+				PRODUCT_NAME = FitBadger;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Fit Badger Profile - Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "fitpet/fitpet-Bridging-Header.h";

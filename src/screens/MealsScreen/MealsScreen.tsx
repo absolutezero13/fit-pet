@@ -29,6 +29,7 @@ import { Button, Form, Host, Section, TextField } from "@expo/ui/swift-ui";
 import { glassEffect, padding } from "@expo/ui/swift-ui/modifiers";
 import { storageService } from "../../storage/AsyncStorageService";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import formatHeaderDate from "../../utils/formatHeaderDate";
 
 const MealsScreen = () => {
   const { t } = useTranslation();
@@ -41,9 +42,11 @@ const MealsScreen = () => {
   };
 
   const mealsStore = useMealsStore((state) => state);
-  const { suggestedMeals: meals, date } = mealsStore;
+  const { suggestedMeals: meals } = mealsStore;
   const getMeals = async () => {
-    const mealsInStore = await storageService.getItem("meals");
+    const mealStore = await storageService.getItem("meals");
+    const mealsInStore = mealStore?.meals as IMeal[] | undefined;
+    const date = mealStore?.date as string | undefined;
     if (
       mealsInStore &&
       mealsInStore.length > 0 &&
@@ -92,10 +95,12 @@ const MealsScreen = () => {
 
       useMealsStore.setState({
         suggestedMeals: mealsWithImages,
-        date: new Date().toISOString().split("T")[0],
       });
 
-      storageService.setItem("meals", useMealsStore.getState().suggestedMeals);
+      storageService.setItem("meals", {
+        meals: useMealsStore.getState().suggestedMeals,
+        date: new Date().toISOString().split("T")[0],
+      });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
       console.log("error", error);
@@ -121,13 +126,7 @@ const MealsScreen = () => {
         ]}
       >
         <Text style={styles.title}>{t("todaysMenu")}</Text>
-        <Text style={styles.date}>
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </Text>
+        <Text style={styles.date}>{formatHeaderDate(new Date())}</Text>
       </LiquidGlassView>
 
       {loading ? (

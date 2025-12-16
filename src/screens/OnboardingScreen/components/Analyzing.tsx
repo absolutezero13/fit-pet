@@ -22,12 +22,18 @@ import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore, {
   GenderEnum,
 } from "../../../zustand/useOnboardingStore";
-import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
+import { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
 
 const { width } = Dimensions.get("window");
+const DEFAULT_MACRO_GOALS: MacroGoals = {
+  calories: 2000,
+  proteins: 30,
+  carbs: 40,
+  fats: 30,
+};
 
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
@@ -66,32 +72,53 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       ...useOnboardingStore.getState(),
     });
 
-    console.log("user", useOnboardingStore.getState());
+    let macroGoals: MacroGoals;
+    try {
+      console.log("user", useOnboardingStore.getState());
 
-    const geminiRes = await createGeminiCompletion(
-      promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
-      "macroGoals"
-    );
+      const geminiRes = await createGeminiCompletion(
+        promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
+        "macroGoals"
+      );
 
-    console.log(
-      "Gemini response: ",
-      geminiRes.response.candidates[0].content.parts
-    );
+      console.log("Gemini response raw: ", geminiRes);
 
-    console.log(
-      "Parsed macro goals: ",
-      JSON.parse(geminiRes.response.candidates[0].content.parts[0].text)
-    );
+      console.log(
+        "Gemini response: ",
+        geminiRes.response.candidates[0].content.parts
+      );
 
-    const macroGoals: MacroGoals = JSON.parse(
-      geminiRes.response.candidates[0].content.parts[0].text
-    );
+      console.log(
+        "Parsed macro goals: ",
+        JSON.parse(geminiRes.response.candidates[0].content.parts[0].text)
+      );
+
+      macroGoals = JSON.parse(
+        geminiRes.response.candidates[0].content.parts[0].text
+      );
+    } catch (error) {
+      console.log("Error generating macro goals:", error);
+      macroGoals = DEFAULT_MACRO_GOALS;
+    }
+
+    const isMacroGoalsValid =
+      macroGoals &&
+      typeof macroGoals.calories === "number" &&
+      typeof macroGoals.proteins === "number" &&
+      typeof macroGoals.carbs === "number" &&
+      typeof macroGoals.fats === "number";
+
+    if (!isMacroGoalsValid) {
+      macroGoals = DEFAULT_MACRO_GOALS;
+    }
 
     await userService.createOrUpdateUser({
       macroGoals,
       onboarding: useOnboardingStore.getState(),
       onboardingCompleted: true,
     });
+
+    navigation.navigate("HomeTabs");
   };
 
   useEffect(() => {
@@ -100,10 +127,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     }
 
     updateUser();
-
-    setTimeout(() => {
-      navigation.navigate("HomeTabs");
-    }, 10000);
 
     // Animate status message every 2 seconds
     const statusInterval = setInterval(() => {

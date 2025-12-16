@@ -87,8 +87,7 @@ You are a nutritionist. You will receive lifestyle and body information about th
 Based on that, you’ll create a daily macro goals.
 Pay special attention to the user’s daily calorie intake.
 fats, carbs and protein should have percentage value, total of 100%.
-calories should be kcal, example: 2000.
-userInfo: ${stringifyUserInfo(userInfo)}
+calories should be kcal.
 `;
 
 const promptBuilder = {

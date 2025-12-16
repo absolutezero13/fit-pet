@@ -7,7 +7,10 @@ import { OnboardingStore } from "../zustand/useOnboardingStore";
 export interface StorageItems {
   User: OnboardingStore;
   token: string;
-  meals: IMeal[];
+  meals: {
+    meals: IMeal[];
+    date: string;
+  };
   language: {
     code: string;
   };

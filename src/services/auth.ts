@@ -89,6 +89,7 @@ export class AuthService {
     await auth().signOut();
 
     storageService.removeItem("User");
+    storageService.removeItem("meals");
     navigationRef?.reset({
       index: 0,
       routes: [{ name: "Welcome" }],

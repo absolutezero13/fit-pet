@@ -1,3 +1,4 @@
+import useMealsStore from "../zustand/useMealsStore";
 import useUserStore, { IUser } from "../zustand/useUserStore";
 import api, { ENDPOINT } from "./api";
 
@@ -24,7 +25,6 @@ class UserService {
 
   async deletUser() {
     const res = await api.delete(ENDPOINT + "/user");
-    useUserStore.setState({} as IUser);
 
     return res.data as { message: string };
   }
