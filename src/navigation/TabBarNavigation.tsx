@@ -39,16 +39,7 @@ const TabNavigator = () => {
     <Tabs.Navigator
       hapticFeedbackEnabled
       screenOptions={{
-        tabBarShowLabel: true,
-        tabBarStyle: tabBarDefaultStyles,
-        tabBarLabelStyle: {
-          ...fontStyles.body2,
-          color: colors["color-primary-400"],
-        },
         tabBarActiveTintColor: colors["color-success-400"],
-        tabBarInactiveTintColor: colors["color-primary-400"],
-        animation: "shift",
-        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen

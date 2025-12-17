@@ -114,7 +114,6 @@ const MealsScreen = () => {
     <View style={styles.container}>
       <LiquidGlassView
         effect={"clear"}
-        tintColor={colors["color-primary-200"]}
         style={[
           styles.header,
           {
