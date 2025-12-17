@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  Pressable,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
@@ -166,7 +167,16 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+          <Pressable onPress={() => setModalVisible(true)}>
+            <Icon
+              name="format-list-bulleted"
+              size={scale(24)}
+              color={colors["color-primary-500"]}
+            />
+          </Pressable>
+        </View>
         <TouchableOpacity
           style={[
             styles.scoreBadge,
@@ -415,6 +425,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: scale(12),
     elevation: 3,
+  },
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerRow: {
     justifyContent: "space-between",

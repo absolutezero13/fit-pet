@@ -40,7 +40,7 @@ export const resources = {
       loggedMeals: "Eklenmiş Öğünler",
       trackYourNutrition:
         "Gün boyunca öğünlerinizi kaydederek beslenmenizi takip edin",
-      logYourFirstMeal: "İlk öğününüzü ekleyin",
+      logYourFirstMeal: "Öğün Ekle",
       nutritionAssistant: "Beslenme Asistanı",
       startAConversation: "Bir sohbet başlat",
       askQuestion:
@@ -165,7 +165,7 @@ export const resources = {
       loggedMeals: "Logged Meals",
       trackYourNutrition:
         "Track your nutrition by logging your meals throughout the day",
-      logYourFirstMeal: "Log your first meal",
+      logYourFirstMeal: "Add a Meal",
       nutritionAssistant: "Nutrition Assistant",
       startAConversation: "Start a conversation",
       askQuestion:

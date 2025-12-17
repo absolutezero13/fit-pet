@@ -17,7 +17,6 @@ import MealCard from "./components/MealCard";
 import { IMeal, IMealType } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
-import EmptyState from "./components/EmptyState";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
 import { getMealsByDate } from "../../services/mealAnalysis";
@@ -30,11 +29,21 @@ const MealTypeSection = ({
   title,
   meals,
   onPressItem,
+  selectedDate,
+  type,
 }: {
-  title: string;
+  type: string;
   meals: IMeal[];
   onPressItem: (meal: IMeal) => void;
+  selectedDate: Date;
 }) => {
+  const navigation = useNavigation();
+  const navigateLogMeal = () => {
+    navigation.navigate("LogMeal", {
+      selectedDate: selectedDate.toISOString(),
+      mealType: type,
+    });
+  };
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -48,7 +57,7 @@ const MealTypeSection = ({
           />
         ))
       ) : (
-        <MealTypeEmptyState onPress={() => {}} />
+        <MealTypeEmptyState onPress={navigateLogMeal} />
       )}
     </View>
   );
@@ -189,8 +198,10 @@ const LoggedMealsScreen = () => {
             <MealTypeSection
               key={type}
               title={t(type)}
+              type={type}
               meals={meals}
               onPressItem={handleMealPress}
+              selectedDate={selectedDate}
             />
           ))}
         </ScrollView>
@@ -205,7 +216,7 @@ const LoggedMealsScreen = () => {
           borderRadius: scale(32),
         }}
       >
-        <Pressable style={[styles.addButton, {}]} onPress={navigateLogMeal}>
+        <Pressable style={[styles.addButton]} onPress={navigateLogMeal}>
           <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
         </Pressable>
       </LiquidGlassView>

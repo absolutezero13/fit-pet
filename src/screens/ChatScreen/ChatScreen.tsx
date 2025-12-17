@@ -80,15 +80,15 @@ const ChatScreen = () => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const loggedMeals = useMealsStore((state) => state.loggedMeals);
+
   const SUGGESTIONS: Suggestion[] = [
     {
       text: t("howWasMyLastMeal"),
       prompt: JSON.stringify({
         context: t("howWasMyLastMeal"),
         data: {
-          ...useMealsStore.getState().loggedMeals[
-            useMealsStore.getState().loggedMeals.length - 1
-          ],
+          ...loggedMeals[loggedMeals.length - 1],
           insights: null,
         },
       }),
@@ -158,6 +158,7 @@ const ChatScreen = () => {
   const handleSuggestionPress = (prompt: string) => {
     // You can parse the stringified prompt if needed
     const parsedPrompt = JSON.parse(prompt);
+    console.log("PARSED PROMPT", parsedPrompt);
     handleSendMessage(parsedPrompt.context, parsedPrompt.data);
   };
 

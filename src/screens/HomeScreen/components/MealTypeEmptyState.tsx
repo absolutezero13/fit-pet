@@ -1,9 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   title?: string;
@@ -11,22 +18,13 @@ type Props = {
   onPress?: () => void;
 };
 
-const MealTypeEmptyState: React.FC<Props> = ({
-  title = "Henüz bir şey eklemedin.",
-  ctaText = "Öğün Ekle",
-  onPress,
-}) => {
+const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
+  const { t } = useTranslation();
   return (
-    <View style={styles.wrapper}>
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.9}
-        onPress={onPress}
-      >
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.cta}>+ {ctaText}</Text>
-      </TouchableOpacity>
-    </View>
+    <Pressable style={styles.card} onPress={onPress}>
+      <Text style={styles.title}>{t("noMealsLogged")}</Text>
+      <Text style={styles.cta}>+ {t("logYourFirstMeal")}</Text>
+    </Pressable>
   );
 };
 
@@ -36,9 +34,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    minHeight: scale(80),
     borderRadius: scale(28),
-    borderWidth: 1,
+    borderWidth: 2,
     borderStyle: "dashed",
     borderColor: colors["color-primary-200"],
     backgroundColor: "white",
@@ -48,13 +45,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
   },
   title: {
-    ...fontStyles.headline4,
+    ...fontStyles.body1,
     color: colors["color-primary-400"],
     textAlign: "center",
     marginBottom: scale(8),
   },
   cta: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline4,
     color: colors["color-success-400"],
   },
   fab: {

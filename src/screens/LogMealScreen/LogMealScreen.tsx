@@ -49,6 +49,7 @@ const LogMealScreen = () => {
       {
         params: {
           selectedDate: string;
+          mealType: string;
           mealId?: string;
         };
       },
@@ -61,7 +62,6 @@ const LogMealScreen = () => {
     state.loggedMeals.find((meal) => meal._id === route.params.mealId)
   );
 
-  console.log("MEAL TO EDIT", mealToEdit);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const { height } = useReanimatedKeyboardAnimation();
@@ -71,7 +71,7 @@ const LogMealScreen = () => {
     mealToEdit?.description ?? ""
   );
   const [selectedMealType, setSelectedMealType] = useState(
-    t(mealToEdit?.mealType ?? "breakfast")
+    t(mealToEdit?.mealType ?? route.params.mealType ?? "breakfast")
   );
 
   const pickImage = async (source: "camera" | "gallery") => {
