@@ -18,6 +18,7 @@ import { IMeal } from "../../services/apiTypes";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
+import FastImage from "react-native-fast-image";
 
 type MealDetailScreenProps = {
   meal: IMeal;
@@ -198,7 +199,7 @@ const MealDetailScreen = () => {
         {/* Meal image or placeholder */}
         <View style={styles.imageContainer}>
           {meal.image ? (
-            <Image
+            <FastImage
               source={{ uri: meal.image }}
               style={styles.mealImage}
               resizeMode="cover"

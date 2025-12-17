@@ -65,7 +65,7 @@ export const resources = {
       camera: "Kamera",
       gallery: "Galeri",
       cancel: "İptal",
-      carbs: "Karbonhidrat",
+      carbs: "Karb.",
       proteins: "Protein",
       fats: "Yağ",
       calories: "Kalori",

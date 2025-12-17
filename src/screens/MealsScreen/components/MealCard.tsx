@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -7,60 +7,71 @@ import { StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IMeal } from "../../../services/apiTypes";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTranslation } from "react-i18next";
+import FastImage from "react-native-fast-image";
 
 type Props = {
   meal: IMeal;
   onPress: (meal: IMeal) => void;
 };
 
-const MealCard: FC<Props> = ({ meal, onPress }) => (
-  <LiquidGlassView interactive effect="clear" style={styles.mealCard}>
-    <TouchableOpacity activeOpacity={0.8} onPress={() => onPress(meal)}>
-      <View style={styles.mealHeader}>
-        <View style={styles.mealTitleContainer}>
-          <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
-          <View style={styles.timeContainer}>
-            <MaterialCommunityIcons
-              name="clock-outline"
-              size={scale(18)}
-              color={colors["color-success-400"]}
-            />
-            <Text style={styles.mealTime}>{meal.time}</Text>
+const MealCard: FC<Props> = ({ meal, onPress }) => {
+  const { t } = useTranslation();
+  const macroData = [
+    {
+      label: t("calories"),
+      value: meal.calories,
+    },
+    {
+      label: t("proteins"),
+      value: meal.proteins,
+    },
+    {
+      label: t("carbs"),
+      value: meal.carbs,
+    },
+    {
+      label: t("fats"),
+      value: meal.fats,
+    },
+  ];
+
+  return (
+    <LiquidGlassView interactive effect="clear" style={styles.mealCard}>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => onPress(meal)}>
+        <View style={styles.mealHeader}>
+          <View style={styles.mealTitleContainer}>
+            <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
+            <View style={styles.timeContainer}>
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={scale(18)}
+                color={colors["color-success-400"]}
+              />
+              <Text style={styles.mealTime}>{meal.time}</Text>
+            </View>
           </View>
         </View>
-        <MaterialCommunityIcons
-          name="food-fork-drink"
-          size={scale(32)}
-          color={colors["color-success-400"]}
-        />
-      </View>
 
-      <Text style={styles.mealDescription}>{meal.description}</Text>
+        <View style={styles.mealBody}>
+          <Text style={styles.mealDescription}>{meal.description}</Text>
+          {meal.image && (
+            <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
+          )}
+        </View>
 
-      <View style={styles.macrosContainer}>
-        <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{meal.calories}</Text>
-          <Text style={styles.macroLabel}>calories</Text>
+        <View style={styles.macrosContainer}>
+          {macroData.map((item) => (
+            <View style={styles.macroItem} key={item.label}>
+              <Text style={styles.macroValue}>{item.value}g</Text>
+              <Text style={styles.macroLabel}>{item.label}</Text>
+            </View>
+          ))}
         </View>
-        <View style={[styles.macroSeparator]} />
-        <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{meal.proteins}g</Text>
-          <Text style={styles.macroLabel}>proteins</Text>
-        </View>
-        <View style={[styles.macroSeparator]} />
-        <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{meal.carbs}g</Text>
-          <Text style={styles.macroLabel}>carbs</Text>
-        </View>
-        <View style={[styles.macroSeparator]} />
-        <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{meal.fats}g</Text>
-          <Text style={styles.macroLabel}>fats</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  </LiquidGlassView>
-);
+      </TouchableOpacity>
+    </LiquidGlassView>
+  );
+};
 
 export default MealCard;
 
@@ -101,14 +112,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: scale(12),
-    elevation: 5,
   },
   mealHeader: {
     flexDirection: "row",
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
   },
   mealDescription: {
     ...fontStyles.body1,
-    marginBottom: scale(24),
+    width: "70%",
   },
   macrosContainer: {
     flexDirection: "row",
@@ -151,12 +154,11 @@ const styles = StyleSheet.create({
   macroValue: {
     ...fontStyles.headline3,
     color: colors["color-success-400"],
-    marginBottom: scale(6),
   },
   macroLabel: {
-    ...fontStyles.caption,
+    ...fontStyles.body1,
     color: colors["color-primary-400"],
-    textTransform: "uppercase",
+    textAlign: "center",
   },
   macroSeparator: {
     width: 1,
@@ -196,5 +198,16 @@ const styles = StyleSheet.create({
   macroLegendText: {
     ...fontStyles.footnote,
     color: colors["color-primary-400"],
+  },
+  mealImage: {
+    height: scale(75),
+    width: scale(75),
+    borderRadius: scale(16),
+    aspectRatio: 1,
+  },
+  mealBody: {
+    marginBottom: scale(24),
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

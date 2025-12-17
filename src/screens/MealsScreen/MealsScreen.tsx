@@ -78,11 +78,6 @@ const MealsScreen = () => {
         suggestedMeals: mealsWithDates,
       });
 
-      storageService.setItem("meals", {
-        meals: useMealsStore.getState().suggestedMeals,
-        date: new Date().toISOString().split("T")[0],
-      });
-
       const imagePromises = responseMeals.map((meal) => {
         return createGeminiImage(
           promptBuilder.createImagePrompt(meal.description)
@@ -96,6 +91,11 @@ const MealsScreen = () => {
 
       useMealsStore.setState({
         suggestedMeals: mealsWithGeneratedImages,
+      });
+
+      storageService.setItem("meals", {
+        meals: mealsWithGeneratedImages,
+        date: new Date().toISOString().split("T")[0],
       });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
