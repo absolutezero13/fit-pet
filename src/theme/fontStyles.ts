@@ -47,6 +47,12 @@ export const fontStyles = StyleSheet.create({
     fontSize: scale(14),
     lineHeight: scale(20),
   },
+  body1Bold: {
+    fontFamily: "Nunito_700Bold",
+    fontSize: scale(16),
+    lineHeight: scale(24),
+    color: colors["color-primary-500"],
+  },
   caption: {
     fontFamily: "Nunito_400Regular",
     fontSize: scale(12),

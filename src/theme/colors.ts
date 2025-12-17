@@ -2,6 +2,7 @@ import eva from "@eva-design/eva";
 
 export const colors = {
   ...eva,
+  "color-primary-50": "#F5F7FA",
   "color-primary-100": "#E2E9F4",
   "color-primary-200": "#C7D4EA",
   "color-primary-300": "#96A4C1",

@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   sectionTitle: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-500"],
     marginBottom: scale(12),
   },

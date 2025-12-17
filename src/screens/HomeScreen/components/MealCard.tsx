@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   mealItem: {
     backgroundColor: "white",
-    borderRadius: scale(16),
+    borderRadius: scale(28),
     marginBottom: scale(12),
     shadowColor: colors["color-primary-500"],
     shadowOffset: {
@@ -67,11 +67,11 @@ const styles = StyleSheet.create({
     padding: scale(16),
   },
   mealItemLeft: {
-    flex: 0.9,
+    flex: 1,
     flexDirection: "row",
   },
   mealItemTitle: {
-    ...fontStyles.headline4,
+    ...fontStyles.body1Bold,
   },
   mealItemTime: {
     ...fontStyles.caption,

@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
-import CircleProgress from "./CircleProgress";
 import { IMeal } from "../../../services/apiTypes";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
@@ -159,57 +158,152 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const macroGoalsTotal = goals.proteins + goals.fats + goals.carbs;
   const isMacroGoalsValid = macroGoalsTotal === 100;
 
+  const proteinGoal = (goals.proteins * goals.calories) / 100 / 4;
+  const carbsGoal = (goals.carbs * goals.calories) / 100 / 4;
+  const fatsGoal = (goals.fats * goals.calories) / 100 / 9;
+
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
         <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => {
-            setModalVisible(true);
-          }}
+          style={[
+            styles.scoreBadge,
+            { backgroundColor: getScoreColor(averageScore) },
+          ]}
+          onPress={() => setModalVisible(true)}
         >
           <Icon
-            name="cog"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
+            name="star"
+            size={scale(14)}
+            color="white"
+            style={{ marginRight: scale(6) }}
           />
+          <Text style={styles.scoreBadgeText}>
+            {averageScore.toFixed(1)} Puan
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.progressContainer}>
-        {circleData.map((data) => (
-          <View key={data.label} style={[styles.calorieCircleContainer]}>
-            <CircleProgress
-              progress={data.progress}
-              color={macroColors[data.type]}
-              size={scale(95)}
-              strokeWidth={scale(12)}
-              label={data.label}
-              value={data.value.toFixed(0)}
-              goal={
-                data.type === "calories"
-                  ? data.goal
-                  : (
-                      (goals[data.type] * goals.calories) /
-                      100 /
-                      (data.kcalValue ?? 1)
-                    ).toFixed(1)
-              }
-              unit={data.unit}
-            />
+      {/* Calories */}
+      <View style={styles.macroRow}>
+        <View style={styles.macroHeader}>
+          <View
+            style={[
+              styles.macroIndicator,
+              { backgroundColor: macroColors.calories },
+            ]}
+          />
+          <View style={styles.macroTextContainer}>
+            <Text style={styles.macroLabel}>{t("calories")}</Text>
+            <Text style={styles.macroValue}>
+              {totals.calories.toFixed(0)}{" "}
+              <Text style={styles.macroGoal}>/ {goals.calories} kcal</Text>
+            </Text>
           </View>
-        ))}
+        </View>
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              {
+                width: `${Math.min(progress.calories * 100, 100)}%`,
+                backgroundColor: macroColors.calories,
+              },
+            ]}
+          />
+        </View>
       </View>
 
-      <View
-        style={[
-          styles.scoreCircle,
-          { backgroundColor: getScoreColor(averageScore) },
-        ]}
-      >
-        <Text style={styles.scoreValue}>{averageScore}</Text>
-        <Text style={styles.scoreLabel}>{t("averageScore")}</Text>
+      {/* Protein */}
+      <View style={styles.macroRow}>
+        <View style={styles.macroHeader}>
+          <View
+            style={[
+              styles.macroIndicator,
+              { backgroundColor: macroColors.proteins },
+            ]}
+          />
+          <View style={styles.macroTextContainer}>
+            <Text style={styles.macroLabel}>{t("proteins")}</Text>
+            <Text style={styles.macroValue}>
+              {totals.proteins.toFixed(0)}g{" "}
+              <Text style={styles.macroGoal}>/ {proteinGoal.toFixed(0)}g</Text>
+            </Text>
+          </View>
+        </View>
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              {
+                width: `${Math.min(progress.proteins * 100, 100)}%`,
+                backgroundColor: macroColors.proteins,
+              },
+            ]}
+          />
+        </View>
+      </View>
+
+      {/* Carbs */}
+      <View style={styles.macroRow}>
+        <View style={styles.macroHeader}>
+          <View
+            style={[
+              styles.macroIndicator,
+              { backgroundColor: macroColors.carbs },
+            ]}
+          />
+          <View style={styles.macroTextContainer}>
+            <Text style={styles.macroLabel}>{t("carbs")}</Text>
+            <Text style={styles.macroValue}>
+              {totals.carbs.toFixed(0)}g{" "}
+              <Text style={styles.macroGoal}>/ {carbsGoal.toFixed(0)}g</Text>
+            </Text>
+          </View>
+        </View>
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              {
+                width: `${Math.min(progress.carbs * 100, 100)}%`,
+                backgroundColor: macroColors.carbs,
+              },
+            ]}
+          />
+        </View>
+      </View>
+
+      {/* Fats */}
+      <View style={styles.macroRow}>
+        <View style={styles.macroHeader}>
+          <View
+            style={[
+              styles.macroIndicator,
+              { backgroundColor: macroColors.fats },
+            ]}
+          />
+          <View style={styles.macroTextContainer}>
+            <Text style={styles.macroLabel}>{t("fats")}</Text>
+            <Text style={styles.macroValue}>
+              {totals.fats.toFixed(0)}g{" "}
+              <Text style={styles.macroGoal}>/ {fatsGoal.toFixed(0)}g</Text>
+            </Text>
+          </View>
+        </View>
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              {
+                width: `${Math.min(progress.fats * 100, 100)}%`,
+                backgroundColor: macroColors.fats,
+              },
+            ]}
+          />
+        </View>
       </View>
 
       {/* Settings Modal */}
@@ -223,53 +317,56 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{t("adjustNutritionGoals")}</Text>
 
-            {circleData.map((data) => (
-              <View key={data.type}>
-                <View style={styles.inputRow}>
-                  <View style={styles.labelContainer}>
-                    <Icon
-                      name={data.icon as any}
-                      size={scale(18)}
-                      color={macroColors[data.type]}
-                      style={styles.inputIcon}
-                    />
-                    <Text style={styles.inputLabel}>{data.label}</Text>
+            {circleData.map((data) => {
+              const macroType = data.type as keyof MacroGoals;
+              return (
+                <View key={data.type}>
+                  <View style={styles.inputRow}>
+                    <View style={styles.labelContainer}>
+                      <Icon
+                        name={data.icon as any}
+                        size={scale(18)}
+                        color={macroColors[data.type]}
+                        style={styles.inputIcon}
+                      />
+                      <Text style={styles.inputLabel}>{data.label}</Text>
+                    </View>
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={goals[macroType].toString()}
+                        onChangeText={(value) =>
+                          handleInputChange(data.type, value)
+                        }
+                      />
+                      <Text style={styles.inputUnit}>
+                        {data.type === "calories" ? "kcal" : "%"}{" "}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.inputContainer}>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={goals[data.type].toString()}
-                      onChangeText={(value) =>
-                        handleInputChange(data.type, value)
-                      }
-                    />
-                    <Text style={styles.inputUnit}>
-                      {data.type === "calories" ? "kcal" : "%"}{" "}
+                  {data.type !== "calories" && data.kcalValue && (
+                    <Text
+                      style={{
+                        ...fontStyles.footnote,
+                        alignSelf: "flex-end",
+                        position: "absolute",
+                        zIndex: 99,
+                        right: scale(42),
+                        bottom: scale(0),
+                      }}
+                    >
+                      {(
+                        (goals[macroType] * goals.calories) /
+                        100 /
+                        data.kcalValue
+                      ).toFixed(1)}{" "}
+                      g
                     </Text>
-                  </View>
+                  )}
                 </View>
-                {data.type !== "calories" && (
-                  <Text
-                    style={{
-                      ...fontStyles.footnote,
-                      alignSelf: "flex-end",
-                      position: "absolute",
-                      zIndex: 99,
-                      right: scale(42),
-                      bottom: scale(0),
-                    }}
-                  >
-                    {(
-                      (goals[data.type] * goals.calories) /
-                      100 /
-                      data.kcalValue
-                    ).toFixed(1)}{" "}
-                    g
-                  </Text>
-                )}
-              </View>
-            ))}
+              );
+            })}
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -303,113 +400,83 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(10),
+    borderRadius: scale(32),
+    padding: scale(20),
     marginBottom: scale(20),
     shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
-      height: scale(2),
+      height: scale(4),
     },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(8),
+    shadowOpacity: 0.08,
+    shadowRadius: scale(12),
     elevation: 3,
   },
   headerRow: {
-    flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: scale(16),
-  },
-  settingsButton: {
-    padding: scale(4),
+    marginBottom: scale(20),
   },
   summaryTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
+    ...fontStyles.headline2,
+    color: colors["color-primary-800"],
+    fontWeight: "700",
   },
-  progressContainer: {
+  scoreBadge: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
-    marginTop: scale(8),
-    gap: scale(8),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: scale(20),
+    alignSelf: "flex-start",
   },
-  calorieCircleContainer: {
-    // justifyContent: "center",
+  scoreBadgeText: {
+    ...fontStyles.body2,
+    color: "white",
+    fontWeight: "700",
+    fontSize: scale(13),
   },
-  macroCirclesContainer: {
+  macroRow: {
+    marginBottom: scale(16),
+  },
+  macroHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scale(8),
+  },
+  macroIndicator: {
+    width: scale(4),
+    height: scale(32),
+    borderRadius: scale(2),
+    marginRight: scale(12),
+  },
+  macroTextContainer: {
     flex: 1,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    alignItems: "center",
   },
-  progressCircleContainer: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: scale(4),
-  },
-  progressBackground: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  circleBackground: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  progressForeground: {
-    position: "absolute",
-  },
-  svgContainer: {
-    transform: [{ rotate: "-90deg" }],
-  },
-  progressContent: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  progressIcon: {
+  macroLabel: {
+    ...fontStyles.caption,
+    color: colors["color-primary-500"],
     marginBottom: scale(2),
   },
-  progressValue: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-800"],
-    lineHeight: scale(24),
+  macroValue: {
+    ...fontStyles.body1,
+    color: colors["color-primary-900"],
+    fontWeight: "700",
   },
-  progressGoal: {
+  macroGoal: {
     ...fontStyles.caption,
     color: colors["color-primary-400"],
-    marginBottom: scale(2),
+    fontWeight: "400",
   },
-  progressLabel: {
-    ...fontStyles.caption,
-    color: colors["color-primary-500"],
+  progressBarContainer: {
+    height: scale(6),
+    backgroundColor: colors["color-primary-100"],
+    borderRadius: scale(3),
+    overflow: "hidden",
   },
-  scoreCircle: {
-    width: scale(70),
-    height: scale(70),
-    borderRadius: scale(40),
-    justifyContent: "center",
-    alignItems: "center",
-    margin: scale(4),
-    position: "absolute",
-    right: scale(10),
-    top: "50%",
-    transform: [{ translateY: -scale(20) }],
-  },
-  scoreValue: {
-    ...fontStyles.headline3,
-    color: "white",
-    fontWeight: "bold",
-  },
-  scoreLabel: {
-    ...fontStyles.caption,
-    color: "white",
+  progressBar: {
+    height: "100%",
+    borderRadius: scale(3),
   },
   // Modal styles
   modalContainer: {
