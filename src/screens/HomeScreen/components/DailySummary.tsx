@@ -186,126 +186,129 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Calories */}
-      <View style={styles.macroRow}>
-        <View style={styles.macroHeader}>
-          <View
-            style={[
-              styles.macroIndicator,
-              { backgroundColor: macroColors.calories },
-            ]}
-          />
-          <View style={styles.macroTextContainer}>
-            <Text style={styles.macroLabel}>{t("calories")}</Text>
-            <Text style={styles.macroValue}>
-              {totals.calories.toFixed(0)}{" "}
-              <Text style={styles.macroGoal}>/ {goals.calories} kcal</Text>
-            </Text>
+      <>
+        {/* Calories */}
+        <View style={styles.macroRow}>
+          <View style={styles.macroHeader}>
+            <View
+              style={[
+                styles.macroIndicator,
+                { backgroundColor: macroColors.calories },
+              ]}
+            />
+            <View style={styles.macroTextContainer}>
+              <Text style={styles.macroLabel}>{t("calories")}</Text>
+              <Text style={styles.macroValue}>
+                {totals.calories.toFixed(0)}{" "}
+                <Text style={styles.macroGoal}>/ {goals.calories} kcal</Text>
+              </Text>
+            </View>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                {
+                  width: `${Math.min(progress.calories * 100, 100)}%`,
+                  backgroundColor: macroColors.calories,
+                },
+              ]}
+            />
           </View>
         </View>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: `${Math.min(progress.calories * 100, 100)}%`,
-                backgroundColor: macroColors.calories,
-              },
-            ]}
-          />
-        </View>
-      </View>
 
-      {/* Protein */}
-      <View style={styles.macroRow}>
-        <View style={styles.macroHeader}>
-          <View
-            style={[
-              styles.macroIndicator,
-              { backgroundColor: macroColors.proteins },
-            ]}
-          />
-          <View style={styles.macroTextContainer}>
-            <Text style={styles.macroLabel}>{t("proteins")}</Text>
-            <Text style={styles.macroValue}>
-              {totals.proteins.toFixed(0)}g{" "}
-              <Text style={styles.macroGoal}>/ {proteinGoal.toFixed(0)}g</Text>
-            </Text>
+        {/* Protein */}
+        <View style={styles.macroRow}>
+          <View style={styles.macroHeader}>
+            <View
+              style={[
+                styles.macroIndicator,
+                { backgroundColor: macroColors.proteins },
+              ]}
+            />
+            <View style={styles.macroTextContainer}>
+              <Text style={styles.macroLabel}>{t("proteins")}</Text>
+              <Text style={styles.macroValue}>
+                {totals.proteins.toFixed(0)}g{" "}
+                <Text style={styles.macroGoal}>
+                  / {proteinGoal.toFixed(0)}g
+                </Text>
+              </Text>
+            </View>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                {
+                  width: `${Math.min(progress.proteins * 100, 100)}%`,
+                  backgroundColor: macroColors.proteins,
+                },
+              ]}
+            />
           </View>
         </View>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: `${Math.min(progress.proteins * 100, 100)}%`,
-                backgroundColor: macroColors.proteins,
-              },
-            ]}
-          />
-        </View>
-      </View>
 
-      {/* Carbs */}
-      <View style={styles.macroRow}>
-        <View style={styles.macroHeader}>
-          <View
-            style={[
-              styles.macroIndicator,
-              { backgroundColor: macroColors.carbs },
-            ]}
-          />
-          <View style={styles.macroTextContainer}>
-            <Text style={styles.macroLabel}>{t("carbs")}</Text>
-            <Text style={styles.macroValue}>
-              {totals.carbs.toFixed(0)}g{" "}
-              <Text style={styles.macroGoal}>/ {carbsGoal.toFixed(0)}g</Text>
-            </Text>
+        {/* Carbs */}
+        <View style={styles.macroRow}>
+          <View style={styles.macroHeader}>
+            <View
+              style={[
+                styles.macroIndicator,
+                { backgroundColor: macroColors.carbs },
+              ]}
+            />
+            <View style={styles.macroTextContainer}>
+              <Text style={styles.macroLabel}>{t("carbs")}</Text>
+              <Text style={styles.macroValue}>
+                {totals.carbs.toFixed(0)}g{" "}
+                <Text style={styles.macroGoal}>/ {carbsGoal.toFixed(0)}g</Text>
+              </Text>
+            </View>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                {
+                  width: `${Math.min(progress.carbs * 100, 100)}%`,
+                  backgroundColor: macroColors.carbs,
+                },
+              ]}
+            />
           </View>
         </View>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: `${Math.min(progress.carbs * 100, 100)}%`,
-                backgroundColor: macroColors.carbs,
-              },
-            ]}
-          />
-        </View>
-      </View>
 
-      {/* Fats */}
-      <View style={styles.macroRow}>
-        <View style={styles.macroHeader}>
-          <View
-            style={[
-              styles.macroIndicator,
-              { backgroundColor: macroColors.fats },
-            ]}
-          />
-          <View style={styles.macroTextContainer}>
-            <Text style={styles.macroLabel}>{t("fats")}</Text>
-            <Text style={styles.macroValue}>
-              {totals.fats.toFixed(0)}g{" "}
-              <Text style={styles.macroGoal}>/ {fatsGoal.toFixed(0)}g</Text>
-            </Text>
+        {/* Fats */}
+        <View style={styles.macroRow}>
+          <View style={styles.macroHeader}>
+            <View
+              style={[
+                styles.macroIndicator,
+                { backgroundColor: macroColors.fats },
+              ]}
+            />
+            <View style={styles.macroTextContainer}>
+              <Text style={styles.macroLabel}>{t("fats")}</Text>
+              <Text style={styles.macroValue}>
+                {totals.fats.toFixed(0)}g{" "}
+                <Text style={styles.macroGoal}>/ {fatsGoal.toFixed(0)}g</Text>
+              </Text>
+            </View>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                {
+                  width: `${Math.min(progress.fats * 100, 100)}%`,
+                  backgroundColor: macroColors.fats,
+                },
+              ]}
+            />
           </View>
         </View>
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: `${Math.min(progress.fats * 100, 100)}%`,
-                backgroundColor: macroColors.fats,
-              },
-            ]}
-          />
-        </View>
-      </View>
-
+      </>
       {/* Settings Modal */}
       <Modal
         animationType="fade"

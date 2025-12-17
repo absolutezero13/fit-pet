@@ -24,6 +24,7 @@ import { getMealsByDate } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import GradientSpinner from "../../components/GradientSpinner";
 import formatHeaderDate from "../../utils/formatHeaderDate";
+import MealTypeEmptyState from "./components/MealTypeEmptyState";
 
 const MealTypeSection = ({
   title,
@@ -34,19 +35,21 @@ const MealTypeSection = ({
   meals: IMeal[];
   onPressItem: (meal: IMeal) => void;
 }) => {
-  if (meals.length === 0) return null;
-
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
 
-      {meals.map((meal, index) => (
-        <MealCard
-          meal={meal}
-          key={meal.description + index}
-          onPress={() => onPressItem(meal)}
-        />
-      ))}
+      {meals.length > 0 ? (
+        meals.map((meal, index) => (
+          <MealCard
+            meal={meal}
+            key={meal.description + index}
+            onPress={() => onPressItem(meal)}
+          />
+        ))
+      ) : (
+        <MealTypeEmptyState onPress={() => {}} />
+      )}
     </View>
   );
 };
@@ -165,7 +168,17 @@ const LoggedMealsScreen = () => {
         </TouchableOpacity>
       </LiquidGlassView>
 
-      {meals.length > 0 ? (
+      {loading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <GradientSpinner />
+        </View>
+      ) : (
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -181,39 +194,21 @@ const LoggedMealsScreen = () => {
             />
           ))}
         </ScrollView>
-      ) : loading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <GradientSpinner />
-        </View>
-      ) : (
-        <EmptyState onPress={navigateLogMeal} />
       )}
-      {meals.length > 0 && (
-        <LiquidGlassView
-          effect={"clear"}
-          interactive
-          style={{
-            position: "absolute",
-            bottom: TAB_BAR_HEIGHT + bottom + scale(16),
-            right: scale(32),
-            borderRadius: scale(32),
-          }}
-        >
-          <Pressable style={[styles.addButton, {}]} onPress={navigateLogMeal}>
-            <MaterialCommunityIcons
-              name="plus"
-              size={scale(24)}
-              color="white"
-            />
-          </Pressable>
-        </LiquidGlassView>
-      )}
+      <LiquidGlassView
+        effect={"clear"}
+        interactive
+        style={{
+          position: "absolute",
+          bottom: TAB_BAR_HEIGHT + bottom + scale(16),
+          right: scale(32),
+          borderRadius: scale(32),
+        }}
+      >
+        <Pressable style={[styles.addButton, {}]} onPress={navigateLogMeal}>
+          <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
+        </Pressable>
+      </LiquidGlassView>
     </View>
   );
 };
