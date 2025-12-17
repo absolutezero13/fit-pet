@@ -35,7 +35,12 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "forceStaticLinking": ["RNFBApp", "RNFBAuth", "RNFBFirestore"]
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAuth",
+              "RNFBFirestore",
+              "RNFBCrashlytics"
+            ]
           }
         }
       ],

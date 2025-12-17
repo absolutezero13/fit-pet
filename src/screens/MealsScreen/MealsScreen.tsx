@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Alert,
-  Text,
-  Switch,
-  SwitchBase,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Alert, Text } from "react-native";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
@@ -25,11 +17,10 @@ import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
 import promptBuilder from "../../utils/promptBuilder";
 import useUserStore from "../../zustand/useUserStore";
-import { Button, Form, Host, Section, TextField } from "@expo/ui/swift-ui";
-import { glassEffect, padding } from "@expo/ui/swift-ui/modifiers";
 import { storageService } from "../../storage/AsyncStorageService";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import formatHeaderDate from "../../utils/formatHeaderDate";
+import { getCrashlytics } from "@react-native-firebase/crashlytics";
 
 const MealsScreen = () => {
   const { t } = useTranslation();
@@ -74,36 +65,42 @@ const MealsScreen = () => {
         data.response.candidates[0].content.parts[0].text
       ) as IMeal[];
 
-      // const imagePromises = responseMeals.map((meal) => {
-      //   return createGeminiImage(
-      //     `You will create a realistic and minimalistic image of a meal, meal description is ${meal.description}.
-      //     Aspect ratio is 1:1.
-      //      Image should only contain the meal itself, no text.
-      //     `
-      //   );
-      // });
-      // const images = await Promise.all(imagePromises);
-      console.log("responseMeals", responseMeals);
-      const mealsWithImages = responseMeals.map((meal) => ({
+      const mealsWithDates = responseMeals.map((meal) => ({
         ...meal,
         date: new Date().toLocaleDateString("en-US"),
       }));
 
-      if (mealsWithImages.length === 0) {
+      if (mealsWithDates.length === 0) {
         throw new Error("No meals generated");
       }
 
       useMealsStore.setState({
-        suggestedMeals: mealsWithImages,
+        suggestedMeals: mealsWithDates,
       });
 
       storageService.setItem("meals", {
         meals: useMealsStore.getState().suggestedMeals,
         date: new Date().toISOString().split("T")[0],
       });
+
+      const imagePromises = responseMeals.map((meal) => {
+        return createGeminiImage(
+          promptBuilder.createImagePrompt(meal.description)
+        );
+      });
+      const images = await Promise.all(imagePromises);
+      const mealsWithGeneratedImages = mealsWithDates.map((meal, index) => ({
+        ...meal,
+        image: images[index].data,
+      }));
+
+      useMealsStore.setState({
+        suggestedMeals: mealsWithGeneratedImages,
+      });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch meals");
       console.log("error", error);
+      getCrashlytics().recordError(error as Error);
     } finally {
       setLoading(false);
     }

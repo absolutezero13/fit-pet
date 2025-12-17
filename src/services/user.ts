@@ -1,3 +1,4 @@
+import { storageService } from "../storage/AsyncStorageService";
 import useMealsStore from "../zustand/useMealsStore";
 import useUserStore, { IUser } from "../zustand/useUserStore";
 import api, { ENDPOINT } from "./api";
@@ -25,6 +26,8 @@ class UserService {
 
   async deletUser() {
     const res = await api.delete(ENDPOINT + "/user");
+    storageService.setItem("meals", null);
+    storageService.setItem("token", "");
 
     return res.data as { message: string };
   }

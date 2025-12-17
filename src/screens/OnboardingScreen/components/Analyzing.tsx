@@ -26,6 +26,7 @@ import { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
+import { getCrashlytics } from "@react-native-firebase/crashlytics";
 
 const { width } = Dimensions.get("window");
 const DEFAULT_MACRO_GOALS: MacroGoals = {
@@ -99,6 +100,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     } catch (error) {
       console.log("Error generating macro goals:", error);
       macroGoals = DEFAULT_MACRO_GOALS;
+      getCrashlytics().recordError(error as Error);
     }
 
     const isMacroGoalsValid =

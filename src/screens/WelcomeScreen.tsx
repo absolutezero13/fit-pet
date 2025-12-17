@@ -22,7 +22,6 @@ const WelcomeScreen = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     const { success, user } = await authService.handleLogin(LoginType.Google);
-    console.log("Google login success:", success);
     if (!success || !user) {
       setLoading(false);
       console.error("Google login failed");

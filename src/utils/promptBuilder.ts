@@ -90,11 +90,32 @@ fats, carbs and protein should have percentage value, total of 100%.
 calories should be kcal.
 `;
 
+const createImagePrompt = (description: string) => `
+Create a high-quality, photorealistic image of the following meal:
+${description}
+Style and constraints:
+- Minimalistic food photography
+- Single meal only, centered in frame
+- Plain, neutral background (white or light gray)
+- No text, no labels, no watermarks
+- No people, hands, utensils, packaging, or props
+- No extra ingredients outside the described meal
+- Natural lighting, soft shadows
+- Sharp focus, realistic colors
+- Clean presentation, no garnish unless explicitly mentioned
+
+Framing:
+- Aspect ratio: 1:1
+- Top-down or 45-degree angle
+- Meal fully visible, not cropped
+`;
+
 const promptBuilder = {
   createMealPrompt,
   createAnalysisPrompt,
   createChatPrompt,
   createMacroGoalsPrompt,
+  createImagePrompt,
 };
 
 export default promptBuilder;

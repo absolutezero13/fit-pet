@@ -2,7 +2,7 @@ export const resources = {
   tr: {
     translation: {
       welcome: "Hoş geldin",
-      appName: "FitPet!",
+      appName: "Fit Badger!",
       getStarted: "Başla",
       defineGoals: "Hedeflerini belirleyelim",
       loseWeight: "Kilo Vermek",
@@ -127,7 +127,7 @@ export const resources = {
   en: {
     translation: {
       welcome: "Welcome to",
-      appName: "FitPet!",
+      appName: "Fit Badger!",
       getStarted: "Get Started",
       defineGoals: "First, let's define your goals",
       loseWeight: "Lose Weight",

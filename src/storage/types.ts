@@ -10,7 +10,7 @@ export interface StorageItems {
   meals: {
     meals: IMeal[];
     date: string;
-  };
+  } | null;
   language: {
     code: string;
   };

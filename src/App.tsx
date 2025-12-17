@@ -34,6 +34,7 @@ import auth from "@react-native-firebase/auth";
 import userService from "./services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storageService } from "./storage/AsyncStorageService";
+import { getCrashlytics } from "@react-native-firebase/crashlytics";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -91,6 +92,7 @@ export function App() {
   }
 
   const onReady = async () => {
+    getCrashlytics().log("App ready");
     const user = auth().currentUser;
 
     if (user) {
@@ -98,6 +100,7 @@ export function App() {
         await userService.getUser();
       } catch (error) {
         console.error("Error fetching user data:", error);
+        getCrashlytics().recordError(error as Error);
       }
     }
 
