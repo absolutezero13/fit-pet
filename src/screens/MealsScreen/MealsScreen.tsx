@@ -34,6 +34,7 @@ const MealsScreen = () => {
 
   const mealsStore = useMealsStore((state) => state);
   const { suggestedMeals: meals } = mealsStore;
+  const user = useUserStore((state) => state);
   const getMeals = async () => {
     const mealStore = await storageService.getItem("meals");
     const mealsInStore = mealStore?.meals as IMeal[] | undefined;
@@ -50,7 +51,7 @@ const MealsScreen = () => {
     setLoading(true);
     try {
       const data = await createGeminiCompletion(
-        promptBuilder.createMealPrompt(useUserStore.getState() as IUser),
+        promptBuilder.createMealPrompt(user as IUser),
         "recipe"
       );
       const responseMeals = JSON.parse(
@@ -76,7 +77,6 @@ const MealsScreen = () => {
       const images: { data: string }[] = [];
 
       for (const meal of mealsWithDates) {
-        Alert.alert(meal.description);
         const image = await createGeminiImage(
           promptBuilder.createImagePrompt(meal.description)
         );

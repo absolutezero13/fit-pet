@@ -24,7 +24,7 @@ import {
   Nunito_900Black_Italic,
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Platform, UIManager } from "react-native";
+import { ActivityIndicator, Platform, UIManager, View } from "react-native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import i18next, { changeLanguage } from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -32,9 +32,10 @@ import { resources } from "./localization/resources";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import auth from "@react-native-firebase/auth";
 import userService from "./services/user";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
+import useUserStore from "./zustand/useUserStore";
+import { colors } from "./theme/colors";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -87,13 +88,14 @@ export function App() {
     Nunito_900Black_Italic,
   });
 
+  const userStore = useUserStore((state) => state);
+  const user = auth().currentUser;
   if (!fontLoaded) {
     return null;
   }
 
   const onReady = async () => {
     getCrashlytics().log("App ready");
-    const user = auth().currentUser;
 
     if (user) {
       try {
@@ -110,6 +112,14 @@ export function App() {
       SplashScreen.hideAsync();
     }, 300);
   };
+
+  if (user && !userStore) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={colors["color-primary-400"]} />
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
