@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     marginLeft: scale(6),
   },
   mealDescription: {
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     width: "70%",
   },
   macrosContainer: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   macroValue: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline4,
     color: colors["color-success-400"],
   },
   macroLabel: {
@@ -206,8 +206,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   mealBody: {
-    marginBottom: scale(24),
+    marginBottom: scale(12),
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
 });

@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
 import promptBuilder from "../../utils/promptBuilder";
-import useUserStore from "../../zustand/useUserStore";
+import useUserStore, { IUser } from "../../zustand/useUserStore";
 import { storageService } from "../../storage/AsyncStorageService";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import formatHeaderDate from "../../utils/formatHeaderDate";
@@ -47,18 +47,10 @@ const MealsScreen = () => {
       return;
     }
 
-    const todaysMeals = meals.filter(
-      (m) => m.date === new Date().toLocaleDateString("en-US")
-    );
-
-    if (todaysMeals.length > 0) {
-      return;
-    }
-
     setLoading(true);
     try {
       const data = await createGeminiCompletion(
-        promptBuilder.createMealPrompt(useUserStore.getState() as any),
+        promptBuilder.createMealPrompt(useUserStore.getState() as IUser),
         "recipe"
       );
       const responseMeals = JSON.parse(
@@ -78,15 +70,22 @@ const MealsScreen = () => {
         suggestedMeals: mealsWithDates,
       });
 
-      const imagePromises = responseMeals.map((meal) => {
-        return createGeminiImage(
+      // we can end loading here
+      setLoading(false);
+
+      const images: { data: string }[] = [];
+
+      for (const meal of mealsWithDates) {
+        Alert.alert(meal.description);
+        const image = await createGeminiImage(
           promptBuilder.createImagePrompt(meal.description)
         );
-      });
-      const images = await Promise.all(imagePromises);
+        images.push(image);
+      }
+
       const mealsWithGeneratedImages = mealsWithDates.map((meal, index) => ({
         ...meal,
-        image: images[index].data,
+        image: images[index]?.data ?? null,
       }));
 
       useMealsStore.setState({

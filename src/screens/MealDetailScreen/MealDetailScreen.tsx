@@ -130,38 +130,6 @@ const MealDetailScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Animated header */}
-      <Animated.View
-        style={[
-          styles.animatedHeader,
-          {
-            opacity: headerOpacity,
-            paddingTop: scale(24),
-          },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {meal.mealTypeLocalized}
-        </Text>
-        <TouchableOpacity style={styles.shareButton} onPress={shareRecipe}>
-          <MaterialCommunityIcons
-            name="share-variant"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
-          />
-        </TouchableOpacity>
-      </Animated.View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -172,7 +140,6 @@ const MealDetailScreen = () => {
         )}
         scrollEventThrottle={16}
       >
-        {/* Header section with back button */}
         <View style={[styles.headerSection, { paddingTop: scale(24) }]}>
           <TouchableOpacity
             style={styles.backButtonTransparent}
@@ -338,28 +305,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors["color-primary-100"],
   },
-  animatedHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    zIndex: 100,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: scale(16),
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(3),
-    elevation: 3,
-  },
   headerTitle: {
     ...fontStyles.headline3,
     flex: 1,
@@ -407,6 +352,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   imageContainer: {
+    position: "absolute",
     width: "100%",
     height: SCREEN_WIDTH,
     backgroundColor: colors["color-primary-200"],
@@ -423,7 +369,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-200"],
   },
   mealInfoCard: {
-    marginTop: scale(-30),
+    marginTop: SCREEN_WIDTH - scale(30),
     backgroundColor: "white",
     borderTopLeftRadius: scale(30),
     borderTopRightRadius: scale(30),
