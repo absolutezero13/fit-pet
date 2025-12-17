@@ -55,7 +55,8 @@
       ],
       "react-native-edge-to-edge",
       "expo-font",
-      "react-native-bottom-tabs"
+      "react-native-bottom-tabs",
+      "@react-native-firebase/crashlytics"
     ],
     "extra": {
       "eas": {
