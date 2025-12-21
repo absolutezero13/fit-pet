@@ -21,7 +21,11 @@ import useUserStore from "../../zustand/useUserStore";
 import AppButton from "../../components/AppButton";
 import LanguageSelection from "./components/LanguageSelection";
 import userService from "../../services/user";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -29,6 +33,7 @@ const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
   const navigation = useNavigation();
   const authService = useAuthService();
+  const { top } = useSafeAreaInsets();
 
   const user = useUserStore();
 
@@ -90,7 +95,7 @@ const SettingsScreen = () => {
     <View style={[styles.container]}>
       <LiquidGlassView
         effect={"clear"}
-        style={styles.header}
+        style={[styles.header, { paddingTop: top }]}
         tintColor={colors["color-primary-100"]}
       >
         <MaterialCommunityIcons
@@ -289,6 +294,9 @@ const styles = StyleSheet.create({
     gap: scale(4),
     position: "absolute",
     width: "100%",
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : colors["color-primary-50"],
     zIndex: 1,
   },
   title: {

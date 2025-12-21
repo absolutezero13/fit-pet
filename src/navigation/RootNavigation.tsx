@@ -8,14 +8,18 @@ import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen
 import { IMeal } from "../services/apiTypes";
 import LogMealScreen from "../screens/LogMealScreen/LogMealScreen";
 import { getAuth } from "@react-native-firebase/auth";
+import { isLiquidGlassSupported } from "@callstack/liquid-glass";
+import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
+import useUserStore from "../zustand/useUserStore";
 
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-  const user = getAuth().currentUser;
+  const userStore = useUserStore((state) => state);
   return (
-    // TODO: check if onboarding is completed
-    <Stack.Navigator initialRouteName={user ? "HomeTabs" : "Welcome"}>
+    <Stack.Navigator
+      initialRouteName={userStore?.onboardingCompleted ? "HomeTabs" : "Welcome"}
+    >
       <Stack.Screen
         options={{
           headerShown: false,
@@ -35,7 +39,9 @@ const RootNavigator = () => {
 
       <Stack.Screen
         name="HomeTabs"
-        component={TabNavigator}
+        component={
+          isLiquidGlassSupported ? TabNavigator : TabBarNavigationLegacy
+        }
         options={{
           headerShown: false,
         }}

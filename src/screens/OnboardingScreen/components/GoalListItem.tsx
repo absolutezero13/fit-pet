@@ -13,7 +13,10 @@ import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { GoalEnum } from "../../../zustand/useOnboardingStore";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
 
 export type GoalItem = {
   titleKey: string;
@@ -67,6 +70,12 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
       style={[
         {
           borderRadius: scale(8),
+          backgroundColor: isLiquidGlassSupported
+            ? undefined
+            : isSelected
+            ? colors["color-success-600"]
+            : colors["color-primary-50"],
+          marginBottom: scale(16),
         },
         animatedStyles,
       ]}

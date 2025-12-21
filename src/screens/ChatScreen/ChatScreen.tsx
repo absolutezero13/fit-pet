@@ -10,7 +10,6 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -25,9 +24,11 @@ import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import ChatMessage, { IChatMessage } from "./components/ChatMessage";
 import doctorImage from "./components/doctor.png"; // Adjust the path as necessary
-import { Button, Form, Host, Section, TextField } from "@expo/ui/swift-ui";
-import { glassEffect, padding } from "@expo/ui/swift-ui/modifiers";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 // Suggestion data type
 type Suggestion = {
@@ -69,7 +70,7 @@ const SuggestionBubble = ({
 const ChatScreen = () => {
   const { height } = useReanimatedKeyboardAnimation();
   const isFocused = useIsFocused();
-  const { top, bottom } = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
@@ -260,8 +261,8 @@ const ChatScreen = () => {
             onSubmitEditing={() => handleSendMessage()}
           />
 
-          <Host style={styles.sendButton}>
-            <Button
+          <Pressable style={styles.sendButton}>
+            {/* <Button
               color="black"
               variant="glass"
               controlSize="large"
@@ -275,8 +276,14 @@ const ChatScreen = () => {
               ]}
               onPress={() => handleSendMessage()}
               disabled={false}
+            /> */}
+            <MaterialCommunityIcons
+              name="send"
+              size={24}
+              color="black"
+              onPress={() => handleSendMessage()}
             />
-          </Host>
+          </Pressable>
         </Animated.View>
       </View>
     </View>
@@ -295,6 +302,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 10,
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : colors["color-primary-50"],
   },
   title: {},
   date: {
@@ -318,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-primary-100"],
   },
   input: {
-    borderRadius: scale(20),
+    borderRadius: scale(36),
     backgroundColor: "white",
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
@@ -334,6 +344,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
+    backgroundColor: colors["color-primary-50"],
   },
   emptyStateContainer: {
     flex: 1,
