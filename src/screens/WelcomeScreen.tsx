@@ -10,6 +10,8 @@ import { useTranslation } from "react-i18next";
 import badger from "./assets/badger-welcome.png";
 import useAuthService, { LoginType } from "../services/auth";
 import userService from "../services/user";
+import { getAuth } from "@react-native-firebase/auth";
+import { IUser } from "../zustand/useUserStore";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -21,14 +23,18 @@ const WelcomeScreen = () => {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    const { success, user } = await authService.handleLogin(LoginType.Google);
-    if (!success || !user) {
-      setLoading(false);
-      console.error("Google login failed");
-      return;
-    }
 
-    if (user.onboardingCompleted) {
+    let user: undefined | IUser;
+
+    if (!getAuth().currentUser) {
+      const { success, user } = await authService.handleLogin(LoginType.Google);
+      if (!success || !user) {
+        setLoading(false);
+        console.error("Google login failed");
+        return;
+      }
+    }
+    if (user?.onboardingCompleted) {
       await userService.getUser();
       navigation.reset({
         routes: [{ name: "HomeTabs" }],

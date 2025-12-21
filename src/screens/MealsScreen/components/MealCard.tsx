@@ -6,7 +6,10 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IMeal } from "../../../services/apiTypes";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
 import { useTranslation } from "react-i18next";
 import FastImage from "react-native-fast-image";
 
@@ -112,6 +115,9 @@ const styles = StyleSheet.create({
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : colors["color-primary-50"],
   },
   mealHeader: {
     flexDirection: "row",

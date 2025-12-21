@@ -4,6 +4,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Platform,
 } from "react-native";
 import maleStandingPerson from "../../assets/male-person-standing.png";
 import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
@@ -90,7 +91,9 @@ const WeightHeight = () => {
             <Picker
               selectedValue={height ?? undefined}
               onValueChange={onHeightValueChange}
-              style={styles.picker}
+              style={
+                Platform.OS === "android" ? styles.pickerAndroid : styles.picker
+              }
               enabled={true}
               mode="dropdown"
               selectionColor={colors["color-primary-500"]}
@@ -118,7 +121,9 @@ const WeightHeight = () => {
             <Picker
               selectedValue={weight ?? undefined}
               onValueChange={onWeightValueChange}
-              style={styles.picker}
+              style={
+                Platform.OS === "android" ? styles.pickerAndroid : styles.picker
+              }
               itemStyle={styles.pickerItem}
               enabled={true}
               mode="dropdown"
@@ -157,6 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: scale(16),
+    marginTop: Platform.OS === "android" ? scale(92) : undefined,
   },
   pickerCard: {
     flex: 1,
@@ -191,6 +197,9 @@ const styles = StyleSheet.create({
     height: scale(205),
     color: "transparent",
   },
+  pickerAndroid: {
+    height: scale(50),
+  },
   pickerItem: {
     color: colors["color-primary-500"],
     fontSize: scale(20),
@@ -198,8 +207,8 @@ const styles = StyleSheet.create({
   },
   unitContainer: {
     position: "absolute",
-    right: scale(16),
-    top: scale(3),
+    right: scale(Platform.OS === "android" ? 56 : 16),
+    top: scale(Platform.OS === "android" ? 8 : 3),
     bottom: 0,
     justifyContent: "center",
     pointerEvents: "none",

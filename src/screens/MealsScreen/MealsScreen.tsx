@@ -18,7 +18,10 @@ import TotalNutrition from "./components/TotalNutritionCard";
 import promptBuilder from "../../utils/promptBuilder";
 import useUserStore, { IUser } from "../../zustand/useUserStore";
 import { storageService } from "../../storage/AsyncStorageService";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
 import formatHeaderDate from "../../utils/formatHeaderDate";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 
@@ -168,6 +171,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 1,
     width: "100%",
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : colors["color-primary-50"],
   },
   title: {
     ...fontStyles.headline1,

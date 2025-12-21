@@ -20,7 +20,10 @@ import { useTranslation } from "react-i18next";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
 import { getMealsByDate } from "../../services/mealAnalysis";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
 import GradientSpinner from "../../components/GradientSpinner";
 import formatHeaderDate from "../../utils/formatHeaderDate";
 import MealTypeEmptyState from "./components/MealTypeEmptyState";
@@ -237,6 +240,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 10,
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : colors["color-primary-50"],
   },
   title: {
     ...fontStyles.headline1,
