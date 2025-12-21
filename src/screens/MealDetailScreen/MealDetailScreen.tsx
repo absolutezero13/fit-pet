@@ -129,10 +129,10 @@ const MealDetailScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: top }]}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent]}
         showsVerticalScrollIndicator={false}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -323,6 +323,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: scale(100),
+    backgroundColor: "white",
   },
   headerSection: {
     paddingHorizontal: scale(16),
