@@ -30,6 +30,7 @@ const MealsScreen = () => {
   const { top } = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const userStore = useUserStore((state) => state);
 
   const onMealPress = (meal: IMeal) => {
     navigation.navigate("MealDetail", { meal });
@@ -39,6 +40,9 @@ const MealsScreen = () => {
   const { suggestedMeals: meals } = mealsStore;
   const user = useUserStore((state) => state);
   const getMeals = async () => {
+    if (!userStore) {
+      return;
+    }
     const mealStore = await storageService.getItem("meals");
     const mealsInStore = mealStore?.meals as IMeal[] | undefined;
     const date = mealStore?.date as string | undefined;
@@ -110,7 +114,7 @@ const MealsScreen = () => {
 
   useEffect(() => {
     getMeals();
-  }, []);
+  }, [userStore]);
 
   return (
     <View style={styles.container}>

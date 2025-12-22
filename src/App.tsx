@@ -113,14 +113,6 @@ export function App() {
     }, 300);
   };
 
-  if (user && !userStore) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={colors["color-primary-400"]} />
-      </View>
-    );
-  }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
