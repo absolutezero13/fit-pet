@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Platform,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
@@ -95,7 +96,10 @@ const SettingsScreen = () => {
     <View style={[styles.container]}>
       <LiquidGlassView
         effect={"clear"}
-        style={[styles.header, { paddingTop: top }]}
+        style={[
+          styles.header,
+          { paddingTop: Platform.select({ android: top, ios: scale(16) }) },
+        ]}
         tintColor={colors["color-primary-100"]}
       >
         <MaterialCommunityIcons

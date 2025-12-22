@@ -77,10 +77,11 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     try {
       console.log("user", useOnboardingStore.getState());
 
-      const geminiRes = await createGeminiCompletion(
-        promptBuilder.createMacroGoalsPrompt(useOnboardingStore.getState()),
-        "macroGoals"
+      const prompt = promptBuilder.createMacroGoalsPrompt(
+        useOnboardingStore.getState()
       );
+      console.log("Prompt: ", prompt);
+      const geminiRes = await createGeminiCompletion(prompt, "macroGoals");
 
       console.log("Gemini response raw: ", geminiRes);
 
@@ -105,7 +106,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
     const isMacroGoalsValid =
       macroGoals &&
-      typeof macroGoals.calories === "number" &&
       typeof macroGoals.proteins === "number" &&
       typeof macroGoals.carbs === "number" &&
       typeof macroGoals.fats === "number";
@@ -114,8 +114,28 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       macroGoals = DEFAULT_MACRO_GOALS;
     }
 
+    const proteinCalories = macroGoals.proteins * 4;
+    const carbsCalories = macroGoals.carbs * 4;
+    const fatsCalories = macroGoals.fats * 9;
+    const calories = proteinCalories + carbsCalories + fatsCalories;
+
+    const proteinPercentage = (proteinCalories / calories) * 100;
+    const carbsPercentage = (carbsCalories / calories) * 100;
+    const fatsPercentage = (fatsCalories / calories) * 100;
+
+    macroGoals.proteins = Math.round(proteinPercentage);
+    macroGoals.carbs = Math.round(carbsPercentage);
+    macroGoals.fats = Math.round(fatsPercentage);
+    const calculatedGoals: MacroGoals = {
+      proteins: Math.round(proteinPercentage),
+      carbs: Math.round(carbsPercentage),
+      fats: Math.round(fatsPercentage),
+      calories: calories,
+    };
+    console.log("last macro goals", calculatedGoals);
+
     await userService.createOrUpdateUser({
-      macroGoals,
+      macroGoals: calculatedGoals,
       onboarding: useOnboardingStore.getState(),
       onboardingCompleted: true,
     });
@@ -206,15 +226,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       { scale: interpolate(bounce.value, [0, 1], [1, 1.2]) },
     ],
   }));
-
-  const orbitingLoaderStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rotationReverse.value}deg` },
-      { scale: scale.value },
-      { translateX: orbitRadius.value },
-    ],
-  }));
-
   const statusTextStyle = useAnimatedStyle(() => ({
     opacity: statusOpacity.value,
     transform: [{ translateY: statusY.value }],
@@ -249,7 +260,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Status Message */}
-        <Animated.Text style={[styles.statusText, statusTextStyle]}>
+        <Animated.Text
+          onPress={updateUser}
+          style={[styles.statusText, statusTextStyle]}
+        >
           {statusMessages[currentStatus]}
         </Animated.Text>
 

@@ -116,14 +116,14 @@ Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 User info:
 ${stringifyUserInfo(userInfo ?? {})}
 `;
-
 const createMacroGoalsPrompt = (userInfo: {}) => `
 date: ${getCurrentDate()}
-You are a nutritionist. You will receive lifestyle and body information about the user.
-Based on that, you’ll create a daily macro goals.
-Pay special attention to the user’s daily calorie intake.
-fats, carbs and protein should have percentage value, total of 100%.
-calories should be kcal.
+You are a professional nutritionist.
+Based on the user's age, body measurements, lifestyle, goals, and diet preferences,
+select appropriate DAILY intake amounts.
+
+User info:
+${stringifyUserInfo(userInfo ?? {})}
 `;
 
 const createImagePrompt = (description: string) => `

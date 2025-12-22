@@ -129,7 +129,12 @@ const MealDetailScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: top }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: Platform.select({ android: top, default: 0 }) },
+      ]}
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[styles.scrollContent]}

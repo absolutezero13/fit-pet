@@ -115,27 +115,23 @@ const macroGoalsSchema: Schema = {
   description: "Macro Goals",
   type: SchemaType.OBJECT,
   properties: {
-    calories: {
-      type: SchemaType.NUMBER,
-      description: "Calories",
-      nullable: false,
-    },
     proteins: {
-      type: SchemaType.NUMBER,
-      description: "Proteins as percentage",
+      type: SchemaType.INTEGER,
+      description: "Proteins as grams",
       nullable: false,
     },
     fats: {
-      type: SchemaType.NUMBER,
-      description: "Fats as percentage",
+      type: SchemaType.INTEGER,
+      description: "Fats as grams",
       nullable: false,
     },
     carbs: {
-      type: SchemaType.NUMBER,
-      description: "Carbs as percentage",
+      type: SchemaType.INTEGER,
+      description: "Carbs as grams",
       nullable: false,
     },
   },
+  required: ["proteins", "fats", "carbs"],
 };
 
 const analyzedMealSchema: Schema = {

@@ -75,7 +75,6 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
             : isSelected
             ? colors["color-success-600"]
             : colors["color-primary-50"],
-          marginBottom: scale(16),
         },
         animatedStyles,
       ]}
