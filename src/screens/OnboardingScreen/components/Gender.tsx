@@ -1,5 +1,5 @@
-import { Image, Text, View } from "react-native";
-import { FlatList, Pressable } from "react-native-gesture-handler";
+import { Image, Pressable, Text, View } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import MaleImage from "../../assets/male.jpg";
 import FemaleImage from "../../assets/female.jpg";
 import NonBinaryImage from "../../assets/nonbinary.jpg";
@@ -63,7 +63,6 @@ const Gender = () => {
                 ? colors["color-primary-500"]
                 : colors["color-primary-100"],
             flexDirection: "row",
-            height: scale(100),
             borderRadius: scale(16),
             alignItems: "center",
           }}
