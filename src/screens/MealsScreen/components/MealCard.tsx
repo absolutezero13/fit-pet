@@ -51,13 +51,15 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
                 size={scale(18)}
                 color={colors["color-success-400"]}
               />
-              <Text style={styles.mealTime}>{meal.time}</Text>
+              <Text style={styles.mealTime}>
+                {t("preparationTime")}: {meal.preparationTime}
+              </Text>
             </View>
           </View>
         </View>
 
         <View style={styles.mealBody}>
-          <Text style={styles.mealDescription}>{meal.description}</Text>
+          <Text style={styles.mealDescription}>{meal.title}</Text>
           {meal.image && (
             <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
           )}

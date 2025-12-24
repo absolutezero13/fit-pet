@@ -83,11 +83,13 @@ const MealsScreen = () => {
 
       const images: { data: string }[] = [];
 
-      for (const meal of mealsWithDates) {
-        const image = await createGeminiImage(
-          promptBuilder.createImagePrompt(meal.description)
-        );
-        images.push(image);
+      if (!__DEV__) {
+        for (const meal of mealsWithDates) {
+          const image = await createGeminiImage(
+            promptBuilder.createImagePrompt(meal.description)
+          );
+          images.push(image);
+        }
       }
 
       const mealsWithGeneratedImages = mealsWithDates.map((meal, index) => ({

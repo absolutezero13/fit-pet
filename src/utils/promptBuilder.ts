@@ -55,15 +55,10 @@ CRITICAL REQUIREMENTS:
    - Healthy, nutritious, and diverse (no repetition)
    - When totaled, must EXACTLY match the calorie and macro targets above
 
-6. OUTPUT FORMAT:
-   For each meal, provide:
-   - Meal name and brief description
-   - Calories: [number]
-   - Protein: [number]g
-   - Carbs: [number]g  
-   - Fats: [number]g
 
-   End with a TOTAL summary verifying all targets are met.
+  - Preparation Time:  Approximately the time it takes to prepare the meal
+  - Ingredients should be precise with units and quantities.
+  - Instructions should be clear and easy to follow with timings also.
 
 Answer in: ${languageMapping[getLanguage()] ?? getLanguage()}
 `;

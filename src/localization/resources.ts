@@ -126,6 +126,7 @@ export const resources = {
         "Kendinize özel tarifler keşfetmek, öğünlerinizi takip etmek ve beslenme hedeflerinize ulaşmak için size özel bir rehber.",
       existingUser: "Zaten hesabın var mı?",
       login: "Giriş Yap",
+      preparationTime: "Hazırlama Süresi",
     },
   },
   en: {
@@ -255,6 +256,7 @@ export const resources = {
         "Your personal guide to discovering recipes, tracking meals, and reaching your nutritional goals.",
       existingUser: "Already have an account?",
       login: "Login",
+      preparationTime: "Prep Time",
     },
   },
 };

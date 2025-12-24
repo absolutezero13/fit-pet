@@ -53,9 +53,14 @@ const recipeSchema: Schema = {
         description: "Description",
         nullable: false,
       },
-      time: {
+      title: {
         type: SchemaType.STRING,
-        description: "Time",
+        description: "Title",
+        nullable: false,
+      },
+      preparationTime: {
+        type: SchemaType.STRING,
+        description: "Preparation time",
         nullable: false,
       },
       mealType: {
@@ -101,7 +106,8 @@ const recipeSchema: Schema = {
       "carbs",
       "fats",
       "description",
-      "time",
+      "title",
+      "preparationTime",
       "mealType",
       "instructions",
       "ingredients",
@@ -259,7 +265,8 @@ export interface IMeal {
   carbs: string;
   fats: string;
   description: string;
-  time: string;
+  title: string;
+  preparationTime: string;
   mealType: IMealType;
   instructions: string[];
   ingredients: string[];
@@ -272,22 +279,3 @@ export interface IMeal {
   errorMessage?: string;
   emoji: string;
 }
-
-export const exampleMeal: IMeal = {
-  calories: "500", //string
-  proteins: "20", //string
-  carbs: "50", //string
-  fats: "10", //string,
-  description: "Chicken and rice", //string
-  time: "18:00 - 20:00", //string
-  mealType: "dinner", //string
-  mealTypeLocalized: "Dinner", //string
-  instructions: ["Cook the chicken", "Cook the rice"], //string[]
-  ingredients: ["300g of Chicken", "200g of Rice"], //string[]
-  insights: ["High in protein", "High in carbs"], //string[]
-  image: "/api/placeholder/400/250",
-  score: 6.5,
-  _id: "placeholder",
-  date: new Date().toISOString(),
-  emoji: "🍗", //string
-};

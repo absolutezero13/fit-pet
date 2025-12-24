@@ -4,7 +4,6 @@ import {
   ScrollView,
   Text,
   StyleSheet,
-  TouchableOpacity,
   TextInput,
   FlatList,
   Image,
@@ -23,7 +22,7 @@ import useMealsStore from "../../zustand/useMealsStore";
 import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import ChatMessage, { IChatMessage } from "./components/ChatMessage";
-import doctorImage from "./components/doctor.png"; // Adjust the path as necessary
+import doctorImage from "./components/doctor.png";
 import {
   isLiquidGlassSupported,
   LiquidGlassView,
@@ -50,7 +49,6 @@ const EmptyState = () => {
 const AnimatedLiquidGlassView =
   Animated.createAnimatedComponent(LiquidGlassView);
 
-// Suggestion Bubble Component
 const SuggestionBubble = ({
   suggestion,
   onPress,
@@ -118,7 +116,6 @@ const ChatScreen = () => {
 
     if (textToSend.trim() === "") return;
 
-    // Add user message
     const userMessage: IChatMessage = {
       id: Date.now().toString(),
       text: textToSend,
@@ -157,7 +154,6 @@ const ChatScreen = () => {
   };
 
   const handleSuggestionPress = (prompt: string) => {
-    // You can parse the stringified prompt if needed
     const parsedPrompt = JSON.parse(prompt);
     console.log("PARSED PROMPT", parsedPrompt);
     handleSendMessage(parsedPrompt.context, parsedPrompt.data);
@@ -260,23 +256,7 @@ const ChatScreen = () => {
             ref={textInputRef}
             onSubmitEditing={() => handleSendMessage()}
           />
-
           <Pressable style={styles.sendButton}>
-            {/* <Button
-              color="black"
-              variant="glass"
-              controlSize="large"
-              systemImage="paperplane.fill"
-              modifiers={[
-                glassEffect({
-                  glass: {
-                    variant: "clear",
-                  },
-                }),
-              ]}
-              onPress={() => handleSendMessage()}
-              disabled={false}
-            /> */}
             <MaterialCommunityIcons
               name="send"
               size={24}
@@ -334,7 +314,7 @@ const styles = StyleSheet.create({
     paddingVertical: scale(12),
     marginHorizontal: scale(16),
     maxHeight: scale(120),
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     flex: 1,
   },
   sendButton: {

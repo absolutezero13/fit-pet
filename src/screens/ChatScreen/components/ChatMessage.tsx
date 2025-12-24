@@ -2,6 +2,9 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
+import Markdown, {
+  RenderRules,
+} from "@ronradtke/react-native-markdown-display";
 
 export type IChatMessage = {
   id: string;
@@ -10,6 +13,54 @@ export type IChatMessage = {
   timestamp: Date;
 };
 
+const markDownRules: RenderRules = {
+  heading1: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.headline1, styles.heading1]}>
+      {children}
+    </Text>
+  ),
+  heading2: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.headline2, styles.heading2]}>
+      {children}
+    </Text>
+  ),
+  heading3: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.headline3, styles.heading3]}>
+      {children}
+    </Text>
+  ),
+  heading4: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.headline4, styles.heading4]}>
+      {children}
+    </Text>
+  ),
+  paragraph: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.body1, styles.paragraph]}>
+      {children}
+    </Text>
+  ),
+  list_item: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.body1, styles.listItem]}>
+      {"• "} {children} {"\n"}
+    </Text>
+  ),
+  bullet_list: (node, children, parent, styles) => (
+    <Text key={node.key} style={[fontStyles.body1, styles.bulletList]}>
+      {"• "} {children} {"\n"}
+    </Text>
+  ),
+};
+
+const MarkdownWrapper: React.FC<any> = ({ children, textColor }) => {
+  return (
+    <Markdown
+      rules={markDownRules}
+      style={StyleSheet.create({ text: { color: textColor } })}
+    >
+      {children}
+    </Markdown>
+  );
+};
 const ChatMessage = ({
   message,
   loading,
@@ -36,15 +87,12 @@ const ChatMessage = ({
         <ActivityIndicator size="small" color={colors["color-primary-500"]} />
       ) : (
         <>
-          <View style={styles.messageContent}>
-            <Text
-              style={[
-                styles.messageText,
-                isUser ? styles.userMessageText : styles.botMessageText,
-              ]}
+          <View>
+            <MarkdownWrapper
+              textColor={isUser ? "white" : colors["color-primary-500"]}
             >
               {message?.text}
-            </Text>
+            </MarkdownWrapper>
           </View>
           <Text
             style={[
@@ -66,25 +114,15 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
     borderRadius: scale(16),
     padding: scale(12),
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 2,
   },
   userMessageContainer: {
     alignSelf: "flex-end",
     backgroundColor: colors["color-success-400"],
-    shadowColor: colors["color-success-500"],
   },
   botMessageContainer: {
     alignSelf: "flex-start",
     backgroundColor: "white",
-    shadowColor: colors["color-primary-500"],
   },
-  messageContent: {},
   messageText: {
     ...fontStyles.body1,
   },
