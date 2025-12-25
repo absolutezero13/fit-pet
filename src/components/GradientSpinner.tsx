@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors["color-primary-100"],
     borderRadius: 50,
   },
   spinnerContainer: {

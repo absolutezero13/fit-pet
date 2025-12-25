@@ -1905,6 +1905,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@lodev09/react-native-true-sheet@^3.5.8":
+  version "3.5.8"
+  resolved "https://registry.yarnpkg.com/@lodev09/react-native-true-sheet/-/react-native-true-sheet-3.5.8.tgz#2e821292a810fa43d9b316b3f8f24d950d1eefb5"
+  integrity sha512-1wg4IPdvAEamF7NursrYf1f9ZUafbBuVQgs/EJyIkzsbzfImc1XozdzWwWfdvPp5C53Tp4H8vCvEDLkCdaW5uA==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"
@@ -2195,7 +2200,7 @@
   dependencies:
     nanoid "3.3.8"
 
-"@ronradtke/react-native-markdown-display@^8.1.0":
+"@ronradtke/react-native-markdown-display@8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@ronradtke/react-native-markdown-display/-/react-native-markdown-display-8.1.0.tgz#1a7d85e0170f97a11e47388efd4effd7bcd19541"
   integrity sha512-pAtefWI76vpkxsEgIFivyq1q6ej8rDyR7oVM/cWAxUydyBej9LOvULjLAeFuFLbYAelHTNoYXmGxQOlFLBa0+w==
@@ -2646,6 +2651,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+base-64@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
+  integrity sha512-Y5gU45svrR5tI2Vt/X9GPd3L0HNIKzGu202EjxrXMpuc2V2CiKgemAbUUsqYmZJvPtCXoUKjNZwBJzsNScUbXA==
 
 base64-js@^1.2.3, base64-js@^1.3.1, base64-js@^1.5.1:
   version "1.5.1"
@@ -3396,6 +3406,11 @@ expo-file-system@~19.0.19:
   version "19.0.19"
   resolved "https://registry.npmjs.org/expo-file-system/-/expo-file-system-19.0.19.tgz"
   integrity sha512-OrpOV4fEBFMFv+jy7PnENpPbsWoBmqWGidSwh1Ai52PLl6JIInYGfZTc6kqyPNGtFTwm7Y9mSWnE8g+dtLxu7g==
+
+expo-file-system@~19.0.21:
+  version "19.0.21"
+  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-19.0.21.tgz#e96a68107fb629cf0dd1906fe7b46b566ff13e10"
+  integrity sha512-s3DlrDdiscBHtab/6W1osrjGL+C2bvoInPJD7sOwmxfJ5Woynv2oc+Fz1/xVXaE/V7HE/+xrHC/H45tu6lZzzg==
 
 expo-font@~14.0.9:
   version "14.0.9"
@@ -5188,6 +5203,14 @@ react-native-fit-image@^1.5.5:
   dependencies:
     prop-types "^15.5.10"
 
+react-native-fs@^2.20.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.20.0.tgz#05a9362b473bfc0910772c0acbb73a78dbc810f6"
+  integrity sha512-VkTBzs7fIDUiy/XajOSNk0XazFE9l+QlMAce7lGuebZcag5CnjszB+u4BdqzwaQOdcYb5wsJIsqq4kxInIRpJQ==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^3.0.0"
+
 react-native-gesture-handler@~2.28.0:
   version "2.28.0"
   resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.28.0.tgz"
@@ -5260,6 +5283,11 @@ react-native-svg@15.12.1:
     css-select "^5.1.0"
     css-tree "^1.1.3"
     warn-once "0.1.1"
+
+react-native-vision-camera@^4.7.3:
+  version "4.7.3"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-4.7.3.tgz#ed03cedabcaec54774f5aa40e69afa30069924d4"
+  integrity sha512-g1/neOyjSqn1kaAa2FxI/qp5KzNvPcF0bnQw6NntfbxH6tm0+8WFZszlgb5OV+iYlB6lFUztCbDtyz5IpL47OA==
 
 react-native-web@^0.21.0:
   version "0.21.2"
@@ -6052,6 +6080,11 @@ use-sync-external-store@^1.2.2:
   version "1.4.0"
   resolved "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.4.0.tgz"
   integrity sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==
+
+utf8@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-3.0.0.tgz#f052eed1364d696e769ef058b183df88c87f69d1"
+  integrity sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==
 
 utils-merge@1.0.1:
   version "1.0.1"

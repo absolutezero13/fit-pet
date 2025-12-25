@@ -23,6 +23,7 @@ interface Props {
   disabled?: boolean;
   disableAnimation?: boolean;
   loading?: boolean;
+  color?: string;
 }
 
 const AppButton: FC<Props> = ({
@@ -34,6 +35,7 @@ const AppButton: FC<Props> = ({
   disabled,
   disableAnimation = false,
   loading,
+  color = "white",
 }) => {
   const { bottom } = useSafeAreaInsets();
 
@@ -62,9 +64,7 @@ const AppButton: FC<Props> = ({
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text style={[fontStyles.headline4, { color: "white" }]}>
-            {title}
-          </Text>
+          <Text style={[fontStyles.headline4, { color }]}>{title}</Text>
         )}
       </TouchableOpacity>
     </LiquidGlassView>

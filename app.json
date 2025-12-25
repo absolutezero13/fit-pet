@@ -27,6 +27,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Fit Badger needs access to your Camera."
+        }
+      ],
       ["@react-native-google-signin/google-signin"],
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
@@ -61,7 +67,8 @@
       "react-native-edge-to-edge",
       "expo-font",
       "react-native-bottom-tabs",
-      "@react-native-firebase/crashlytics"
+      "@react-native-firebase/crashlytics",
+      "react-native-vision-camera"
     ],
     "extra": {
       "eas": {

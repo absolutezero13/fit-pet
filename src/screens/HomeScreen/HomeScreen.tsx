@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   ScrollView,
@@ -27,11 +27,15 @@ import {
 import GradientSpinner from "../../components/GradientSpinner";
 import formatHeaderDate from "../../utils/formatHeaderDate";
 import MealTypeEmptyState from "./components/MealTypeEmptyState";
+import LogMealTrueSheet from "./components/LogMealTrueSheet";
+import ScanMealTrueSheet from "./components/ScanMealTrueSheet";
+import { TrueSheetRef } from "@lodev09/react-native-true-sheet";
 
 const MealTypeSection = ({
   title,
   meals,
   onPressItem,
+  onPressAddMeal,
   selectedDate,
   type,
 }: {
@@ -41,12 +45,7 @@ const MealTypeSection = ({
   selectedDate: Date;
 }) => {
   const navigation = useNavigation();
-  const navigateLogMeal = () => {
-    navigation.navigate("LogMeal", {
-      selectedDate: selectedDate.toISOString(),
-      mealType: type,
-    });
-  };
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -60,7 +59,7 @@ const MealTypeSection = ({
           />
         ))
       ) : (
-        <MealTypeEmptyState onPress={navigateLogMeal} />
+        <MealTypeEmptyState onPress={onPressAddMeal} />
       )}
     </View>
   );
@@ -73,6 +72,11 @@ const LoggedMealsScreen = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const meals = useMealsStore((state) => state.loggedMeals);
+  const [selectedMealType, setSelectedMealType] = useState<string>(
+    t("breakfast")
+  );
+  const scanMealTrueSheetRef = useRef<TrueSheetRef>(null);
+  const logMealTrueSheetRef = useRef<TrueSheetRef>(null);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -89,20 +93,20 @@ const LoggedMealsScreen = () => {
     navigation.navigate("AnalyzedMeal", { mealId: meal._id ?? "" });
   };
 
-  const navigateLogMeal = () => {
-    navigation.navigate("LogMeal", {
-      selectedDate: selectedDate.toISOString(),
-    });
+  const navigateLogMeal = (type?: IMealType) => {
+    console.log("navigating to log meal", type);
+    setSelectedMealType(type ?? "breakfast");
+    logMealTrueSheetRef.current?.present();
   };
 
   const isToday =
     selectedDate.toLocaleDateString() === new Date().toLocaleDateString();
 
   const mealTypesData = [
-    { type: "breakfast", meals: breakfastMeals },
-    { type: "lunch", meals: lunchMeals },
-    { type: "dinner", meals: dinnerMeals },
-    { type: "snack", meals: snackMeals },
+    { type: t("breakfast"), meals: breakfastMeals },
+    { type: t("lunch"), meals: lunchMeals },
+    { type: t("dinner"), meals: dinnerMeals },
+    { type: t("snack"), meals: snackMeals },
   ];
 
   useEffect(() => {
@@ -121,109 +125,153 @@ const LoggedMealsScreen = () => {
   }, [selectedDate]);
 
   return (
-    <View style={styles.container}>
-      <LiquidGlassView
-        effect={"clear"}
-        tintColor={colors["color-primary-200"]}
-        style={[
-          styles.header,
-          {
-            paddingTop: top,
-          },
-        ]}
-      >
-        <Text style={styles.title}>{t("loggedMeals")}</Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignSelf: "center",
-            gap: scale(10),
-            alignItems: "center",
-          }}
+    <>
+      <View style={styles.container}>
+        <LiquidGlassView
+          effect={"clear"}
+          style={[
+            styles.header,
+            {
+              paddingTop: top,
+            },
+          ]}
         >
-          <MaterialCommunityIcons
-            onPress={() =>
-              setSelectedDate(
-                new Date(selectedDate.setDate(selectedDate.getDate() - 1))
-              )
-            }
-            name="chevron-left"
-            size={scale(36)}
-          />
-          <Text style={styles.date}>{formatHeaderDate(selectedDate)}</Text>
-          <MaterialCommunityIcons
-            disabled={isToday}
-            color={isToday ? colors["color-primary-300"] : "black"}
-            onPress={() =>
-              setSelectedDate(
-                new Date(selectedDate.setDate(selectedDate.getDate() + 1))
-              )
-            }
-            name="chevron-right"
-            size={scale(36)}
-          />
-        </View>
+          <Text style={styles.title}>{t("loggedMeals")}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignSelf: "center",
+              gap: scale(10),
+              alignItems: "center",
+            }}
+          >
+            <MaterialCommunityIcons
+              onPress={() =>
+                setSelectedDate(
+                  new Date(selectedDate.setDate(selectedDate.getDate() - 1))
+                )
+              }
+              name="chevron-left"
+              size={scale(36)}
+            />
+            <Text style={styles.date}>{formatHeaderDate(selectedDate)}</Text>
+            <MaterialCommunityIcons
+              disabled={isToday}
+              color={isToday ? colors["color-primary-300"] : "black"}
+              onPress={() =>
+                setSelectedDate(
+                  new Date(selectedDate.setDate(selectedDate.getDate() + 1))
+                )
+              }
+              name="chevron-right"
+              size={scale(36)}
+            />
+          </View>
 
-        <TouchableOpacity
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: top + scale(12),
+              right: scale(24),
+            }}
+            onPress={() => navigation.navigate("Settings")}
+          >
+            <MaterialIcons
+              name="settings"
+              size={scale(24)}
+              color={colors["color-primary-500"]}
+            />
+          </TouchableOpacity>
+        </LiquidGlassView>
+
+        {loading ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <GradientSpinner />
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <DailySummary meals={meals} />
+            {mealTypesData.map(({ type, meals }) => (
+              <MealTypeSection
+                onPressAddMeal={() => navigateLogMeal(type)}
+                key={type}
+                title={t(type)}
+                type={type}
+                meals={meals}
+                onPressItem={handleMealPress}
+                selectedDate={selectedDate}
+              />
+            ))}
+          </ScrollView>
+        )}
+        <LiquidGlassView
+          effect={"clear"}
+          interactive
           style={{
             position: "absolute",
-            top: top + scale(12),
-            right: scale(24),
-          }}
-          onPress={() => navigation.navigate("Settings")}
-        >
-          <MaterialIcons
-            name="settings"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
-          />
-        </TouchableOpacity>
-      </LiquidGlassView>
-
-      {loading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
+            bottom: TAB_BAR_HEIGHT + bottom + scale(16),
+            right: scale(32),
+            borderRadius: scale(32),
           }}
         >
-          <GradientSpinner />
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <DailySummary meals={meals} />
-          {mealTypesData.map(({ type, meals }) => (
-            <MealTypeSection
-              key={type}
-              title={t(type)}
-              type={type}
-              meals={meals}
-              onPressItem={handleMealPress}
-              selectedDate={selectedDate}
+          <Pressable
+            style={[styles.addButton]}
+            onPress={() => scanMealTrueSheetRef.current?.present()}
+          >
+            <MaterialCommunityIcons
+              name="camera"
+              size={scale(24)}
+              color="white"
             />
-          ))}
-        </ScrollView>
-      )}
-      <LiquidGlassView
-        effect={"clear"}
-        interactive
-        style={{
-          position: "absolute",
-          bottom: TAB_BAR_HEIGHT + bottom + scale(16),
-          right: scale(32),
-          borderRadius: scale(32),
+          </Pressable>
+        </LiquidGlassView>
+        <LiquidGlassView
+          effect={"clear"}
+          interactive
+          style={{
+            position: "absolute",
+            bottom: TAB_BAR_HEIGHT + bottom + scale(16),
+            left: scale(32),
+            borderRadius: scale(32),
+          }}
+        >
+          <Pressable
+            style={[styles.addButton]}
+            onPress={() => navigateLogMeal(undefined)}
+          >
+            <MaterialCommunityIcons
+              name="pencil"
+              size={scale(24)}
+              color="white"
+            />
+          </Pressable>
+        </LiquidGlassView>
+      </View>
+      <LogMealTrueSheet
+        ref={logMealTrueSheetRef}
+        params={{
+          selectedDate: selectedDate.toISOString(),
+          mealType: selectedMealType,
         }}
-      >
-        <Pressable style={[styles.addButton]} onPress={navigateLogMeal}>
-          <MaterialCommunityIcons name="plus" size={scale(24)} color="white" />
-        </Pressable>
-      </LiquidGlassView>
-    </View>
+      />
+      <ScanMealTrueSheet
+        ref={scanMealTrueSheetRef}
+        params={{
+          selectedDate: selectedDate.toISOString(),
+          mealType: selectedMealType,
+        }}
+      />
+    </>
   );
 };
 
@@ -258,7 +306,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: TAB_BAR_HEIGHT + scale(72),
+    paddingBottom: TAB_BAR_HEIGHT + scale(120),
     paddingTop: scale(180),
   },
   sectionContainer: {
@@ -276,14 +324,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors["color-success-400"],
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: colors["color-success-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: scale(8),
-    elevation: 5,
   },
 });
 

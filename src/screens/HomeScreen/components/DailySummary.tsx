@@ -417,14 +417,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(32),
     padding: scale(20),
     marginBottom: scale(20),
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: scale(12),
-    elevation: 3,
   },
   headerTitleRow: {
     flexDirection: "row",

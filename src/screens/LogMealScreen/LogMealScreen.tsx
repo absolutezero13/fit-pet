@@ -26,7 +26,6 @@ import {
 } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
 import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
 import AppButton from "../../components/AppButton";
 import FullPageSpinner from "../../components/FullPageSpinner";
 import { GeminiResponse, IMeal } from "../../services/apiTypes";

@@ -28,7 +28,7 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         </View>
 
         <View style={styles.mealItemRight}>
-          <Text style={styles.caloriesText}>{meal.calories} cal</Text>
+          <Text style={styles.caloriesText}>{meal.calories} kcal</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={scale(24)}

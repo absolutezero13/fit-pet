@@ -23,7 +23,6 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <Text style={styles.title}>{t("noMealsLogged")}</Text>
-      <Text style={styles.cta}>+ {t("logYourFirstMeal")}</Text>
     </Pressable>
   );
 };
