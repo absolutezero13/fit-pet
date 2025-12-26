@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
-import { scale, shadowStyle } from "../../theme/utils";
+import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";

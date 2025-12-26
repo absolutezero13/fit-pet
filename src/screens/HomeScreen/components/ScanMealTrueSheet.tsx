@@ -7,7 +7,7 @@ import {
   useCameraFormat,
 } from "react-native-vision-camera";
 import { scale } from "../../../theme/utils";
-import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, View } from "react-native";
 import { colors } from "../../../theme/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppButton from "../../../components/AppButton";
@@ -16,11 +16,10 @@ import { createGeminiVisionCompletion } from "../../../services/gptApi";
 import { IMeal } from "../../../services/apiTypes";
 import { createMeal } from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
-import FileSystem, { Directory, File, Paths } from "expo-file-system";
 import FullPageSpinner from "../../../components/FullPageSpinner";
 import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import MealTypes from "./MealTypes";
 
 const ScanMealTrueSheet = forwardRef<{
@@ -60,8 +59,6 @@ const ScanMealTrueSheet = forwardRef<{
   const savePhoto = async () => {
     try {
       setLoading(true);
-      const photoUri = await persistPhoto(photo?.path ?? "");
-      console.log("photoUri", photoUri);
       const prompt = promptBuilder.createAnalysisPrompt(
         useOnboardingStore.getState(),
         "",
@@ -70,7 +67,7 @@ const ScanMealTrueSheet = forwardRef<{
       );
       const response = await createGeminiVisionCompletion(
         {
-          uri: photoUri,
+          uri: photo?.path ?? "",
           mimeType: "image/jpeg",
         },
         prompt,
@@ -82,7 +79,7 @@ const ScanMealTrueSheet = forwardRef<{
       );
 
       meal.date = new Date(props.params.selectedDate).toISOString();
-      meal.image = photoUri ?? null;
+      meal.image = photo?.path ?? null;
 
       console.log("CREATING MEAL", meal);
       const responseMeal = await createMeal(meal);
@@ -107,16 +104,6 @@ const ScanMealTrueSheet = forwardRef<{
     }
   };
 
-  const persistPhoto = async (tmpUri: string) => {
-    const srcFile = new File(tmpUri);
-    const filename = `photo-${Date.now()}.jpg`;
-    const imagePickerDir = new Directory(Paths.cache, "ImagePicker");
-
-    const destFile = new File(imagePickerDir, filename); // Use cache instead of document
-
-    srcFile.copy(destFile);
-    return destFile.uri;
-  };
   return (
     <TrueSheet
       onDidDismiss={() => {
