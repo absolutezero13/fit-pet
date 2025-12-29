@@ -36,7 +36,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    // Fallback for components that might not be wrapped in ThemeProvider
+    // Emergency fallback for components not wrapped in ThemeProvider (development/testing only)
     return {
       colors: lightColors,
       mode: "light",

@@ -129,14 +129,10 @@ const styles = StyleSheet.create({
   messageText: {
     ...fontStyles.body1,
   },
-  userMessageText: {},
-  botMessageText: {},
   messageTime: {
     ...fontStyles.caption,
     alignSelf: "flex-end",
   },
-  userMessageTime: {},
-  botMessageTime: {},
 });
 
 export default ChatMessage;

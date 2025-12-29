@@ -226,7 +226,7 @@ const SettingsScreen = () => {
                       styles.checkbox,
                       { borderColor: colors.border },
                       selectedGoals.some((g) => g === goal.key) &&
-                        [styles.checkboxSelected, { backgroundColor: colors["color-primary-500"], borderColor: colors["color-primary-500"] }],
+                        { backgroundColor: colors["color-primary-500"], borderColor: colors["color-primary-500"] },
                     ]}
                   >
                     {selectedGoals.some((g) => g === goal.key) && (
@@ -425,7 +425,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxSelected: {},
   saveButton: {
     padding: scale(16),
     borderRadius: scale(12),
@@ -471,7 +470,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  languageOptionSelected: {},
   languageText: {
     ...fontStyles.body1,
   },

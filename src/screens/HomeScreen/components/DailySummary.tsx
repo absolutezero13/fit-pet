@@ -28,12 +28,12 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     currentMacroGoals as MacroGoals
   );
 
-  const macroColors: Record<string, string> = {
+  const macroColors = useMemo(() => ({
     calories: colors["color-warning-400"],
     proteins: colors["color-success-500"],
     carbs: colors["color-info-400"],
     fats: colors["color-danger-400"],
-  };
+  }), [colors]);
 
   const totals = useMemo(() => {
     const initialTotals = {
