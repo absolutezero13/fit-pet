@@ -1,10 +1,10 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import Markdown, {
   RenderRules,
 } from "@ronradtke/react-native-markdown-display";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export type IChatMessage = {
   id: string;
@@ -68,6 +68,7 @@ const ChatMessage = ({
   message?: IChatMessage;
   loading?: boolean;
 }) => {
+  const { colors } = useTheme();
   const time = message?.timestamp.toLocaleTimeString("tr-TR", {
     hour: "numeric",
     minute: "numeric",
@@ -80,16 +81,18 @@ const ChatMessage = ({
     <View
       style={[
         styles.messageContainer,
-        isUser ? styles.userMessageContainer : styles.botMessageContainer,
+        isUser 
+          ? [styles.userMessageContainer, { backgroundColor: colors["color-success-400"] }] 
+          : [styles.botMessageContainer, { backgroundColor: colors.surface }],
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={colors["color-primary-500"]} />
+        <ActivityIndicator size="small" color={colors.text} />
       ) : (
         <>
           <View>
             <MarkdownWrapper
-              textColor={isUser ? "white" : colors["color-primary-500"]}
+              textColor={isUser ? colors.textInverse : colors.text}
             >
               {message?.text}
             </MarkdownWrapper>
@@ -97,7 +100,9 @@ const ChatMessage = ({
           <Text
             style={[
               styles.messageTime,
-              isUser ? styles.userMessageTime : styles.botMessageTime,
+              isUser 
+                ? { color: "rgba(255, 255, 255, 0.8)" } 
+                : { color: colors.textSecondary },
             ]}
           >
             {time}
@@ -117,31 +122,21 @@ const styles = StyleSheet.create({
   },
   userMessageContainer: {
     alignSelf: "flex-end",
-    backgroundColor: colors["color-success-400"],
   },
   botMessageContainer: {
     alignSelf: "flex-start",
-    backgroundColor: "white",
   },
   messageText: {
     ...fontStyles.body1,
   },
-  userMessageText: {
-    color: "white",
-  },
-  botMessageText: {
-    color: colors["color-primary-800"],
-  },
+  userMessageText: {},
+  botMessageText: {},
   messageTime: {
     ...fontStyles.caption,
     alignSelf: "flex-end",
   },
-  userMessageTime: {
-    color: "rgba(255, 255, 255, 0.8)",
-  },
-  botMessageTime: {
-    color: colors["color-primary-400"],
-  },
+  userMessageTime: {},
+  botMessageTime: {},
 });
 
 export default ChatMessage;

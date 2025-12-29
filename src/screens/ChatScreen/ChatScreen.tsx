@@ -15,7 +15,6 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import { createGeminiStream } from "../../services/gptApi";
-import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_HEIGHT } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
@@ -28,6 +27,7 @@ import {
   LiquidGlassView,
 } from "@callstack/liquid-glass";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useTheme } from "../../theme/ThemeContext";
 
 // Suggestion data type
 type Suggestion = {
@@ -36,12 +36,14 @@ type Suggestion = {
   data?: {};
 };
 
-const EmptyState = () => {
+import { ThemeColors } from "../../theme/colors";
+
+const EmptyState = ({ colors }: { colors: ThemeColors }) => {
   const { t } = useTranslation();
   return (
     <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyStateTitle}>{t("startAConversation")}</Text>
-      <Text style={styles.emptyStateDescription}>{t("askQuestion")}</Text>
+      <Text style={[styles.emptyStateTitle, { color: colors.text }]}>{t("startAConversation")}</Text>
+      <Text style={[styles.emptyStateDescription, { color: colors.textSecondary }]}>{t("askQuestion")}</Text>
     </View>
   );
 };
@@ -52,14 +54,16 @@ const AnimatedLiquidGlassView =
 const SuggestionBubble = ({
   suggestion,
   onPress,
+  colors,
 }: {
   suggestion: Suggestion;
   onPress?: (prompt: string) => void;
+  colors: ThemeColors;
 }) => {
   return (
-    <LiquidGlassView interactive effect="clear" style={styles.suggestionBubble}>
+    <LiquidGlassView interactive effect="clear" style={[styles.suggestionBubble, { backgroundColor: colors.surface }]}>
       <Pressable onPress={() => onPress?.(suggestion.prompt)}>
-        <Text style={styles.suggestionBubbleText}>{suggestion.text}</Text>
+        <Text style={[styles.suggestionBubbleText, { color: colors.text }]}>{suggestion.text}</Text>
       </Pressable>
     </LiquidGlassView>
   );
@@ -70,6 +74,7 @@ const ChatScreen = () => {
   const isFocused = useIsFocused();
   const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
@@ -168,7 +173,7 @@ const ChatScreen = () => {
   }, [messages, isKeyboardVisible]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <AnimatedLiquidGlassView
         effect="clear"
         tintColor={colors["color-primary-200"]}
@@ -180,6 +185,7 @@ const ChatScreen = () => {
             borderBottomLeftRadius: scale(30),
             borderBottomRightRadius: scale(30),
             paddingBottom: isKeyboardVisible ? scale(8) : scale(24),
+            backgroundColor: isLiquidGlassSupported ? undefined : colors.backgroundSecondary,
           },
         ]}
       >
@@ -188,9 +194,11 @@ const ChatScreen = () => {
             isKeyboardVisible
               ? {
                   ...fontStyles.headline2,
+                  color: colors.text,
                 }
               : {
                   ...fontStyles.headline1,
+                  color: colors.text,
                 }
           }
         >
@@ -213,19 +221,20 @@ const ChatScreen = () => {
           },
         ]}
         contentContainerStyle={styles.messageListContent}
-        ListEmptyComponent={EmptyState}
+        ListEmptyComponent={() => <EmptyState colors={colors} />}
       />
-      <View style={[styles.inputContainer]}>
+      <View style={[styles.inputContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.suggestionsContainer}
+          contentContainerStyle={[styles.suggestionsContainer, { backgroundColor: colors.background }]}
         >
           {SUGGESTIONS.map((suggestion, index) => (
             <SuggestionBubble
               key={index}
               suggestion={suggestion}
               onPress={loading ? undefined : handleSuggestionPress}
+              colors={colors}
             />
           ))}
         </ScrollView>
@@ -248,19 +257,19 @@ const ChatScreen = () => {
           ]}
         >
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
             placeholder={t("typeYourMessage")}
-            placeholderTextColor={colors["color-primary-200"]}
+            placeholderTextColor={colors.textTertiary}
             value={inputText}
             onChangeText={setInputText}
             ref={textInputRef}
             onSubmitEditing={() => handleSendMessage()}
           />
-          <Pressable style={styles.sendButton}>
+          <Pressable style={[styles.sendButton, { backgroundColor: colors.backgroundSecondary }]}>
             <MaterialCommunityIcons
               name="send"
               size={24}
-              color="black"
+              color={colors.text}
               onPress={() => handleSendMessage()}
             />
           </Pressable>
@@ -273,7 +282,6 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   header: {
     padding: scale(24),
@@ -282,14 +290,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 10,
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : colors["color-primary-50"],
   },
   title: {},
   date: {
     ...fontStyles.headline4,
-    color: colors["color-primary-400"],
   },
   messageList: {
     flexGrow: 1,
@@ -304,12 +308,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: scale(12),
     borderTopWidth: 1,
-    borderTopColor: colors["color-primary-100"],
-    backgroundColor: colors["color-primary-100"],
   },
   input: {
     borderRadius: scale(36),
-    backgroundColor: "white",
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
     marginHorizontal: scale(16),
@@ -324,7 +325,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
-    backgroundColor: colors["color-primary-50"],
   },
   emptyStateContainer: {
     flex: 1,
@@ -334,25 +334,21 @@ const styles = StyleSheet.create({
   },
   emptyStateTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-500"],
     marginBottom: scale(12),
     textAlign: "center",
   },
   emptyStateDescription: {
     ...fontStyles.body1,
-    color: colors["color-primary-400"],
     textAlign: "center",
     marginBottom: scale(32),
   },
   emptyStateButton: {
-    backgroundColor: colors["color-success-400"],
     paddingHorizontal: scale(20),
     paddingVertical: scale(14),
     borderRadius: scale(12),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: colors["color-success-500"],
     shadowOffset: {
       width: 0,
       height: scale(4),
@@ -363,21 +359,17 @@ const styles = StyleSheet.create({
   },
   emptyStateButtonText: {
     ...fontStyles.headline4,
-    color: "white",
   },
   // New suggestion bubbles styles
   suggestionsContainer: {
     paddingHorizontal: scale(16),
-    backgroundColor: colors["color-primary-100"],
     marginBottom: scale(12),
   },
   suggestionBubble: {
-    backgroundColor: "white",
     paddingHorizontal: scale(16),
     paddingVertical: scale(10),
     borderRadius: scale(20),
     marginRight: scale(10),
-    shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -388,7 +380,6 @@ const styles = StyleSheet.create({
   },
   suggestionBubbleText: {
     ...fontStyles.body2,
-    color: colors["color-primary-600"],
   },
   doctor: {
     width: scale(250),
