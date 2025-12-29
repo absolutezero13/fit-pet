@@ -12,12 +12,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { colors } from "../../theme/colors";
+import { lightColors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, shadowStyle } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTheme } from "../../theme/ThemeContext";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -31,6 +32,7 @@ const AnalyzedMealScreen = () => {
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { colors } = useTheme();
 
   if (!meal) {
     return null;
@@ -115,10 +117,10 @@ const AnalyzedMealScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
         effect="clear"
-        tintColor={colors["color-primary-100"]}
+        tintColor={colors.background}
         style={[
           styles.pageHeader,
           {
@@ -129,10 +131,10 @@ const AnalyzedMealScreen = () => {
         <MaterialCommunityIcons
           name="chevron-left"
           size={scale(40)}
-          color={colors["color-primary-500"]}
+          color={colors.text}
           onPress={navigation.goBack}
         />
-        <Text style={styles.title}>{t("mealAnalysis")}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("mealAnalysis")}</Text>
       </LiquidGlassView>
 
       <ScrollView
@@ -157,26 +159,26 @@ const AnalyzedMealScreen = () => {
           />
         )}
         {/* Meal Description and Calories */}
-        <View style={styles.descriptionSection}>
-          <Text style={styles.mealName}>{meal.description}</Text>
-          <View style={styles.calorieContainer}>
-            <Text style={styles.calorieValue}>{meal.calories}</Text>
-            <Text style={styles.calorieUnit}>{t("cal")}</Text>
+        <View style={[styles.descriptionSection, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
+          <Text style={[styles.mealName, { color: colors.text }]}>{meal.description}</Text>
+          <View style={[styles.calorieContainer, { backgroundColor: colors.background }]}>
+            <Text style={[styles.calorieValue, { color: colors["color-success-500"] }]}>{meal.calories}</Text>
+            <Text style={[styles.calorieUnit, { color: colors["color-success-500"] }]}>{t("cal")}</Text>
           </View>
         </View>
 
         {/* Score Section with Label */}
-        <View style={styles.scoreSection}>
+        <View style={[styles.scoreSection, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
           <View
             style={[
               styles.scoreContainer,
-              { backgroundColor: getScoreColor(meal.score) },
+              { backgroundColor: getScoreColor(meal.score), shadowColor: colors.shadow },
             ]}
           >
-            <Text style={styles.scoreValue}>{meal.score}</Text>
+            <Text style={[styles.scoreValue, { color: colors.textInverse }]}>{meal.score}</Text>
           </View>
           <View style={styles.scoreTextContainer}>
-            <Text style={styles.scoreHeading}>{t("nutritionScore")}</Text>
+            <Text style={[styles.scoreHeading, { color: colors.textSecondary }]}>{t("nutritionScore")}</Text>
             <Text
               style={[styles.scoreLabel, { color: getScoreColor(meal.score) }]}
             >
@@ -186,22 +188,22 @@ const AnalyzedMealScreen = () => {
         </View>
 
         {/* Macros Section */}
-        <Text style={styles.sectionHeading}>{t("macronutrients")}</Text>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>{t("macronutrients")}</Text>
         <View style={styles.macrosContainer}>
-          <View style={styles.macroItem}>
+          <View style={[styles.macroItem, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
             {renderMacroIcon("protein")}
-            <Text style={styles.macroValue}>{meal.proteins}g</Text>
-            <Text style={styles.macroLabel}>{t("proteins")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.proteins}g</Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("proteins")}</Text>
           </View>
-          <View style={styles.macroItem}>
+          <View style={[styles.macroItem, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
             {renderMacroIcon("carbs")}
-            <Text style={styles.macroValue}>{meal.carbs}g</Text>
-            <Text style={styles.macroLabel}>{t("carbs")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.carbs}g</Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("carbs")}</Text>
           </View>
-          <View style={styles.macroItem}>
+          <View style={[styles.macroItem, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
             {renderMacroIcon("fats")}
-            <Text style={styles.macroValue}>{meal.fats}g</Text>
-            <Text style={styles.macroLabel}>{t("fats")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.fats}g</Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("fats")}</Text>
           </View>
         </View>
 
@@ -209,10 +211,10 @@ const AnalyzedMealScreen = () => {
         {meal.insights && meal.insights.length > 0 && (
           <>
             <TouchableOpacity style={styles.insightsHeader}>
-              <Text style={styles.sectionHeading}>{t("insights")}</Text>
+              <Text style={[styles.sectionHeading, { color: colors.text }]}>{t("insights")}</Text>
             </TouchableOpacity>
 
-            <View style={styles.insightsList}>
+            <View style={[styles.insightsList, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}>
               {meal.insights.map((insight, index) => (
                 <View key={index} style={styles.insightItem}>
                   <MaterialCommunityIcons
@@ -221,7 +223,7 @@ const AnalyzedMealScreen = () => {
                     color={colors["color-warning-500"]}
                     style={styles.insightIcon}
                   />
-                  <Text style={styles.insightText}>{insight}</Text>
+                  <Text style={[styles.insightText, { color: colors.text }]}>{insight}</Text>
                 </View>
               ))}
             </View>
@@ -235,6 +237,7 @@ const AnalyzedMealScreen = () => {
               styles.deleteButton,
               {
                 borderColor: colors["color-danger-300"],
+                backgroundColor: colors.surface,
               },
             ]}
             onPress={handleDelete}
@@ -259,7 +262,8 @@ const AnalyzedMealScreen = () => {
             style={[
               styles.deleteButton,
               {
-                borderColor: colors["color-primary-300"],
+                borderColor: colors.border,
+                backgroundColor: colors.surface,
               },
             ]}
             onPress={handleEdit}
@@ -267,13 +271,13 @@ const AnalyzedMealScreen = () => {
             <MaterialCommunityIcons
               name="pencil-outline"
               size={scale(20)}
-              color={colors["color-primary-500"]}
+              color={colors.text}
             />
             <Text
               style={[
                 styles.deleteText,
                 {
-                  color: colors["color-primary-500"],
+                  color: colors.text,
                 },
               ]}
             >
@@ -289,7 +293,6 @@ const AnalyzedMealScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   scrollView: {
     flex: 1,
@@ -308,7 +311,6 @@ const styles = StyleSheet.create({
   },
   title: {
     ...fontStyles.headline1,
-    color: colors["color-primary-500"],
   },
   topSection: {
     marginBottom: scale(12),
@@ -316,11 +318,9 @@ const styles = StyleSheet.create({
   },
   mealTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-900"],
   },
   dateText: {
     ...fontStyles.body2,
-    color: colors["color-primary-500"],
     marginTop: scale(4),
   },
   descriptionSection: {
@@ -328,10 +328,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: scale(12),
-    backgroundColor: "white",
     padding: scale(16),
     borderRadius: scale(16),
-    shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -339,35 +337,29 @@ const styles = StyleSheet.create({
   },
   mealName: {
     ...fontStyles.headline3,
-    color: colors["color-primary-900"],
     flex: 1,
     marginRight: scale(10),
   },
   calorieContainer: {
     flexDirection: "row",
     alignItems: "baseline",
-    backgroundColor: colors["color-primary-100"],
     paddingHorizontal: scale(12),
     paddingVertical: scale(8),
     borderRadius: scale(16),
   },
   calorieValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-500"],
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: colors["color-success-500"],
     marginLeft: scale(4),
   },
   scoreSection: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: scale(32),
-    backgroundColor: "white",
     padding: scale(16),
     borderRadius: scale(16),
-    shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -379,7 +371,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(30),
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -388,7 +379,6 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     ...fontStyles.headline1,
-    color: "white",
     fontWeight: "bold",
   },
   scoreTextContainer: {
@@ -396,7 +386,6 @@ const styles = StyleSheet.create({
   },
   scoreHeading: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: scale(4),
@@ -407,7 +396,6 @@ const styles = StyleSheet.create({
   },
   sectionHeading: {
     ...fontStyles.headline3,
-    color: colors["color-primary-900"],
     marginBottom: scale(16),
   },
   macrosContainer: {
@@ -418,11 +406,9 @@ const styles = StyleSheet.create({
   macroItem: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "white",
     padding: scale(16),
     borderRadius: scale(16),
     marginHorizontal: scale(4),
-    shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -430,13 +416,11 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     ...fontStyles.headline3,
-    color: colors["color-primary-900"],
     marginTop: scale(8),
     marginBottom: scale(4),
   },
   macroLabel: {
     ...fontStyles.footnote,
-    color: colors["color-primary-600"],
     letterSpacing: 0.5,
     textAlign: "center",
   },
@@ -446,11 +430,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   insightsList: {
-    backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(16),
     marginBottom: scale(24),
-    shadowColor: colors["color-primary-900"],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -468,30 +450,11 @@ const styles = StyleSheet.create({
   insightText: {
     ...fontStyles.body2,
     flex: 1,
-    color: colors["color-primary-900"],
     lineHeight: scale(20),
   },
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  editButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: scale(14),
-    borderWidth: 1,
-    borderColor: colors["color-primary-300"],
-    borderRadius: scale(12),
-    flex: 1,
-    marginRight: scale(8),
-    backgroundColor: "white",
-  },
-  editText: {
-    ...fontStyles.body2,
-    color: colors["color-primary-600"],
-    marginLeft: scale(8),
-    fontWeight: "500",
   },
   deleteButton: {
     flexDirection: "row",
@@ -502,7 +465,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     flex: 1,
     marginLeft: scale(8),
-    backgroundColor: "white",
   },
   deleteText: {
     ...fontStyles.body2,

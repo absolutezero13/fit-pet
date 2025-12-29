@@ -15,10 +15,10 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
-import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import FastImage from "react-native-fast-image";
+import { useTheme } from "../../theme/ThemeContext";
 
 type MealDetailScreenProps = {
   meal: IMeal;
@@ -32,6 +32,7 @@ const MealDetailScreen = () => {
   const { top } = useSafeAreaInsets();
   const navigation = useNavigation();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const { colors } = useTheme();
 
   // Calculate header opacity based on scroll position
 
@@ -66,7 +67,7 @@ const MealDetailScreen = () => {
 
     return (
       <View style={styles.macroPercentagesContainer}>
-        <View style={styles.macroPercentageBar}>
+        <View style={[styles.macroPercentageBar, { backgroundColor: colors.border }]}>
           <View
             style={[
               styles.macroPercentageFill,
@@ -90,7 +91,7 @@ const MealDetailScreen = () => {
               styles.macroPercentageFill,
               {
                 width: `${fatsPercentage}%`,
-                backgroundColor: colors["color-primary-400"],
+                backgroundColor: colors.textSecondary,
               },
             ]}
           />
@@ -103,7 +104,7 @@ const MealDetailScreen = () => {
                 { backgroundColor: colors["color-success-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>{t("proteins")}</Text>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>{t("proteins")}</Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
@@ -112,16 +113,16 @@ const MealDetailScreen = () => {
                 { backgroundColor: colors["color-info-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>{t("carbs")}</Text>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>{t("carbs")}</Text>
           </View>
           <View style={styles.macroLegendItem}>
             <View
               style={[
                 styles.macroLegendColor,
-                { backgroundColor: colors["color-primary-400"] },
+                { backgroundColor: colors.textSecondary },
               ]}
             />
-            <Text style={styles.macroLegendText}>{t("fats")}</Text>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>{t("fats")}</Text>
           </View>
         </View>
       </View>
@@ -132,12 +133,12 @@ const MealDetailScreen = () => {
     <View
       style={[
         styles.container,
-        { paddingTop: Platform.select({ android: top, default: 0 }) },
+        { backgroundColor: colors.background, paddingTop: Platform.select({ android: top, default: 0 }) },
       ]}
     >
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent]}
+        style={[styles.scrollView, { backgroundColor: colors.surface }]}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.surface }]}
         showsVerticalScrollIndicator={false}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -153,7 +154,7 @@ const MealDetailScreen = () => {
             <MaterialCommunityIcons
               name="arrow-left"
               size={scale(24)}
-              color="white"
+              color={colors.textInverse}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -163,13 +164,13 @@ const MealDetailScreen = () => {
             <MaterialCommunityIcons
               name="share-variant"
               size={scale(24)}
-              color="white"
+              color={colors.textInverse}
             />
           </TouchableOpacity>
         </View>
 
         {/* Meal image or placeholder */}
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { backgroundColor: colors.background }]}>
           {meal.image ? (
             <FastImage
               source={{ uri: meal.image }}
@@ -177,54 +178,54 @@ const MealDetailScreen = () => {
               resizeMode="cover"
             />
           ) : (
-            <View style={styles.placeholderImage}>
+            <View style={[styles.placeholderImage, { backgroundColor: colors.background }]}>
               <MaterialCommunityIcons
                 name="food"
                 size={scale(80)}
-                color={colors["color-primary-300"]}
+                color={colors.textTertiary}
               />
             </View>
           )}
         </View>
 
         {/* Meal info card */}
-        <View style={styles.mealInfoCard}>
+        <View style={[styles.mealInfoCard, { backgroundColor: colors.surface }]}>
           <View style={styles.mealHeader}>
             <View style={styles.mealTitleContainer}>
-              <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
+              <Text style={[styles.mealTitle, { color: colors.text }]}>{meal.mealTypeLocalized}</Text>
               <View style={styles.timeContainer}>
                 <MaterialCommunityIcons
                   name="clock-outline"
                   size={scale(18)}
                   color={colors["color-success-400"]}
                 />
-                <Text style={styles.mealTime}>{meal.time}</Text>
+                <Text style={[styles.mealTime, { color: colors.textSecondary }]}>{meal.time}</Text>
               </View>
             </View>
           </View>
 
-          <Text style={styles.mealDescription}>{meal.description}</Text>
+          <Text style={[styles.mealDescription, { color: colors.text }]}>{meal.description}</Text>
 
           {/* Macros */}
-          <View style={styles.macrosContainer}>
+          <View style={[styles.macrosContainer, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
             <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.calories}</Text>
-              <Text style={styles.macroLabel}>{t("calories")}</Text>
+              <Text style={[styles.macroValue, { color: colors["color-success-400"] }]}>{meal.calories}</Text>
+              <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("calories")}</Text>
             </View>
-            <View style={[styles.macroSeparator]} />
+            <View style={[styles.macroSeparator, { backgroundColor: colors.border }]} />
             <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.proteins}g</Text>
-              <Text style={styles.macroLabel}>{t("proteins")}</Text>
+              <Text style={[styles.macroValue, { color: colors["color-success-400"] }]}>{meal.proteins}g</Text>
+              <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("proteins")}</Text>
             </View>
-            <View style={[styles.macroSeparator]} />
+            <View style={[styles.macroSeparator, { backgroundColor: colors.border }]} />
             <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.carbs}g</Text>
-              <Text style={styles.macroLabel}>{t("carbs")}</Text>
+              <Text style={[styles.macroValue, { color: colors["color-success-400"] }]}>{meal.carbs}g</Text>
+              <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("carbs")}</Text>
             </View>
-            <View style={[styles.macroSeparator]} />
+            <View style={[styles.macroSeparator, { backgroundColor: colors.border }]} />
             <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.fats}g</Text>
-              <Text style={styles.macroLabel}>{t("fats")}</Text>
+              <Text style={[styles.macroValue, { color: colors["color-success-400"] }]}>{meal.fats}g</Text>
+              <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("fats")}</Text>
             </View>
           </View>
 
@@ -239,13 +240,13 @@ const MealDetailScreen = () => {
                 size={scale(24)}
                 color={colors["color-success-400"]}
               />
-              <Text style={styles.sectionTitle}>{t("ingredients")}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("ingredients")}</Text>
             </View>
             <View style={styles.ingredientsList}>
               {meal.ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
-                  <View style={styles.ingredientBullet} />
-                  <Text style={styles.ingredientText}>{ingredient}</Text>
+                  <View style={[styles.ingredientBullet, { backgroundColor: colors["color-success-400"] }]} />
+                  <Text style={[styles.ingredientText, { color: colors.text }]}>{ingredient}</Text>
                 </View>
               ))}
             </View>
@@ -259,15 +260,15 @@ const MealDetailScreen = () => {
                 size={scale(24)}
                 color={colors["color-info-400"]}
               />
-              <Text style={styles.sectionTitle}>{t("instructions")}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("instructions")}</Text>
             </View>
             <View style={styles.instructionsList}>
               {meal.instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionItem}>
-                  <View style={styles.instructionNumberContainer}>
-                    <Text style={styles.instructionNumber}>{index + 1}</Text>
+                  <View style={[styles.instructionNumberContainer, { backgroundColor: colors.background }]}>
+                    <Text style={[styles.instructionNumber, { color: colors["color-info-500"] }]}>{index + 1}</Text>
                   </View>
-                  <Text style={styles.instructionText}>{instruction}</Text>
+                  <Text style={[styles.instructionText, { color: colors.text }]}>{instruction}</Text>
                 </View>
               ))}
             </View>
@@ -282,7 +283,7 @@ const MealDetailScreen = () => {
                   size={scale(24)}
                   color={colors["color-primary-400"]}
                 />
-                <Text style={styles.sectionTitle}>{t("insights")}</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("insights")}</Text>
               </View>
               <View style={styles.insightsList}>
                 {meal.insights.map((insight, index) => (
@@ -293,7 +294,7 @@ const MealDetailScreen = () => {
                       color={colors["color-primary-400"]}
                       style={styles.insightIcon}
                     />
-                    <Text style={styles.insightText}>{insight}</Text>
+                    <Text style={[styles.insightText, { color: colors.textSecondary }]}>{insight}</Text>
                   </View>
                 ))}
               </View>
@@ -308,7 +309,6 @@ const MealDetailScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   headerTitle: {
     ...fontStyles.headline3,
@@ -324,11 +324,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
   },
   scrollContent: {
     paddingBottom: scale(100),
-    backgroundColor: "white",
   },
   headerSection: {
     paddingHorizontal: scale(16),
@@ -361,7 +359,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: SCREEN_WIDTH,
-    backgroundColor: colors["color-primary-200"],
   },
   mealImage: {
     width: SCREEN_WIDTH,
@@ -372,11 +369,9 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors["color-primary-200"],
   },
   mealInfoCard: {
     marginTop: SCREEN_WIDTH - scale(30),
-    backgroundColor: "white",
     borderTopLeftRadius: scale(30),
     borderTopRightRadius: scale(30),
     padding: scale(24),
@@ -401,11 +396,9 @@ const styles = StyleSheet.create({
   },
   mealTime: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     marginLeft: scale(6),
   },
   scoreContainer: {
-    backgroundColor: colors["color-success-100"],
     borderRadius: scale(12),
     padding: scale(8),
     alignItems: "center",
@@ -413,11 +406,9 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-500"],
   },
   scoreLabel: {
     ...fontStyles.caption,
-    color: colors["color-success-500"],
     textTransform: "uppercase",
   },
   mealDescription: {
@@ -429,9 +420,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: colors["color-primary-100"],
     borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
     paddingVertical: scale(20),
     marginBottom: scale(20),
   },
@@ -441,24 +430,20 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-400"],
     marginBottom: scale(6),
   },
   macroLabel: {
     ...fontStyles.footnote,
-    color: colors["color-primary-400"],
     textAlign: "center",
   },
   macroSeparator: {
     width: 1,
     height: scale(40),
-    backgroundColor: colors["color-primary-100"],
   },
   macroPercentagesContainer: {},
   macroPercentageBar: {
     height: scale(16),
     flexDirection: "row",
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(8),
     overflow: "hidden",
     marginBottom: scale(16),
@@ -483,7 +468,6 @@ const styles = StyleSheet.create({
   },
   macroLegendText: {
     ...fontStyles.footnote,
-    color: colors["color-primary-400"],
   },
   sectionContainer: {
     marginTop: scale(24),
@@ -509,7 +493,6 @@ const styles = StyleSheet.create({
     width: scale(8),
     height: scale(8),
     borderRadius: scale(4),
-    backgroundColor: colors["color-success-400"],
     marginTop: scale(6),
     marginRight: scale(12),
   },
@@ -528,7 +511,6 @@ const styles = StyleSheet.create({
     width: scale(28),
     height: scale(28),
     borderRadius: scale(14),
-    backgroundColor: colors["color-info-100"],
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -536,7 +518,6 @@ const styles = StyleSheet.create({
   },
   instructionNumber: {
     ...fontStyles.headline4,
-    color: colors["color-info-500"],
   },
   instructionText: {
     ...fontStyles.body2,
@@ -558,7 +539,6 @@ const styles = StyleSheet.create({
   insightText: {
     ...fontStyles.body2,
     flex: 1,
-    color: colors["color-primary-500"],
   },
 });
 
