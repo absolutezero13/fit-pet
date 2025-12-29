@@ -10,7 +10,6 @@ import {
   Pressable,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { IMeal } from "../../../services/apiTypes";
@@ -18,21 +17,23 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
-
-const macroColors: Record<string, string> = {
-  calories: colors["color-warning-400"], // golden yellow, attention-grabbing
-  proteins: colors["color-success-500"], // healthy green
-  carbs: colors["color-info-400"], // light blue, energetic feel
-  fats: colors["color-danger-400"], // warm red-orange, rich
-};
+import { useTheme } from "../../../theme/ThemeContext";
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const currentMacroGoals = useUserStore((state) => state?.macroGoals);
   const [goals, setGoals] = useState<MacroGoals>(
     currentMacroGoals as MacroGoals
   );
+
+  const macroColors: Record<string, string> = {
+    calories: colors["color-warning-400"],
+    proteins: colors["color-success-500"],
+    carbs: colors["color-info-400"],
+    fats: colors["color-danger-400"],
+  };
 
   const totals = useMemo(() => {
     const initialTotals = {
@@ -164,16 +165,16 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const fatsGoal = (goals.fats * goals.calories) / 100 / 9;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       {/* Header */}
       <View style={styles.headerRow}>
         <View style={styles.headerTitleRow}>
-          <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>{t("dailySummary")}</Text>
           <Pressable onPress={() => setModalVisible(true)}>
             <Icon
               name="format-list-bulleted"
               size={scale(24)}
-              color={colors["color-primary-500"]}
+              color={colors.text}
             />
           </Pressable>
         </View>
@@ -187,10 +188,10 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           <Icon
             name="star"
             size={scale(14)}
-            color="white"
+            color={colors.textInverse}
             style={{ marginRight: scale(6) }}
           />
-          <Text style={styles.scoreBadgeText}>
+          <Text style={[styles.scoreBadgeText, { color: colors.textInverse }]}>
             {averageScore.toFixed(1)} Puan
           </Text>
         </TouchableOpacity>
@@ -207,14 +208,14 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               ]}
             />
             <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("calories")}</Text>
-              <Text style={styles.macroValue}>
+              <Text style={[styles.macroLabel, { color: colors.text }]}>{t("calories")}</Text>
+              <Text style={[styles.macroValue, { color: colors.text }]}>
                 {totals.calories.toFixed(0)}{" "}
-                <Text style={styles.macroGoal}>/ {goals.calories} kcal</Text>
+                <Text style={[styles.macroGoal, { color: colors.textSecondary }]}>/ {goals.calories} kcal</Text>
               </Text>
             </View>
           </View>
-          <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressBar,
@@ -237,16 +238,16 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               ]}
             />
             <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("proteins")}</Text>
-              <Text style={styles.macroValue}>
+              <Text style={[styles.macroLabel, { color: colors.text }]}>{t("proteins")}</Text>
+              <Text style={[styles.macroValue, { color: colors.text }]}>
                 {totals.proteins.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>
+                <Text style={[styles.macroGoal, { color: colors.textSecondary }]}>
                   / {proteinGoal.toFixed(0)}g
                 </Text>
               </Text>
             </View>
           </View>
-          <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressBar,
@@ -269,14 +270,14 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               ]}
             />
             <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("carbs")}</Text>
-              <Text style={styles.macroValue}>
+              <Text style={[styles.macroLabel, { color: colors.text }]}>{t("carbs")}</Text>
+              <Text style={[styles.macroValue, { color: colors.text }]}>
                 {totals.carbs.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>/ {carbsGoal.toFixed(0)}g</Text>
+                <Text style={[styles.macroGoal, { color: colors.textSecondary }]}>/ {carbsGoal.toFixed(0)}g</Text>
               </Text>
             </View>
           </View>
-          <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressBar,
@@ -299,14 +300,14 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               ]}
             />
             <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("fats")}</Text>
-              <Text style={styles.macroValue}>
+              <Text style={[styles.macroLabel, { color: colors.text }]}>{t("fats")}</Text>
+              <Text style={[styles.macroValue, { color: colors.text }]}>
                 {totals.fats.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>/ {fatsGoal.toFixed(0)}g</Text>
+                <Text style={[styles.macroGoal, { color: colors.textSecondary }]}>/ {fatsGoal.toFixed(0)}g</Text>
               </Text>
             </View>
           </View>
-          <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressBar,
@@ -327,8 +328,8 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t("adjustNutritionGoals")}</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{t("adjustNutritionGoals")}</Text>
 
             {circleData.map((data) => {
               const macroType = data.type as keyof MacroGoals;
@@ -342,18 +343,18 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                         color={macroColors[data.type]}
                         style={styles.inputIcon}
                       />
-                      <Text style={styles.inputLabel}>{data.label}</Text>
+                      <Text style={[styles.inputLabel, { color: colors.text }]}>{data.label}</Text>
                     </View>
                     <View style={styles.inputContainer}>
                       <TextInput
-                        style={styles.input}
+                        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
                         keyboardType="numeric"
                         value={goals[macroType].toString()}
                         onChangeText={(value) =>
                           handleInputChange(data.type, value)
                         }
                       />
-                      <Text style={styles.inputUnit}>
+                      <Text style={[styles.inputUnit, { color: colors.text }]}>
                         {data.type === "calories" ? "kcal" : "%"}{" "}
                       </Text>
                     </View>
@@ -362,6 +363,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     <Text
                       style={{
                         ...fontStyles.footnote,
+                        color: colors.textSecondary,
                         alignSelf: "flex-end",
                         position: "absolute",
                         zIndex: 99,
@@ -383,25 +385,24 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[styles.button, { backgroundColor: colors["color-warning-600"] }]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.buttonText}>{t("cancel")}</Text>
+                <Text style={[styles.buttonText, { color: colors.textInverse }]}>{t("cancel")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.button,
-                  styles.saveButton,
                   {
                     backgroundColor: isMacroGoalsValid
                       ? colors["color-primary-500"]
-                      : colors["color-primary-300"],
+                      : colors.textTertiary,
                   },
                 ]}
                 onPress={saveGoals}
                 disabled={!isMacroGoalsValid}
               >
-                <Text style={styles.buttonText}>{t("save")}</Text>
+                <Text style={[styles.buttonText, { color: colors.textInverse }]}>{t("save")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -413,7 +414,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
     borderRadius: scale(32),
     padding: scale(20),
     marginBottom: scale(20),
@@ -429,7 +429,6 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-800"],
     fontWeight: "700",
   },
   scoreBadge: {
@@ -442,7 +441,6 @@ const styles = StyleSheet.create({
   },
   scoreBadgeText: {
     ...fontStyles.body2,
-    color: "white",
     fontWeight: "700",
     fontSize: scale(13),
   },
@@ -465,22 +463,18 @@ const styles = StyleSheet.create({
   },
   macroLabel: {
     ...fontStyles.caption,
-    color: colors["color-primary-500"],
     marginBottom: scale(2),
   },
   macroValue: {
     ...fontStyles.body1,
-    color: colors["color-primary-900"],
     fontWeight: "700",
   },
   macroGoal: {
     ...fontStyles.caption,
-    color: colors["color-primary-400"],
     fontWeight: "400",
   },
   progressBarContainer: {
     height: scale(6),
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(3),
     overflow: "hidden",
   },
@@ -497,12 +491,10 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     marginTop: scale(120),
-    backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(20),
     width: "90%",
     maxHeight: "80%",
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -513,7 +505,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
     marginBottom: scale(16),
     textAlign: "center",
   },
@@ -537,7 +528,6 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     ...fontStyles.body1,
-    color: colors["color-primary-700"],
   },
   inputContainer: {
     flexDirection: "row",
@@ -548,7 +538,6 @@ const styles = StyleSheet.create({
   input: {
     ...fontStyles.body1,
     borderWidth: 1,
-    borderColor: colors["color-primary-300"],
     borderRadius: scale(8),
     paddingHorizontal: scale(12),
     paddingVertical: scale(8),
@@ -557,7 +546,6 @@ const styles = StyleSheet.create({
   },
   inputUnit: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
     marginLeft: scale(8),
     width: scale(30),
   },
@@ -573,15 +561,8 @@ const styles = StyleSheet.create({
     minWidth: "45%",
     alignItems: "center",
   },
-  cancelButton: {
-    backgroundColor: colors["color-warning-600"],
-  },
-  saveButton: {
-    backgroundColor: colors["color-primary-500"],
-  },
   buttonText: {
     ...fontStyles.body1,
-    color: "white",
   },
 });
 

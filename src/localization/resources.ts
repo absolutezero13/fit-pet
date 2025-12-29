@@ -122,6 +122,8 @@ export const resources = {
       deleteAccountConfirmation: "Hesabı Sil",
       deleteAccountConfirmationMessage:
         "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      appearance: "Görünüm",
+      darkMode: "Karanlık Mod",
       welcomeExplanation:
         "Kendinize özel tarifler keşfetmek, öğünlerinizi takip etmek ve beslenme hedeflerinize ulaşmak için size özel bir rehber.",
       existingUser: "Zaten hesabın var mı?",
@@ -252,6 +254,8 @@ export const resources = {
       deleteAccountConfirmation: "Delete Account Confirmation",
       deleteAccountConfirmationMessage:
         "Are you sure you want to delete your account? This action is irreversible.",
+      appearance: "Appearance",
+      darkMode: "Dark Mode",
       welcomeExplanation:
         "Your personal guide to discovering recipes, tracking meals, and reaching your nutritional goals.",
       existingUser: "Already have an account?",

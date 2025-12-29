@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
-import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,6 +29,8 @@ import MealTypeEmptyState from "./components/MealTypeEmptyState";
 import LogMealTrueSheet from "./components/LogMealTrueSheet";
 import ScanMealTrueSheet from "./components/ScanMealTrueSheet";
 import { TrueSheetRef } from "@lodev09/react-native-true-sheet";
+import { useTheme } from "../../theme/ThemeContext";
+import { ThemeColors } from "../../theme/colors";
 
 const MealTypeSection = ({
   title,
@@ -38,17 +39,19 @@ const MealTypeSection = ({
   onPressAddMeal,
   selectedDate,
   type,
+  colors,
 }: {
   type: string;
   meals: IMeal[];
   onPressItem: (meal: IMeal) => void;
   selectedDate: Date;
+  colors: ThemeColors;
 }) => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
 
       {meals.length > 0 ? (
         meals.map((meal, index) => (
@@ -69,6 +72,7 @@ const LoggedMealsScreen = () => {
   const navigation = useNavigation();
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const meals = useMealsStore((state) => state.loggedMeals);
@@ -126,17 +130,18 @@ const LoggedMealsScreen = () => {
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <LiquidGlassView
           effect={"clear"}
           style={[
             styles.header,
             {
               paddingTop: top,
+              backgroundColor: isLiquidGlassSupported ? undefined : colors.backgroundSecondary,
             },
           ]}
         >
-          <Text style={styles.title}>{t("loggedMeals")}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t("loggedMeals")}</Text>
           <View
             style={{
               flexDirection: "row",
@@ -153,11 +158,12 @@ const LoggedMealsScreen = () => {
               }
               name="chevron-left"
               size={scale(36)}
+              color={colors.text}
             />
-            <Text style={styles.date}>{formatHeaderDate(selectedDate)}</Text>
+            <Text style={[styles.date, { color: colors.textSecondary }]}>{formatHeaderDate(selectedDate)}</Text>
             <MaterialCommunityIcons
               disabled={isToday}
-              color={isToday ? colors["color-primary-300"] : "black"}
+              color={isToday ? colors.textTertiary : colors.text}
               onPress={() =>
                 setSelectedDate(
                   new Date(selectedDate.setDate(selectedDate.getDate() + 1))
@@ -179,7 +185,7 @@ const LoggedMealsScreen = () => {
             <MaterialIcons
               name="settings"
               size={scale(24)}
-              color={colors["color-primary-500"]}
+              color={colors.text}
             />
           </TouchableOpacity>
         </LiquidGlassView>
@@ -210,6 +216,7 @@ const LoggedMealsScreen = () => {
                 meals={meals}
                 onPressItem={handleMealPress}
                 selectedDate={selectedDate}
+                colors={colors}
               />
             ))}
           </ScrollView>
@@ -225,13 +232,13 @@ const LoggedMealsScreen = () => {
           }}
         >
           <Pressable
-            style={[styles.addButton]}
+            style={[styles.addButton, { backgroundColor: colors["color-success-400"] }]}
             onPress={() => scanMealTrueSheetRef.current?.present()}
           >
             <MaterialCommunityIcons
               name="camera"
               size={scale(24)}
-              color="white"
+              color={colors.textInverse}
             />
           </Pressable>
         </LiquidGlassView>
@@ -246,13 +253,13 @@ const LoggedMealsScreen = () => {
           }}
         >
           <Pressable
-            style={[styles.addButton]}
+            style={[styles.addButton, { backgroundColor: colors["color-success-400"] }]}
             onPress={() => navigateLogMeal(undefined)}
           >
             <MaterialCommunityIcons
               name="pencil"
               size={scale(24)}
-              color="white"
+              color={colors.textInverse}
             />
           </Pressable>
         </LiquidGlassView>
@@ -278,7 +285,6 @@ const LoggedMealsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   header: {
     paddingHorizontal: scale(24),
@@ -288,16 +294,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 10,
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : colors["color-primary-50"],
   },
   title: {
     ...fontStyles.headline1,
   },
   date: {
     ...fontStyles.headline4,
-    color: colors["color-primary-400"],
     textAlign: "center",
   },
   // Original styles
@@ -314,14 +316,12 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-500"],
     marginBottom: scale(12),
   },
   addButton: {
     width: scale(64),
     height: scale(64),
     borderRadius: scale(32),
-    backgroundColor: colors["color-success-400"],
     justifyContent: "center",
     alignItems: "center",
   },

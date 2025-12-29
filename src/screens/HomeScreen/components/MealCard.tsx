@@ -1,11 +1,11 @@
 import React, { FC } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTheme } from "../../../theme/ThemeContext";
 
 interface Props {
   meal: IMeal;
@@ -13,8 +13,10 @@ interface Props {
 }
 
 const MealCard: FC<Props> = ({ meal, onPress }) => {
+  const { colors } = useTheme();
+
   return (
-    <LiquidGlassView effect="clear" interactive style={styles.mealItem}>
+    <LiquidGlassView effect="clear" interactive style={[styles.mealItem, { backgroundColor: colors.surface }]}>
       <TouchableOpacity
         activeOpacity={1}
         key={meal.description}
@@ -22,17 +24,17 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         onPress={() => onPress(meal)}
       >
         <View style={styles.mealItemLeft}>
-          <Text style={styles.mealItemTitle}>
+          <Text style={[styles.mealItemTitle, { color: colors.text }]}>
             {meal.emoji} {meal.description}
           </Text>
         </View>
 
         <View style={styles.mealItemRight}>
-          <Text style={styles.caloriesText}>{meal.calories} kcal</Text>
+          <Text style={[styles.caloriesText, { color: colors["color-success-400"] }]}>{meal.calories} kcal</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={scale(24)}
-            color={colors["color-primary-300"]}
+            color={colors.textTertiary}
           />
         </View>
       </TouchableOpacity>
@@ -48,10 +50,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mealItem: {
-    backgroundColor: "white",
     borderRadius: scale(28),
     marginBottom: scale(12),
-    shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
   },
   mealItemTime: {
     ...fontStyles.caption,
-    color: colors["color-primary-400"],
   },
   mealItemRight: {
     flexDirection: "row",
@@ -84,7 +83,6 @@ const styles = StyleSheet.create({
   },
   caloriesText: {
     ...fontStyles.body1,
-    color: colors["color-success-400"],
     marginRight: scale(2),
   },
 });

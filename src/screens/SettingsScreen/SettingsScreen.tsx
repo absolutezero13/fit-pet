@@ -8,10 +8,10 @@ import {
   TextInput,
   Alert,
   Platform,
+  Switch,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
-import { colors } from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { GoalEnum } from "../../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
@@ -27,6 +27,7 @@ import {
   LiquidGlassView,
 } from "@callstack/liquid-glass";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "../../theme/ThemeContext";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -35,6 +36,7 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const authService = useAuthService();
   const { top } = useSafeAreaInsets();
+  const { colors, isDark, toggleTheme } = useTheme();
 
   const user = useUserStore();
 
@@ -93,34 +95,63 @@ const SettingsScreen = () => {
     languageOptions[0];
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
         effect={"clear"}
         style={[
           styles.header,
-          { paddingTop: Platform.select({ android: top, ios: scale(16) }) },
+          { 
+            paddingTop: Platform.select({ android: top, ios: scale(16) }),
+            backgroundColor: isLiquidGlassSupported ? undefined : colors.backgroundSecondary,
+          },
         ]}
         tintColor={colors["color-primary-100"]}
       >
         <MaterialCommunityIcons
           name="chevron-left"
           size={scale(40)}
-          color={colors["color-primary-500"]}
+          color={colors.text}
           onPress={navigation.goBack}
         />
 
-        <Text style={styles.title}>{t("settingsTitle")}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("settingsTitle")}</Text>
       </LiquidGlassView>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Theme Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("appearance")}</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }]}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingLabelContainer}>
+                <MaterialCommunityIcons
+                  name={isDark ? "weather-night" : "weather-sunny"}
+                  size={scale(20)}
+                  color={colors.text}
+                  style={styles.icon}
+                />
+                <Text style={[styles.settingLabel, { color: colors.text }]}>
+                  {t("darkMode")}
+                </Text>
+              </View>
+              <Switch
+                value={isDark}
+                onValueChange={toggleTheme}
+                trackColor={{ false: colors.border, true: colors["color-success-400"] }}
+                thumbColor={colors.surface}
+              />
+            </View>
+          </View>
+        </View>
+
         {/* Language Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("language")}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("language")}</Text>
           <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, { backgroundColor: colors.surface }]}
             onPress={() => setIsLanguageModalVisible(true)}
           >
             <View style={styles.settingRow}>
@@ -128,78 +159,81 @@ const SettingsScreen = () => {
                 <MaterialCommunityIcons
                   name="translate"
                   size={scale(20)}
-                  color={colors["color-primary-500"]}
+                  color={colors.text}
                   style={styles.icon}
                 />
-                <Text style={styles.settingLabel}>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>
                   {currentLanguage.localName}
                 </Text>
               </View>
               <MaterialCommunityIcons
                 name="chevron-right"
                 size={scale(24)}
-                color={colors["color-primary-400"]}
+                color={colors.textSecondary}
               />
             </View>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("profile")}</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("profile")}</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }]}>
             <View style={styles.inputRow}>
-              <Text style={styles.inputLabel}>{t("weight")}</Text>
-              <View style={styles.inputWrapper}>
+              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{t("weight")}</Text>
+              <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { color: colors.text }]}
                   value={localWeight}
                   onChangeText={setLocalWeight}
                   keyboardType="numeric"
                   placeholder="0"
+                  placeholderTextColor={colors.textTertiary}
                 />
-                <Text style={styles.inputUnit}>kg</Text>
+                <Text style={[styles.inputUnit, { color: colors.textSecondary }]}>kg</Text>
               </View>
             </View>
 
             <View style={styles.inputRow}>
-              <Text style={styles.inputLabel}>{t("height")}</Text>
-              <View style={styles.inputWrapper}>
+              <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{t("height")}</Text>
+              <View style={[styles.inputWrapper, { borderColor: colors.border }]}>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { color: colors.text }]}
                   value={localHeight}
                   onChangeText={setLocalHeight}
                   keyboardType="numeric"
                   placeholder="0"
+                  placeholderTextColor={colors.textTertiary}
                 />
-                <Text style={styles.inputUnit}>cm</Text>
+                <Text style={[styles.inputUnit, { color: colors.textSecondary }]}>cm</Text>
               </View>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("goals")}</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("goals")}</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }]}>
             {goalItems.map((goal) => (
               <TouchableOpacity
                 key={goal.key}
-                style={styles.goalRow}
+                style={[styles.goalRow, { borderBottomColor: colors.border }]}
                 onPress={() => toggleGoal(goal.key)}
               >
-                <Text style={styles.goalText}>{t(goal.titleKey)}</Text>
+                <Text style={[styles.goalText, { color: colors.text }]}>{t(goal.titleKey)}</Text>
                 <View style={styles.checkboxContainer}>
                   <View
                     style={[
                       styles.checkbox,
+                      { borderColor: colors.border },
                       selectedGoals.some((g) => g === goal.key) &&
-                        styles.checkboxSelected,
+                        [styles.checkboxSelected, { backgroundColor: colors["color-primary-500"], borderColor: colors["color-primary-500"] }],
                     ]}
                   >
                     {selectedGoals.some((g) => g === goal.key) && (
                       <Ionicons
                         name="checkmark"
                         size={scale(16)}
-                        color="white"
+                        color={colors.textInverse}
                       />
                     )}
                   </View>
@@ -230,9 +264,9 @@ const SettingsScreen = () => {
                 ]
               );
             }}
-            style={styles.card}
+            style={[styles.card, { backgroundColor: colors.surface }]}
           >
-            <Text>{t("logoutConfirmation")}</Text>
+            <Text style={{ color: colors.text }}>{t("logoutConfirmation")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -258,9 +292,9 @@ const SettingsScreen = () => {
                 ]
               );
             }}
-            style={styles.card}
+            style={[styles.card, { backgroundColor: colors.surface }]}
           >
-            <Text style={{ color: "red" }}>
+            <Text style={{ color: colors["color-danger-500"] }}>
               {t("deleteAccountConfirmation")}
             </Text>
           </TouchableOpacity>
@@ -288,7 +322,6 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   header: {
     paddingHorizontal: scale(24),
@@ -298,14 +331,10 @@ const styles = StyleSheet.create({
     gap: scale(4),
     position: "absolute",
     width: "100%",
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : colors["color-primary-50"],
     zIndex: 1,
   },
   title: {
     ...fontStyles.headline1,
-    color: colors["color-primary-500"],
   },
   scrollView: {
     flex: 1,
@@ -320,14 +349,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
     marginBottom: scale(12),
   },
   card: {
-    backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(16),
-    shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -351,21 +377,18 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
   },
   inputRow: {
     marginBottom: scale(16),
   },
   inputLabel: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     marginBottom: scale(8),
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors["color-primary-300"],
     borderRadius: scale(12),
     height: scale(48),
     paddingHorizontal: scale(12),
@@ -374,11 +397,9 @@ const styles = StyleSheet.create({
     flex: 1,
     ...fontStyles.body1,
     height: scale(48),
-    color: colors["color-primary-500"],
   },
   inputUnit: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     width: scale(24),
     textAlign: "center",
   },
@@ -388,11 +409,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: scale(12),
     borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
   },
   goalText: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
   },
   checkboxContainer: {
     alignItems: "center",
@@ -403,16 +422,11 @@ const styles = StyleSheet.create({
     height: scale(24),
     borderRadius: scale(4),
     borderWidth: 2,
-    borderColor: colors["color-primary-300"],
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxSelected: {
-    backgroundColor: colors["color-primary-500"],
-    borderColor: colors["color-primary-500"],
-  },
+  checkboxSelected: {},
   saveButton: {
-    backgroundColor: colors["color-success-400"],
     padding: scale(16),
     borderRadius: scale(12),
     alignItems: "center",
@@ -424,7 +438,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...fontStyles.headline4,
-    color: "white",
   },
   // Modal styles
   modalContainer: {
@@ -433,7 +446,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
     borderTopLeftRadius: scale(24),
     borderTopRightRadius: scale(24),
     paddingBottom: scale(32),
@@ -445,11 +457,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: scale(24),
     borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
   },
   modalTitle: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
   },
   languageList: {
     paddingHorizontal: scale(16),
@@ -461,12 +471,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  languageOptionSelected: {
-    // backgroundColor: colors["color-primary-100"],
-  },
+  languageOptionSelected: {},
   languageText: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
   },
   languageTextSelected: {
     fontWeight: "bold",

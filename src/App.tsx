@@ -36,6 +36,7 @@ import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
 import { colors } from "./theme/colors";
+import { ThemeProvider } from "./theme/ThemeContext";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -115,13 +116,15 @@ export function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <KeyboardProvider>
-          <NavigationContainer onReady={onReady}>
-            <RootNavigator />
-          </NavigationContainer>
-        </KeyboardProvider>
-      </BottomSheetModalProvider>
+      <ThemeProvider>
+        <BottomSheetModalProvider>
+          <KeyboardProvider>
+            <NavigationContainer onReady={onReady}>
+              <RootNavigator />
+            </NavigationContainer>
+          </KeyboardProvider>
+        </BottomSheetModalProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
