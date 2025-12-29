@@ -16,6 +16,7 @@ import { useState, useRef, useEffect } from "react";
 import AppButton from "../../../components/AppButton";
 import { KeyboardGestureArea } from "react-native-keyboard-controller";
 import useAuthService, { LoginType } from "../../../services/auth";
+import { useTranslation } from "react-i18next";
 
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,6 +24,7 @@ export const isValidEmail = (email: string): boolean => {
 };
 
 const SignUpTrueSheet = () => {
+  const { t } = useTranslation();
   const authService = useAuthService();
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
@@ -42,12 +44,12 @@ const SignUpTrueSheet = () => {
 
   const handleEmailSignUp = async () => {
     if (!isValidEmail(email)) {
-      Alert.alert("Invalid email address");
+      Alert.alert(t("invalidEmail"));
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Passwords do not match");
+      Alert.alert(t("passwordsDoNotMatch"));
       return;
     }
 
@@ -71,21 +73,21 @@ const SignUpTrueSheet = () => {
   const signUpOptions = [
     {
       type: LoginType.Google,
-      label: "Google",
+      label: t("signUpWithGoogle"),
       icon: "google",
       onPress: handleGoogleSignUp,
       disabled: false,
     },
     {
       type: LoginType.Apple,
-      label: "Apple",
+      label: t("signUpWithApple"),
       icon: "apple",
       onPress: handleAppleSignUp,
       disabled: true,
     },
     {
       type: LoginType.Email,
-      label: "Email",
+      label: t("signUpWithEmail"),
       icon: "email",
       onPress: () => setShowEmailForm(true),
     },
@@ -121,12 +123,9 @@ const SignUpTrueSheet = () => {
             />
           </Pressable>
         )}
-        <Text style={styles.title}>Join Fit Badger!</Text>
+        <Text style={styles.title}>{t("signUpTitle")}</Text>
         {!showEmailForm && (
-          <Text style={styles.subtitle}>
-            Track meals, discover recipes, and reach your goals. Sign up to get
-            started.
-          </Text>
+          <Text style={styles.subtitle}>{t("signUpSubtitle")}</Text>
         )}
       </View>
 
@@ -155,9 +154,7 @@ const SignUpTrueSheet = () => {
                   size={scale(24)}
                   color={colors["color-primary-500"]}
                 />
-                <Text style={styles.googleButtonText}>
-                  Sign up with {option.label}
-                </Text>
+                <Text style={styles.googleButtonText}>{option.label}</Text>
               </Pressable>
             ))}
           </View>
@@ -165,13 +162,13 @@ const SignUpTrueSheet = () => {
       ) : (
         <View style={styles.emailFormContainer}>
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Email</Text>
+            <Text style={styles.inputLabel}>{t("email")}</Text>
             <TextInput
               ref={emailInputRef}
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="Enter your email"
+              placeholder={t("enterEmail")}
               placeholderTextColor={colors["color-primary-300"]}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -180,12 +177,12 @@ const SignUpTrueSheet = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Password</Text>
+            <Text style={styles.inputLabel}>{t("password")}</Text>
             <TextInput
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder={t("enterPassword")}
               placeholderTextColor={colors["color-primary-300"]}
               secureTextEntry
               autoCapitalize="none"
@@ -194,12 +191,12 @@ const SignUpTrueSheet = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Confirm Password</Text>
+            <Text style={styles.inputLabel}>{t("confirmPassword")}</Text>
             <TextInput
               style={styles.input}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              placeholder="Confirm your password"
+              placeholder={t("confirmYourPassword")}
               placeholderTextColor={colors["color-primary-300"]}
               secureTextEntry
               autoCapitalize="none"
@@ -208,7 +205,7 @@ const SignUpTrueSheet = () => {
           </View>
 
           <AppButton
-            title="Sign Up"
+            title={t("signUp")}
             onPress={handleEmailSignUp}
             backgroundColor={colors["color-primary-50"]}
             color={colors["color-primary-500"]}
@@ -221,12 +218,14 @@ const SignUpTrueSheet = () => {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Already have an account? <Text style={styles.loginLink}>Log in</Text>
+          {t("alreadyHaveAccount")}{" "}
+          <Text style={styles.loginLink}>{t("logIn")}</Text>
         </Text>
         <Text style={styles.termsText}>
-          By continuing, you agree to our{" "}
-          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
-          <Text style={styles.termsLink}>Privacy Policy</Text>.
+          {t("termsAgreement")}{" "}
+          <Text style={styles.termsLink}>{t("termsOfService")}</Text> {t("and")}{" "}
+          <Text style={styles.termsLink}>{t("privacyPolicy")}</Text>
+          {t("termsAgreementEnd")}
         </Text>
       </View>
     </TrueSheet>
