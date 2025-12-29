@@ -118,7 +118,6 @@ const AnalyzedMealScreen = () => {
     <View style={styles.container}>
       <LiquidGlassView
         effect="clear"
-        tintColor={colors["color-primary-100"]}
         style={[
           styles.pageHeader,
           {
@@ -305,6 +304,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 1,
     width: "100%",
+    shadowColor: colors["color-primary-100"],
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 1,
+    shadowRadius: scale(8),
+    elevation: 3,
+    borderRadius: scale(32),
   },
   title: {
     ...fontStyles.headline1,

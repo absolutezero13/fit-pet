@@ -1,5 +1,3 @@
-import { storageService } from "../storage/AsyncStorageService";
-import useMealsStore from "../zustand/useMealsStore";
 import useUserStore, { IUser } from "../zustand/useUserStore";
 import api, { ENDPOINT } from "./api";
 
@@ -9,8 +7,6 @@ class UserService {
       fields: user,
     });
 
-    console.log("UserService createOrUpdateUser", res.data.user);
-
     useUserStore.setState(res.data.user);
 
     return res.data as { user: IUser; message: string };
@@ -18,7 +14,6 @@ class UserService {
 
   async getUser() {
     const res = await api.get(ENDPOINT + "/user");
-    console.log("UserService getUser", res.data.user);
     useUserStore.setState(res.data.user);
 
     return res.data as { user: IUser; message: string };
@@ -26,8 +21,6 @@ class UserService {
 
   async deletUser() {
     const res = await api.delete(ENDPOINT + "/user");
-    storageService.setItem("meals", null);
-    storageService.setItem("token", "");
 
     return res.data as { message: string };
   }

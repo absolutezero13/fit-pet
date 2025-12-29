@@ -62,7 +62,7 @@ const AppButton: FC<Props> = ({
         onPress={onPress}
       >
         {loading ? (
-          <ActivityIndicator color="white" />
+          <ActivityIndicator color={color} />
         ) : (
           <Text style={[fontStyles.headline4, { color }]}>{title}</Text>
         )}

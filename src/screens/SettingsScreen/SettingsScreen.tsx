@@ -27,6 +27,8 @@ import {
   LiquidGlassView,
 } from "@callstack/liquid-glass";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import SignUpBanner from "./components/SignUpBanner";
+import SignUpTrueSheet from "./components/SignUpTrueSheet";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -100,7 +102,6 @@ const SettingsScreen = () => {
           styles.header,
           { paddingTop: Platform.select({ android: top, ios: scale(16) }) },
         ]}
-        tintColor={colors["color-primary-100"]}
       >
         <MaterialCommunityIcons
           name="chevron-left"
@@ -116,7 +117,7 @@ const SettingsScreen = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Language Section */}
+        {!user?.email && <SignUpBanner />}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("language")}</Text>
           <TouchableOpacity
@@ -232,7 +233,7 @@ const SettingsScreen = () => {
             }}
             style={styles.card}
           >
-            <Text>{t("logoutConfirmation")}</Text>
+            <Text style={fontStyles.headline4}>{t("logoutConfirmation")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -258,9 +259,17 @@ const SettingsScreen = () => {
                 ]
               );
             }}
-            style={styles.card}
+            style={[
+              styles.card,
+              { backgroundColor: colors["color-danger-500"] },
+            ]}
           >
-            <Text style={{ color: "red" }}>
+            <Text
+              style={[
+                fontStyles.headline4,
+                { color: colors["color-primary-50"] },
+              ]}
+            >
               {t("deleteAccountConfirmation")}
             </Text>
           </TouchableOpacity>
@@ -281,6 +290,7 @@ const SettingsScreen = () => {
           marginHorizontal: scale(24),
         }}
       />
+      <SignUpTrueSheet />
     </View>
   );
 };
@@ -293,6 +303,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: scale(24),
     paddingVertical: scale(16),
+    borderRadius: scale(32),
     flexDirection: "row",
     alignItems: "center",
     gap: scale(4),
@@ -302,6 +313,14 @@ const styles = StyleSheet.create({
       ? undefined
       : colors["color-primary-50"],
     zIndex: 1,
+    shadowColor: colors["color-primary-100"],
+    shadowOffset: {
+      width: 0,
+      height: scale(2),
+    },
+    shadowOpacity: 1,
+    shadowRadius: scale(8),
+    elevation: 3,
   },
   title: {
     ...fontStyles.headline1,
@@ -319,7 +338,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(24),
   },
   sectionTitle: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-500"],
     marginBottom: scale(12),
   },
@@ -350,14 +369,14 @@ const styles = StyleSheet.create({
     marginRight: scale(8),
   },
   settingLabel: {
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     color: colors["color-primary-500"],
   },
   inputRow: {
     marginBottom: scale(16),
   },
   inputLabel: {
-    ...fontStyles.body2,
+    ...fontStyles.headline3,
     color: colors["color-primary-400"],
     marginBottom: scale(8),
   },
@@ -372,7 +391,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     height: scale(48),
     color: colors["color-primary-500"],
   },
@@ -387,11 +406,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: scale(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
   },
   goalText: {
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     color: colors["color-primary-500"],
   },
   checkboxContainer: {
@@ -421,10 +438,6 @@ const styles = StyleSheet.create({
     bottom: scale(16),
     left: 0,
     right: 0,
-  },
-  buttonText: {
-    ...fontStyles.headline4,
-    color: "white",
   },
   // Modal styles
   modalContainer: {

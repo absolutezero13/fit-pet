@@ -28,24 +28,30 @@ const WelcomeScreen = () => {
   const authService = useAuthService();
   const [loading, setLoading] = React.useState(false);
 
-  const handleGoogleLogin = async () => {
+  const login = async (type: LoginType) => {
     setLoading(true);
 
     let user: undefined | IUser;
+    console.log("getAuth().currentUser", getAuth().currentUser);
 
     if (!getAuth().currentUser) {
-      const { success, user: loginUser } = await authService.handleLogin(
-        LoginType.Google
-      );
+      console.log("signing in");
+      const { success, user: loginUser } = await authService.handleLogin(type);
       if (!success || !loginUser) {
         setLoading(false);
         console.error("Google login failed");
         return;
       }
       user = loginUser;
+    } else {
+      console.log("getting user");
+      user = (await userService.getUser()).user;
     }
+    console.log("user after login", user);
+
     if (user?.onboardingCompleted) {
       await userService.getUser();
+
       navigation.reset({
         routes: [{ name: "HomeTabs" }],
         index: 0,
@@ -54,10 +60,6 @@ const WelcomeScreen = () => {
       navigation.navigate("Onboarding");
     }
     setLoading(false);
-  };
-
-  const handleLoginPress = () => {
-    navigation.navigate("Login");
   };
 
   return (
@@ -92,7 +94,7 @@ const WelcomeScreen = () => {
             disableAnimation={disableAnimation}
             title={t("getStarted")}
             loading={loading}
-            onPress={handleGoogleLogin}
+            onPress={() => login(LoginType.Anonymous)}
           />
         </Animated.View>
         <Animated.View
@@ -100,7 +102,7 @@ const WelcomeScreen = () => {
           style={styles.loginContainer}
         >
           <Text style={styles.loginText}>{t("existingUser")}</Text>
-          <TouchableOpacity onPress={handleLoginPress}>
+          <TouchableOpacity onPress={() => login(LoginType.Google)}>
             <Text style={styles.loginLink}>{t("login")}</Text>
           </TouchableOpacity>
         </Animated.View>

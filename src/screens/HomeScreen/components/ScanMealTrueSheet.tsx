@@ -82,6 +82,11 @@ const ScanMealTrueSheet = forwardRef<{
       meal.image = photo?.path ?? null;
 
       console.log("CREATING MEAL", meal);
+      if (meal.errorMessage) {
+        Alert.alert("Error", meal.errorMessage);
+        return;
+      }
+
       const responseMeal = await createMeal(meal);
       meal._id = responseMeal._id;
       dismiss();

@@ -164,14 +164,14 @@ export const resources = {
       gender: "Gender",
       tabMeals: "Meals",
       tabHome: "Home",
-      tabChat: "AI Assistant",
+      tabChat: "AI Coach",
       todaysMenu: "Today's Menu",
       noMealsLogged: "No meals logged yet",
       loggedMeals: "Logged Meals",
       trackYourNutrition:
         "Track your nutrition by logging your meals throughout the day",
       logYourFirstMeal: "Add a Meal",
-      nutritionAssistant: "Nutrition Assistant",
+      nutritionAssistant: "Nutrition Coach",
       startAConversation: "Start a conversation",
       askQuestion:
         "Ask a questions about nutrition, diet plans or meal suggestions",
@@ -249,7 +249,7 @@ export const resources = {
       adjustNutritionGoals: "Adjust nutrition goals",
       logoutConfirmation: "Logout",
       logoutConfirmationMessage: "Are you sure you want to logout?",
-      deleteAccountConfirmation: "Delete Account Confirmation",
+      deleteAccountConfirmation: "Delete Account",
       deleteAccountConfirmationMessage:
         "Are you sure you want to delete your account? This action is irreversible.",
       welcomeExplanation:
