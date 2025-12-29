@@ -2,11 +2,11 @@ import { Text, View, StyleSheet, ScrollView, Platform } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const ageData = Array.from({ length: 70 }, (_, i) => i + 15);
 const AGE_ITEM_SIZE = scale(70);
@@ -14,6 +14,7 @@ const ITEM_HEIGHT = scale(70);
 
 const Age = () => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [selectedIndex, setSelectedIndex] = useState(9);
   const scrollViewRef = useRef(null);
 
@@ -63,7 +64,7 @@ const Age = () => {
           });
         }}
         style={{ width: scale(300), height: 400, alignSelf: "center" }}
-        itemStyle={{ height: scale(350), ...fontStyles.headline2 }}
+        itemStyle={{ height: scale(350), ...fontStyles.headline2, color: colors.text }}
       >
         {ageData.map((age) => (
           <Picker.Item key={age} label={age.toString()} value={age} />
@@ -76,7 +77,7 @@ const Age = () => {
     return (
       <View style={styles.androidPickerContainer}>
         {/* Selection indicator */}
-        <View style={styles.selectionIndicator} pointerEvents="none" />
+        <View style={[styles.selectionIndicator, { borderColor: colors.border }]} pointerEvents="none" />
 
         {/* Scrollable wheel */}
         <ScrollView
@@ -102,7 +103,7 @@ const Age = () => {
                 },
               ]}
             >
-              <Text style={[fontStyles.headline2, styles.itemText]}>{age}</Text>
+              <Text style={[fontStyles.headline2, { color: colors.text }]}>{age}</Text>
             </View>
           ))}
 
@@ -131,11 +132,11 @@ const Age = () => {
         {Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={[fontStyles.headline3, styles.infoCardTitle]}>
+      <View style={[styles.infoCard, { backgroundColor: colors["color-primary-500"], borderColor: colors.border }]}>
+        <Text style={[fontStyles.headline3, { color: colors.textInverse }]}>
           {t("whyWeAsk")}
         </Text>
-        <Text style={[fontStyles.body2, styles.infoCardDescription]}>
+        <Text style={[fontStyles.body2, { marginTop: scale(8), color: colors.textInverse }]}>
           {t("whyWeAskDescription")}
         </Text>
       </View>
@@ -165,10 +166,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  itemText: {
-    color: colors["color-primary-700"],
-  },
-  selectedItemText: {},
   selectionIndicator: {
     position: "absolute",
     top: ITEM_HEIGHT * 2,
@@ -201,15 +198,7 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(24),
     borderRadius: scale(16),
     padding: scale(12),
-    backgroundColor: colors["color-primary-500"],
     ...shadowStyle,
-  },
-  infoCardTitle: {
-    color: colors["color-primary-100"],
-  },
-  infoCardDescription: {
-    marginTop: scale(8),
-    color: colors["color-primary-100"],
   },
 });
 

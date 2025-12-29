@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet, Alert, Text } from "react-native";
 import { scale } from "../../theme/utils";
-import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
+import { useTheme } from "../../theme/ThemeContext";
 import {
   createGeminiCompletion,
   createGeminiImage,
@@ -31,6 +31,7 @@ const MealsScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const userStore = useUserStore((state) => state);
+  const { colors } = useTheme();
 
   const onMealPress = (meal: IMeal) => {
     navigation.navigate("MealDetail", { meal });
@@ -119,18 +120,19 @@ const MealsScreen = () => {
   }, [userStore]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
         effect={"clear"}
         style={[
           styles.header,
           {
             paddingTop: top,
+            backgroundColor: isLiquidGlassSupported ? undefined : colors.backgroundSecondary,
           },
         ]}
       >
-        <Text style={styles.title}>{t("todaysMenu")}</Text>
-        <Text style={styles.date}>{formatHeaderDate(new Date())}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("todaysMenu")}</Text>
+        <Text style={[styles.date, { color: colors.textSecondary }]}>{formatHeaderDate(new Date())}</Text>
       </LiquidGlassView>
 
       {loading ? (
@@ -167,7 +169,6 @@ const MealsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   header: {
     paddingHorizontal: scale(24),
@@ -177,16 +178,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 1,
     width: "100%",
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : colors["color-primary-50"],
   },
   title: {
     ...fontStyles.headline1,
   },
   date: {
     ...fontStyles.headline4,
-    color: colors["color-primary-400"],
   },
   scrollView: {
     flex: 1,

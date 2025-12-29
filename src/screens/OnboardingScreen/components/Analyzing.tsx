@@ -16,7 +16,6 @@ import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { storageService } from "../../../storage/AsyncStorageService";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore, {
@@ -27,6 +26,7 @@ import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const DEFAULT_MACRO_GOALS: MacroGoals = {
@@ -39,6 +39,7 @@ const DEFAULT_MACRO_GOALS: MacroGoals = {
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [currentStatus, setCurrentStatus] = React.useState(0);
   const statusMessages = [
     t("analyzing"),
@@ -250,9 +251,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     value: string | null;
     style: any;
   }) => (
-    <Animated.View style={[styles.infoCard, style]}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+    <Animated.View style={[styles.infoCard, { backgroundColor: colors.surface }, style]}>
+      <Text style={[styles.infoLabel, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.infoValue, { color: colors["color-success-500"] }]}>{value}</Text>
     </Animated.View>
   );
 
@@ -262,7 +263,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
         {/* Status Message */}
         <Animated.Text
           onPress={updateUser}
-          style={[styles.statusText, statusTextStyle]}
+          style={[styles.statusText, { color: colors.text }, statusTextStyle]}
         >
           {statusMessages[currentStatus]}
         </Animated.Text>
@@ -270,8 +271,8 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
         {/* Crazy Loader */}
         <View style={styles.loaderContainer}>
           <Animated.View style={[styles.mainLoader, mainLoaderStyle]}>
-            <View style={styles.loaderInnerRing} />
-            <View style={styles.loaderCore} />
+            <View style={[styles.loaderInnerRing, { borderColor: colors.textSecondary }]} />
+            <View style={[styles.loaderCore, { backgroundColor: colors.textSecondary }]} />
           </Animated.View>
         </View>
 
@@ -340,7 +341,6 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: scale(40),
     borderWidth: scale(4),
-    borderColor: colors["color-primary-900"],
     borderStyle: "dotted",
   },
   loaderInnerRing: {
@@ -349,21 +349,18 @@ const styles = StyleSheet.create({
     height: "70%",
     borderRadius: scale(35),
     borderWidth: scale(3),
-    borderColor: colors["color-primary-300"],
   },
   loaderCore: {
     position: "absolute",
     width: "40%",
     height: "40%",
     borderRadius: scale(20),
-    backgroundColor: colors["color-primary-300"],
   },
   orbitingLoader: {
     position: "absolute",
     width: scale(20),
     height: scale(20),
     borderRadius: scale(10),
-    backgroundColor: colors["color-primary-900"],
   },
   infoContainer: {
     width: SCREEN_WIDTH - scale(40),
@@ -374,7 +371,6 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   infoCard: {
-    backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(16),
     width: (width - scale(52)) / 2,
@@ -388,7 +384,6 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-900"],
   },
 });
 

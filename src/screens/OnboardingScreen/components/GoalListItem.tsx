@@ -9,7 +9,6 @@ import Animated, {
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { GoalEnum } from "../../../zustand/useOnboardingStore";
@@ -17,6 +16,7 @@ import {
   isLiquidGlassSupported,
   LiquidGlassView,
 } from "@callstack/liquid-glass";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export type GoalItem = {
   titleKey: string;
@@ -37,6 +37,7 @@ const AnimatedLiquidGlassView =
 const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const opacity = useSharedValue(0.1);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -65,7 +66,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
       effect="regular"
       key={item.key}
       tintColor={
-        isSelected ? colors["color-success-800"] : colors["color-primary-100"]
+        isSelected ? colors["color-success-800"] : colors.border
       }
       style={[
         {
@@ -74,7 +75,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
             ? undefined
             : isSelected
             ? colors["color-success-600"]
-            : colors["color-primary-50"],
+            : colors.surface,
         },
         animatedStyles,
       ]}
@@ -83,7 +84,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
         <FontAwesome6
           name="check"
           size={scale(24)}
-          color={colors["color-primary-100"]}
+          color={colors.textInverse}
           style={{
             position: "absolute",
             top: scale(16),
@@ -106,8 +107,8 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
           <Icon
             color={
               isSelected
-                ? colors["color-primary-100"]
-                : colors["color-primary-500"]
+                ? colors.textInverse
+                : colors.text
             }
           />
           <Text
@@ -119,8 +120,8 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
                 textAlign: "center",
                 marginTop: scale(8),
                 color: isSelected
-                  ? colors["color-primary-100"]
-                  : colors["color-primary-500"],
+                  ? colors.textInverse
+                  : colors.text,
               },
             ]}
           >

@@ -16,7 +16,6 @@ import {
   View,
 } from "react-native";
 import AppButton from "../../../components/AppButton";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
@@ -40,9 +39,11 @@ import {
 import { createMeal, updateMeal } from "../../../services/mealAnalysis";
 import FullPageSpinner from "../../../components/FullPageSpinner";
 import MealTypes from "./MealTypes";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
   const sheet = useRef<TrueSheet>(null);
+  const { colors, isDark } = useTheme();
 
   const present = async () => {
     await sheet.current?.present();
@@ -229,11 +230,12 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
       }}
       ref={sheet}
       detents={["auto"]}
-      blurTint="system-thick-material-light"
+      blurTint={isDark ? "dark" : "system-thick-material-light"}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
       }}
+      backgroundColor={colors.surface}
     >
       <KeyboardGestureArea
         interpolator="ios"
@@ -243,9 +245,9 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
           flex: 1,
         }}
       >
-        <View style={[styles.container, {}]}>
+        <View style={[styles.container, { backgroundColor: colors.surface }]}>
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("describeYourMeal")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("describeYourMeal")}</Text>
             <View style={styles.textInputWrapper}>
               <TextInput
                 keyboardType="default"
@@ -254,10 +256,12 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
                   styles.textInput,
                   {
                     paddingRight: image ? scale(140) : scale(24),
+                    borderColor: colors.border,
+                    color: colors.text,
                   },
                 ]}
                 placeholder={t("exampleMeal")}
-                placeholderTextColor={colors["color-primary-300"]}
+                placeholderTextColor={colors.textTertiary}
                 value={mealDescription}
                 onChangeText={setMealDescription}
                 multiline
@@ -265,7 +269,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
               />
               {!image && (
                 <TouchableOpacity
-                  style={styles.imagePickerButton}
+                  style={[styles.imagePickerButton, { backgroundColor: colors.background }]}
                   onPress={() => {
                     Alert.alert(t("addImage"), t("chooseImageSource"), [
                       {
@@ -286,7 +290,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
                   <FontAwesome5
                     name="image"
                     size={scale(24)}
-                    color={colors["color-primary-500"]}
+                    color={colors.text}
                   />
                 </TouchableOpacity>
               )}
@@ -314,7 +318,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
           </View>
 
           <View style={styles.mealTypeContainer}>
-            <Text style={styles.inputLabel}>{t("mealType")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("mealType")}</Text>
             <MealTypes
               selectedMealType={selectedMealType}
               setSelectedMealType={setSelectedMealType}
@@ -355,19 +359,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-500"],
   },
   inputContainer: {
     marginBottom: scale(20),
   },
   inputLabel: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
     marginBottom: scale(8),
   },
   textInput: {
     borderWidth: 1,
-    borderColor: colors["color-primary-300"],
     borderRadius: scale(12),
     padding: scale(12),
     ...fontStyles.body1,
@@ -388,7 +389,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: scale(8),
     right: scale(8),
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(20),
     width: scale(36),
     height: scale(36),

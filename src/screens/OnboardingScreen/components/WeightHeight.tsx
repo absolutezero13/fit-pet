@@ -10,13 +10,13 @@ import maleStandingPerson from "../../assets/male-person-standing.png";
 import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
 import femaleStandingPerson from "../../assets/female-person-standing.png";
 import * as Haptics from "expo-haptics";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IS_SMALL_SCREEN, scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore, {
   GenderEnum,
 } from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const imageMapping: Record<GenderEnum, ImageSourcePropType> = {
   [GenderEnum.Female]: femaleStandingPerson,
@@ -52,6 +52,7 @@ const getWeightScale = (weight: number | null) => {
 
 const WeightHeight = () => {
   const { height, weight, gender } = useOnboardingStore();
+  const { colors } = useTheme();
 
   const onHeightValueChange = (itemValue: number) => {
     if (itemValue !== height) {
@@ -85,8 +86,8 @@ const WeightHeight = () => {
       </View>
 
       <View style={styles.pickersContainer}>
-        <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Height</Text>
+        <View style={[styles.pickerCard, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Height</Text>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={height ?? undefined}
@@ -96,27 +97,27 @@ const WeightHeight = () => {
               }
               enabled={true}
               mode="dropdown"
-              selectionColor={colors["color-primary-500"]}
-              dropdownIconColor={colors["color-primary-500"]}
-              itemStyle={styles.pickerItem}
+              selectionColor={colors.text}
+              dropdownIconColor={colors.text}
+              itemStyle={[styles.pickerItem, { color: colors.text }]}
             >
               {heightData.map((value) => (
                 <Picker.Item
                   key={value.toString()}
                   label={value.toString()}
                   value={value}
-                  style={styles.pickerItem}
+                  style={[styles.pickerItem, { color: colors.text }]}
                 />
               ))}
             </Picker>
             <View style={styles.unitContainer}>
-              <Text style={styles.unitLabel}>cm</Text>
+              <Text style={[styles.unitLabel, { color: colors.text }]}>cm</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Weight</Text>
+        <View style={[styles.pickerCard, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Weight</Text>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={weight ?? undefined}
@@ -124,23 +125,23 @@ const WeightHeight = () => {
               style={
                 Platform.OS === "android" ? styles.pickerAndroid : styles.picker
               }
-              itemStyle={styles.pickerItem}
+              itemStyle={[styles.pickerItem, { color: colors.text }]}
               enabled={true}
               mode="dropdown"
-              selectionColor={colors["color-primary-500"]}
-              dropdownIconColor={colors["color-primary-500"]}
+              selectionColor={colors.text}
+              dropdownIconColor={colors.text}
             >
               {weightData.map((value) => (
                 <Picker.Item
                   key={value.toString()}
                   label={value.toString()}
                   value={value}
-                  style={styles.pickerItem}
+                  style={[styles.pickerItem, { color: colors.text }]}
                 />
               ))}
             </Picker>
             <View style={styles.unitContainer}>
-              <Text style={styles.unitLabel}>kg</Text>
+              <Text style={[styles.unitLabel, { color: colors.text }]}>kg</Text>
             </View>
           </View>
         </View>
@@ -166,14 +167,12 @@ const styles = StyleSheet.create({
   },
   pickerCard: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(16),
     padding: scale(16),
     ...shadowStyle,
   },
   cardLabel: {
     ...fontStyles.headline4,
-    color: colors["color-primary-400"],
     marginBottom: scale(12),
     textAlign: "center",
   },
@@ -188,7 +187,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: scale(16),
     ...fontStyles.headline2,
-    color: colors["color-primary-500"],
     zIndex: 1,
     pointerEvents: "none",
   },
@@ -201,7 +199,6 @@ const styles = StyleSheet.create({
     height: scale(50),
   },
   pickerItem: {
-    color: colors["color-primary-500"],
     fontSize: scale(20),
     fontFamily: "Nunito_700Bold",
   },
@@ -215,7 +212,6 @@ const styles = StyleSheet.create({
   },
   unitLabel: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
   },
 });
 

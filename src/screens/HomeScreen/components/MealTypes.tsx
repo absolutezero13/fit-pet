@@ -1,12 +1,12 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
-import { colors } from "../../../theme/colors";
 import { t } from "i18next";
 import {
   isLiquidGlassSupported,
   LiquidGlassView,
 } from "@callstack/liquid-glass";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const MealTypes = ({
   selectedMealType,
@@ -16,6 +16,7 @@ const MealTypes = ({
   setSelectedMealType: (type: string) => void;
 }) => {
   const mealTypes = [t("breakfast"), t("lunch"), t("dinner"), t("snack")];
+  const { colors } = useTheme();
 
   const Wrapper = isLiquidGlassSupported ? LiquidGlassView : View;
   return (
@@ -35,11 +36,15 @@ const MealTypes = ({
             key={type}
             style={[
               styles.mealTypeButton,
-              selectedMealType === type && styles.mealTypeButtonActive,
+              {
+                backgroundColor: selectedMealType === type 
+                  ? colors["color-primary-600"] 
+                  : colors.border,
+              },
             ]}
             onPress={() => setSelectedMealType(type)}
           >
-            <Text style={[styles.mealTypeText]}>{type}</Text>
+            <Text style={[styles.mealTypeText, { color: colors.textInverse }]}>{type}</Text>
           </TouchableOpacity>
         </Wrapper>
       ))}
@@ -57,14 +62,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(8),
     borderRadius: scale(20),
-    backgroundColor: colors["color-primary-300"],
-  },
-  mealTypeButtonActive: {
-    backgroundColor: colors["color-primary-600"],
   },
   mealTypeText: {
     ...fontStyles.body2,
-    color: colors["color-primary-50"],
   },
 });
 

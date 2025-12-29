@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { StyleSheet } from "react-native";
@@ -12,6 +11,7 @@ import {
 } from "@callstack/liquid-glass";
 import { useTranslation } from "react-i18next";
 import FastImage from "react-native-fast-image";
+import { useTheme } from "../../../theme/ThemeContext";
 
 type Props = {
   meal: IMeal;
@@ -20,6 +20,7 @@ type Props = {
 
 const MealCard: FC<Props> = ({ meal, onPress }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const macroData = [
     {
       label: t("calories"),
@@ -40,18 +41,18 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
   ];
 
   return (
-    <LiquidGlassView interactive effect="clear" style={styles.mealCard}>
+    <LiquidGlassView interactive effect="clear" style={[styles.mealCard, { backgroundColor: isLiquidGlassSupported ? undefined : colors.surface }]}>
       <TouchableOpacity activeOpacity={0.8} onPress={() => onPress(meal)}>
         <View style={styles.mealHeader}>
           <View style={styles.mealTitleContainer}>
-            <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
+            <Text style={[styles.mealTitle, { color: colors.text }]}>{meal.mealTypeLocalized}</Text>
             <View style={styles.timeContainer}>
               <MaterialCommunityIcons
                 name="clock-outline"
                 size={scale(18)}
                 color={colors["color-success-400"]}
               />
-              <Text style={styles.mealTime}>
+              <Text style={[styles.mealTime, { color: colors.textSecondary }]}>
                 {t("preparationTime")}: {meal.preparationTime}
               </Text>
             </View>
@@ -59,17 +60,17 @@ const MealCard: FC<Props> = ({ meal, onPress }) => {
         </View>
 
         <View style={styles.mealBody}>
-          <Text style={styles.mealDescription}>{meal.title}</Text>
+          <Text style={[styles.mealDescription, { color: colors.text }]}>{meal.title}</Text>
           {meal.image && (
             <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
           )}
         </View>
 
-        <View style={styles.macrosContainer}>
+        <View style={[styles.macrosContainer, { borderTopColor: colors.border }]}>
           {macroData.map((item) => (
             <View style={styles.macroItem} key={item.label}>
-              <Text style={styles.macroValue}>{item.value}g</Text>
-              <Text style={styles.macroLabel}>{item.label}</Text>
+              <Text style={[styles.macroValue, { color: colors["color-success-400"] }]}>{item.value}g</Text>
+              <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{item.label}</Text>
             </View>
           ))}
         </View>
@@ -83,15 +84,12 @@ export default MealCard;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   header: {
     paddingHorizontal: scale(24),
     paddingBottom: scale(24),
-    backgroundColor: colors["color-primary-200"],
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
-    shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
       height: scale(4),
@@ -104,7 +102,6 @@ const styles = StyleSheet.create({
   },
   date: {
     ...fontStyles.headline4,
-    color: colors["color-primary-400"],
   },
   scrollView: {
     flex: 1,
@@ -117,9 +114,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : colors["color-primary-50"],
   },
   mealHeader: {
     flexDirection: "row",
@@ -140,7 +134,6 @@ const styles = StyleSheet.create({
   },
   mealTime: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     marginLeft: scale(6),
   },
   mealDescription: {
@@ -152,7 +145,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: colors["color-primary-100"],
     paddingTop: scale(20),
   },
   macroItem: {
@@ -161,17 +153,14 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     ...fontStyles.headline4,
-    color: colors["color-success-400"],
   },
   macroLabel: {
     ...fontStyles.body1,
-    color: colors["color-primary-400"],
     textAlign: "center",
   },
   macroSeparator: {
     width: 1,
     height: scale(40),
-    backgroundColor: colors["color-primary-100"],
   },
   macroPercentagesContainer: {
     marginTop: scale(8),
@@ -179,7 +168,6 @@ const styles = StyleSheet.create({
   macroPercentageBar: {
     height: scale(16),
     flexDirection: "row",
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(8),
     overflow: "hidden",
     marginBottom: scale(16),
@@ -205,7 +193,6 @@ const styles = StyleSheet.create({
   },
   macroLegendText: {
     ...fontStyles.footnote,
-    color: colors["color-primary-400"],
   },
   mealImage: {
     height: scale(75),

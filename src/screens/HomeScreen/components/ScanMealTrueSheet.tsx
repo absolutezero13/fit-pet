@@ -8,7 +8,6 @@ import {
 } from "react-native-vision-camera";
 import { scale } from "../../../theme/utils";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "../../../theme/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppButton from "../../../components/AppButton";
 import { t } from "i18next";
@@ -22,6 +21,7 @@ import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import MealTypes from "./MealTypes";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const ScanMealTrueSheet = forwardRef<{
   present: () => Promise<void>;
@@ -34,6 +34,7 @@ const ScanMealTrueSheet = forwardRef<{
   const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const { colors, isDark } = useTheme();
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast")
   );
@@ -127,11 +128,12 @@ const ScanMealTrueSheet = forwardRef<{
       }}
       ref={sheet}
       detents={["auto"]}
-      blurTint="system-thick-material-light"
+      blurTint={isDark ? "dark" : "system-thick-material-light"}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
       }}
+      backgroundColor={colors.surface}
     >
       {photo && <Image source={{ uri: photo.path }} style={styles.photo} />}
       <View>
@@ -150,7 +152,7 @@ const ScanMealTrueSheet = forwardRef<{
         {device && !photo && (
           <Pressable
             onPress={takePhoto}
-            style={styles.takePhotoButton}
+            style={[styles.takePhotoButton, { borderColor: colors.border }]}
           ></Pressable>
         )}
         {photo && (
@@ -159,14 +161,15 @@ const ScanMealTrueSheet = forwardRef<{
             style={[
               styles.takePhotoButton,
               {
-                backgroundColor: colors["color-primary-500"],
+                backgroundColor: colors.text,
+                borderColor: colors.border,
               },
             ]}
           >
             <MaterialCommunityIcons
               name="refresh"
               size={scale(24)}
-              color="white"
+              color={colors.textInverse}
             />
           </Pressable>
         )}
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
   takePhotoButton: {
     position: "absolute",
     bottom: scale(24),
-    backgroundColor: colors["color-danger-500"],
+    backgroundColor: "#99261A",  // color-danger-500
     zIndex: 99,
     height: scale(80),
     width: scale(80),
@@ -217,7 +220,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     borderWidth: 5,
-    borderColor: colors["color-primary-100"],
   },
   mealTypeContainer: {
     marginTop: scale(24),

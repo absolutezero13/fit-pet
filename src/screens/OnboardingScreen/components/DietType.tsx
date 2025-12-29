@@ -5,7 +5,6 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   DietTypeEnum,
@@ -20,7 +19,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="silverware-fork-knife"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -31,7 +30,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="food-apple-outline"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -42,7 +41,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="leaf"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -53,7 +52,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="fish"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -64,7 +63,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="food-variant"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -75,7 +74,7 @@ export const dietTypeItems: any[] = [
       <FontAwesome6
         name="bacon"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -86,7 +85,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="bread-slice-outline"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -97,7 +96,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="clock-outline"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -108,7 +107,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="bone"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -119,7 +118,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="hamburger"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },

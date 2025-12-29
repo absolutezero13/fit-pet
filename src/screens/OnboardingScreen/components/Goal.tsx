@@ -6,11 +6,11 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import GoalListItem, { GoalItem } from "./GoalListItem";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   GoalEnum,
 } from "../../../zustand/useOnboardingStore";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export const goalItems: GoalItem[] = [
   {
@@ -20,7 +20,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="weight-scale"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -31,7 +31,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="dumbbell"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -42,7 +42,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="food-apple"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -53,7 +53,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="bed"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -64,7 +64,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="water"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -75,7 +75,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="spa"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -86,7 +86,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="beer-outline"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },
@@ -97,7 +97,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="run-fast"
         size={scale(24)}
-        color={color ?? colors["color-primary-500"]}
+        color={color}
       />
     ),
   },

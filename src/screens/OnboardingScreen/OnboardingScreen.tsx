@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRef, useState } from "react";
-import { colors } from "../../theme/colors";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import AppButton from "../../components/AppButton";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
@@ -18,6 +17,7 @@ import Goal from "./components/Goal";
 import WeightHeight from "./components/WeightHeight";
 import Gender from "./components/Gender";
 import DietType from "./components/DietType";
+import { useTheme } from "../../theme/ThemeContext";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
@@ -25,6 +25,7 @@ const OnboardingScreen = () => {
   const onboardingStore = useOnboardingStore();
   const { goBack } = useNavigation();
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const onboardingItems = [
     {
@@ -67,7 +68,7 @@ const OnboardingScreen = () => {
     setStep((prev) => prev + 1);
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {onboardingItems[step]?.title ? (
         <View
           style={{
@@ -91,7 +92,7 @@ const OnboardingScreen = () => {
             <FontAwesome6
               name="chevron-left"
               size={scale(20)}
-              color={colors["color-primary-500"]}
+              color={colors.text}
             />
           </Pressable>
 
@@ -101,6 +102,7 @@ const OnboardingScreen = () => {
               fontStyles.headline1,
               {
                 marginLeft: scale(16),
+                color: colors.text,
               },
             ]}
           >
@@ -151,6 +153,5 @@ export default OnboardingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-200"],
   },
 });

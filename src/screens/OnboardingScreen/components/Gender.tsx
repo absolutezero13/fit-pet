@@ -5,13 +5,13 @@ import FemaleImage from "../../assets/female.jpg";
 import NonBinaryImage from "../../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   GenderEnum,
 } from "../../../zustand/useOnboardingStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTheme } from "../../../theme/ThemeContext";
 
 type GenderItem = {
   titleKey: string;
@@ -41,6 +41,7 @@ const genders: GenderItem[] = [
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const renderItem = ({ item }: { item: GenderItem }) => {
     return (
@@ -49,7 +50,7 @@ const Gender = () => {
         tintColor={
           item.key === gender
             ? colors["color-primary-500"]
-            : colors["color-primary-100"]
+            : colors.border
         }
         style={{
           borderRadius: scale(16),
@@ -61,7 +62,7 @@ const Gender = () => {
             backgroundColor:
               item.key === gender
                 ? colors["color-primary-500"]
-                : colors["color-primary-100"],
+                : colors.surface,
             flexDirection: "row",
             borderRadius: scale(16),
             alignItems: "center",
@@ -84,8 +85,8 @@ const Gender = () => {
                 marginTop: scale(8),
                 color:
                   item.key === gender
-                    ? colors["color-primary-100"]
-                    : colors["color-primary-500"],
+                    ? colors.textInverse
+                    : colors.text,
               },
             ]}
           >
@@ -95,7 +96,7 @@ const Gender = () => {
           <FontAwesome6
             name="circle-check"
             size={scale(24)}
-            color={colors["color-primary-100"]}
+            color={colors.textInverse}
             style={{
               position: "absolute",
               top: scale(16),
