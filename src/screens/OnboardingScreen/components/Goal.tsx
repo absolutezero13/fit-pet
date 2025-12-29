@@ -10,7 +10,7 @@ import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   GoalEnum,
 } from "../../../zustand/useOnboardingStore";
-import { useTheme } from "../../../theme/ThemeContext";
+import { lightColors } from "../../../theme/colors";
 
 export const goalItems: GoalItem[] = [
   {
@@ -20,7 +20,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="weight-scale"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -31,7 +31,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="dumbbell"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -42,7 +42,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="food-apple"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -53,7 +53,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="bed"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -64,7 +64,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="water"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -75,7 +75,7 @@ export const goalItems: GoalItem[] = [
       <FontAwesome6
         name="spa"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -86,7 +86,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="beer-outline"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -97,7 +97,7 @@ export const goalItems: GoalItem[] = [
       <MaterialCommunityIcons
         name="run-fast"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },

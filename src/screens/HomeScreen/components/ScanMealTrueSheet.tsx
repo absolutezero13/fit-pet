@@ -22,6 +22,7 @@ import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import MealTypes from "./MealTypes";
 import { useTheme } from "../../../theme/ThemeContext";
+import { lightColors } from "../../../theme/colors";
 
 const ScanMealTrueSheet = forwardRef<{
   present: () => Promise<void>;
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
   takePhotoButton: {
     position: "absolute",
     bottom: scale(24),
-    backgroundColor: "#99261A",  // color-danger-500
+    backgroundColor: lightColors["color-danger-500"],
     zIndex: 99,
     height: scale(80),
     width: scale(80),

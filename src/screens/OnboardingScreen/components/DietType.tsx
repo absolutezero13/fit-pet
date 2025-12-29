@@ -10,6 +10,7 @@ import useOnboardingStore, {
   DietTypeEnum,
 } from "../../../zustand/useOnboardingStore";
 import GoalListItem from "./GoalListItem";
+import { lightColors } from "../../../theme/colors";
 
 export const dietTypeItems: any[] = [
   {
@@ -19,7 +20,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="silverware-fork-knife"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -30,7 +31,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="food-apple-outline"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -41,7 +42,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="leaf"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -52,7 +53,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="fish"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -63,7 +64,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="food-variant"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -74,7 +75,7 @@ export const dietTypeItems: any[] = [
       <FontAwesome6
         name="bacon"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -85,7 +86,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="bread-slice-outline"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -96,7 +97,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="clock-outline"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -107,7 +108,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="bone"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
@@ -118,7 +119,7 @@ export const dietTypeItems: any[] = [
       <MaterialCommunityIcons
         name="hamburger"
         size={scale(24)}
-        color={color}
+        color={color ?? lightColors.text}
       />
     ),
   },
