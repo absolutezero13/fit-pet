@@ -67,6 +67,15 @@ Tone: Calm, empathetic, and concise—celebrate small wins and suggest the next 
 const getSelectedTone = (): AITone =>
   usePreferencesStore.getState().aiTone ?? DEFAULT_AI_TONE;
 
+const analysisBaseInstructions = `Only respond if the user provides a real meal (image or text).
+If it’s not edible, not caloric, or just some nonsense, return null fields.
+Use their body and lifestyle data to tailor your analysis. This isn’t some one-size-fits-all gym bro nonsense.
+Give precise macros and calories—no lazy rounding, no "guesstimates", no fluff.
+Keep your wording aligned with the selected tone.`;
+
+const chatBaseInstructions = `You speak only about health, fitness, and nutrition—no cats, no horoscopes.
+Use the user info only when helpful. Don’t show off with it.`;
+
 const createMealPrompt = (userInfo: IUser): string => `date: ${getCurrentDate()}
 You are a meal planner creating a precise daily meal plan.
 
@@ -127,11 +136,7 @@ const createAnalysisPrompt = (
   const tone = toneInstructions[getSelectedTone()];
 
   return `${tone.analysis}
-Only respond if the user provides a real meal (image or text). 
-If it’s not edible, not caloric, or just some nonsense, return null fields.
-The user is serving you their plate for ruthless judgment—they asked for this.
-Use their body and lifestyle data to tailor your analysis. This isn’t some one-size-fits-all gym bro nonsense.
-Give precise macros and calories—no lazy rounding, no "guesstimates", no fluff.
+${analysisBaseInstructions}
 Rate the meal from 1 to 10 based on nutritional quality. ${tone.rating}
 Use the errorMessage field only when:
 The meal is vague or not a meal.
@@ -161,8 +166,7 @@ const createChatPrompt = (userInfo: IUser | null): string => {
   return `
 date: ${getCurrentDate()}
 ${tone.chat}
-You speak only about health, fitness, and nutrition—no cats, no horoscopes.
-Use the user info only when helpful. Don’t show off with it.
+${chatBaseInstructions}
 Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 User info:
 ${stringifyUserInfo(userInfo ?? {})}
