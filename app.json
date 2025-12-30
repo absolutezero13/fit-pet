@@ -44,8 +44,8 @@
             "forceStaticLinking": [
               "RNFBApp",
               "RNFBAuth",
-              "RNFBFirestore",
-              "RNFBCrashlytics"
+              "RNFBCrashlytics",
+              "RNFBStorage"
             ]
           }
         }

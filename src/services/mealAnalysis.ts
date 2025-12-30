@@ -1,5 +1,10 @@
 import api from "./api";
 import { IMeal } from "./apiTypes";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+} from "@react-native-firebase/storage";
 
 export const createMeal = async (meal: IMeal): Promise<IMeal> => {
   try {
@@ -44,5 +49,25 @@ export const getMealsByDate = async (date: string) => {
   } catch (error) {
     console.log("GET MEALS BY DATE ERROR", error);
     return [];
+  }
+};
+
+export const uploadMealImageToFireStorage = async (
+  image: string,
+  mealId: string,
+  uid: string
+) => {
+  try {
+    const storageRef = ref(
+      getStorage(),
+      `analyzed-meals/${uid}/${Date.now()}.jpg`
+    );
+    await storageRef.putFile(image);
+
+    const url = await getDownloadURL(storageRef);
+    return url;
+  } catch (error) {
+    console.log("UPLOAD MEAL IMAGE TO FIRE STORAGE ERROR", error);
+    return error as any;
   }
 };

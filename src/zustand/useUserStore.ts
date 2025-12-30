@@ -19,6 +19,7 @@ export interface IUser {
   createdAt?: Date;
   name?: string;
   onboardingCompleted?: boolean;
+  uid?: string;
 }
 
 export const INITIAL_USER_STORE = null;

@@ -3,6 +3,6 @@
   "EX_DEV_CLIENT_NETWORK_INSPECTOR": "true",
   "newArchEnabled": "true",
   "ios.useFrameworks": "static",
-  "ios.forceStaticLinking": "[\"RNFBApp\",\"RNFBAuth\",\"RNFBFirestore\",\"RNFBCrashlytics\"]",
+  "ios.forceStaticLinking": "[\"RNFBApp\",\"RNFBAuth\",\"RNFBCrashlytics\",\"RNFBStorage\"]",
   "apple.privacyManifestAggregationEnabled": "true"
 }

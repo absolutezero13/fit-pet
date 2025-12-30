@@ -266,6 +266,9 @@ PODS:
   - Firebase/Crashlytics (11.12.0):
     - Firebase/CoreOnly
     - FirebaseCrashlytics (~> 11.12.0)
+  - Firebase/Storage (11.12.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 11.12.0)
   - FirebaseAppCheckInterop (11.15.0)
   - FirebaseAuth (11.12.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -309,6 +312,13 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
+  - FirebaseStorage (11.12.0):
+    - FirebaseAppCheckInterop (~> 11.0)
+    - FirebaseAuthInterop (~> 11.0)
+    - FirebaseCore (~> 11.12.0)
+    - FirebaseCoreExtension (~> 11.12.0)
+    - GoogleUtilities/Environment (~> 8.0)
+    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
@@ -2242,6 +2252,10 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
+  - RNFBStorage (22.0.0):
+    - Firebase/Storage (= 11.12.0)
+    - React-Core
+    - RNFBApp
   - RNFS (2.20.0):
     - React-Core
   - RNGestureHandler (2.28.0):
@@ -2686,6 +2700,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
+  - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
@@ -2712,6 +2727,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseRemoteConfigInterop
     - FirebaseSessions
+    - FirebaseStorage
     - GoogleDataTransport
     - GoogleSignIn
     - GoogleUtilities
@@ -2924,6 +2940,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/auth"
   RNFBCrashlytics:
     :path: "../node_modules/@react-native-firebase/crashlytics"
+  RNFBStorage:
+    :path: "../node_modules/@react-native-firebase/storage"
   RNFS:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
@@ -2982,6 +3000,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 41189d8b11007152d9e46ec844019f38a0a4282a
   FirebaseRemoteConfigInterop: 1c6135e8a094cc6368949f5faeeca7ee8948b8aa
   FirebaseSessions: 2c0ea8956085570415601d64cc7ebe83c8dd5c93
+  FirebaseStorage: 2fb852c0ffe18c2af9661b25c41f814b2e8c4b05
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
@@ -3068,6 +3087,7 @@ SPEC CHECKSUMS:
   RNFBApp: eff70849a0381da4011ec26e51ab9dcac7783c2c
   RNFBAuth: 40ae86e2d4a3598e0060e7f33754b2d742cda9b7
   RNFBCrashlytics: d672fb16fb9c1189fff293cb586efb538d8a33f9
+  RNFBStorage: e8fd8feb564850c029a1f70d9d859d894b4846a8
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: c971f0a10fdffe00dfb4c142e87f34cdcd704376
   RNGoogleSignin: b95586dfb65bd76b19bec82f5ccb7ed1cd52f881

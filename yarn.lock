@@ -1996,6 +1996,11 @@
   dependencies:
     stacktrace-js "^2.0.2"
 
+"@react-native-firebase/storage@22.0.0":
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-22.0.0.tgz#b68454a13d84f3ea610d54874762449f33e1f37f"
+  integrity sha512-Wvs+x5tO/awEUqWCZj7yAXZAQUEfavE8AL2gPGPiANwv/yel4W8VTmgpeAlf4poDivfZUUO4/MsXXZBOjsyKfA==
+
 "@react-native-google-signin/google-signin@^13.2.0":
   version "13.2.0"
   resolved "https://registry.npmjs.org/@react-native-google-signin/google-signin/-/google-signin-13.2.0.tgz"

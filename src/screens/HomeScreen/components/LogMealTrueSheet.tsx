@@ -37,9 +37,14 @@ import {
   createGeminiCompletion,
   createGeminiVisionCompletion,
 } from "../../../services/gptApi";
-import { createMeal, updateMeal } from "../../../services/mealAnalysis";
+import {
+  createMeal,
+  updateMeal,
+  uploadMealImageToFireStorage,
+} from "../../../services/mealAnalysis";
 import FullPageSpinner from "../../../components/FullPageSpinner";
 import MealTypes from "./MealTypes";
+import useUserStore from "../../../zustand/useUserStore";
 
 const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
   const sheet = useRef<TrueSheet>(null);
@@ -177,6 +182,16 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
       await updateMeal(meal);
     }
 
+    if (meal.image) {
+      const imageUrl = await uploadMealImageToFireStorage(
+        meal.image,
+        meal._id ?? "",
+        useUserStore.getState()?.uid ?? ""
+      );
+      console.log("IMAGE URL", imageUrl);
+      meal.image = imageUrl;
+    }
+
     if (!meal.errorMessage) {
       const meals = useMealsStore.getState().loggedMeals;
       const newMeals = meals.filter((m) => m._id !== mealToEdit?._id);
@@ -195,8 +210,8 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
       if (meal.errorMessage) {
         setIsAnalyzing(false);
         Alert.alert(
-          "Meal could not be analyzed",
-          meal.errorMessage ?? "Please try again later."
+          t("globalError"),
+          meal.errorMessage ?? t("globalErrorMessage")
         );
         return;
       }

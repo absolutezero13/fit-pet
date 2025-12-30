@@ -150,6 +150,7 @@ export const resources = {
       termsAgreementEnd: "kabul etmiş olursunuz.",
       invalidEmail: "Geçersiz e-posta adresi",
       passwordsDoNotMatch: "Şifreler eşleşmiyor",
+      globalErrorMessage: "Lütfen daha sonra tekrar deneyin",
     },
   },
   en: {
@@ -303,6 +304,7 @@ export const resources = {
       termsAgreementEnd: ".",
       invalidEmail: "Invalid email address",
       passwordsDoNotMatch: "Passwords do not match",
+      globalErrorMessage: "Please try again later",
     },
   },
 };
