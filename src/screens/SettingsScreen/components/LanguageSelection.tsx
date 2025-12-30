@@ -54,7 +54,6 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
         <FlatList
           data={languageOptions}
           keyExtractor={(item) => item.code}
-          scrollEnabled={false}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[
