@@ -9,6 +9,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
 import { colors } from "../../theme/colors";
@@ -29,6 +30,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
+import { TrueSheetNames } from "../../navigation/constants";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -46,7 +48,6 @@ const SettingsScreen = () => {
   const [localHeight, setLocalHeight] = useState(
     user?.onboarding?.height ? user.onboarding.height.toString() : ""
   );
-  const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
   const [selectedGoals, setSelectedGoals] = useState<GoalEnum[]>(
     user?.onboarding?.goals || []
   );
@@ -122,7 +123,7 @@ const SettingsScreen = () => {
           <Text style={styles.sectionTitle}>{t("language")}</Text>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => setIsLanguageModalVisible(true)}
+            onPress={() => TrueSheet.present(TrueSheetNames.LANGUAGE_SELECTION)}
           >
             <View style={styles.settingRow}>
               <View style={styles.settingLabelContainer}>
@@ -276,11 +277,7 @@ const SettingsScreen = () => {
         </View>
       </ScrollView>
 
-      <LanguageSelection
-        visible={isLanguageModalVisible}
-        onClose={() => setIsLanguageModalVisible(false)}
-        languageOptions={languageOptions}
-      />
+      <LanguageSelection languageOptions={languageOptions} />
 
       <AppButton
         title={t("saveChanges")}
@@ -438,51 +435,6 @@ const styles = StyleSheet.create({
     bottom: scale(16),
     left: 0,
     right: 0,
-  },
-  // Modal styles
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderTopLeftRadius: scale(24),
-    borderTopRightRadius: scale(24),
-    paddingBottom: scale(32),
-    maxHeight: "70%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: scale(24),
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
-  },
-  modalTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-  },
-  languageList: {
-    paddingHorizontal: scale(16),
-  },
-  languageOption: {
-    paddingVertical: scale(16),
-    paddingHorizontal: scale(8),
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  languageOptionSelected: {
-    // backgroundColor: colors["color-primary-100"],
-  },
-  languageText: {
-    ...fontStyles.body1,
-    color: colors["color-primary-500"],
-  },
-  languageTextSelected: {
-    fontWeight: "bold",
   },
 });
 

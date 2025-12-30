@@ -1,23 +1,22 @@
 import React, { FC } from "react";
 import {
-  Modal,
   View,
   TouchableOpacity,
   FlatList,
   StyleSheet,
   Text,
 } from "react-native";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "i18next";
 import { storageService } from "../../../storage/AsyncStorageService";
+import { TrueSheetNames } from "../../../navigation/constants";
 
 type Props = {
-  visible: boolean;
-  onClose: () => void;
   languageOptions: {
     code: string;
     localName: string;
@@ -25,11 +24,7 @@ type Props = {
   }[];
 };
 
-const LanguageSelection: FC<Props> = ({
-  visible,
-  onClose,
-  languageOptions,
-}) => {
+const LanguageSelection: FC<Props> = ({ languageOptions }) => {
   const { t, i18n } = useTranslation();
 
   const handleLanguageChange = async (languageCode: string) => {
@@ -40,119 +35,105 @@ const LanguageSelection: FC<Props> = ({
       // Persist the language choice to storage
       await storageService.setItem("language", { code: languageCode });
 
-      // Close the modal
-      onClose();
+      // Dismiss the sheet
+      TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
     } catch (error) {
       console.error("Error changing language:", error);
-      // Still close the modal even if storage fails
-      onClose();
+      // Still dismiss the sheet even if storage fails
+      TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="fade"
-      transparent={true}
-      onRequestClose={onClose}
+    <TrueSheet
+      name={TrueSheetNames.LANGUAGE_SELECTION}
+      detents={["auto"]}
+      blurTint="system-thick-material-light"
+      insetAdjustment="never"
+      blurOptions={{
+        interaction: false,
+      }}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t("selectLanguage")}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <MaterialCommunityIcons
-                name="close"
-                size={scale(24)}
-                color={colors["color-primary-500"]}
-              />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.container}>
+        <Text style={styles.title}>{t("selectLanguage")}</Text>
 
-          <FlatList
-            data={languageOptions}
-            keyExtractor={(item) => item.code}
-            renderItem={({ item }) => (
-              <TouchableOpacity
+        <FlatList
+          data={languageOptions}
+          keyExtractor={(item) => item.code}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.languageOption,
+                item.code === i18n.language && styles.languageOptionSelected,
+              ]}
+              onPress={() => handleLanguageChange(item.code)}
+            >
+              <Text
                 style={[
-                  styles.languageOption,
-                  item.code === i18n.language && styles.languageOptionSelected,
+                  styles.languageText,
+                  item.code === i18n.language && styles.languageTextSelected,
                 ]}
-                onPress={() => handleLanguageChange(item.code)}
               >
-                <Text
-                  style={[
-                    styles.languageText,
-                    item.code === i18n.language && styles.languageTextSelected,
-                  ]}
-                >
-                  {item.localName}
-                </Text>
-                {item.code === i18n.language && (
-                  <Ionicons
-                    name="checkmark"
-                    size={scale(24)}
-                    color={colors["color-primary-500"]}
-                  />
-                )}
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={styles.languageList}
-          />
-        </View>
+                {item.localName}
+              </Text>
+              {item.code === i18n.language && (
+                <View style={styles.checkmarkContainer}>
+                  <Ionicons name="checkmark" size={scale(20)} color="white" />
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={styles.languageList}
+        />
       </View>
-    </Modal>
+    </TrueSheet>
   );
 };
 
 export default LanguageSelection;
+
 const styles = StyleSheet.create({
-  buttonText: {
-    ...fontStyles.headline4,
-    color: "white",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderTopLeftRadius: scale(24),
-    borderTopRightRadius: scale(24),
+  container: {
+    paddingTop: scale(24),
     paddingBottom: scale(32),
-    maxHeight: "70%",
+    paddingHorizontal: scale(24),
   },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: scale(24),
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
-  },
-  modalTitle: {
-    ...fontStyles.headline3,
+  title: {
+    ...fontStyles.headline2,
     color: colors["color-primary-500"],
+    marginBottom: scale(16),
+    textAlign: "center",
   },
   languageList: {
-    paddingHorizontal: scale(16),
+    gap: scale(8),
   },
   languageOption: {
     paddingVertical: scale(16),
-    paddingHorizontal: scale(8),
+    paddingHorizontal: scale(24),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderRadius: scale(32),
+    backgroundColor: colors["color-primary-50"],
   },
   languageOptionSelected: {
-    // backgroundColor: colors["color-primary-100"],
+    backgroundColor: colors["color-primary-100"],
+    borderWidth: 2,
+    borderColor: colors["color-primary-500"],
   },
   languageText: {
-    ...fontStyles.body1,
+    ...fontStyles.headline4,
     color: colors["color-primary-500"],
   },
   languageTextSelected: {
     fontWeight: "bold",
+  },
+  checkmarkContainer: {
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(14),
+    backgroundColor: colors["color-primary-500"],
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
