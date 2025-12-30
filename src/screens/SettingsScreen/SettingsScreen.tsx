@@ -31,6 +31,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
 import { TrueSheetNames } from "../../navigation/constants";
+import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -41,6 +42,8 @@ const SettingsScreen = () => {
   const { top } = useSafeAreaInsets();
 
   const user = useUserStore();
+  const aiTone = usePreferencesStore((state) => state.aiTone);
+  const setAiTone = usePreferencesStore((state) => state.setAiTone);
 
   const [localWeight, setLocalWeight] = useState(
     user?.onboarding?.weight ? user.onboarding.weight.toString() : ""
@@ -57,6 +60,14 @@ const SettingsScreen = () => {
     { code: "en", name: "English", localName: "English" },
     { code: "tr", name: "Turkish", localName: "Türkçe" },
     // Add more languages here in the future
+  ];
+
+  const toneOptions: { key: AITone; label: string }[] = [
+    { key: AITone.Harsh, label: t("toneHarsh") },
+    { key: AITone.Friendly, label: t("toneFriendly") },
+    { key: AITone.Funny, label: t("toneFunny") },
+    { key: AITone.Nerdy, label: t("toneNerdy") },
+    { key: AITone.Supportive, label: t("toneSupportive") },
   ];
 
   const toggleGoal = (key: GoalEnum) => {
@@ -144,6 +155,37 @@ const SettingsScreen = () => {
               />
             </View>
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t("aiTone")}</Text>
+          <View style={styles.card}>
+            {toneOptions.map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={styles.goalRow}
+                onPress={() => setAiTone(option.key)}
+              >
+                <Text style={styles.goalText}>{option.label}</Text>
+                <View style={styles.checkboxContainer}>
+                  <View
+                    style={[
+                      styles.checkbox,
+                      aiTone === option.key && styles.checkboxSelected,
+                    ]}
+                  >
+                    {aiTone === option.key && (
+                      <Ionicons
+                        name="checkmark"
+                        size={scale(16)}
+                        color="white"
+                      />
+                    )}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
