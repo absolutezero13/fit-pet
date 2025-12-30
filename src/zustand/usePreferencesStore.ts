@@ -2,12 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-export type AITone =
-  | "harsh"
-  | "friendly"
-  | "funny"
-  | "nerdy"
-  | "supportive";
+export enum AITone {
+  Harsh = "harsh",
+  Friendly = "friendly",
+  Funny = "funny",
+  Nerdy = "nerdy",
+  Supportive = "supportive",
+}
 
 type PreferenceStore = {
   aiTone: AITone;
@@ -17,7 +18,7 @@ type PreferenceStore = {
 const usePreferencesStore = create(
   persist<PreferenceStore>(
     (set) => ({
-      aiTone: "harsh",
+      aiTone: AITone.Harsh,
       setAiTone: (tone) => set({ aiTone: tone }),
     }),
     {

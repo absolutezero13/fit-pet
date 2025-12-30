@@ -64,11 +64,11 @@ const SettingsScreen = () => {
   ];
 
   const toneOptions: { key: AITone; label: string }[] = [
-    { key: "harsh", label: t("toneHarsh") },
-    { key: "friendly", label: t("toneFriendly") },
-    { key: "funny", label: t("toneFunny") },
-    { key: "nerdy", label: t("toneNerdy") },
-    { key: "supportive", label: t("toneSupportive") },
+    { key: AITone.Harsh, label: t("toneHarsh") },
+    { key: AITone.Friendly, label: t("toneFriendly") },
+    { key: AITone.Funny, label: t("toneFunny") },
+    { key: AITone.Nerdy, label: t("toneNerdy") },
+    { key: AITone.Supportive, label: t("toneSupportive") },
   ];
 
   const toggleGoal = (key: GoalEnum) => {
