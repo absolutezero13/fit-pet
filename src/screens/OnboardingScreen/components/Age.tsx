@@ -1,4 +1,12 @@
-import { Text, View, StyleSheet, ScrollView, Platform } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
@@ -15,9 +23,9 @@ const ITEM_HEIGHT = scale(70);
 const Age = () => {
   const { t } = useTranslation();
   const [selectedIndex, setSelectedIndex] = useState(9);
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleScroll = (event) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setSelectedIndex(index);
@@ -26,7 +34,9 @@ const Age = () => {
     });
   };
 
-  const handleMomentumScrollEnd = (event) => {
+  const handleMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>
+  ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     scrollViewRef.current?.scrollTo({
@@ -43,7 +53,7 @@ const Age = () => {
     });
   }, []);
 
-  const getItemOpacity = (index) => {
+  const getItemOpacity = (index: number) => {
     const distance = Math.abs(index - selectedIndex);
     if (distance === 0) return 1;
     if (distance === 1) return 0.6;

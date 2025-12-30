@@ -1,11 +1,5 @@
-import { TrueSheet, TrueSheetRef } from "@lodev09/react-native-true-sheet";
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -45,24 +39,21 @@ import {
 import FullPageSpinner from "../../../components/FullPageSpinner";
 import MealTypes from "./MealTypes";
 import useUserStore from "../../../zustand/useUserStore";
+import { TrueSheetNames } from "../../../navigation/constants";
 
-const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
-  const sheet = useRef<TrueSheet>(null);
-
-  const present = async () => {
-    await sheet.current?.present();
+type LogMealTrueSheetProps = {
+  params: {
+    mealId?: string;
+    mealType?: string;
+    selectedDate: string;
   };
-
+};
+const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const dismiss = async () => {
     setTimeout(() => {
-      sheet.current?.dismiss();
+      TrueSheet.dismiss(TrueSheetNames.LOG_MEAL);
     }, 100);
   };
-
-  useImperativeHandle(ref, () => ({
-    present,
-    dismiss,
-  }));
 
   const navigation = useNavigation();
   const params = props.params;
@@ -224,7 +215,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
       dismiss();
       setIsAnalyzing(false);
       navigation.navigate("AnalyzedMeal", {
-        mealId: meal._id,
+        mealId: meal._id ?? "",
       });
     } catch (error) {
       console.error("Error analyzing meal:", error);
@@ -242,7 +233,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
         setImage(null);
         setSelectedMealType(t("breakfast"));
       }}
-      ref={sheet}
+      name={TrueSheetNames.LOG_MEAL}
       detents={["auto"]}
       blurTint="system-thick-material-light"
       insetAdjustment="never"
@@ -353,7 +344,7 @@ const LogMealTrueSheet = forwardRef<TrueSheetRef>((props, ref) => {
       </KeyboardGestureArea>
     </TrueSheet>
   );
-});
+};
 
 const styles = StyleSheet.create({
   container: {

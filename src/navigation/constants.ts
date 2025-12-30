@@ -7,4 +7,6 @@ export const TAB_BAR_ICON_SIZE = scale(24);
 export enum TrueSheetNames {
   SIGN_UP = "SIGN_UP",
   LANGUAGE_SELECTION = "LANGUAGE_SELECTION",
+  LOG_MEAL = "LOG_MEAL",
+  SCAN_MEAL = "SCAN_MEAL",
 }

@@ -17,7 +17,7 @@ import MealCard from "./components/MealCard";
 import { IMeal, IMealType } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
-import { TAB_BAR_HEIGHT } from "../../navigation/constants";
+import { TAB_BAR_HEIGHT, TrueSheetNames } from "../../navigation/constants";
 import DailySummary from "./components/DailySummary";
 import { getMealsByDate } from "../../services/mealAnalysis";
 import {
@@ -29,7 +29,7 @@ import formatHeaderDate from "../../utils/formatHeaderDate";
 import MealTypeEmptyState from "./components/MealTypeEmptyState";
 import LogMealTrueSheet from "./components/LogMealTrueSheet";
 import ScanMealTrueSheet from "./components/ScanMealTrueSheet";
-import { TrueSheetRef } from "@lodev09/react-native-true-sheet";
+import { TrueSheet, TrueSheetRef } from "@lodev09/react-native-true-sheet";
 
 const MealTypeSection = ({
   title,
@@ -43,6 +43,8 @@ const MealTypeSection = ({
   meals: IMeal[];
   onPressItem: (meal: IMeal) => void;
   selectedDate: Date;
+  title: string;
+  onPressAddMeal: () => void;
 }) => {
   const navigation = useNavigation();
 
@@ -96,17 +98,20 @@ const LoggedMealsScreen = () => {
   const navigateLogMeal = (type?: IMealType) => {
     console.log("navigating to log meal", type);
     setSelectedMealType(type ?? "breakfast");
-    logMealTrueSheetRef.current?.present();
+    TrueSheet.present(TrueSheetNames.LOG_MEAL);
   };
 
   const isToday =
     selectedDate.toLocaleDateString() === new Date().toLocaleDateString();
 
-  const mealTypesData = [
-    { type: t("breakfast"), meals: breakfastMeals },
-    { type: t("lunch"), meals: lunchMeals },
-    { type: t("dinner"), meals: dinnerMeals },
-    { type: t("snack"), meals: snackMeals },
+  const mealTypesData: {
+    type: IMealType;
+    meals: IMeal[];
+  }[] = [
+    { type: "breakfast", meals: breakfastMeals },
+    { type: "lunch", meals: lunchMeals },
+    { type: "dinner", meals: dinnerMeals },
+    { type: "snack", meals: snackMeals },
   ];
 
   useEffect(() => {
@@ -226,7 +231,7 @@ const LoggedMealsScreen = () => {
         >
           <Pressable
             style={[styles.addButton]}
-            onPress={() => scanMealTrueSheetRef.current?.present()}
+            onPress={() => TrueSheet.present(TrueSheetNames.SCAN_MEAL)}
           >
             <MaterialCommunityIcons
               name="camera"
@@ -258,14 +263,12 @@ const LoggedMealsScreen = () => {
         </LiquidGlassView>
       </View>
       <LogMealTrueSheet
-        ref={logMealTrueSheetRef}
         params={{
           selectedDate: selectedDate.toISOString(),
           mealType: selectedMealType,
         }}
       />
       <ScanMealTrueSheet
-        ref={scanMealTrueSheetRef}
         params={{
           selectedDate: selectedDate.toISOString(),
           mealType: selectedMealType,

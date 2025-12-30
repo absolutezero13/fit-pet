@@ -198,7 +198,9 @@ const MealDetailScreen = () => {
                   size={scale(18)}
                   color={colors["color-success-400"]}
                 />
-                <Text style={styles.mealTime}>{meal.time}</Text>
+                <Text style={styles.mealTime}>
+                  {t("preparationTime")}: {meal.preparationTime}
+                </Text>
               </View>
             </View>
           </View>

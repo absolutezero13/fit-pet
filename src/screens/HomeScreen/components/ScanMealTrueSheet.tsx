@@ -1,5 +1,5 @@
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Camera,
   PhotoFile,
@@ -21,14 +21,17 @@ import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { useNavigation } from "@react-navigation/native";
 import MealTypes from "./MealTypes";
+import { TrueSheetNames } from "../../../navigation/constants";
 
-const ScanMealTrueSheet = forwardRef<{
-  present: () => Promise<void>;
-  dismiss: () => Promise<void>;
-}>((props, ref) => {
+type ScanMealTrueSheetProps = {
+  params: {
+    mealType?: string;
+    selectedDate: string;
+  };
+};
+const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const device = useCameraDevice("back");
   const format = useCameraFormat(device, [{ photoAspectRatio: 1 }]);
-  const sheet = useRef<TrueSheet>(null);
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,18 +39,10 @@ const ScanMealTrueSheet = forwardRef<{
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast")
   );
-  const present = async () => {
-    await sheet.current?.present();
-  };
 
   const dismiss = async () => {
-    await sheet.current?.dismiss();
+    await TrueSheet.dismiss(TrueSheetNames.SCAN_MEAL);
   };
-
-  useImperativeHandle(ref, () => ({
-    present,
-    dismiss,
-  }));
 
   const takePhoto = async () => {
     const photo = await cameraRef.current?.takePhoto();
@@ -97,7 +92,7 @@ const ScanMealTrueSheet = forwardRef<{
       }
 
       navigation.navigate("AnalyzedMeal", {
-        mealId: meal._id,
+        mealId: meal._id ?? "",
       });
       setPhoto(null);
       dismiss();
@@ -117,7 +112,7 @@ const ScanMealTrueSheet = forwardRef<{
           setSelectedMealType(t("breakfast"));
         }, 100);
       }}
-      ref={sheet}
+      name={TrueSheetNames.SCAN_MEAL}
       detents={["auto"]}
       blurTint="system-thick-material-light"
       insetAdjustment="never"
@@ -185,7 +180,7 @@ const ScanMealTrueSheet = forwardRef<{
       {loading && <FullPageSpinner visible={loading} />}
     </TrueSheet>
   );
-});
+};
 
 const styles = StyleSheet.create({
   photo: {

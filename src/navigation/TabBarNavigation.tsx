@@ -17,51 +17,37 @@ const TabNavigator = () => {
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
 
-  const tabBarDefaultStyles: ViewStyle = {
-    elevation: 0,
-    borderTopWidth: 0,
-    height: TAB_BAR_HEIGHT + bottom,
-    paddingTop: scale(8),
-    borderTopLeftRadius: scale(20),
-    borderTopRightRadius: scale(20),
-    position: "absolute",
-    left: scale(20), // Added side padding
-    right: scale(20), // Added side padding
-    shadowColor: colors["color-primary-500"],
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  };
   return (
     <Tabs.Navigator
       hapticFeedbackEnabled
+      initialRouteName="Home"
       screenOptions={{
         tabBarActiveTintColor: colors["color-success-400"],
       }}
     >
       <Tabs.Screen
-        name={t("tabMeals")}
+        name="Meals"
         component={MealsScreen}
         options={{
+          title: t("tabMeals"),
           tabBarIcon: () => ({ sfSymbol: "list.star" }),
         }}
       />
       <Tabs.Screen
-        name={t("tabHome")}
+        name="Home"
         component={HomeScreen}
         options={{
+          title: t("tabHome"),
           tabBarIcon: () => ({
-            sfSymbol: "house.fill",
+            sfSymbol: "calendar",
           }),
         }}
       />
       <Tabs.Screen
-        name={t("tabChat")}
+        name="Chat"
         component={ChatScreen}
         options={{
+          title: t("tabChat"),
           tabBarIcon: () => ({ sfSymbol: "sparkle" }),
         }}
       />
