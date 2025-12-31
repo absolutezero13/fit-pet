@@ -40,10 +40,13 @@ import Animated, {
   withTiming,
   withDelay,
   withSpring,
+  FadeInDown,
+  FadeInUp,
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import useUserStore from "../../../zustand/useUserStore";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -75,32 +78,12 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const imageWidth = useSharedValue(100);
   const imageHeight = useSharedValue(scale(500));
   const imageMarginRight = useSharedValue(0);
-  const contentOpacity = useSharedValue(0);
-  const detailsOpacity = useSharedValue(0);
-  const macrosOpacity = useSharedValue(0);
-  const actionsOpacity = useSharedValue(0);
 
   // Animated styles
   const animatedImageStyle = useAnimatedStyle(() => ({
     width: `${imageWidth.value}%`,
     height: imageHeight.value,
     marginRight: imageMarginRight.value,
-  }));
-
-  const animatedContentStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-  }));
-
-  const animatedDetailsStyle = useAnimatedStyle(() => ({
-    opacity: detailsOpacity.value,
-  }));
-
-  const animatedMacrosStyle = useAnimatedStyle(() => ({
-    opacity: macrosOpacity.value,
-  }));
-
-  const animatedActionsStyle = useAnimatedStyle(() => ({
-    opacity: actionsOpacity.value,
   }));
 
   // Trigger animations when analysis completes
@@ -119,14 +102,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         damping: 15,
         stiffness: 100,
       });
-
-      // Fade in meal name/description
-      contentOpacity.value = withDelay(300, withTiming(1, { duration: 500 }));
-
-      // Staggered bottom-up animations for details
-      detailsOpacity.value = withDelay(500, withTiming(1, { duration: 500 }));
-      macrosOpacity.value = withDelay(700, withTiming(1, { duration: 500 }));
-      actionsOpacity.value = withDelay(900, withTiming(1, { duration: 500 }));
     }
   }, [screenState, analyzedMeal]);
 
@@ -143,10 +118,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     imageWidth.value = 100;
     imageHeight.value = scale(500);
     imageMarginRight.value = 0;
-    contentOpacity.value = 0;
-    detailsOpacity.value = 0;
-    macrosOpacity.value = 0;
-    actionsOpacity.value = 0;
   };
 
   const takePhoto = async () => {
@@ -398,17 +369,27 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           nestedScrollEnabled
           style={styles.analyzedContainer}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.analyzedContent}
         >
+          {/* Top Section with Image and Basic Info */}
           <View style={styles.topSection}>
             <Animated.Image
               source={{ uri: photo.path }}
               style={[styles.analyzedImage, animatedImageStyle]}
             />
-            <Animated.View style={[styles.basicInfo, animatedContentStyle]}>
-              <Text style={styles.mealName} numberOfLines={2}>
+            <Animated.View 
+              entering={FadeInUp.delay(300).duration(500)}
+              style={styles.basicInfo}
+            >
+              <Text style={styles.mealName} numberOfLines={3}>
                 {analyzedMeal.description}
               </Text>
               <View style={styles.calorieContainer}>
+                <MaterialCommunityIcons
+                  name="fire"
+                  size={scale(20)}
+                  color={colors["color-danger-500"]}
+                />
                 <Text style={styles.calorieValue}>{analyzedMeal.calories}</Text>
                 <Text style={styles.calorieUnit}>{t("cal")}</Text>
               </View>
@@ -416,7 +397,10 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           </View>
 
           {/* Score Section */}
-          <Animated.View style={[styles.scoreSection, animatedDetailsStyle]}>
+          <Animated.View 
+            entering={FadeInUp.delay(400).duration(500)}
+            style={styles.scoreSection}
+          >
             <View
               style={[
                 styles.scoreContainer,
@@ -439,128 +423,128 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           </Animated.View>
 
           {/* Macros Section */}
-          <Animated.View style={animatedMacrosStyle}>
+          <Animated.View entering={FadeInUp.delay(500).duration(500)}>
             <Text style={styles.sectionHeading}>{t("macronutrients")}</Text>
             <View style={styles.macrosContainer}>
-              <View style={styles.macroItem}>
+              <LiquidGlassView
+                effect="regular"
+                style={styles.macroItem}
+              >
                 {renderMacroIcon("protein")}
                 <Text style={styles.macroValue}>{analyzedMeal.proteins}g</Text>
                 <Text style={styles.macroLabel}>{t("proteins")}</Text>
-              </View>
-              <View style={styles.macroItem}>
+              </LiquidGlassView>
+              <LiquidGlassView
+                effect="regular"
+                style={styles.macroItem}
+              >
                 {renderMacroIcon("carbs")}
                 <Text style={styles.macroValue}>{analyzedMeal.carbs}g</Text>
                 <Text style={styles.macroLabel}>{t("carbs")}</Text>
-              </View>
-              <View style={styles.macroItem}>
+              </LiquidGlassView>
+              <LiquidGlassView
+                effect="regular"
+                style={styles.macroItem}
+              >
                 {renderMacroIcon("fats")}
                 <Text style={styles.macroValue}>{analyzedMeal.fats}g</Text>
                 <Text style={styles.macroLabel}>{t("fats")}</Text>
-              </View>
+              </LiquidGlassView>
             </View>
           </Animated.View>
 
           {/* Insights Section */}
           {analyzedMeal.insights && analyzedMeal.insights.length > 0 && (
-            <Animated.View style={animatedMacrosStyle}>
+            <Animated.View entering={FadeInUp.delay(600).duration(500)}>
               <Text style={styles.sectionHeading}>{t("insights")}</Text>
-              <View style={styles.insightsList}>
+              <LiquidGlassView
+                effect="regular"
+                style={styles.insightsList}
+              >
                 {analyzedMeal.insights.map((insight, index) => (
                   <View key={index} style={styles.insightItem}>
-                    <MaterialCommunityIcons
-                      name="lightbulb-outline"
-                      size={scale(18)}
-                      color={colors["color-warning-500"]}
-                      style={styles.insightIcon}
-                    />
+                    <View style={styles.insightIconContainer}>
+                      <MaterialCommunityIcons
+                        name="lightbulb-on"
+                        size={scale(20)}
+                        color={colors["color-warning-600"]}
+                      />
+                    </View>
                     <Text style={styles.insightText}>{insight}</Text>
                   </View>
                 ))}
-              </View>
+              </LiquidGlassView>
             </Animated.View>
           )}
 
           {/* Action Buttons */}
-          <Animated.View style={[styles.actionContainer, animatedActionsStyle]}>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  borderColor: colors["color-primary-300"],
-                },
-              ]}
-              onPress={handleNewScan}
+          <Animated.View 
+            entering={FadeInUp.delay(700).duration(500)}
+            style={styles.actionContainer}
+          >
+            <LiquidGlassView
+              effect="regular"
+              interactive
+              style={[styles.actionButton, { flex: 1.2 }]}
             >
-              <MaterialCommunityIcons
-                name="camera-plus"
-                size={scale(20)}
-                color={colors["color-primary-500"]}
-              />
-              <Text
-                style={[
-                  styles.actionText,
-                  {
-                    color: colors["color-primary-500"],
-                  },
-                ]}
+              <TouchableOpacity
+                style={styles.actionButtonInner}
+                onPress={handleNewScan}
               >
-                {t("scanAnother")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  borderColor: colors["color-primary-300"],
-                },
-              ]}
-              onPress={handleEdit}
+                <MaterialCommunityIcons
+                  name="camera-plus"
+                  size={scale(22)}
+                  color={colors["color-primary-600"]}
+                />
+                <Text style={styles.actionText}>
+                  {t("scanAnother")}
+                </Text>
+              </TouchableOpacity>
+            </LiquidGlassView>
+            
+            <LiquidGlassView
+              effect="regular"
+              interactive
+              style={styles.actionButton}
             >
-              <MaterialCommunityIcons
-                name="pencil-outline"
-                size={scale(20)}
-                color={colors["color-primary-500"]}
-              />
-              <Text
-                style={[
-                  styles.actionText,
-                  {
-                    color: colors["color-primary-500"],
-                  },
-                ]}
+              <TouchableOpacity
+                style={styles.actionButtonInner}
+                onPress={handleEdit}
               >
-                {t("edit")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  borderColor: colors["color-danger-300"],
-                },
-              ]}
-              onPress={handleDelete}
+                <MaterialCommunityIcons
+                  name="pencil-outline"
+                  size={scale(22)}
+                  color={colors["color-primary-600"]}
+                />
+                <Text style={styles.actionText}>
+                  {t("edit")}
+                </Text>
+              </TouchableOpacity>
+            </LiquidGlassView>
+            
+            <LiquidGlassView
+              effect="regular"
+              interactive
+              style={styles.actionButton}
             >
-              <MaterialCommunityIcons
-                name="delete-outline"
-                size={scale(20)}
-                color={colors["color-danger-500"]}
-              />
-              <Text
-                style={[
-                  styles.actionText,
-                  {
-                    color: colors["color-danger-500"],
-                  },
-                ]}
+              <TouchableOpacity
+                style={styles.actionButtonInner}
+                onPress={handleDelete}
               >
-                {t("delete")}
-              </Text>
-            </TouchableOpacity>
+                <MaterialCommunityIcons
+                  name="delete-outline"
+                  size={scale(22)}
+                  color={colors["color-danger-600"]}
+                />
+                <Text style={[styles.actionText, { color: colors["color-danger-600"] }]}>
+                  {t("delete")}
+                </Text>
+              </TouchableOpacity>
+            </LiquidGlassView>
           </Animated.View>
 
           {/* Bottom spacing */}
-          <View style={{ height: scale(32) }} />
+          <View style={{ height: scale(40) }} />
         </ScrollView>
       )}
     </TrueSheet>
@@ -596,73 +580,81 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(24),
   },
   analyzedContainer: {
-    paddingHorizontal: scale(24),
-    paddingTop: scale(24),
+    flex: 1,
+  },
+  analyzedContent: {
+    paddingHorizontal: scale(20),
+    paddingTop: scale(20),
   },
   topSection: {
     flexDirection: "row",
-    marginBottom: scale(20),
+    marginBottom: scale(24),
     alignItems: "flex-start",
   },
   analyzedImage: {
-    borderRadius: scale(16),
+    borderRadius: scale(20),
     resizeMode: "cover",
   },
   basicInfo: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   mealName: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
-    marginBottom: scale(8),
+    marginBottom: scale(12),
+    lineHeight: scale(28),
   },
   calorieContainer: {
     flexDirection: "row",
-    alignItems: "baseline",
-    backgroundColor: colors["color-primary-100"],
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
-    borderRadius: scale(12),
+    alignItems: "center",
+    backgroundColor: colors["color-danger-100"],
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(8),
+    borderRadius: scale(20),
     alignSelf: "flex-start",
   },
   calorieValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-500"],
+    color: colors["color-danger-600"],
+    fontWeight: "700",
+    marginLeft: scale(6),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: colors["color-success-500"],
-    marginLeft: scale(4),
+    color: colors["color-danger-600"],
+    marginLeft: scale(2),
+    fontWeight: "600",
   },
   scoreSection: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: scale(24),
-    backgroundColor: "white",
-    padding: scale(16),
-    borderRadius: scale(16),
+    marginBottom: scale(28),
+    backgroundColor: colors["color-primary-50"],
+    padding: scale(20),
+    borderRadius: scale(20),
     shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   scoreContainer: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
     justifyContent: "center",
     alignItems: "center",
     shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    marginRight: scale(16),
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    marginRight: scale(18),
   },
   scoreValue: {
     ...fontStyles.headline1,
+    fontSize: scale(32),
     color: "white",
     fontWeight: "bold",
   },
@@ -670,98 +662,106 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scoreHeading: {
-    ...fontStyles.body2,
-    color: colors["color-primary-400"],
+    ...fontStyles.body1,
+    color: colors["color-primary-500"],
     textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: scale(4),
-  },
-  scoreLabel: {
-    ...fontStyles.headline3,
+    letterSpacing: 1,
+    marginBottom: scale(6),
     fontWeight: "600",
   },
+  scoreLabel: {
+    ...fontStyles.headline2,
+    fontWeight: "700",
+  },
   sectionHeading: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
-    marginBottom: scale(12),
+    marginBottom: scale(16),
+    fontWeight: "700",
   },
   macrosContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: scale(24),
+    marginBottom: scale(28),
+    gap: scale(12),
   },
   macroItem: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "white",
-    padding: scale(12),
-    borderRadius: scale(12),
-    marginHorizontal: scale(4),
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    padding: scale(16),
+    borderRadius: scale(20),
+    minHeight: scale(120),
+    justifyContent: "center",
   },
   macroValue: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
-    marginTop: scale(6),
-    marginBottom: scale(2),
+    marginTop: scale(10),
+    marginBottom: scale(4),
+    fontWeight: "700",
   },
   macroLabel: {
-    ...fontStyles.footnote,
+    ...fontStyles.body2,
     color: colors["color-primary-600"],
     letterSpacing: 0.5,
     textAlign: "center",
+    fontWeight: "500",
   },
   insightsList: {
-    backgroundColor: "white",
-    borderRadius: scale(12),
-    padding: scale(12),
-    marginBottom: scale(20),
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: scale(20),
+    padding: scale(18),
+    marginBottom: scale(28),
   },
   insightItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: scale(10),
+    marginBottom: scale(16),
+  },
+  insightIconContainer: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: colors["color-warning-100"],
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+    marginTop: scale(2),
   },
   insightIcon: {
-    marginRight: scale(10),
+    marginRight: scale(12),
     marginTop: scale(2),
   },
   insightText: {
-    ...fontStyles.body2,
+    ...fontStyles.body1,
     flex: 1,
-    color: colors["color-primary-900"],
-    lineHeight: scale(18),
+    color: colors["color-primary-800"],
+    lineHeight: scale(22),
   },
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: scale(16),
+    marginBottom: scale(20),
+    gap: scale(10),
   },
   actionButton: {
-    flexDirection: "row",
+    flex: 1,
+    borderRadius: scale(20),
+    overflow: "hidden",
+  },
+  actionButtonInner: {
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: scale(12),
-    borderWidth: 1,
-    borderRadius: scale(12),
-    flex: 1,
-    marginHorizontal: scale(4),
-    backgroundColor: "white",
+    paddingVertical: scale(14),
+    paddingHorizontal: scale(8),
+    gap: scale(6),
   },
   actionText: {
     ...fontStyles.body2,
-    marginLeft: scale(6),
-    fontWeight: "500",
+    fontWeight: "600",
     fontSize: scale(11),
+    textAlign: "center",
+    color: colors["color-primary-600"],
   },
 });
 
