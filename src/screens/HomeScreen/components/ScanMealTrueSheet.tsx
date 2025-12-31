@@ -41,6 +41,10 @@ type ScanMealTrueSheetProps = {
 
 type ScreenState = "camera" | "captured" | "analyzing" | "analyzed";
 
+// Animation timing constants
+const ANIMATION_DISMISS_DELAY = 200;
+const ANIMATION_NAVIGATION_DELAY = 300;
+
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const device = useCameraDevice("back");
   const format = useCameraFormat(device, [{ photoAspectRatio: 1 }]);
@@ -218,7 +222,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               return { loggedMeals: newMeals };
             });
             dismiss();
-            setTimeout(resetState, 200);
+            setTimeout(resetState, ANIMATION_DISMISS_DELAY);
           } catch (error) {
             console.error("Error deleting meal:", error);
             Alert.alert(t("error"), t("deleteFailed"));
@@ -237,7 +241,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         selectedDate: analyzedMeal.date,
       });
       resetState();
-    }, 300);
+    }, ANIMATION_NAVIGATION_DELAY);
   };
 
   const handleNewScan = () => {
@@ -251,7 +255,8 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   };
 
   const getScoreLabel = (score: number) => {
-    return t("score" + Math.floor(score));
+    const roundedScore = Math.max(1, Math.min(10, Math.floor(score)));
+    return t("score" + roundedScore);
   };
 
   const renderMacroIcon = (type: string) => {
