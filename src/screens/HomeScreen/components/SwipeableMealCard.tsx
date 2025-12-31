@@ -1,13 +1,6 @@
 import React, { FC, useRef } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-  Animated,
-} from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,7 +10,43 @@ import { LiquidGlassView } from "@callstack/liquid-glass";
 import { useTranslation } from "react-i18next";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
+import Animated, {
+  interpolate,
+  SharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
+import { SwipeableRef } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable/ReanimatedSwipeable";
 
+const renderRightActions = (
+  prog: SharedValue<number>,
+  drag: SharedValue<number>,
+  handleDelete: () => void
+) => {
+  const styleAnimation = useAnimatedStyle(() => {
+    console.log("showRightProgress:", prog.value);
+    console.log("appliedTranslation:", drag.value);
+
+    return {
+      transform: [{ translateX: drag.value + 80 }],
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.deleteButtonContainer, styleAnimation]}>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDelete}
+        activeOpacity={0.8}
+      >
+        <MaterialCommunityIcons
+          name="delete-outline"
+          size={scale(24)}
+          color="white"
+        />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 interface Props {
   meal: IMeal;
   onPress: (meal: IMeal) => void;
@@ -25,7 +54,7 @@ interface Props {
 
 const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
   const { t } = useTranslation();
-  const swipeableRef = useRef<Swipeable>(null);
+  const swipeableRef = useRef<SwipeableRef>(null);
 
   const handleDelete = () => {
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
@@ -59,44 +88,14 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
     ]);
   };
 
-  const renderRightActions = (
-    progress: Animated.AnimatedInterpolation<number>,
-    dragX: Animated.AnimatedInterpolation<number>
-  ) => {
-    const translateX = dragX.interpolate({
-      inputRange: [-80, 0],
-      outputRange: [0, 80],
-      extrapolate: "clamp",
-    });
-
-    return (
-      <Animated.View
-        style={[
-          styles.deleteButtonContainer,
-          { transform: [{ translateX }] },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={handleDelete}
-          activeOpacity={0.8}
-        >
-          <MaterialCommunityIcons
-            name="delete-outline"
-            size={scale(24)}
-            color="white"
-          />
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
   return (
     <Swipeable
-      ref={swipeableRef}
-      renderRightActions={renderRightActions}
       overshootRight={false}
       friction={2}
+      renderRightActions={(progress, dragX) =>
+        renderRightActions(progress, dragX, handleDelete)
+      }
+      ref={swipeableRef}
     >
       <LiquidGlassView effect="clear" interactive style={styles.mealItem}>
         <TouchableOpacity
