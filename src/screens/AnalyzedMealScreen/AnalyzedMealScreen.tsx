@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Image,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -18,6 +17,7 @@ import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import FastImage from "react-native-fast-image";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -143,7 +143,7 @@ const AnalyzedMealScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {meal.image && (
-          <Image
+          <FastImage
             source={{ uri: meal.image }}
             style={{
               width: scale(100),

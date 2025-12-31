@@ -25,6 +25,7 @@ import { createGeminiVisionCompletion } from "../../../services/gptApi";
 import { IMeal } from "../../../services/apiTypes";
 import {
   createMeal,
+  updateMeal,
   uploadMealImageToFireStorage,
 } from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
@@ -37,8 +38,6 @@ import { TrueSheetNames } from "../../../navigation/constants";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withTiming,
-  withDelay,
   withSpring,
   FadeInUp,
 } from "react-native-reanimated";
@@ -90,16 +89,16 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     if (screenState === "analyzed" && analyzedMeal) {
       // Shrink image and align left
       imageWidth.value = withSpring(40, {
-        damping: 15,
         stiffness: 100,
+        damping: 40,
       });
       imageHeight.value = withSpring(scale(150), {
-        damping: 15,
         stiffness: 100,
+        damping: 40,
       });
       imageMarginRight.value = withSpring(scale(16), {
-        damping: 15,
         stiffness: 100,
+        damping: 40,
       });
     }
   }, [screenState, analyzedMeal]);
@@ -163,16 +162,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         return;
       }
 
-      if (meal.image) {
-        const imageUrl = await uploadMealImageToFireStorage(
-          meal.image,
-          meal._id ?? "",
-          useUserStore.getState()?.uid ?? ""
-        );
-        console.log("IMAGE URL", imageUrl);
-        meal.image = imageUrl;
-      }
-
       const responseMeal = await createMeal(meal);
       meal._id = responseMeal._id;
 
@@ -184,6 +173,17 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       // Instead of navigating away, show the analyzed meal in the sheet
       setAnalyzedMeal(meal);
       setScreenState("analyzed");
+
+      if (meal.image) {
+        const imageUrl = await uploadMealImageToFireStorage(
+          meal.image,
+          meal._id ?? "",
+          useUserStore.getState()?.uid ?? ""
+        );
+        console.log("IMAGE URL", imageUrl);
+        meal.image = imageUrl;
+      }
+      updateMeal(meal);
     } catch (error) {
       console.log("ERROR SAVING PHOTO", error);
       Alert.alert("Error", "Failed to analyze meal");
@@ -370,13 +370,13 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.analyzedContent}
         >
-          {/* Top Section with Image and Basic Info */}
+          <Text style={styles.analyzedTitle}>{t("mealAnalysis")}</Text>
           <View style={styles.topSection}>
             <Animated.Image
               source={{ uri: photo.path }}
               style={[styles.analyzedImage, animatedImageStyle]}
             />
-            <Animated.View 
+            <Animated.View
               entering={FadeInUp.delay(300).duration(500)}
               style={styles.basicInfo}
             >
@@ -396,7 +396,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           </View>
 
           {/* Score Section */}
-          <Animated.View 
+          <Animated.View
             entering={FadeInUp.delay(400).duration(500)}
             style={styles.scoreSection}
           >
@@ -425,30 +425,21 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           <Animated.View entering={FadeInUp.delay(500).duration(500)}>
             <Text style={styles.sectionHeading}>{t("macronutrients")}</Text>
             <View style={styles.macrosContainer}>
-              <LiquidGlassView
-                effect="regular"
-                style={styles.macroItem}
-              >
+              <View style={styles.macroItem}>
                 {renderMacroIcon("protein")}
                 <Text style={styles.macroValue}>{analyzedMeal.proteins}g</Text>
                 <Text style={styles.macroLabel}>{t("proteins")}</Text>
-              </LiquidGlassView>
-              <LiquidGlassView
-                effect="regular"
-                style={styles.macroItem}
-              >
+              </View>
+              <View style={styles.macroItem}>
                 {renderMacroIcon("carbs")}
                 <Text style={styles.macroValue}>{analyzedMeal.carbs}g</Text>
                 <Text style={styles.macroLabel}>{t("carbs")}</Text>
-              </LiquidGlassView>
-              <LiquidGlassView
-                effect="regular"
-                style={styles.macroItem}
-              >
+              </View>
+              <View style={styles.macroItem}>
                 {renderMacroIcon("fats")}
                 <Text style={styles.macroValue}>{analyzedMeal.fats}g</Text>
                 <Text style={styles.macroLabel}>{t("fats")}</Text>
-              </LiquidGlassView>
+              </View>
             </View>
           </Animated.View>
 
@@ -456,10 +447,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           {analyzedMeal.insights && analyzedMeal.insights.length > 0 && (
             <Animated.View entering={FadeInUp.delay(600).duration(500)}>
               <Text style={styles.sectionHeading}>{t("insights")}</Text>
-              <LiquidGlassView
-                effect="regular"
-                style={styles.insightsList}
-              >
+              <LiquidGlassView effect="clear" style={styles.insightsList}>
                 {analyzedMeal.insights.map((insight, index) => (
                   <View key={index} style={styles.insightItem}>
                     <View style={styles.insightIconContainer}>
@@ -477,12 +465,12 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           )}
 
           {/* Action Buttons */}
-          <Animated.View 
+          <Animated.View
             entering={FadeInUp.delay(700).duration(500)}
             style={styles.actionContainer}
           >
             <LiquidGlassView
-              effect="regular"
+              effect="clear"
               interactive
               style={styles.actionButtonPrimary}
             >
@@ -495,34 +483,12 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
                   size={scale(22)}
                   color={colors["color-primary-600"]}
                 />
-                <Text style={styles.actionText}>
-                  {t("scanAnother")}
-                </Text>
+                <Text style={styles.actionText}>{t("scanAnother")}</Text>
               </TouchableOpacity>
             </LiquidGlassView>
-            
+
             <LiquidGlassView
-              effect="regular"
-              interactive
-              style={styles.actionButton}
-            >
-              <TouchableOpacity
-                style={styles.actionButtonInner}
-                onPress={handleEdit}
-              >
-                <MaterialCommunityIcons
-                  name="pencil-outline"
-                  size={scale(22)}
-                  color={colors["color-primary-600"]}
-                />
-                <Text style={styles.actionText}>
-                  {t("edit")}
-                </Text>
-              </TouchableOpacity>
-            </LiquidGlassView>
-            
-            <LiquidGlassView
-              effect="regular"
+              effect="clear"
               interactive
               style={styles.actionButton}
             >
@@ -533,9 +499,14 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
                 <MaterialCommunityIcons
                   name="delete-outline"
                   size={scale(22)}
-                  color={colors["color-danger-600"]}
+                  color={colors["color-primary-50"]}
                 />
-                <Text style={[styles.actionText, { color: colors["color-danger-600"] }]}>
+                <Text
+                  style={[
+                    styles.actionText,
+                    { color: colors["color-primary-50"] },
+                  ]}
+                >
                   {t("delete")}
                 </Text>
               </TouchableOpacity>
@@ -581,6 +552,12 @@ const styles = StyleSheet.create({
   analyzedContainer: {
     flex: 1,
   },
+  analyzedTitle: {
+    ...fontStyles.headline1,
+    color: colors["color-primary-900"],
+    marginBottom: scale(12),
+    textAlign: "center",
+  },
   analyzedContent: {
     paddingHorizontal: scale(20),
     paddingTop: scale(20),
@@ -589,6 +566,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: scale(24),
     alignItems: "flex-start",
+    backgroundColor: colors["color-primary-50"],
+    borderRadius: scale(20),
+    padding: scale(16),
   },
   analyzedImage: {
     borderRadius: scale(20),
@@ -683,6 +663,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: scale(28),
     gap: scale(12),
+    backgroundColor: colors["color-primary-50"],
+    borderRadius: scale(20),
   },
   macroItem: {
     flex: 1,
@@ -710,6 +692,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(20),
     padding: scale(18),
     marginBottom: scale(28),
+    backgroundColor: colors["color-primary-50"],
   },
   insightItem: {
     flexDirection: "row",
@@ -746,11 +729,13 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: scale(20),
     overflow: "hidden",
+    backgroundColor: colors["color-danger-500"],
   },
   actionButtonPrimary: {
-    flex: 1.2,
+    flex: 1.5,
     borderRadius: scale(20),
     overflow: "hidden",
+    backgroundColor: colors["color-primary-50"],
   },
   actionButtonInner: {
     flexDirection: "column",
@@ -761,9 +746,7 @@ const styles = StyleSheet.create({
     gap: scale(6),
   },
   actionText: {
-    ...fontStyles.body2,
-    fontWeight: "600",
-    fontSize: scale(11),
+    ...fontStyles.body1Bold,
     textAlign: "center",
     color: colors["color-primary-600"],
   },

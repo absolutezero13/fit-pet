@@ -14,7 +14,7 @@ const GradientSpinner = ({ size = scale(100) }) => {
         },
       ]}
     >
-      <ActivityIndicator size="large" color={colors["color-primary-400"]} />
+      <ActivityIndicator size="large" color={colors["color-primary-50"]} />
     </View>
   );
 };
