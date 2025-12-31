@@ -40,7 +40,6 @@ import Animated, {
   withTiming,
   withDelay,
   withSpring,
-  FadeInDown,
   FadeInUp,
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -465,7 +464,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
                   <View key={index} style={styles.insightItem}>
                     <View style={styles.insightIconContainer}>
                       <MaterialCommunityIcons
-                        name="lightbulb-on"
+                        name="lightbulb"
                         size={scale(20)}
                         color={colors["color-warning-600"]}
                       />
@@ -485,7 +484,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             <LiquidGlassView
               effect="regular"
               interactive
-              style={[styles.actionButton, { flex: 1.2 }]}
+              style={styles.actionButtonPrimary}
             >
               <TouchableOpacity
                 style={styles.actionButtonInner}
@@ -745,6 +744,11 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
+    borderRadius: scale(20),
+    overflow: "hidden",
+  },
+  actionButtonPrimary: {
+    flex: 1.2,
     borderRadius: scale(20),
     overflow: "hidden",
   },
