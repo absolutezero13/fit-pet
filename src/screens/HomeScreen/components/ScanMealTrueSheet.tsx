@@ -7,14 +7,26 @@ import {
   useCameraFormat,
 } from "react-native-vision-camera";
 import { scale } from "../../../theme/utils";
-import { Alert, Image, Pressable, StyleSheet, View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { colors } from "../../../theme/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppButton from "../../../components/AppButton";
 import { t } from "i18next";
 import { createGeminiVisionCompletion } from "../../../services/gptApi";
 import { IMeal } from "../../../services/apiTypes";
-import { createMeal } from "../../../services/mealAnalysis";
+import {
+  createMeal,
+  uploadMealImageToFireStorage,
+} from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
 import FullPageSpinner from "../../../components/FullPageSpinner";
 import promptBuilder from "../../../utils/promptBuilder";
@@ -31,6 +43,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
+import useUserStore from "../../../zustand/useUserStore";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -173,10 +186,21 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       meal.image = photo?.path ?? null;
 
       console.log("CREATING MEAL", meal);
+
       if (meal.errorMessage) {
         Alert.alert("Error", meal.errorMessage);
         resetState();
         return;
+      }
+
+      if (meal.image) {
+        const imageUrl = await uploadMealImageToFireStorage(
+          meal.image,
+          meal._id ?? "",
+          useUserStore.getState()?.uid ?? ""
+        );
+        console.log("IMAGE URL", imageUrl);
+        meal.image = imageUrl;
       }
 
       const responseMeal = await createMeal(meal);
