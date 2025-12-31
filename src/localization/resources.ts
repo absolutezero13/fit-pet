@@ -90,6 +90,8 @@ export const resources = {
       macronutrients: "Makro Besinler",
       cal: "kal",
       delete: "Sil",
+      edit: "Düzenle",
+      scanAnother: "Başka Tara",
       deleteConfirmation: "Silme Onayı",
       deleteItemConfirmationMessage:
         "Bu öğeyi silmek istediğinizden emin misiniz?",
@@ -249,6 +251,8 @@ export const resources = {
       macronutrients: "Macronutrients",
       cal: "cal",
       delete: "Delete",
+      edit: "Edit",
+      scanAnother: "Scan Another",
       deleteConfirmation: "Delete Confirmation",
       deleteItemConfirmationMessage:
         "Are you sure you want to delete this item?",
