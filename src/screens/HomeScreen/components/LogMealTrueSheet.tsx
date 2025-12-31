@@ -245,9 +245,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         interpolator="ios"
         offset={scale(50)}
         textInputNativeID="composer"
-        style={{
-          flex: 1,
-        }}
+        style={{}}
       >
         <View style={[styles.container, {}]}>
           <View style={styles.inputContainer}>
@@ -348,7 +346,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: scale(24),
     paddingTop: scale(24),
   },

@@ -5,6 +5,7 @@ import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { TrueSheetNames } from "../../../navigation/constants";
+import { t } from "i18next";
 
 const SignUpBanner = () => {
   const handleSignUp = () => {
@@ -13,7 +14,7 @@ const SignUpBanner = () => {
 
   return (
     <Pressable onPress={handleSignUp} style={styles.container}>
-      <Text style={styles.title}>Sign up to complete your profile.</Text>
+      <Text style={styles.title}>{t("signUpBanner")}</Text>
       <MaterialCommunityIcons
         name="account-plus"
         size={scale(48)}

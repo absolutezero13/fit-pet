@@ -77,8 +77,6 @@ const LoggedMealsScreen = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast")
   );
-  const scanMealTrueSheetRef = useRef<TrueSheetRef>(null);
-  const logMealTrueSheetRef = useRef<TrueSheetRef>(null);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -261,19 +259,19 @@ const LoggedMealsScreen = () => {
             />
           </Pressable>
         </LiquidGlassView>
+        <LogMealTrueSheet
+          params={{
+            selectedDate: selectedDate.toISOString(),
+            mealType: selectedMealType,
+          }}
+        />
+        <ScanMealTrueSheet
+          params={{
+            selectedDate: selectedDate.toISOString(),
+            mealType: selectedMealType,
+          }}
+        />
       </View>
-      <LogMealTrueSheet
-        params={{
-          selectedDate: selectedDate.toISOString(),
-          mealType: selectedMealType,
-        }}
-      />
-      <ScanMealTrueSheet
-        params={{
-          selectedDate: selectedDate.toISOString(),
-          mealType: selectedMealType,
-        }}
-      />
     </>
   );
 };

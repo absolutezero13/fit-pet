@@ -157,6 +157,7 @@ export const resources = {
       invalidEmail: "Geçersiz e-posta adresi",
       passwordsDoNotMatch: "Şifreler eşleşmiyor",
       globalErrorMessage: "Lütfen daha sonra tekrar deneyin",
+      signUpBanner: "Kayıt olarak profilini tamamla.",
     },
   },
 
@@ -318,6 +319,7 @@ export const resources = {
       invalidEmail: "Invalid email address",
       passwordsDoNotMatch: "Passwords do not match",
       globalErrorMessage: "Please try again later",
+      signUpBanner: "Sign up to complete your profile.",
     },
   },
 };
