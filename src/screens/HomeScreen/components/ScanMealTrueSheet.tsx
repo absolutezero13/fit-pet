@@ -316,6 +316,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
 
   return (
     <TrueSheet
+      scrollable
       onDidDismiss={() => {
         setTimeout(() => {
           resetState();
@@ -329,7 +330,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         interaction: false,
       }}
     >
-      {/* Camera View */}
       {screenState === "camera" && device && (
         <>
           <Camera
@@ -348,25 +348,27 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         </>
       )}
 
-      {/* Captured Photo View */}
       {screenState === "captured" && photo && (
         <>
-          <Image source={{ uri: photo.path }} style={styles.photo} />
-          <Pressable
-            onPress={handleNewScan}
-            style={[
-              styles.takePhotoButton,
-              {
-                backgroundColor: colors["color-primary-500"],
-              },
-            ]}
-          >
-            <MaterialCommunityIcons
-              name="refresh"
-              size={scale(24)}
-              color="white"
-            />
-          </Pressable>
+          <View>
+            <Image source={{ uri: photo.path }} style={styles.photo} />
+            <Pressable
+              onPress={handleNewScan}
+              style={[
+                styles.takePhotoButton,
+                {
+                  backgroundColor: colors["color-primary-500"],
+                },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="refresh"
+                size={scale(24)}
+                color="white"
+              />
+            </Pressable>
+          </View>
+
           <AppButton
             title={t("analyzeMeal")}
             onPress={savePhoto}
@@ -384,7 +386,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         </>
       )}
 
-      {/* Analyzing View */}
       {screenState === "analyzing" && photo && (
         <>
           <Image source={{ uri: photo.path }} style={styles.photo} />
@@ -392,13 +393,12 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         </>
       )}
 
-      {/* Analyzed Meal View */}
       {screenState === "analyzed" && analyzedMeal && photo && (
         <ScrollView
+          nestedScrollEnabled
           style={styles.analyzedContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* Top Section with Image and Basic Info */}
           <View style={styles.topSection}>
             <Animated.Image
               source={{ uri: photo.path }}
@@ -596,7 +596,6 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(24),
   },
   analyzedContainer: {
-    flex: 1,
     paddingHorizontal: scale(24),
     paddingTop: scale(24),
   },
