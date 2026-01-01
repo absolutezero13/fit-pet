@@ -13,7 +13,7 @@ import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MealCard from "./components/MealCard";
+import SwipeableMealCard from "./components/SwipeableMealCard";
 import { IMeal, IMealType } from "../../services/apiTypes";
 import useMealsStore from "../../zustand/useMealsStore";
 import { useTranslation } from "react-i18next";
@@ -54,7 +54,7 @@ const MealTypeSection = ({
 
       {meals.length > 0 ? (
         meals.map((meal, index) => (
-          <MealCard
+          <SwipeableMealCard
             meal={meal}
             key={meal.description + index}
             onPress={() => onPressItem(meal)}
