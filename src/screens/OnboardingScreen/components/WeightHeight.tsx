@@ -1,31 +1,10 @@
-import {
-  Image,
-  ImageSourcePropType,
-  Text,
-  View,
-  StyleSheet,
-  Platform,
-} from "react-native";
-import maleStandingPerson from "../../assets/male-person-standing.png";
-import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
-import femaleStandingPerson from "../../assets/female-person-standing.png";
+import { Text, View, StyleSheet, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { IS_SMALL_SCREEN, scale, shadowStyle } from "../../../theme/utils";
-import useOnboardingStore, {
-  GenderEnum,
-} from "../../../zustand/useOnboardingStore";
+import { scale, shadowStyle } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
-
-const imageMapping: Record<GenderEnum, ImageSourcePropType> = {
-  [GenderEnum.Female]: femaleStandingPerson,
-  [GenderEnum.Male]: maleStandingPerson,
-  [GenderEnum.Other]: nonbinaryStandingPerson,
-};
-
-const BASE_IMAGE_HEIGHT = IS_SMALL_SCREEN ? scale(200) : scale(280);
-const BASE_IMAGE_WIDTH = scale(120);
 
 const heightData = Array.from({ length: 120 })
   .fill(0)
@@ -35,23 +14,8 @@ const weightData = Array.from({ length: 160 })
   .fill(0)
   .map((_, i) => i + 40);
 
-// Calculate scaling factors
-const getHeightScale = (height: number | null) => {
-  if (!height) return 1;
-  // Map height from 130-250cm to scale 0.85-1.15
-  const normalized = (height - 130) / (250 - 130);
-  return 0.85 + normalized * 0.3;
-};
-
-const getWeightScale = (weight: number | null) => {
-  if (!weight) return 1;
-  // Map weight from 40-200kg to scale 0.85-1.15
-  const normalized = (weight - 40) / (200 - 80);
-  return 0.85 + normalized * 0.3;
-};
-
 const WeightHeight = () => {
-  const { height, weight, gender } = useOnboardingStore();
+  const { height, weight } = useOnboardingStore();
 
   const onHeightValueChange = (itemValue: number) => {
     if (itemValue !== height) {
@@ -67,84 +31,76 @@ const WeightHeight = () => {
     }
   };
 
-  const imageWidth = BASE_IMAGE_WIDTH * getWeightScale(weight ?? null);
+  const bmi =
+    height && weight
+      ? Number((weight / Math.pow(height / 100, 2)).toFixed(1))
+      : null;
+
+  const bmiCategory =
+    bmi === null
+      ? null
+      : bmi < 18.5
+      ? "Underweight"
+      : bmi < 25
+      ? "Healthy"
+      : bmi < 30
+      ? "Overweight"
+      : "Obese";
+
+  const renderPicker = (
+    label: string,
+    data: number[],
+    selected: number | null,
+    onChange: (value: number) => void,
+    unit: string
+  ) => (
+    <View style={styles.pickerCard}>
+      <Text style={styles.cardLabel}>{label}</Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={selected ?? undefined}
+          onValueChange={onChange}
+          style={
+            Platform.OS === "android" ? styles.pickerAndroid : styles.picker
+          }
+          enabled={true}
+          mode={Platform.OS === "ios" ? "dialog" : "dropdown"}
+          selectionColor={colors["color-primary-500"]}
+          dropdownIconColor={colors["color-primary-500"]}
+          itemStyle={styles.pickerItem}
+        >
+          {data.map((value) => (
+            <Picker.Item
+              key={value.toString()}
+              label={value.toString()}
+              value={value}
+              style={styles.pickerItem}
+            />
+          ))}
+        </Picker>
+        <View style={styles.unitContainer}>
+          <Text style={styles.unitLabel}>{unit}</Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={imageMapping[gender || GenderEnum.Female]}
-          resizeMode="stretch"
-          style={[
-            {
-              width: imageWidth,
-              height: BASE_IMAGE_HEIGHT,
-            },
-          ]}
-        />
-      </View>
-
       <View style={styles.pickersContainer}>
-        <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Height</Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={height ?? undefined}
-              onValueChange={onHeightValueChange}
-              style={
-                Platform.OS === "android" ? styles.pickerAndroid : styles.picker
-              }
-              enabled={true}
-              mode="dropdown"
-              selectionColor={colors["color-primary-500"]}
-              dropdownIconColor={colors["color-primary-500"]}
-              itemStyle={styles.pickerItem}
-            >
-              {heightData.map((value) => (
-                <Picker.Item
-                  key={value.toString()}
-                  label={value.toString()}
-                  value={value}
-                  style={styles.pickerItem}
-                />
-              ))}
-            </Picker>
-            <View style={styles.unitContainer}>
-              <Text style={styles.unitLabel}>cm</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Weight</Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={weight ?? undefined}
-              onValueChange={onWeightValueChange}
-              style={
-                Platform.OS === "android" ? styles.pickerAndroid : styles.picker
-              }
-              itemStyle={styles.pickerItem}
-              enabled={true}
-              mode="dropdown"
-              selectionColor={colors["color-primary-500"]}
-              dropdownIconColor={colors["color-primary-500"]}
-            >
-              {weightData.map((value) => (
-                <Picker.Item
-                  key={value.toString()}
-                  label={value.toString()}
-                  value={value}
-                  style={styles.pickerItem}
-                />
-              ))}
-            </Picker>
-            <View style={styles.unitContainer}>
-              <Text style={styles.unitLabel}>kg</Text>
-            </View>
-          </View>
-        </View>
+        {renderPicker("Height", heightData, height, onHeightValueChange, "cm")}
+        {renderPicker("Weight", weightData, weight, onWeightValueChange, "kg")}
       </View>
+
+      {bmi !== null && (
+        <View style={styles.bmiCard}>
+          <Text style={styles.bmiLabel}>Your BMI</Text>
+          <Text style={styles.bmiValue}>{bmi}</Text>
+          {bmiCategory ? (
+            <Text style={styles.bmiCategory}>{bmiCategory}</Text>
+          ) : null}
+        </View>
+      )}
     </View>
   );
 };
@@ -153,16 +109,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(24),
-  },
-  imageContainer: {
-    alignItems: "center",
     justifyContent: "center",
   },
   pickersContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     gap: scale(16),
-    marginTop: Platform.OS === "android" ? scale(92) : undefined,
+    marginTop: scale(32),
   },
   pickerCard: {
     flex: 1,
@@ -181,8 +134,9 @@ const styles = StyleSheet.create({
     position: "relative",
     borderRadius: scale(12),
     overflow: "hidden",
-    minHeight: scale(56),
+    minHeight: scale(120),
     justifyContent: "center",
+    backgroundColor: colors["color-primary-50"],
   },
   selectedValue: {
     position: "absolute",
@@ -194,11 +148,11 @@ const styles = StyleSheet.create({
   },
   picker: {
     width: "100%",
-    height: scale(205),
-    color: "transparent",
+    height: scale(220),
+    color: colors["color-primary-500"],
   },
   pickerAndroid: {
-    height: scale(50),
+    height: scale(140),
   },
   pickerItem: {
     color: colors["color-primary-500"],
@@ -207,15 +161,43 @@ const styles = StyleSheet.create({
   },
   unitContainer: {
     position: "absolute",
-    right: scale(Platform.OS === "android" ? 56 : 16),
+    right: scale(Platform.OS === "android" ? 20 : 16),
     top: scale(Platform.OS === "android" ? 8 : 3),
-    bottom: 0,
-    justifyContent: "center",
+    bottom: scale(8),
+    justifyContent: "flex-start",
     pointerEvents: "none",
   },
   unitLabel: {
     ...fontStyles.headline3,
     color: colors["color-primary-500"],
+  },
+  bmiCard: {
+    position: "absolute",
+    bottom: scale(96),
+    left: scale(24),
+    right: scale(24),
+    backgroundColor: colors["color-primary-500"],
+    borderRadius: scale(16),
+    paddingVertical: scale(16),
+    paddingHorizontal: scale(20),
+    ...shadowStyle,
+  },
+  bmiLabel: {
+    ...fontStyles.headline4,
+    color: colors["color-primary-100"],
+    textAlign: "center",
+  },
+  bmiValue: {
+    ...fontStyles.headline1,
+    color: colors["color-primary-50"],
+    textAlign: "center",
+    marginTop: scale(8),
+  },
+  bmiCategory: {
+    ...fontStyles.body1,
+    color: colors["color-primary-100"],
+    textAlign: "center",
+    marginTop: scale(6),
   },
 });
 
