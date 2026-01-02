@@ -11,6 +11,7 @@ import Animated, {
   Easing,
   interpolate,
   runOnJS,
+  cancelAnimation,
 } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,8 @@ import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 
 const { width } = Dimensions.get("window");
+const ORBIT_RADIUS_PRIMARY = scale(54);
+const ORBIT_RADIUS_SECONDARY = scale(44);
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
   proteins: 30,
@@ -234,7 +237,15 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       );
     });
 
-    return () => clearInterval(statusInterval);
+    return () => {
+      clearInterval(statusInterval);
+      cancelAnimation(haloPulse);
+      cancelAnimation(coreScale);
+      cancelAnimation(orbitRotation);
+      cancelAnimation(orbitRotationReverse);
+      cancelAnimation(floatingBackground);
+      cancelAnimation(progress);
+    };
   }, [focused]);
 
   // Animated styles
@@ -254,14 +265,14 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const orbitStyle = useAnimatedStyle(() => ({
     transform: [
       { rotate: `${orbitRotation.value}deg` },
-      { translateX: scale(54) },
+      { translateX: ORBIT_RADIUS_PRIMARY },
     ],
   }));
 
   const orbitReverseStyle = useAnimatedStyle(() => ({
     transform: [
       { rotate: `${orbitRotationReverse.value}deg` },
-      { translateX: scale(44) },
+      { translateX: ORBIT_RADIUS_SECONDARY },
     ],
   }));
 
