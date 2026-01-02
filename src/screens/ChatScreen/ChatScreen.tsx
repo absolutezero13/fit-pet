@@ -171,7 +171,6 @@ const ChatScreen = () => {
     <View style={styles.container}>
       <AnimatedLiquidGlassView
         effect="clear"
-        tintColor={colors["color-primary-200"]}
         layout={FadeInUp}
         style={[
           styles.header,
