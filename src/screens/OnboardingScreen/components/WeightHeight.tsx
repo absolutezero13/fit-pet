@@ -1,5 +1,19 @@
-import { useMemo } from "react";
-import { Text, View, StyleSheet, Platform } from "react-native";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  RefObject,
+} from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+  ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import * as Haptics from "expo-haptics";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -18,9 +32,18 @@ const weightData = Array.from({ length: 160 })
 const BMI_UNDERWEIGHT_MAX = 18.5;
 const BMI_HEALTHY_MAX = 25;
 const BMI_OVERWEIGHT_MAX = 30;
+const ITEM_HEIGHT = scale(70);
 
 const WeightHeight = () => {
   const { height, weight } = useOnboardingStore();
+  const [heightIndex, setHeightIndex] = useState(
+    height ? height - heightData[0] : 0
+  );
+  const [weightIndex, setWeightIndex] = useState(
+    weight ? weight - weightData[0] : 0
+  );
+  const heightScrollRef = useRef<ScrollView>(null);
+  const weightScrollRef = useRef<ScrollView>(null);
 
   const onHeightValueChange = (itemValue: number) => {
     if (itemValue !== height) {
@@ -54,43 +77,147 @@ const WeightHeight = () => {
 
   const pickerMode = Platform.OS === "android" ? "dropdown" : undefined;
 
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+    heightScrollRef.current?.scrollTo({
+      y: heightIndex * ITEM_HEIGHT,
+      animated: false,
+    });
+    weightScrollRef.current?.scrollTo({
+      y: weightIndex * ITEM_HEIGHT,
+      animated: false,
+    });
+  }, []);
+
+  const handleScroll = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+    data: number[],
+    setIndex: (value: number) => void,
+    setterKey: "height" | "weight"
+  ) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    const clampedIndex = Math.min(Math.max(index, 0), data.length - 1);
+    setIndex(clampedIndex);
+    const value = data[clampedIndex];
+    if (setterKey === "height" && value !== height) {
+      useOnboardingStore.setState({ height: value });
+    }
+    if (setterKey === "weight" && value !== weight) {
+      useOnboardingStore.setState({ weight: value });
+    }
+  };
+
+  const handleMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+    scrollRef: RefObject<ScrollView>
+  ) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    scrollRef.current?.scrollTo({
+      y: index * ITEM_HEIGHT,
+      animated: true,
+    });
+  };
+
   const renderPicker = (
     label: string,
     data: number[],
     selected: number | null,
     onChange: (value: number) => void,
     unit: string
-  ) => (
-    <View style={styles.pickerCard}>
-      <Text style={styles.cardLabel}>{label}</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={selected ?? undefined}
-          onValueChange={onChange}
-          style={
-            Platform.OS === "android" ? styles.pickerAndroid : styles.picker
-          }
-          enabled={true}
-          mode={pickerMode}
-          selectionColor={colors["color-primary-500"]}
-          dropdownIconColor={colors["color-primary-500"]}
-          itemStyle={styles.pickerItem}
-        >
-          {data.map((value) => (
-            <Picker.Item
-              key={value.toString()}
-              label={value.toString()}
-              value={value}
-              style={styles.pickerItem}
+  ) => {
+    if (Platform.OS === "android") {
+      const selectedIndex =
+        label === "Height" ? heightIndex : weightIndex;
+      const scrollRef =
+        label === "Height" ? heightScrollRef : weightScrollRef;
+      const setIndex = label === "Height" ? setHeightIndex : setWeightIndex;
+      const setterKey = label === "Height" ? "height" : "weight";
+
+      return (
+        <View style={styles.pickerCard}>
+          <Text style={styles.cardLabel}>{label}</Text>
+          <View style={styles.androidPickerContainer}>
+            <View style={styles.selectionIndicator} pointerEvents="none" />
+            <ScrollView
+              ref={scrollRef}
+              showsVerticalScrollIndicator={false}
+              snapToInterval={ITEM_HEIGHT}
+              decelerationRate="fast"
+              onScroll={(e) =>
+                handleScroll(e, data, setIndex, setterKey as "height" | "weight")
+              }
+              onMomentumScrollEnd={(e) =>
+                handleMomentumScrollEnd(e, scrollRef)
+              }
+              scrollEventThrottle={16}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View style={{ height: ITEM_HEIGHT * 2 }} />
+              {data.map((value, index) => (
+                <View
+                  key={value}
+                  style={[
+                    styles.ageItem,
+                    {
+                      opacity: 1 - Math.min(Math.abs(index - selectedIndex), 3) * 0.25,
+                    },
+                  ]}
+                >
+                  <Text style={[fontStyles.headline2, styles.itemText]}>
+                    {value}
+                  </Text>
+                </View>
+              ))}
+              <View style={{ height: ITEM_HEIGHT * 2 }} />
+            </ScrollView>
+            <View
+              style={[styles.overlay, styles.topOverlay]}
+              pointerEvents="none"
             />
-          ))}
-        </Picker>
-        <View style={styles.unitContainer}>
-          <Text style={styles.unitLabel}>{unit}</Text>
+            <View
+              style={[styles.overlay, styles.bottomOverlay]}
+              pointerEvents="none"
+            />
+            <View style={styles.unitContainer}>
+              <Text style={styles.unitLabel}>{unit}</Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.pickerCard}>
+        <Text style={styles.cardLabel}>{label}</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={selected ?? undefined}
+            onValueChange={onChange}
+            style={styles.picker}
+            enabled={true}
+            mode={pickerMode}
+            selectionColor={colors["color-primary-500"]}
+            dropdownIconColor={colors["color-primary-500"]}
+            itemStyle={styles.pickerItem}
+          >
+            {data.map((value) => (
+              <Picker.Item
+                key={value.toString()}
+                label={value.toString()}
+                value={value}
+                style={styles.pickerItem}
+              />
+            ))}
+          </Picker>
+          <View style={styles.unitContainer}>
+            <Text style={styles.unitLabel}>{unit}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -144,6 +271,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors["color-primary-50"],
   },
+  androidPickerContainer: {
+    height: ITEM_HEIGHT * 5,
+    position: "relative",
+    borderRadius: scale(12),
+    overflow: "hidden",
+    backgroundColor: colors["color-primary-50"],
+  },
   selectedValue: {
     position: "absolute",
     left: scale(16),
@@ -157,9 +291,6 @@ const styles = StyleSheet.create({
     height: scale(220),
     color: colors["color-primary-500"],
   },
-  pickerAndroid: {
-    height: scale(140),
-  },
   pickerItem: {
     color: colors["color-primary-500"],
     fontSize: scale(20),
@@ -167,8 +298,8 @@ const styles = StyleSheet.create({
   },
   unitContainer: {
     position: "absolute",
-    right: scale(Platform.OS === "android" ? 20 : 16),
-    top: scale(Platform.OS === "android" ? 8 : 3),
+    right: scale(Platform.OS === "android" ? 12 : 16),
+    top: scale(Platform.OS === "android" ? 6 : 3),
     bottom: scale(8),
     justifyContent: "flex-start",
     pointerEvents: "none",
@@ -176,6 +307,45 @@ const styles = StyleSheet.create({
   unitLabel: {
     ...fontStyles.headline3,
     color: colors["color-primary-500"],
+  },
+  scrollContent: {
+    paddingVertical: 0,
+  },
+  ageItem: {
+    height: ITEM_HEIGHT,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  itemText: {
+    color: colors["color-primary-700"],
+  },
+  selectionIndicator: {
+    position: "absolute",
+    top: ITEM_HEIGHT * 2,
+    left: 0,
+    right: 0,
+    height: ITEM_HEIGHT,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderWidth: 1,
+    zIndex: 1,
+    borderRadius: scale(8),
+    borderColor: colors["color-primary-400"],
+  },
+  overlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: ITEM_HEIGHT * 2,
+    zIndex: 2,
+    backgroundColor: colors["color-primary-100"],
+    opacity: 0.45,
+  },
+  topOverlay: {
+    top: 0,
+  },
+  bottomOverlay: {
+    bottom: 0,
   },
   bmiCard: {
     marginTop: scale(32),
