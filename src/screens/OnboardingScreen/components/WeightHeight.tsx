@@ -1,31 +1,11 @@
-import {
-  Image,
-  ImageSourcePropType,
-  Text,
-  View,
-  StyleSheet,
-  Platform,
-} from "react-native";
-import maleStandingPerson from "../../assets/male-person-standing.png";
-import nonbinaryStandingPerson from "../../assets/nonbinary-person-standing.png";
-import femaleStandingPerson from "../../assets/female-person-standing.png";
+import { Text, View, StyleSheet, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { IS_SMALL_SCREEN, scale, shadowStyle } from "../../../theme/utils";
-import useOnboardingStore, {
-  GenderEnum,
-} from "../../../zustand/useOnboardingStore";
+import { scale, shadowStyle } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
-
-const imageMapping: Record<GenderEnum, ImageSourcePropType> = {
-  [GenderEnum.Female]: femaleStandingPerson,
-  [GenderEnum.Male]: maleStandingPerson,
-  [GenderEnum.Other]: nonbinaryStandingPerson,
-};
-
-const BASE_IMAGE_HEIGHT = IS_SMALL_SCREEN ? scale(200) : scale(280);
-const BASE_IMAGE_WIDTH = scale(120);
 
 const heightData = Array.from({ length: 120 })
   .fill(0)
@@ -35,23 +15,22 @@ const weightData = Array.from({ length: 160 })
   .fill(0)
   .map((_, i) => i + 40);
 
-// Calculate scaling factors
-const getHeightScale = (height: number | null) => {
-  if (!height) return 1;
-  // Map height from 130-250cm to scale 0.85-1.15
-  const normalized = (height - 130) / (250 - 130);
-  return 0.85 + normalized * 0.3;
+const calculateBMI = (weight: number | null, height: number | null) => {
+  if (!weight || !height) return null;
+  const heightInMeters = height / 100;
+  return weight / (heightInMeters * heightInMeters);
 };
 
-const getWeightScale = (weight: number | null) => {
-  if (!weight) return 1;
-  // Map weight from 40-200kg to scale 0.85-1.15
-  const normalized = (weight - 40) / (200 - 80);
-  return 0.85 + normalized * 0.3;
+const getBMICategory = (bmi: number) => {
+  if (bmi < 18.5) return { label: "Underweight", color: colors["color-info-500"] };
+  if (bmi < 25) return { label: "Normal", color: colors["color-success-500"] };
+  if (bmi < 30) return { label: "Overweight", color: colors["color-warning-500"] };
+  return { label: "Obese", color: colors["color-danger-500"] };
 };
 
 const WeightHeight = () => {
-  const { height, weight, gender } = useOnboardingStore();
+  const { t } = useTranslation();
+  const { height, weight } = useOnboardingStore();
 
   const onHeightValueChange = (itemValue: number) => {
     if (itemValue !== height) {
@@ -67,26 +46,14 @@ const WeightHeight = () => {
     }
   };
 
-  const imageWidth = BASE_IMAGE_WIDTH * getWeightScale(weight ?? null);
+  const bmi = calculateBMI(weight ?? null, height ?? null);
+  const bmiCategory = bmi ? getBMICategory(bmi) : null;
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={imageMapping[gender || GenderEnum.Female]}
-          resizeMode="stretch"
-          style={[
-            {
-              width: imageWidth,
-              height: BASE_IMAGE_HEIGHT,
-            },
-          ]}
-        />
-      </View>
-
       <View style={styles.pickersContainer}>
         <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Height</Text>
+          <Text style={styles.cardLabel}>{t("height")}</Text>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={height ?? undefined}
@@ -116,7 +83,7 @@ const WeightHeight = () => {
         </View>
 
         <View style={styles.pickerCard}>
-          <Text style={styles.cardLabel}>Weight</Text>
+          <Text style={styles.cardLabel}>{t("weight")}</Text>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={weight ?? undefined}
@@ -145,6 +112,34 @@ const WeightHeight = () => {
           </View>
         </View>
       </View>
+
+      {bmi && bmiCategory && (
+        <View style={styles.bmiCard}>
+          <Text style={styles.bmiTitle}>{t("yourBMI")}</Text>
+          <View style={styles.bmiValueContainer}>
+            <Text style={styles.bmiValue}>{bmi.toFixed(1)}</Text>
+            <View
+              style={[
+                styles.bmiCategoryBadge,
+                { backgroundColor: bmiCategory.color },
+              ]}
+            >
+              <Text style={styles.bmiCategoryText}>{bmiCategory.label}</Text>
+            </View>
+          </View>
+          <View style={styles.bmiScale}>
+            <View style={[styles.bmiScaleSection, styles.bmiUnderweight]} />
+            <View style={[styles.bmiScaleSection, styles.bmiNormal]} />
+            <View style={[styles.bmiScaleSection, styles.bmiOverweight]} />
+            <View style={[styles.bmiScaleSection, styles.bmiObese]} />
+          </View>
+          <View style={styles.bmiLabels}>
+            <Text style={styles.bmiLabelText}>18.5</Text>
+            <Text style={styles.bmiLabelText}>25</Text>
+            <Text style={styles.bmiLabelText}>30</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -153,16 +148,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(24),
-  },
-  imageContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    paddingTop: scale(24),
   },
   pickersContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: scale(16),
-    marginTop: Platform.OS === "android" ? scale(92) : undefined,
   },
   pickerCard: {
     flex: 1,
@@ -183,14 +174,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     minHeight: scale(56),
     justifyContent: "center",
-  },
-  selectedValue: {
-    position: "absolute",
-    left: scale(16),
-    ...fontStyles.headline2,
-    color: colors["color-primary-500"],
-    zIndex: 1,
-    pointerEvents: "none",
   },
   picker: {
     width: "100%",
@@ -216,6 +199,73 @@ const styles = StyleSheet.create({
   unitLabel: {
     ...fontStyles.headline3,
     color: colors["color-primary-500"],
+  },
+  bmiCard: {
+    position: "absolute",
+    bottom: scale(96),
+    left: scale(24),
+    right: scale(24),
+    backgroundColor: colors["color-primary-500"],
+    borderRadius: scale(16),
+    padding: scale(20),
+    ...shadowStyle,
+  },
+  bmiTitle: {
+    ...fontStyles.headline3,
+    color: colors["color-primary-100"],
+    textAlign: "center",
+    marginBottom: scale(12),
+  },
+  bmiValueContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(12),
+    marginBottom: scale(16),
+  },
+  bmiValue: {
+    ...fontStyles.hero,
+    color: colors["color-primary-100"],
+  },
+  bmiCategoryBadge: {
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: scale(20),
+  },
+  bmiCategoryText: {
+    ...fontStyles.body1Bold,
+    color: colors["color-primary-100"],
+  },
+  bmiScale: {
+    flexDirection: "row",
+    height: scale(8),
+    borderRadius: scale(4),
+    overflow: "hidden",
+    marginBottom: scale(8),
+  },
+  bmiScaleSection: {
+    flex: 1,
+  },
+  bmiUnderweight: {
+    backgroundColor: colors["color-info-500"],
+  },
+  bmiNormal: {
+    backgroundColor: colors["color-success-500"],
+  },
+  bmiOverweight: {
+    backgroundColor: colors["color-warning-500"],
+  },
+  bmiObese: {
+    backgroundColor: colors["color-danger-500"],
+  },
+  bmiLabels: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingHorizontal: scale(8),
+  },
+  bmiLabelText: {
+    ...fontStyles.caption,
+    color: colors["color-primary-300"],
   },
 });
 
