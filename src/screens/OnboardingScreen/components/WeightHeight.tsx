@@ -38,7 +38,7 @@ const WeightHeight = () => {
 
   const bmiCategory =
     bmi === null
-      ? null
+      ? ""
       : bmi < 18.5
       ? "Underweight"
       : bmi < 25
@@ -64,7 +64,7 @@ const WeightHeight = () => {
             Platform.OS === "android" ? styles.pickerAndroid : styles.picker
           }
           enabled={true}
-          mode={Platform.OS === "ios" ? "dialog" : "dropdown"}
+          mode="dialog"
           selectionColor={colors["color-primary-500"]}
           dropdownIconColor={colors["color-primary-500"]}
           itemStyle={styles.pickerItem}
@@ -96,9 +96,7 @@ const WeightHeight = () => {
         <View style={styles.bmiCard}>
           <Text style={styles.bmiLabel}>Your BMI</Text>
           <Text style={styles.bmiValue}>{bmi}</Text>
-          {bmiCategory ? (
-            <Text style={styles.bmiCategory}>{bmiCategory}</Text>
-          ) : null}
+          <Text style={styles.bmiCategory}>{bmiCategory}</Text>
         </View>
       )}
     </View>
