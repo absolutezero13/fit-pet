@@ -12,6 +12,7 @@ export const colors = {
   "color-primary-700": "#0F1323",
   "color-primary-800": "#090D1C",
   "color-primary-900": "#050817",
+  "color-success-50": "#E8F5E9",
   "color-success-100": "#CFF9CD",
   "color-success-200": "#9EF3A2",
   "color-success-300": "#68DB79",
@@ -48,4 +49,11 @@ export const colors = {
   "color-danger-700": "#6E0D13",
   "color-danger-800": "#580814",
   "color-danger-900": "#490414",
+};
+
+export const macroColors = {
+  calories: colors["color-warning-500"],
+  protein: colors["color-success-500"],
+  carbs: colors["color-info-500"],
+  fats: colors["color-warning-500"],
 };

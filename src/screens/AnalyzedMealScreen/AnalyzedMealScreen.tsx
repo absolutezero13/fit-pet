@@ -117,7 +117,6 @@ const AnalyzedMealScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <LiquidGlassView
         effect="clear"
         style={[styles.pageHeader, { paddingTop: top }]}
@@ -141,7 +140,6 @@ const AnalyzedMealScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Section - Image + Description */}
         <View style={styles.topSection}>
           {meal.image ? (
             <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
@@ -165,8 +163,6 @@ const AnalyzedMealScreen = () => {
             </View>
           </View>
         </View>
-
-        {/* Score Section */}
         <View style={styles.scoreSection}>
           <View
             style={[
@@ -185,8 +181,6 @@ const AnalyzedMealScreen = () => {
             </Text>
           </View>
         </View>
-
-        {/* Macros Section */}
         <Text style={styles.sectionHeading}>{t("macronutrients")}</Text>
         <View style={styles.macrosContainer}>
           <View style={styles.macroItem}>
@@ -205,8 +199,6 @@ const AnalyzedMealScreen = () => {
             <Text style={styles.macroLabel}>{t("fats")}</Text>
           </View>
         </View>
-
-        {/* Insights Section */}
         {meal.insights && meal.insights.length > 0 && (
           <>
             <Text style={styles.sectionHeading}>{t("insights")}</Text>
@@ -227,7 +219,6 @@ const AnalyzedMealScreen = () => {
           </>
         )}
 
-        {/* Action Buttons */}
         <View style={styles.actionContainer}>
           <LiquidGlassView
             effect="clear"
@@ -261,7 +252,12 @@ const AnalyzedMealScreen = () => {
                 size={scale(22)}
                 color="white"
               />
-              <Text style={[styles.actionText, { color: "white" }]}>
+              <Text
+                style={[
+                  styles.actionText,
+                  { color: colors["color-primary-50"] },
+                ]}
+              >
                 {t("delete")}
               </Text>
             </TouchableOpacity>

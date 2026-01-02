@@ -148,7 +148,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     setScreenState("camera");
     setAnalyzedMeal(null);
     setSelectedMealType(t("breakfast"));
-    // Reset animation values
+
     imageWidth.value = 100;
     imageHeight.value = scale(500);
     imageMarginRight.value = 0;
@@ -206,7 +206,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         useMealsStore.setState({ loggedMeals: [...meals, meal] });
       }
 
-      // Instead of navigating away, show the analyzed meal in the sheet
       setAnalyzedMeal(meal);
       setScreenState("analyzed");
 
@@ -260,18 +259,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         },
       },
     ]);
-  };
-
-  const handleEdit = () => {
-    if (!analyzedMeal?._id) return;
-    dismiss();
-    setTimeout(() => {
-      navigation.navigate("LogMeal", {
-        mealId: analyzedMeal._id,
-        selectedDate: analyzedMeal.date,
-      });
-      resetState();
-    }, ANIMATION_NAVIGATION_DELAY);
   };
 
   const handleNewScan = () => {
@@ -395,7 +382,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       {screenState === "analyzing" && photo && (
         <View style={styles.analyzingContainer}>
           <Image source={{ uri: photo.path }} style={styles.photo} />
-          {/* Inline Analyzing Overlay */}
           <View style={styles.analyzingOverlay}>
             <Animated.View
               style={[styles.loaderOuterRing, loaderRotationStyle]}
@@ -450,8 +436,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               </View>
             </Animated.View>
           </View>
-
-          {/* Score Section */}
           <Animated.View
             entering={FadeInUp.delay(400).duration(500)}
             style={styles.scoreSection}
@@ -476,8 +460,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               </Text>
             </View>
           </Animated.View>
-
-          {/* Macros Section */}
           <Animated.View entering={FadeInUp.delay(500).duration(500)}>
             <Text style={styles.sectionHeading}>{t("macronutrients")}</Text>
             <View style={styles.macrosContainer}>
@@ -499,7 +481,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             </View>
           </Animated.View>
 
-          {/* Insights Section */}
           {analyzedMeal.insights && analyzedMeal.insights.length > 0 && (
             <Animated.View entering={FadeInUp.delay(600).duration(500)}>
               <Text style={styles.sectionHeading}>{t("insights")}</Text>
@@ -520,7 +501,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             </Animated.View>
           )}
 
-          {/* Action Buttons */}
           <Animated.View
             entering={FadeInUp.delay(700).duration(500)}
             style={styles.actionContainer}

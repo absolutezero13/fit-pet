@@ -12,13 +12,11 @@ import { useTranslation } from "react-i18next";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
-
-const ACCENT_GREEN = "#4CAF50";
+import { colors } from "../theme/colors";
 
 const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
   const { t } = useTranslation();
 
-  // Animation values
   const rotation = useSharedValue(0);
   const pulse = useSharedValue(1);
 
@@ -27,13 +25,11 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
       return;
     }
 
-    // Main rotation
     rotation.value = withRepeat(
       withTiming(360, { duration: 2000, easing: Easing.linear }),
       -1
     );
 
-    // Pulse animation
     pulse.value = withRepeat(
       withSequence(
         withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
@@ -57,22 +53,18 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.container}>
         <View style={styles.content}>
-          {/* Animated Icon Container */}
           <Animated.View style={[styles.iconOuterRing, rotationStyle]}>
             <View style={styles.ringDot} />
             <View style={[styles.ringDot, styles.ringDot2]} />
             <View style={[styles.ringDot, styles.ringDot3]} />
           </Animated.View>
-
           <Animated.View style={[styles.iconContainer, pulseStyle]}>
             <MaterialCommunityIcons
               name="magnify"
               size={scale(36)}
-              color="white"
+              color={colors["color-primary-50"]}
             />
           </Animated.View>
-
-          {/* Status Message */}
           <Text style={styles.statusText}>{t("analyzingMeal")}</Text>
         </View>
       </View>
@@ -108,7 +100,7 @@ const styles = StyleSheet.create({
     height: scale(100),
     borderRadius: scale(50),
     borderWidth: 2,
-    borderColor: ACCENT_GREEN + "30",
+    borderColor: colors["color-success-500"] + "30",
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -118,7 +110,7 @@ const styles = StyleSheet.create({
     width: scale(8),
     height: scale(8),
     borderRadius: scale(4),
-    backgroundColor: ACCENT_GREEN,
+    backgroundColor: colors["color-success-500"],
     top: -scale(4),
   },
   ringDot2: {
@@ -135,11 +127,11 @@ const styles = StyleSheet.create({
     width: scale(80),
     height: scale(80),
     borderRadius: scale(40),
-    backgroundColor: ACCENT_GREEN,
+    backgroundColor: colors["color-success-500"],
     alignItems: "center",
     justifyContent: "center",
     marginBottom: scale(24),
-    shadowColor: ACCENT_GREEN,
+    shadowColor: colors["color-success-500"],
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -147,7 +139,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     ...fontStyles.headline3,
-    color: "#1A1A1A",
     textAlign: "center",
   },
 });

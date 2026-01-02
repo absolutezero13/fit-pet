@@ -24,7 +24,7 @@ import {
   Nunito_900Black_Italic,
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ActivityIndicator, Platform, UIManager, View } from "react-native";
+import { Platform, UIManager } from "react-native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import i18next, { changeLanguage } from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -35,7 +35,6 @@ import userService from "./services/user";
 import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
-import { colors } from "./theme/colors";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -53,11 +52,7 @@ const initializeLanguage = async () => {
 
 // NavigationBar.setBackgroundColorAsync("#ffffff00");
 
-Asset.loadAsync([
-  ...NavigationAssets,
-  require("./assets/newspaper.png"),
-  require("./assets/bell.png"),
-]);
+Asset.loadAsync([...NavigationAssets]);
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === "android") {
@@ -110,7 +105,7 @@ export function App() {
     console.log("App ready async");
     setTimeout(async () => {
       SplashScreen.hideAsync();
-    }, 300);
+    }, 100);
   };
 
   return (

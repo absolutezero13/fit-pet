@@ -95,8 +95,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   };
 
   const proteinGoal = (goals.proteins * goals.calories) / 100 / 4;
-  const carbsGoal = (goals.carbs * goals.calories) / 100 / 4;
-  const fatsGoal = (goals.fats * goals.calories) / 100 / 9;
   const isOverCalorieGoal = totals.calories > goals.calories;
   const remainingCalories = Math.max(0, goals.calories - totals.calories);
   const overCalories = Math.max(0, totals.calories - goals.calories);

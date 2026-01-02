@@ -6,8 +6,6 @@ import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import { IMeal } from "../services/apiTypes";
-import LogMealScreen from "../screens/LogMealScreen/LogMealScreen";
-import { getAuth } from "@react-native-firebase/auth";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
 import useUserStore from "../zustand/useUserStore";
@@ -49,14 +47,6 @@ const RootNavigator = () => {
       <Stack.Screen
         name="MealDetail"
         component={MealDetailScreen}
-        options={{
-          headerShown: false,
-          presentation: "modal",
-        }}
-      />
-      <Stack.Screen
-        name="LogMeal"
-        component={LogMealScreen}
         options={{
           headerShown: false,
           presentation: "modal",

@@ -1,78 +1,11 @@
-import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import Markdown, {
   RenderRules,
 } from "@ronradtke/react-native-markdown-display";
-
-const MessageSkeleton = () => {
-  const opacity = useSharedValue(0.3);
-
-  useEffect(() => {
-    opacity.value = withRepeat(
-      withTiming(0.7, { duration: 600, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
-  return (
-    <View style={skeletonStyles.container}>
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
-      />
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
-      />
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
-      />
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
-      />
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line2, animatedStyle]}
-      />
-      <Animated.View
-        style={[skeletonStyles.line, skeletonStyles.line3, animatedStyle]}
-      />
-    </View>
-  );
-};
-
-const skeletonStyles = StyleSheet.create({
-  container: {
-    gap: scale(8),
-    minWidth: scale(200),
-  },
-  line: {
-    height: scale(14),
-    backgroundColor: colors["color-primary-200"],
-    borderRadius: scale(7),
-  },
-  line1: {
-    width: "100%",
-  },
-  line2: {
-    width: "85%",
-  },
-  line3: {
-    width: "60%",
-  },
-});
+import MessageSkeleton from "./Skeleton";
 
 export type IChatMessage = {
   id: string;
@@ -195,7 +128,7 @@ const styles = StyleSheet.create({
     ...fontStyles.body1,
   },
   userMessageText: {
-    color: "white",
+    color: colors["color-primary-50"],
   },
   botMessageText: {
     color: colors["color-primary-800"],
@@ -205,7 +138,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   userMessageTime: {
-    color: "rgba(255, 255, 255, 0.8)",
+    color: colors["color-primary-200"],
   },
   botMessageTime: {
     color: colors["color-primary-400"],

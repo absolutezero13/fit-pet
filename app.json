@@ -13,7 +13,9 @@
       "bundleIdentifier": "com.ilks.fitpet",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Location access is used to improve app functionality where relevant."
+        "NSLocationWhenInUseUsageDescription": "Location access is used to improve app functionality where relevant.",
+        "CFBundleVersion": "2",
+        "CFBundleShortVersionString": "1.0.5"
       }
     },
     "android": {

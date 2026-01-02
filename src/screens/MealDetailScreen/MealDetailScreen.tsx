@@ -13,21 +13,13 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
-import { colors } from "../../theme/colors";
+import { colors, macroColors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import FastImage from "react-native-fast-image";
 
 type MealDetailScreenProps = {
   meal: IMeal;
-};
-
-// Macro colors matching HomeScreen design
-const MACRO_COLORS = {
-  calories: "#F5A623",
-  protein: "#4CAF50",
-  carbs: "#2196F3",
-  fats: "#FF7043",
 };
 
 const MealDetailScreen = () => {
@@ -51,21 +43,20 @@ const MealDetailScreen = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return "#4CAF50";
-    if (score >= 6) return "#F5A623";
-    if (score >= 4) return "#2196F3";
-    return "#E53935";
+    if (score >= 8) return colors["color-success-500"];
+    if (score >= 6) return colors["color-warning-500"];
+    if (score >= 4) return colors["color-info-500"];
+    return colors["color-danger-500"];
   };
 
   const renderMacroCard = (
     icon: string,
     label: string,
     value: string,
-    color: string,
-    bgColor: string
+    color: string
   ) => (
     <View style={styles.macroCard}>
-      <View style={[styles.macroIconContainer, { backgroundColor: bgColor }]}>
+      <View style={[styles.macroIconContainer]}>
         <MaterialCommunityIcons
           name={icon as any}
           size={scale(18)}
@@ -94,7 +85,7 @@ const MealDetailScreen = () => {
               styles.nutritionSegment,
               {
                 width: `${proteinPercentage}%`,
-                backgroundColor: MACRO_COLORS.protein,
+                backgroundColor: macroColors.protein,
               },
             ]}
           />
@@ -103,7 +94,7 @@ const MealDetailScreen = () => {
               styles.nutritionSegment,
               {
                 width: `${carbsPercentage}%`,
-                backgroundColor: MACRO_COLORS.carbs,
+                backgroundColor: macroColors.carbs,
               },
             ]}
           />
@@ -112,7 +103,7 @@ const MealDetailScreen = () => {
               styles.nutritionSegment,
               {
                 width: `${fatsPercentage}%`,
-                backgroundColor: MACRO_COLORS.fats,
+                backgroundColor: macroColors.fats,
               },
             ]}
           />
@@ -122,7 +113,7 @@ const MealDetailScreen = () => {
             <View
               style={[
                 styles.legendDot,
-                { backgroundColor: MACRO_COLORS.protein },
+                { backgroundColor: macroColors.protein },
               ]}
             />
             <Text style={styles.legendText}>
@@ -131,10 +122,7 @@ const MealDetailScreen = () => {
           </View>
           <View style={styles.legendItem}>
             <View
-              style={[
-                styles.legendDot,
-                { backgroundColor: MACRO_COLORS.carbs },
-              ]}
+              style={[styles.legendDot, { backgroundColor: macroColors.carbs }]}
             />
             <Text style={styles.legendText}>
               {t("carbs")} {carbsPercentage}%
@@ -142,7 +130,7 @@ const MealDetailScreen = () => {
           </View>
           <View style={styles.legendItem}>
             <View
-              style={[styles.legendDot, { backgroundColor: MACRO_COLORS.fats }]}
+              style={[styles.legendDot, { backgroundColor: macroColors.fats }]}
             />
             <Text style={styles.legendText}>
               {t("fats")} {fatsPercentage}%
@@ -185,8 +173,6 @@ const MealDetailScreen = () => {
             />
           </TouchableOpacity>
         </View>
-
-        {/* Image */}
         <View style={styles.imageContainer}>
           {meal.image ? (
             <FastImage
@@ -200,10 +186,7 @@ const MealDetailScreen = () => {
             </View>
           )}
         </View>
-
-        {/* Content Card */}
         <View style={styles.contentCard}>
-          {/* Title & Time */}
           <View style={styles.titleSection}>
             <View style={styles.titleRow}>
               <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
@@ -239,46 +222,37 @@ const MealDetailScreen = () => {
               <Text style={styles.timeText}>{meal.preparationTime}</Text>
             </View>
           </View>
-
-          {/* Description */}
           <Text style={styles.description}>{meal.description}</Text>
 
-          {/* Macros Grid */}
           <View style={styles.macrosGrid}>
             {renderMacroCard(
               "fire",
               t("calories"),
               `${meal.calories}`,
-              MACRO_COLORS.calories,
-              "#FFF8E7"
+              macroColors.calories
             )}
             {renderMacroCard(
               "lightning-bolt",
               t("proteins"),
               `${meal.proteins}g`,
-              MACRO_COLORS.protein,
-              "#E8F5E9"
+              macroColors.protein
             )}
             {renderMacroCard(
               "bread-slice",
               t("carbs"),
               `${meal.carbs}g`,
-              MACRO_COLORS.carbs,
-              "#E3F2FD"
+              macroColors.carbs
             )}
             {renderMacroCard(
               "water",
               t("fats"),
               `${meal.fats}g`,
-              MACRO_COLORS.fats,
-              "#FBE9E7"
+              macroColors.fats
             )}
           </View>
 
-          {/* Nutrition Bar */}
           {renderNutritionBar()}
 
-          {/* Ingredients */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <View
@@ -287,7 +261,7 @@ const MealDetailScreen = () => {
                 <MaterialCommunityIcons
                   name="food-apple"
                   size={scale(20)}
-                  color={MACRO_COLORS.protein}
+                  color={macroColors.protein}
                 />
               </View>
               <Text style={styles.sectionTitle}>{t("ingredients")}</Text>
@@ -311,7 +285,7 @@ const MealDetailScreen = () => {
                 <MaterialCommunityIcons
                   name="chef-hat"
                   size={scale(20)}
-                  color={MACRO_COLORS.carbs}
+                  color={macroColors.carbs}
                 />
               </View>
               <Text style={styles.sectionTitle}>{t("instructions")}</Text>
@@ -340,18 +314,18 @@ const MealDetailScreen = () => {
                   <MaterialCommunityIcons
                     name="lightbulb-outline"
                     size={scale(20)}
-                    color={MACRO_COLORS.calories}
+                    color={macroColors.calories}
                   />
                 </View>
                 <Text style={styles.sectionTitle}>{t("insights")}</Text>
               </View>
-              <View style={styles.insightsList}>
+              <View>
                 {meal.insights.map((insight, index) => (
                   <View key={index} style={styles.insightItem}>
                     <MaterialCommunityIcons
                       name="check-circle"
                       size={scale(18)}
-                      color={MACRO_COLORS.protein}
+                      color={macroColors.protein}
                       style={styles.insightIcon}
                     />
                     <Text style={styles.insightText}>{insight}</Text>
@@ -566,7 +540,7 @@ const styles = StyleSheet.create({
     width: scale(6),
     height: scale(6),
     borderRadius: scale(3),
-    backgroundColor: MACRO_COLORS.protein,
+    backgroundColor: macroColors.protein,
     marginTop: scale(8),
     marginRight: scale(12),
   },
@@ -595,7 +569,7 @@ const styles = StyleSheet.create({
   instructionNumberText: {
     ...fontStyles.body2,
     fontWeight: "700",
-    color: MACRO_COLORS.carbs,
+    color: macroColors.carbs,
   },
   instructionText: {
     ...fontStyles.body2,
@@ -603,8 +577,6 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: scale(22),
   },
-  // Insights
-  insightsList: {},
   insightItem: {
     flexDirection: "row",
     alignItems: "flex-start",

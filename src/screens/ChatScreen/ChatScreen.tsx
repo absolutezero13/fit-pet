@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInUp, LinearTransition } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import { createGeminiStream } from "../../services/gptApi";
@@ -29,7 +29,6 @@ import {
 } from "@callstack/liquid-glass";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-// Suggestion data type
 type Suggestion = {
   text: string;
   prompt: string;
@@ -171,7 +170,7 @@ const ChatScreen = () => {
     <View style={styles.container}>
       <AnimatedLiquidGlassView
         effect="clear"
-        layout={FadeInUp}
+        layout={LinearTransition}
         style={[
           styles.header,
           {
@@ -323,7 +322,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
-    backgroundColor: colors["color-primary-50"],
+    backgroundColor: "white",
   },
   emptyStateContainer: {
     flex: 1,
@@ -362,16 +361,15 @@ const styles = StyleSheet.create({
   },
   emptyStateButtonText: {
     ...fontStyles.headline4,
-    color: "white",
+    color: colors["color-primary-50"],
   },
-  // New suggestion bubbles styles
   suggestionsContainer: {
     paddingHorizontal: scale(16),
     backgroundColor: colors["color-primary-100"],
     marginBottom: scale(12),
   },
   suggestionBubble: {
-    backgroundColor: "white",
+    backgroundColor: colors["color-primary-50"],
     paddingHorizontal: scale(16),
     paddingVertical: scale(10),
     borderRadius: scale(20),

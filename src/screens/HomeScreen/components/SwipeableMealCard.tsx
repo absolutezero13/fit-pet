@@ -101,11 +101,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
       }
       ref={swipeableRef}
     >
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={styles.container}
-        onPress={() => onPress(meal)}
-      >
+      <TouchableOpacity style={styles.container} onPress={() => onPress(meal)}>
         {/* Emoji Container */}
         <View style={styles.emojiContainer}>
           <Text style={styles.emoji}>{meal.emoji}</Text>
@@ -137,8 +133,6 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
             </View>
           </View>
         </View>
-
-        {/* Score & Arrow */}
         <View style={styles.rightSection}>
           {meal.score > 0 && (
             <View

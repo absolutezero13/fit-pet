@@ -52,7 +52,6 @@ const SkeletonBox = ({
 const DailySummarySkeleton = () => {
   return (
     <View style={styles.summaryContainer}>
-      {/* Header Row */}
       <View style={styles.headerRow}>
         <SkeletonBox width={scale(120)} height={scale(22)} />
         <SkeletonBox
@@ -61,11 +60,8 @@ const DailySummarySkeleton = () => {
           borderRadius={scale(11)}
         />
       </View>
-
-      {/* Calories Hero Section */}
       <View style={styles.caloriesHero}>
         <View style={styles.caloriesMainRow}>
-          {/* Left: Icon + Value */}
           <View style={styles.caloriesConsumed}>
             <SkeletonBox
               width={scale(48)}
@@ -87,7 +83,6 @@ const DailySummarySkeleton = () => {
               />
             </View>
           </View>
-          {/* Right: Remaining */}
           <View style={styles.caloriesRemaining}>
             <SkeletonBox width={scale(70)} height={scale(28)} />
             <SkeletonBox
@@ -97,7 +92,6 @@ const DailySummarySkeleton = () => {
             />
           </View>
         </View>
-        {/* Progress Bar */}
         <SkeletonBox
           width="100%"
           height={scale(8)}
@@ -105,7 +99,6 @@ const DailySummarySkeleton = () => {
           color="#FFE4B8"
           style={{ marginBottom: scale(8) }}
         />
-        {/* Goal Text */}
         <SkeletonBox
           width={scale(100)}
           height={scale(12)}
@@ -113,7 +106,6 @@ const DailySummarySkeleton = () => {
         />
       </View>
 
-      {/* Protein Card */}
       <View style={styles.proteinCard}>
         <View style={styles.proteinRow}>
           <SkeletonBox
@@ -141,9 +133,7 @@ const DailySummarySkeleton = () => {
         />
       </View>
 
-      {/* Other Macros Row */}
       <View style={styles.otherMacrosRow}>
-        {/* Carbs */}
         <View style={styles.miniMacroCard}>
           <SkeletonBox
             width={scale(32)}
@@ -164,7 +154,6 @@ const DailySummarySkeleton = () => {
           <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
         </View>
 
-        {/* Fats */}
         <View style={styles.miniMacroCard}>
           <SkeletonBox
             width={scale(32)}
@@ -184,8 +173,6 @@ const DailySummarySkeleton = () => {
           />
           <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
         </View>
-
-        {/* Score */}
         <View style={styles.miniMacroCard}>
           <SkeletonBox
             width={scale(32)}
@@ -274,21 +261,18 @@ const styles = StyleSheet.create({
   skeletonBox: {
     backgroundColor: colors["color-primary-200"],
   },
-  // Header
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: scale(16),
   },
-  // Daily Summary Container
   summaryContainer: {
     backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(20),
     marginBottom: scale(16),
   },
-  // Calories Hero
   caloriesHero: {
     backgroundColor: "#FFFBF5",
     borderRadius: scale(20),
@@ -309,7 +293,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "flex-end",
   },
-  // Protein Card
   proteinCard: {
     backgroundColor: "#F0F9F0",
     borderRadius: scale(16),
@@ -325,7 +308,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: scale(12),
   },
-  // Other Macros
   otherMacrosRow: {
     flexDirection: "row",
     gap: scale(10),
@@ -337,7 +319,6 @@ const styles = StyleSheet.create({
     padding: scale(12),
     alignItems: "center",
   },
-  // Meal Section
   sectionContainer: {
     marginBottom: scale(12),
   },
