@@ -15,6 +15,10 @@ const weightData = Array.from({ length: 160 })
   .fill(0)
   .map((_, i) => i + 40);
 
+const BMI_UNDERWEIGHT_MAX = 18.5;
+const BMI_HEALTHY_MAX = 25;
+const BMI_OVERWEIGHT_MAX = 30;
+
 const WeightHeight = () => {
   const { height, weight } = useOnboardingStore();
 
@@ -42,11 +46,13 @@ const WeightHeight = () => {
 
   const bmiCategory = useMemo(() => {
     if (bmi === null) return "";
-    if (bmi < 18.5) return "Underweight";
-    if (bmi < 25) return "Healthy";
-    if (bmi < 30) return "Overweight";
+    if (bmi < BMI_UNDERWEIGHT_MAX) return "Underweight";
+    if (bmi < BMI_HEALTHY_MAX) return "Healthy";
+    if (bmi < BMI_OVERWEIGHT_MAX) return "Overweight";
     return "Obese";
   }, [bmi]);
+
+  const pickerMode = Platform.OS === "android" ? "dropdown" : undefined;
 
   const renderPicker = (
     label: string,
@@ -65,7 +71,7 @@ const WeightHeight = () => {
             Platform.OS === "android" ? styles.pickerAndroid : styles.picker
           }
           enabled={true}
-          mode={Platform.OS === "android" ? "dropdown" : "dialog"}
+          mode={pickerMode}
           selectionColor={colors["color-primary-500"]}
           dropdownIconColor={colors["color-primary-500"]}
           itemStyle={styles.pickerItem}
