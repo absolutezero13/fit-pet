@@ -383,8 +383,9 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "white",
-    borderRadius: scale(16),
+    borderRadius: scale(32),
     padding: scale(16),
+    paddingHorizontal: scale(24),
     shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,

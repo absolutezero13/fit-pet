@@ -115,6 +115,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: scale(32),
     backgroundColor: colors["color-primary-50"],
+    borderColor: colors["color-primary-200"],
+    borderWidth: 1,
   },
   languageOptionSelected: {
     backgroundColor: colors["color-primary-100"],
