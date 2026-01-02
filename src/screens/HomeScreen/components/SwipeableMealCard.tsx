@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: scale(8),
     elevation: 3,
+    marginHorizontal: scale(24),
   },
   emojiContainer: {
     width: scale(44),

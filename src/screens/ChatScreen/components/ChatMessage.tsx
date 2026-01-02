@@ -1,10 +1,78 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import Markdown, {
   RenderRules,
 } from "@ronradtke/react-native-markdown-display";
+
+const MessageSkeleton = () => {
+  const opacity = useSharedValue(0.3);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(0.7, { duration: 600, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <View style={skeletonStyles.container}>
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
+      />
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
+      />
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
+      />
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line1, animatedStyle]}
+      />
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line2, animatedStyle]}
+      />
+      <Animated.View
+        style={[skeletonStyles.line, skeletonStyles.line3, animatedStyle]}
+      />
+    </View>
+  );
+};
+
+const skeletonStyles = StyleSheet.create({
+  container: {
+    gap: scale(8),
+    minWidth: scale(200),
+  },
+  line: {
+    height: scale(14),
+    backgroundColor: colors["color-primary-200"],
+    borderRadius: scale(7),
+  },
+  line1: {
+    width: "100%",
+  },
+  line2: {
+    width: "85%",
+  },
+  line3: {
+    width: "60%",
+  },
+});
 
 export type IChatMessage = {
   id: string;
@@ -84,7 +152,7 @@ const ChatMessage = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={colors["color-primary-500"]} />
+        <MessageSkeleton />
       ) : (
         <>
           <View>

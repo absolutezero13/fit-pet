@@ -300,7 +300,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             />
             <InfoCard
               label={t("gender")}
-              value={useOnboardingStore.getState().gender as GenderEnum}
+              value={t(useOnboardingStore.getState().gender as GenderEnum)}
               style={cardAnimations[3]}
             />
           </View>

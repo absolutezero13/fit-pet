@@ -269,6 +269,7 @@ export const HomeScreenSkeleton = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: scale(24),
   },
   skeletonBox: {
     backgroundColor: colors["color-primary-200"],

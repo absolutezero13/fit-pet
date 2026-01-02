@@ -11,6 +11,8 @@ import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
 import Slider from "@react-native-community/slider";
 import AppButton from "../../../components/AppButton";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -100,306 +102,310 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const overCalories = Math.max(0, totals.calories - goals.calories);
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
-        <Pressable onPress={() => setModalVisible(true)}>
-          <Icon name="cog-outline" size={scale(22)} color="#888888" />
-        </Pressable>
-      </View>
+    <LiquidGlassView effect="clear" style={styles.container}>
+      <Animated.View entering={FadeIn} exiting={FadeOut}>
+        <View style={styles.headerRow}>
+          <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+          <Pressable onPress={() => setModalVisible(true)}>
+            <Icon name="cog-outline" size={scale(22)} color="#888888" />
+          </Pressable>
+        </View>
 
-      {/* Calories Hero Section */}
-      <View
-        style={[
-          styles.caloriesHero,
-          isOverCalorieGoal && styles.caloriesHeroOver,
-        ]}
-      >
-        <View style={styles.caloriesMainRow}>
-          <View style={styles.caloriesConsumed}>
+        <View
+          style={[
+            styles.caloriesHero,
+            isOverCalorieGoal && styles.caloriesHeroOver,
+          ]}
+        >
+          <View style={styles.caloriesMainRow}>
+            <View style={styles.caloriesConsumed}>
+              <View
+                style={[
+                  styles.heroIconContainer,
+                  isOverCalorieGoal && styles.heroIconContainerOver,
+                ]}
+              >
+                <Icon
+                  name="fire"
+                  size={scale(28)}
+                  color={isOverCalorieGoal ? "#E53935" : "#F5A623"}
+                />
+              </View>
+              <View>
+                <Text
+                  style={[
+                    styles.heroValue,
+                    isOverCalorieGoal && styles.heroValueOver,
+                  ]}
+                >
+                  {totals.calories.toFixed(0)}
+                </Text>
+                <Text style={styles.heroLabel}>{t("consumed")}</Text>
+              </View>
+            </View>
+
+            <View style={styles.caloriesRemaining}>
+              <View>
+                {isOverCalorieGoal ? (
+                  <>
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      style={styles.heroValueOver}
+                    >
+                      +{overCalories.toFixed(0)}
+                    </Text>
+                    <Text style={styles.heroLabelOver}>{t("over")}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      style={styles.heroValueRemaining}
+                    >
+                      {remainingCalories.toFixed(0)}
+                    </Text>
+                    <Text style={styles.heroLabelRemaining}>
+                      {t("remaining")}
+                    </Text>
+                  </>
+                )}
+              </View>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.heroProgressContainer,
+              isOverCalorieGoal && styles.heroProgressContainerOver,
+            ]}
+          >
             <View
               style={[
-                styles.heroIconContainer,
-                isOverCalorieGoal && styles.heroIconContainerOver,
+                styles.heroProgress,
+                isOverCalorieGoal && styles.heroProgressOver,
+                { width: `${Math.min(progress.calories * 100, 100)}%` },
+              ]}
+            />
+          </View>
+          <Text style={styles.heroGoalText}>
+            {t("goal")}: {goals.calories} kcal
+          </Text>
+        </View>
+
+        {/* Protein Section */}
+        <View style={styles.proteinCard}>
+          <View style={styles.proteinRow}>
+            <View style={styles.proteinIconContainer}>
+              <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
+            </View>
+            <View style={styles.proteinInfo}>
+              <Text style={styles.proteinLabel}>{t("proteins")}</Text>
+              <Text style={styles.proteinValues}>
+                {totals.proteins.toFixed(0)}g{" "}
+                <Text style={styles.proteinGoal}>
+                  / {proteinGoal.toFixed(0)}g
+                </Text>
+              </Text>
+            </View>
+            <Text style={styles.proteinPercent}>
+              {Math.round(progress.proteins * 100)}%
+            </Text>
+          </View>
+          <View style={styles.proteinProgressContainer}>
+            <View
+              style={[
+                styles.proteinProgress,
+                { width: `${Math.min(progress.proteins * 100, 100)}%` },
+              ]}
+            />
+          </View>
+        </View>
+
+        <View style={styles.otherMacrosRow}>
+          <View style={styles.miniMacroCard}>
+            <View
+              style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}
+            >
+              <Icon name="bread-slice" size={scale(16)} color="#2196F3" />
+            </View>
+            <Text style={styles.miniMacroLabel}>{t("carbs")}</Text>
+            <Text style={styles.miniMacroValue}>
+              {totals.carbs.toFixed(0)}g
+            </Text>
+            <View style={styles.miniProgressContainer}>
+              <View
+                style={[
+                  styles.miniProgress,
+                  {
+                    width: `${Math.min(progress.carbs * 100, 100)}%`,
+                    backgroundColor: "#2196F3",
+                  },
+                ]}
+              />
+            </View>
+          </View>
+          <View style={styles.miniMacroCard}>
+            <View
+              style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}
+            >
+              <Icon name="water" size={scale(16)} color="#FF7043" />
+            </View>
+            <Text style={styles.miniMacroLabel}>{t("fats")}</Text>
+            <Text style={styles.miniMacroValue}>{totals.fats.toFixed(0)}g</Text>
+            <View style={styles.miniProgressContainer}>
+              <View
+                style={[
+                  styles.miniProgress,
+                  {
+                    width: `${Math.min(progress.fats * 100, 100)}%`,
+                    backgroundColor: "#FF7043",
+                  },
+                ]}
+              />
+            </View>
+          </View>
+
+          <Pressable
+            style={[styles.miniMacroCard, styles.scoreCard]}
+            onPress={() => setModalVisible(true)}
+          >
+            <View
+              style={[
+                styles.miniMacroIcon,
+                { backgroundColor: getScoreColor(averageScore) + "20" },
               ]}
             >
               <Icon
-                name="fire"
-                size={scale(28)}
-                color={isOverCalorieGoal ? "#E53935" : "#F5A623"}
+                name="star"
+                size={scale(16)}
+                color={getScoreColor(averageScore)}
               />
             </View>
-            <View>
-              <Text
-                style={[
-                  styles.heroValue,
-                  isOverCalorieGoal && styles.heroValueOver,
-                ]}
-              >
-                {totals.calories.toFixed(0)}
-              </Text>
-              <Text style={styles.heroLabel}>{t("consumed")}</Text>
-            </View>
-          </View>
-
-          <View style={styles.caloriesRemaining}>
-            <View>
-              {isOverCalorieGoal ? (
-                <>
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    style={styles.heroValueOver}
-                  >
-                    +{overCalories.toFixed(0)}
-                  </Text>
-                  <Text style={styles.heroLabelOver}>{t("over")}</Text>
-                </>
-              ) : (
-                <>
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    style={styles.heroValueRemaining}
-                  >
-                    {remainingCalories.toFixed(0)}
-                  </Text>
-                  <Text style={styles.heroLabelRemaining}>
-                    {t("remaining")}
-                  </Text>
-                </>
-              )}
-            </View>
-          </View>
-        </View>
-
-        {/* Calorie Progress Bar */}
-        <View
-          style={[
-            styles.heroProgressContainer,
-            isOverCalorieGoal && styles.heroProgressContainerOver,
-          ]}
-        >
-          <View
-            style={[
-              styles.heroProgress,
-              isOverCalorieGoal && styles.heroProgressOver,
-              { width: `${Math.min(progress.calories * 100, 100)}%` },
-            ]}
-          />
-        </View>
-        <Text style={styles.heroGoalText}>
-          {t("goal")}: {goals.calories} kcal
-        </Text>
-      </View>
-
-      {/* Protein Section */}
-      <View style={styles.proteinCard}>
-        <View style={styles.proteinRow}>
-          <View style={styles.proteinIconContainer}>
-            <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
-          </View>
-          <View style={styles.proteinInfo}>
-            <Text style={styles.proteinLabel}>{t("proteins")}</Text>
-            <Text style={styles.proteinValues}>
-              {totals.proteins.toFixed(0)}g{" "}
-              <Text style={styles.proteinGoal}>
-                / {proteinGoal.toFixed(0)}g
-              </Text>
+            <Text style={styles.miniMacroLabel}>{t("score")}</Text>
+            <Text
+              style={[
+                styles.miniMacroValue,
+                { color: getScoreColor(averageScore) },
+              ]}
+            >
+              {averageScore.toFixed(1)}
             </Text>
-          </View>
-          <Text style={styles.proteinPercent}>
-            {Math.round(progress.proteins * 100)}%
-          </Text>
+          </Pressable>
         </View>
-        <View style={styles.proteinProgressContainer}>
-          <View
-            style={[
-              styles.proteinProgress,
-              { width: `${Math.min(progress.proteins * 100, 100)}%` },
-            ]}
-          />
-        </View>
-      </View>
-
-      {/* Other Macros Row */}
-      <View style={styles.otherMacrosRow}>
-        {/* Carbs */}
-        <View style={styles.miniMacroCard}>
-          <View style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}>
-            <Icon name="bread-slice" size={scale(16)} color="#2196F3" />
-          </View>
-          <Text style={styles.miniMacroLabel}>{t("carbs")}</Text>
-          <Text style={styles.miniMacroValue}>{totals.carbs.toFixed(0)}g</Text>
-          <View style={styles.miniProgressContainer}>
-            <View
-              style={[
-                styles.miniProgress,
-                {
-                  width: `${Math.min(progress.carbs * 100, 100)}%`,
-                  backgroundColor: "#2196F3",
-                },
-              ]}
-            />
-          </View>
-        </View>
-
-        {/* Fats */}
-        <View style={styles.miniMacroCard}>
-          <View style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}>
-            <Icon name="water" size={scale(16)} color="#FF7043" />
-          </View>
-          <Text style={styles.miniMacroLabel}>{t("fats")}</Text>
-          <Text style={styles.miniMacroValue}>{totals.fats.toFixed(0)}g</Text>
-          <View style={styles.miniProgressContainer}>
-            <View
-              style={[
-                styles.miniProgress,
-                {
-                  width: `${Math.min(progress.fats * 100, 100)}%`,
-                  backgroundColor: "#FF7043",
-                },
-              ]}
-            />
-          </View>
-        </View>
-
-        {/* Score */}
-        <Pressable
-          style={[styles.miniMacroCard, styles.scoreCard]}
-          onPress={() => setModalVisible(true)}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
         >
-          <View
-            style={[
-              styles.miniMacroIcon,
-              { backgroundColor: getScoreColor(averageScore) + "20" },
-            ]}
-          >
-            <Icon
-              name="star"
-              size={scale(16)}
-              color={getScoreColor(averageScore)}
-            />
-          </View>
-          <Text style={styles.miniMacroLabel}>{t("score")}</Text>
-          <Text
-            style={[
-              styles.miniMacroValue,
-              { color: getScoreColor(averageScore) },
-            ]}
-          >
-            {averageScore.toFixed(1)}
-          </Text>
-        </Pressable>
-      </View>
-      {/* Settings Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {/* Header */}
-            <Text style={styles.modalTitle}>{t("nutritionGoals")}</Text>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {/* Header */}
+              <Text style={styles.modalTitle}>{t("nutritionGoals")}</Text>
 
-            {/* Calorie Card */}
-            <View style={styles.calorieCard}>
-              <View style={styles.calorieIconContainer}>
-                <Icon name="fire" size={scale(24)} color="#F5A623" />
+              {/* Calorie Card */}
+              <View style={styles.calorieCard}>
+                <View style={styles.calorieIconContainer}>
+                  <Icon name="fire" size={scale(24)} color="#F5A623" />
+                </View>
+                <View style={styles.calorieLabelContainer}>
+                  <Text style={styles.calorieLabel}>{t("calories")}</Text>
+                  <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
+                </View>
+                <View style={styles.calorieValueContainer}>
+                  <Text style={styles.calorieValue}>{goals.calories}</Text>
+                  <Text style={styles.calorieUnit}>kcal</Text>
+                </View>
               </View>
-              <View style={styles.calorieLabelContainer}>
-                <Text style={styles.calorieLabel}>{t("calories")}</Text>
-                <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
-              </View>
-              <View style={styles.calorieValueContainer}>
-                <Text style={styles.calorieValue}>{goals.calories}</Text>
-                <Text style={styles.calorieUnit}>kcal</Text>
-              </View>
-            </View>
-            <Slider
-              style={styles.slider}
-              value={goals.calories}
-              minimumValue={1000}
-              maximumValue={5000}
-              step={10}
-              onValueChange={(value) =>
-                setGoals((prev) => ({ ...prev, calories: Math.round(value) }))
-              }
-              minimumTrackTintColor="#F5A623"
-              maximumTrackTintColor="#E8E8E8"
-              thumbTintColor="#F5A623"
-            />
+              <Slider
+                style={styles.slider}
+                value={goals.calories}
+                minimumValue={1000}
+                maximumValue={5000}
+                step={10}
+                onValueChange={(value) =>
+                  setGoals((prev) => ({ ...prev, calories: Math.round(value) }))
+                }
+                minimumTrackTintColor="#F5A623"
+                maximumTrackTintColor="#E8E8E8"
+                thumbTintColor="#F5A623"
+              />
 
-            <View style={styles.sliderRow}>
-              <View style={styles.sliderIconContainer}>
-                <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
+              <View style={styles.sliderRow}>
+                <View style={styles.sliderIconContainer}>
+                  <Icon
+                    name="lightning-bolt"
+                    size={scale(20)}
+                    color="#4CAF50"
+                  />
+                </View>
+                <Text style={styles.sliderLabel}>{t("proteins")}</Text>
+                <Text style={styles.sliderGrams}>
+                  {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
+                </Text>
+                <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
               </View>
-              <Text style={styles.sliderLabel}>{t("proteins")}</Text>
-              <Text style={styles.sliderGrams}>
-                {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
-              </Text>
-              <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
-            </View>
-            <Slider
-              style={styles.slider}
-              value={goals.proteins}
-              minimumValue={10}
-              maximumValue={60}
-              step={1}
-              onValueChange={(value) =>
-                setGoals((prev) => ({
-                  ...prev,
-                  proteins: Math.round(value),
-                  carbs: Math.round((100 - Math.round(value)) * 0.6),
-                  fats: Math.round((100 - Math.round(value)) * 0.4),
-                }))
-              }
-              minimumTrackTintColor="#4CAF50"
-              maximumTrackTintColor="#E8E8E8"
-              thumbTintColor="#4CAF50"
-            />
-            <View style={styles.otherRow}>
-              <View style={styles.otherIconContainer}>
-                <Icon
-                  name="circle-half-full"
-                  size={scale(20)}
-                  color="#9E9E9E"
+              <Slider
+                style={styles.slider}
+                value={goals.proteins}
+                minimumValue={10}
+                maximumValue={60}
+                step={1}
+                onValueChange={(value) =>
+                  setGoals((prev) => ({
+                    ...prev,
+                    proteins: Math.round(value),
+                    carbs: Math.round((100 - Math.round(value)) * 0.6),
+                    fats: Math.round((100 - Math.round(value)) * 0.4),
+                  }))
+                }
+                minimumTrackTintColor="#4CAF50"
+                maximumTrackTintColor="#E8E8E8"
+                thumbTintColor="#4CAF50"
+              />
+              <View style={styles.otherRow}>
+                <View style={styles.otherIconContainer}>
+                  <Icon
+                    name="circle-half-full"
+                    size={scale(20)}
+                    color="#9E9E9E"
+                  />
+                </View>
+                <Text style={styles.otherLabel}>{t("otherCarbsFat")}</Text>
+
+                <Text style={styles.otherPercent}>{100 - goals.proteins}%</Text>
+              </View>
+
+              <View style={styles.modalButtons}>
+                <AppButton
+                  title={t("cancel")}
+                  onPress={() => setModalVisible(false)}
+                  flex
+                />
+                <AppButton
+                  title={t("save")}
+                  onPress={saveGoals}
+                  backgroundColor={colors["color-success-400"]}
+                  flex
                 />
               </View>
-              <Text style={styles.otherLabel}>{t("otherCarbsFat")}</Text>
-
-              <Text style={styles.otherPercent}>{100 - goals.proteins}%</Text>
-            </View>
-
-            <View style={styles.modalButtons}>
-              <AppButton
-                title={t("cancel")}
-                onPress={() => setModalVisible(false)}
-                flex
-              />
-              <AppButton
-                title={t("save")}
-                onPress={saveGoals}
-                backgroundColor={colors["color-success-400"]}
-                flex
-              />
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </Animated.View>
+    </LiquidGlassView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
-    borderRadius: scale(24),
-    padding: scale(20),
+    padding: scale(24),
     marginBottom: scale(16),
+    paddingHorizontal: scale(24),
+    marginHorizontal: scale(24),
+    borderRadius: scale(24),
   },
   headerRow: {
     flexDirection: "row",

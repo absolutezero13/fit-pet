@@ -73,7 +73,8 @@ const AnalyzedMealScreen = () => {
   };
 
   const getScoreLabel = (score: number) => {
-    return t("score" + Math.floor(score));
+    const roundedScore = Math.max(1, Math.min(10, Math.floor(score)));
+    return t("score" + roundedScore);
   };
 
   const handleEdit = () => {
@@ -89,7 +90,7 @@ const AnalyzedMealScreen = () => {
         return (
           <MaterialCommunityIcons
             name="food-steak"
-            size={scale(24)}
+            size={scale(20)}
             color={colors["color-primary-500"]}
           />
         );
@@ -97,7 +98,7 @@ const AnalyzedMealScreen = () => {
         return (
           <MaterialCommunityIcons
             name="bread-slice"
-            size={scale(24)}
+            size={scale(20)}
             color={colors["color-info-500"]}
           />
         );
@@ -105,7 +106,7 @@ const AnalyzedMealScreen = () => {
         return (
           <MaterialCommunityIcons
             name="oil"
-            size={scale(24)}
+            size={scale(20)}
             color={colors["color-warning-500"]}
           />
         );
@@ -116,55 +117,56 @@ const AnalyzedMealScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <LiquidGlassView
         effect="clear"
-        style={[
-          styles.pageHeader,
-          {
-            paddingTop: top,
-          },
-        ]}
+        style={[styles.pageHeader, { paddingTop: top }]}
       >
-        <MaterialCommunityIcons
-          name="chevron-left"
-          size={scale(40)}
-          color={colors["color-primary-500"]}
-          onPress={navigation.goBack}
-        />
+        <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
+          <MaterialCommunityIcons
+            name="chevron-left"
+            size={scale(28)}
+            color={colors["color-primary-500"]}
+          />
+        </TouchableOpacity>
         <Text style={styles.title}>{t("mealAnalysis")}</Text>
+        <View style={styles.headerSpacer} />
       </LiquidGlassView>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottom + scale(20), paddingTop: top + scale(44) },
+          { paddingBottom: bottom + scale(40), paddingTop: top + scale(70) },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {meal.image && (
-          <FastImage
-            source={{ uri: meal.image }}
-            style={{
-              width: scale(100),
-              height: scale(100),
-              borderRadius: scale(16),
-              marginRight: scale(16),
-              alignSelf: "center",
-              marginTop: scale(12),
-            }}
-          />
-        )}
-        {/* Meal Description and Calories */}
-        <View style={styles.descriptionSection}>
-          <Text style={styles.mealName}>{meal.description}</Text>
-          <View style={styles.calorieContainer}>
-            <Text style={styles.calorieValue}>{meal.calories}</Text>
-            <Text style={styles.calorieUnit}>{t("cal")}</Text>
+        {/* Top Section - Image + Description */}
+        <View style={styles.topSection}>
+          {meal.image ? (
+            <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
+          ) : (
+            <View style={styles.emojiContainer}>
+              <Text style={styles.emoji}>{meal.emoji || "🍽️"}</Text>
+            </View>
+          )}
+          <View style={styles.basicInfo}>
+            <Text style={styles.mealName} numberOfLines={3}>
+              {meal.description}
+            </Text>
+            <View style={styles.calorieContainer}>
+              <MaterialCommunityIcons
+                name="fire"
+                size={scale(20)}
+                color={colors["color-danger-500"]}
+              />
+              <Text style={styles.calorieValue}>{meal.calories}</Text>
+              <Text style={styles.calorieUnit}>{t("cal")}</Text>
+            </View>
           </View>
         </View>
 
-        {/* Score Section with Label */}
+        {/* Score Section */}
         <View style={styles.scoreSection}>
           <View
             style={[
@@ -207,19 +209,17 @@ const AnalyzedMealScreen = () => {
         {/* Insights Section */}
         {meal.insights && meal.insights.length > 0 && (
           <>
-            <TouchableOpacity style={styles.insightsHeader}>
-              <Text style={styles.sectionHeading}>{t("insights")}</Text>
-            </TouchableOpacity>
-
+            <Text style={styles.sectionHeading}>{t("insights")}</Text>
             <View style={styles.insightsList}>
               {meal.insights.map((insight, index) => (
                 <View key={index} style={styles.insightItem}>
-                  <MaterialCommunityIcons
-                    name="lightbulb-outline"
-                    size={scale(20)}
-                    color={colors["color-warning-500"]}
-                    style={styles.insightIcon}
-                  />
+                  <View style={styles.insightIconContainer}>
+                    <MaterialCommunityIcons
+                      name="lightbulb"
+                      size={scale(20)}
+                      color={colors["color-warning-600"]}
+                    />
+                  </View>
                   <Text style={styles.insightText}>{insight}</Text>
                 </View>
               ))}
@@ -229,56 +229,43 @@ const AnalyzedMealScreen = () => {
 
         {/* Action Buttons */}
         <View style={styles.actionContainer}>
-          <TouchableOpacity
-            style={[
-              styles.deleteButton,
-              {
-                borderColor: colors["color-danger-300"],
-              },
-            ]}
-            onPress={handleDelete}
+          <LiquidGlassView
+            effect="clear"
+            interactive
+            style={styles.actionButtonPrimary}
           >
-            <MaterialCommunityIcons
-              name="delete-outline"
-              size={scale(20)}
-              color={colors["color-danger-500"]}
-            />
-            <Text
-              style={[
-                styles.deleteText,
-                {
-                  color: colors["color-danger-500"],
-                },
-              ]}
+            <TouchableOpacity
+              style={styles.actionButtonInner}
+              onPress={handleEdit}
             >
-              {t("delete")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.deleteButton,
-              {
-                borderColor: colors["color-primary-300"],
-              },
-            ]}
-            onPress={handleEdit}
+              <MaterialCommunityIcons
+                name="pencil"
+                size={scale(22)}
+                color={colors["color-primary-600"]}
+              />
+              <Text style={styles.actionText}>{t("edit")}</Text>
+            </TouchableOpacity>
+          </LiquidGlassView>
+
+          <LiquidGlassView
+            effect="clear"
+            interactive
+            style={styles.actionButtonDanger}
           >
-            <MaterialCommunityIcons
-              name="pencil-outline"
-              size={scale(20)}
-              color={colors["color-primary-500"]}
-            />
-            <Text
-              style={[
-                styles.deleteText,
-                {
-                  color: colors["color-primary-500"],
-                },
-              ]}
+            <TouchableOpacity
+              style={styles.actionButtonInner}
+              onPress={handleDelete}
             >
-              {t("edit")}
-            </Text>
-          </TouchableOpacity>
+              <MaterialCommunityIcons
+                name="delete-outline"
+                size={scale(22)}
+                color="white"
+              />
+              <Text style={[styles.actionText, { color: "white" }]}>
+                {t("delete")}
+              </Text>
+            </TouchableOpacity>
+          </LiquidGlassView>
         </View>
       </ScrollView>
     </View>
@@ -294,108 +281,123 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: scale(24),
+    paddingHorizontal: scale(20),
   },
   pageHeader: {
-    paddingHorizontal: scale(24),
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(12),
     flexDirection: "row",
     alignItems: "center",
-    gap: scale(4),
     position: "absolute",
     zIndex: 1,
     width: "100%",
-    shadowColor: colors["color-primary-100"],
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 1,
-    shadowRadius: scale(8),
-    elevation: 3,
-    borderRadius: scale(32),
+    borderBottomLeftRadius: scale(32),
+    borderBottomRightRadius: scale(32),
+  },
+  backButton: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     ...fontStyles.headline1,
     color: colors["color-primary-500"],
+    flex: 1,
+    textAlign: "center",
   },
+  headerSpacer: {
+    width: scale(40),
+  },
+  // Top Section
   topSection: {
-    marginBottom: scale(12),
-    paddingTop: scale(24),
-  },
-  mealTitle: {
-    ...fontStyles.headline2,
-    color: colors["color-primary-900"],
-  },
-  dateText: {
-    ...fontStyles.body2,
-    color: colors["color-primary-500"],
-    marginTop: scale(4),
-  },
-  descriptionSection: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: scale(12),
-    backgroundColor: "white",
+    marginBottom: scale(24),
+    alignItems: "flex-start",
+    backgroundColor: colors["color-primary-50"],
+    borderRadius: scale(20),
     padding: scale(16),
+  },
+  mealImage: {
+    width: "40%",
+    height: scale(120),
     borderRadius: scale(16),
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    marginRight: scale(16),
+  },
+  emojiContainer: {
+    width: "35%",
+    height: scale(100),
+    borderRadius: scale(16),
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(16),
+  },
+  emoji: {
+    fontSize: scale(40),
+  },
+  basicInfo: {
+    flex: 1,
+    justifyContent: "flex-start",
   },
   mealName: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
-    flex: 1,
-    marginRight: scale(10),
+    marginBottom: scale(12),
+    lineHeight: scale(28),
   },
   calorieContainer: {
     flexDirection: "row",
-    alignItems: "baseline",
-    backgroundColor: colors["color-primary-100"],
-    paddingHorizontal: scale(12),
+    alignItems: "center",
+    backgroundColor: colors["color-danger-100"],
+    paddingHorizontal: scale(14),
     paddingVertical: scale(8),
-    borderRadius: scale(16),
+    borderRadius: scale(20),
+    alignSelf: "flex-start",
   },
   calorieValue: {
     ...fontStyles.headline3,
-    color: colors["color-success-500"],
+    color: colors["color-danger-600"],
+    fontWeight: "700",
+    marginLeft: scale(6),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: colors["color-success-500"],
-    marginLeft: scale(4),
+    color: colors["color-danger-600"],
+    marginLeft: scale(2),
+    fontWeight: "600",
   },
+  // Score Section
   scoreSection: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: scale(32),
-    backgroundColor: "white",
-    padding: scale(16),
-    borderRadius: scale(16),
+    marginBottom: scale(28),
+    backgroundColor: colors["color-primary-50"],
+    padding: scale(20),
+    borderRadius: scale(20),
     shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   scoreContainer: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
     justifyContent: "center",
     alignItems: "center",
     shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    marginRight: scale(16),
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    marginRight: scale(18),
   },
   scoreValue: {
     ...fontStyles.headline1,
+    fontSize: scale(32),
     color: "white",
     fontWeight: "bold",
   },
@@ -403,119 +405,112 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scoreHeading: {
-    ...fontStyles.body2,
-    color: colors["color-primary-400"],
+    ...fontStyles.body1,
+    color: colors["color-primary-500"],
     textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: scale(4),
-  },
-  scoreLabel: {
-    ...fontStyles.headline3,
+    letterSpacing: 1,
+    marginBottom: scale(6),
     fontWeight: "600",
   },
+  scoreLabel: {
+    ...fontStyles.headline2,
+    fontWeight: "700",
+  },
+  // Macros Section
   sectionHeading: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
     marginBottom: scale(16),
+    fontWeight: "700",
   },
   macrosContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: scale(32),
+    marginBottom: scale(28),
+    gap: scale(12),
+    backgroundColor: colors["color-primary-50"],
+    borderRadius: scale(20),
   },
   macroItem: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "white",
     padding: scale(16),
-    borderRadius: scale(16),
-    marginHorizontal: scale(4),
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: scale(20),
+    minHeight: scale(120),
+    justifyContent: "center",
   },
   macroValue: {
-    ...fontStyles.headline3,
+    ...fontStyles.headline2,
     color: colors["color-primary-900"],
-    marginTop: scale(8),
+    marginTop: scale(10),
     marginBottom: scale(4),
+    fontWeight: "700",
   },
   macroLabel: {
-    ...fontStyles.footnote,
+    ...fontStyles.body2,
     color: colors["color-primary-600"],
     letterSpacing: 0.5,
     textAlign: "center",
+    fontWeight: "500",
   },
-  insightsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+  // Insights Section
   insightsList: {
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(16),
-    marginBottom: scale(24),
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: scale(20),
+    padding: scale(18),
+    marginBottom: scale(28),
+    backgroundColor: colors["color-primary-50"],
   },
   insightItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: scale(14),
+    marginBottom: scale(16),
   },
-  insightIcon: {
+  insightIconContainer: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    backgroundColor: colors["color-warning-100"],
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: scale(12),
     marginTop: scale(2),
   },
   insightText: {
-    ...fontStyles.body2,
+    ...fontStyles.body1,
     flex: 1,
-    color: colors["color-primary-900"],
-    lineHeight: scale(20),
+    color: colors["color-primary-800"],
+    lineHeight: scale(22),
   },
+  // Action Buttons
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: scale(10),
   },
-  editButton: {
-    flexDirection: "row",
+  actionButtonPrimary: {
+    flex: 1.5,
+    borderRadius: scale(20),
+    overflow: "hidden",
+    backgroundColor: colors["color-primary-50"],
+  },
+  actionButtonDanger: {
+    flex: 1,
+    borderRadius: scale(20),
+    overflow: "hidden",
+    backgroundColor: colors["color-danger-500"],
+  },
+  actionButtonInner: {
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: scale(14),
-    borderWidth: 1,
-    borderColor: colors["color-primary-300"],
-    borderRadius: scale(12),
-    flex: 1,
-    marginRight: scale(8),
-    backgroundColor: "white",
+    paddingVertical: scale(14),
+    paddingHorizontal: scale(8),
+    gap: scale(6),
   },
-  editText: {
-    ...fontStyles.body2,
+  actionText: {
+    ...fontStyles.body1Bold,
+    textAlign: "center",
     color: colors["color-primary-600"],
-    marginLeft: scale(8),
-    fontWeight: "500",
-  },
-  deleteButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: scale(14),
-    borderWidth: 1,
-    borderRadius: scale(12),
-    flex: 1,
-    marginLeft: scale(8),
-    backgroundColor: "white",
-  },
-  deleteText: {
-    ...fontStyles.body2,
-    marginLeft: scale(8),
-    fontWeight: "500",
   },
 });
 

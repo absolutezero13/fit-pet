@@ -33,7 +33,6 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: "100%",
     borderRadius: scale(20),
     backgroundColor: "#FAFAFA",
     flexDirection: "row",
@@ -42,6 +41,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F0F0F0",
     borderStyle: "dashed",
+    marginHorizontal: scale(24),
   },
   iconContainer: {
     width: scale(44),

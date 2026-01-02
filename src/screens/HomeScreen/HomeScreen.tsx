@@ -30,6 +30,7 @@ import MealTypeEmptyState from "./components/MealTypeEmptyState";
 import LogMealTrueSheet from "./components/LogMealTrueSheet";
 import ScanMealTrueSheet from "./components/ScanMealTrueSheet";
 import { TrueSheet, TrueSheetRef } from "@lodev09/react-native-true-sheet";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const MealTypeSection = ({
   title,
@@ -187,34 +188,41 @@ const LoggedMealsScreen = () => {
           </TouchableOpacity>
         </LiquidGlassView>
 
-        {loading ? (
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <HomeScreenSkeleton />
-          </ScrollView>
-        ) : (
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <DailySummary meals={meals} />
-            {mealTypesData.map(({ type, meals }) => (
-              <MealTypeSection
-                onPressAddMeal={() => navigateLogMeal(type)}
-                key={type}
-                title={t(type)}
-                type={type}
-                meals={meals}
-                onPressItem={handleMealPress}
-                selectedDate={selectedDate}
-              />
-            ))}
-          </ScrollView>
-        )}
+        <Animated.ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {loading ? (
+            <Animated.View
+              key={"skeleton"}
+              entering={FadeIn.duration(300)}
+              exiting={FadeOut.duration(300)}
+            >
+              <HomeScreenSkeleton />
+            </Animated.View>
+          ) : (
+            <Animated.View
+              key={"content"}
+              entering={FadeIn.duration(500)}
+              exiting={FadeOut.duration(500)}
+            >
+              <DailySummary meals={meals} />
+              {mealTypesData.map(({ type, meals }) => (
+                <MealTypeSection
+                  onPressAddMeal={() => navigateLogMeal(type)}
+                  key={type}
+                  title={t(type)}
+                  type={type}
+                  meals={meals}
+                  onPressItem={handleMealPress}
+                  selectedDate={selectedDate}
+                />
+              ))}
+            </Animated.View>
+          )}
+        </Animated.ScrollView>
+
         <LiquidGlassView
           effect={"clear"}
           interactive
@@ -304,7 +312,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: scale(24),
     paddingBottom: TAB_BAR_HEIGHT + scale(120),
     paddingTop: scale(180),
   },
@@ -315,6 +322,7 @@ const styles = StyleSheet.create({
     ...fontStyles.headline2,
     color: colors["color-primary-500"],
     marginBottom: scale(12),
+    paddingHorizontal: scale(24),
   },
   addButton: {
     width: scale(64),
