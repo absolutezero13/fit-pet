@@ -24,6 +24,7 @@ interface Props {
   disableAnimation?: boolean;
   loading?: boolean;
   color?: string;
+  flex?: boolean;
 }
 
 const AppButton: FC<Props> = ({
@@ -36,6 +37,7 @@ const AppButton: FC<Props> = ({
   disableAnimation = false,
   loading,
   color = "white",
+  flex = false,
 }) => {
   const { bottom } = useSafeAreaInsets();
 
@@ -43,7 +45,11 @@ const AppButton: FC<Props> = ({
     <LiquidGlassView
       effect="clear"
       interactive
-      style={[{ borderRadius: scale(32) }, margin]}
+      style={[
+        { borderRadius: scale(32) },
+        margin,
+        { flex: flex ? 1 : undefined },
+      ]}
     >
       <TouchableOpacity
         disabled={disabled}

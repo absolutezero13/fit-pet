@@ -5,8 +5,6 @@ import {
   Text,
   TouchableOpacity,
   Modal,
-  TextInput,
-  ScrollView,
   Pressable,
 } from "react-native";
 import { useTranslation } from "react-i18next";
@@ -18,6 +16,8 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
 import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
+import Slider from "@react-native-community/slider";
+import AppButton from "../../../components/AppButton";
 
 const macroColors: Record<string, string> = {
   calories: colors["color-warning-400"], // golden yellow, attention-grabbing
@@ -147,17 +147,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     });
     setModalVisible(false);
   };
-
-  const handleInputChange = (field: string, value: string) => {
-    const numValue = parseInt(value) || 0;
-    setGoals((prev) => ({
-      ...prev,
-      [field]: numValue,
-    }));
-  };
-
-  const macroGoalsTotal = goals.proteins + goals.fats + goals.carbs;
-  const isMacroGoalsValid = macroGoalsTotal === 100;
 
   const proteinGoal = (goals.proteins * goals.calories) / 100 / 4;
   const carbsGoal = (goals.carbs * goals.calories) / 100 / 4;
@@ -328,81 +317,90 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t("adjustNutritionGoals")}</Text>
+            {/* Header */}
+            <Text style={styles.modalTitle}>{t("nutritionGoals")}</Text>
 
-            {circleData.map((data) => {
-              const macroType = data.type as keyof MacroGoals;
-              return (
-                <View key={data.type}>
-                  <View style={styles.inputRow}>
-                    <View style={styles.labelContainer}>
-                      <Icon
-                        name={data.icon as any}
-                        size={scale(18)}
-                        color={macroColors[data.type]}
-                        style={styles.inputIcon}
-                      />
-                      <Text style={styles.inputLabel}>{data.label}</Text>
-                    </View>
-                    <View style={styles.inputContainer}>
-                      <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={goals[macroType].toString()}
-                        onChangeText={(value) =>
-                          handleInputChange(data.type, value)
-                        }
-                      />
-                      <Text style={styles.inputUnit}>
-                        {data.type === "calories" ? "kcal" : "%"}{" "}
-                      </Text>
-                    </View>
-                  </View>
-                  {data.type !== "calories" && data.kcalValue && (
-                    <Text
-                      style={{
-                        ...fontStyles.footnote,
-                        alignSelf: "flex-end",
-                        position: "absolute",
-                        zIndex: 99,
-                        right: scale(42),
-                        bottom: scale(0),
-                      }}
-                    >
-                      {(
-                        (goals[macroType] * goals.calories) /
-                        100 /
-                        data.kcalValue
-                      ).toFixed(1)}{" "}
-                      g
-                    </Text>
-                  )}
-                </View>
-              );
-            })}
+            {/* Calorie Card */}
+            <View style={styles.calorieCard}>
+              <View style={styles.calorieIconContainer}>
+                <Icon name="fire" size={scale(24)} color="#F5A623" />
+              </View>
+              <View style={styles.calorieLabelContainer}>
+                <Text style={styles.calorieLabel}>{t("calories")}</Text>
+                <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
+              </View>
+              <View style={styles.calorieValueContainer}>
+                <Text style={styles.calorieValue}>{goals.calories}</Text>
+                <Text style={styles.calorieUnit}>kcal</Text>
+              </View>
+            </View>
+            <Slider
+              style={styles.slider}
+              value={goals.calories}
+              minimumValue={1000}
+              maximumValue={5000}
+              step={10}
+              onValueChange={(value) =>
+                setGoals((prev) => ({ ...prev, calories: Math.round(value) }))
+              }
+              minimumTrackTintColor="#F5A623"
+              maximumTrackTintColor="#E8E8E8"
+              thumbTintColor="#F5A623"
+            />
+
+            <View style={styles.sliderRow}>
+              <View style={styles.sliderIconContainer}>
+                <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
+              </View>
+              <Text style={styles.sliderLabel}>{t("proteins")}</Text>
+              <Text style={styles.sliderGrams}>
+                {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
+              </Text>
+              <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
+            </View>
+            <Slider
+              style={styles.slider}
+              value={goals.proteins}
+              minimumValue={10}
+              maximumValue={60}
+              step={1}
+              onValueChange={(value) =>
+                setGoals((prev) => ({
+                  ...prev,
+                  proteins: Math.round(value),
+                  carbs: Math.round((100 - Math.round(value)) * 0.6),
+                  fats: Math.round((100 - Math.round(value)) * 0.4),
+                }))
+              }
+              minimumTrackTintColor="#4CAF50"
+              maximumTrackTintColor="#E8E8E8"
+              thumbTintColor="#4CAF50"
+            />
+            <View style={styles.otherRow}>
+              <View style={styles.otherIconContainer}>
+                <Icon
+                  name="circle-half-full"
+                  size={scale(20)}
+                  color="#9E9E9E"
+                />
+              </View>
+              <Text style={styles.otherLabel}>{t("otherCarbsFat")}</Text>
+
+              <Text style={styles.otherPercent}>{100 - goals.proteins}%</Text>
+            </View>
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+              <AppButton
+                title={t("cancel")}
                 onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>{t("cancel")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  styles.saveButton,
-                  {
-                    backgroundColor: isMacroGoalsValid
-                      ? colors["color-primary-500"]
-                      : colors["color-primary-300"],
-                  },
-                ]}
+                flex
+              />
+              <AppButton
+                title={t("save")}
                 onPress={saveGoals}
-                disabled={!isMacroGoalsValid}
-              >
-                <Text style={styles.buttonText}>{t("save")}</Text>
-              </TouchableOpacity>
+                backgroundColor={colors["color-success-400"]}
+                flex
+              />
             </View>
           </View>
         </View>
@@ -491,97 +489,215 @@ const styles = StyleSheet.create({
   // Modal styles
   modalContainer: {
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
     padding: scale(20),
   },
   modalContent: {
-    marginTop: scale(120),
     backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(20),
-    width: "90%",
-    maxHeight: "80%",
+    borderRadius: scale(24),
+    padding: scale(24),
+    width: "100%",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: scale(2),
+      height: scale(4),
     },
-    shadowOpacity: 0.25,
-    shadowRadius: scale(4),
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: scale(12),
+    elevation: 8,
   },
   modalTitle: {
-    ...fontStyles.headline3,
-    color: colors["color-primary-500"],
-    marginBottom: scale(16),
+    ...fontStyles.headline2,
+    color: "#1A1A1A",
+    fontWeight: "700",
     textAlign: "center",
+    marginBottom: scale(20),
   },
-  formContainer: {
-    maxHeight: scale(300),
-  },
-  inputRow: {
+  // Calorie Card
+  calorieCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: scale(16),
-    paddingHorizontal: scale(4),
+    backgroundColor: "#FAFAFA",
+    borderRadius: scale(16),
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
+    padding: scale(16),
+    marginBottom: scale(24),
   },
-  labelContainer: {
-    flexDirection: "row",
+  calorieIconContainer: {
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(12),
+    backgroundColor: "#FFF8E7",
+    justifyContent: "center",
     alignItems: "center",
+    marginRight: scale(12),
+  },
+  calorieLabelContainer: {
     flex: 1,
   },
-  inputIcon: {
-    marginRight: scale(8),
-  },
-  inputLabel: {
+  calorieLabel: {
     ...fontStyles.body1,
-    color: colors["color-primary-700"],
+    color: "#1A1A1A",
+    fontWeight: "600",
   },
-  inputContainer: {
+  calorieSublabel: {
+    ...fontStyles.caption,
+    color: "#4CAF50",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  calorieValueContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  calorieValue: {
+    ...fontStyles.headline1,
+    color: "#1A1A1A",
+    fontWeight: "300",
+    fontSize: scale(36),
+  },
+  calorieUnit: {
+    ...fontStyles.body2,
+    color: "#888888",
+    marginLeft: scale(4),
+  },
+  // Protein Distribution
+  proteinDistributionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: scale(12),
+  },
+  proteinDistributionTitle: {
+    ...fontStyles.body1,
+    color: "#1A1A1A",
+    fontWeight: "600",
+  },
+  distributionBar: {
+    flexDirection: "row",
+    height: scale(36),
+    borderRadius: scale(18),
+    overflow: "hidden",
+    marginBottom: scale(20),
+  },
+  distributionSegment: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  proteinSegment: {
+    backgroundColor: "#4CAF50",
+  },
+  otherSegment: {
+    backgroundColor: "#E8E8E8",
+  },
+  segmentText: {
+    ...fontStyles.body2,
+    color: "white",
+    fontWeight: "600",
+  },
+  segmentTextOther: {
+    ...fontStyles.body2,
+    color: "#888888",
+    fontWeight: "500",
+  },
+  // Slider Row
+  sliderRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    minWidth: scale(100),
+    marginBottom: scale(8),
   },
-  input: {
+  sliderIconContainer: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(10),
+    backgroundColor: "#F0F9F0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  sliderLabel: {
     ...fontStyles.body1,
-    borderWidth: 1,
-    borderColor: colors["color-primary-300"],
-    borderRadius: scale(8),
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(8),
-    textAlign: "right",
-    width: scale(80),
+    color: "#1A1A1A",
+    fontWeight: "500",
+    flex: 1,
   },
-  inputUnit: {
+  sliderGrams: {
+    ...fontStyles.body2,
+    color: "#888888",
+    marginRight: scale(8),
+  },
+  sliderPercent: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
-    marginLeft: scale(8),
-    width: scale(30),
+    color: "#4CAF50",
+    fontWeight: "700",
   },
+  slider: {
+    width: "100%",
+    height: scale(40),
+    marginBottom: scale(16),
+  },
+  // Other Row
+  otherRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scale(24),
+  },
+  otherIconContainer: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(10),
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  otherLabel: {
+    ...fontStyles.body1,
+    color: "#1A1A1A",
+    fontWeight: "500",
+    flex: 1,
+  },
+  otherKcal: {
+    ...fontStyles.body2,
+    color: "#AAAAAA",
+    marginRight: scale(8),
+  },
+  otherPercent: {
+    ...fontStyles.body1,
+    color: "#AAAAAA",
+    fontWeight: "600",
+  },
+  // Buttons
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: scale(20),
+    gap: scale(12),
   },
   button: {
-    paddingVertical: scale(12),
-    paddingHorizontal: scale(24),
-    borderRadius: scale(8),
-    minWidth: "45%",
+    flex: 1,
+    paddingVertical: scale(16),
+    borderRadius: scale(28),
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: colors["color-warning-600"],
+    backgroundColor: "#E57373",
   },
   saveButton: {
-    backgroundColor: colors["color-primary-500"],
+    backgroundColor: "#5D6B3D",
   },
-  buttonText: {
+  cancelButtonText: {
     ...fontStyles.body1,
     color: "white",
+    fontWeight: "600",
+  },
+  saveButtonText: {
+    ...fontStyles.body1,
+    color: "white",
+    fontWeight: "600",
   },
 });
 
