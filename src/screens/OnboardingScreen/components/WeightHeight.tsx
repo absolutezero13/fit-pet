@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Text, View, StyleSheet, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 import { colors } from "../../../theme/colors";
@@ -31,21 +32,21 @@ const WeightHeight = () => {
     }
   };
 
-  const bmi =
-    height && weight
-      ? Number((weight / Math.pow(height / 100, 2)).toFixed(1))
-      : null;
+  const bmi = useMemo(
+    () =>
+      height && weight
+        ? Number((weight / Math.pow(height / 100, 2)).toFixed(1))
+        : null,
+    [height, weight]
+  );
 
-  const bmiCategory =
-    bmi === null
-      ? ""
-      : bmi < 18.5
-      ? "Underweight"
-      : bmi < 25
-      ? "Healthy"
-      : bmi < 30
-      ? "Overweight"
-      : "Obese";
+  const bmiCategory = useMemo(() => {
+    if (bmi === null) return "";
+    if (bmi < 18.5) return "Underweight";
+    if (bmi < 25) return "Healthy";
+    if (bmi < 30) return "Overweight";
+    return "Obese";
+  }, [bmi]);
 
   const renderPicker = (
     label: string,
@@ -64,7 +65,7 @@ const WeightHeight = () => {
             Platform.OS === "android" ? styles.pickerAndroid : styles.picker
           }
           enabled={true}
-          mode="dialog"
+          mode={Platform.OS === "android" ? "dropdown" : "dialog"}
           selectionColor={colors["color-primary-500"]}
           dropdownIconColor={colors["color-primary-500"]}
           itemStyle={styles.pickerItem}
@@ -108,6 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: scale(24),
     justifyContent: "center",
+    paddingBottom: scale(140),
   },
   pickersContainer: {
     flexDirection: "row",
@@ -170,10 +172,8 @@ const styles = StyleSheet.create({
     color: colors["color-primary-500"],
   },
   bmiCard: {
-    position: "absolute",
-    bottom: scale(96),
-    left: scale(24),
-    right: scale(24),
+    marginTop: scale(32),
+    marginBottom: scale(12),
     backgroundColor: colors["color-primary-500"],
     borderRadius: scale(16),
     paddingVertical: scale(16),
