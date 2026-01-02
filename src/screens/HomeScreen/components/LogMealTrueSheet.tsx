@@ -36,7 +36,7 @@ import {
   updateMeal,
   uploadMealImageToFireStorage,
 } from "../../../services/mealAnalysis";
-import FullPageSpinner from "../../../components/FullPageSpinner";
+import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import MealTypes from "./MealTypes";
 import useUserStore from "../../../zustand/useUserStore";
 import { TrueSheetNames } from "../../../navigation/constants";
@@ -338,7 +338,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
             />
           </View>
         </View>
-        <FullPageSpinner visible={isAnalyzing} />
+        <AnalyzingMealOverlay visible={isAnalyzing} />
       </KeyboardGestureArea>
     </TrueSheet>
   );

@@ -29,7 +29,6 @@ import {
   uploadMealImageToFireStorage,
 } from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
-import FullPageSpinner from "../../../components/FullPageSpinner";
 import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { useNavigation } from "@react-navigation/native";
@@ -39,6 +38,10 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withRepeat,
+  withTiming,
+  withSequence,
+  Easing,
   FadeInUp,
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -77,6 +80,10 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const imageHeight = useSharedValue(scale(500));
   const imageMarginRight = useSharedValue(0);
 
+  // Analyzing loader animations
+  const loaderRotation = useSharedValue(0);
+  const loaderPulse = useSharedValue(1);
+
   // Animated styles
   const animatedImageStyle = useAnimatedStyle(() => ({
     width: `${imageWidth.value}%`,
@@ -102,6 +109,35 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       });
     }
   }, [screenState, analyzedMeal]);
+
+  // Trigger loader animations when analyzing
+  useEffect(() => {
+    if (screenState === "analyzing") {
+      loaderRotation.value = withRepeat(
+        withTiming(360, { duration: 2000, easing: Easing.linear }),
+        -1
+      );
+      loaderPulse.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1
+      );
+    } else {
+      loaderRotation.value = 0;
+      loaderPulse.value = 1;
+    }
+  }, [screenState]);
+
+  // Animated styles for loader
+  const loaderRotationStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${loaderRotation.value}deg` }],
+  }));
+
+  const loaderPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: loaderPulse.value }],
+  }));
 
   const dismiss = async () => {
     await TrueSheet.dismiss(TrueSheetNames.SCAN_MEAL);
@@ -357,10 +393,30 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       )}
 
       {screenState === "analyzing" && photo && (
-        <>
+        <View style={styles.analyzingContainer}>
           <Image source={{ uri: photo.path }} style={styles.photo} />
-          <FullPageSpinner visible={true} />
-        </>
+          {/* Inline Analyzing Overlay */}
+          <View style={styles.analyzingOverlay}>
+            <Animated.View
+              style={[styles.loaderOuterRing, loaderRotationStyle]}
+            >
+              <Text style={styles.loaderEmoji}>🍕</Text>
+              <Text style={[styles.loaderEmoji, styles.loaderEmoji2]}>🥗</Text>
+              <Text style={[styles.loaderEmoji, styles.loaderEmoji3]}>🍎</Text>
+              <Text style={[styles.loaderEmoji, styles.loaderEmoji4]}>🥑</Text>
+            </Animated.View>
+            <Animated.View
+              style={[styles.loaderIconContainer, loaderPulseStyle]}
+            >
+              <MaterialCommunityIcons
+                name="magnify"
+                size={scale(32)}
+                color="white"
+              />
+            </Animated.View>
+            <Text style={styles.analyzingText}>{t("analyzingMeal")}</Text>
+          </View>
+        </View>
       )}
 
       {screenState === "analyzed" && analyzedMeal && photo && (
@@ -521,11 +577,74 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   );
 };
 
+const ACCENT_GREEN = "#4CAF50";
+
 const styles = StyleSheet.create({
   photo: {
     height: scale(500),
     width: "100%",
     borderRadius: scale(24),
+  },
+  // Analyzing overlay styles
+  analyzingContainer: {
+    position: "relative",
+  },
+  analyzingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: scale(24),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loaderOuterRing: {
+    position: "absolute",
+    width: scale(90),
+    height: scale(90),
+    borderRadius: scale(45),
+    borderWidth: 2,
+    borderColor: ACCENT_GREEN + "40",
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loaderEmoji: {
+    position: "absolute",
+    fontSize: scale(20),
+    top: -scale(10),
+  },
+  loaderEmoji2: {
+    top: "auto",
+    bottom: -scale(10),
+    right: scale(10),
+  },
+  loaderEmoji3: {
+    top: "auto",
+    left: -scale(10),
+    bottom: scale(20),
+  },
+  loaderEmoji4: {
+    top: scale(20),
+    right: -scale(10),
+  },
+  loaderIconContainer: {
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35),
+    backgroundColor: ACCENT_GREEN,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: scale(16),
+    shadowColor: ACCENT_GREEN,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  analyzingText: {
+    ...fontStyles.headline3,
+    color: "white",
+    textAlign: "center",
+    marginTop: scale(8),
   },
   camera: {
     height: scale(500),

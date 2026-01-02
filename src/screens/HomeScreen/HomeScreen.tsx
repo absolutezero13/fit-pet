@@ -24,7 +24,7 @@ import {
   isLiquidGlassSupported,
   LiquidGlassView,
 } from "@callstack/liquid-glass";
-import GradientSpinner from "../../components/GradientSpinner";
+import { HomeScreenSkeleton } from "./components/HomeScreenSkeleton";
 import formatHeaderDate from "../../utils/formatHeaderDate";
 import MealTypeEmptyState from "./components/MealTypeEmptyState";
 import LogMealTrueSheet from "./components/LogMealTrueSheet";
@@ -188,15 +188,13 @@ const LoggedMealsScreen = () => {
         </LiquidGlassView>
 
         {loading ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
           >
-            <GradientSpinner />
-          </View>
+            <HomeScreenSkeleton />
+          </ScrollView>
         ) : (
           <ScrollView
             style={styles.scrollView}

@@ -1,19 +1,17 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   View,
   ScrollView,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
-  Animated,
   Share,
   Platform,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { IMeal } from "../../services/apiTypes";
 import { colors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
@@ -23,23 +21,20 @@ import FastImage from "react-native-fast-image";
 type MealDetailScreenProps = {
   meal: IMeal;
 };
-const start = scale(50);
-const end = scale(200);
+
+// Macro colors matching HomeScreen design
+const MACRO_COLORS = {
+  calories: "#F5A623",
+  protein: "#4CAF50",
+  carbs: "#2196F3",
+  fats: "#FF7043",
+};
 
 const MealDetailScreen = () => {
   const { meal } = useRoute().params as MealDetailScreenProps;
   const { t } = useTranslation();
   const { top } = useSafeAreaInsets();
   const navigation = useNavigation();
-  const scrollY = useRef(new Animated.Value(0)).current;
-
-  // Calculate header opacity based on scroll position
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [start, end],
-    outputRange: [0, 1],
-    extrapolate: "clamp",
-  });
 
   const shareRecipe = async () => {
     try {
@@ -55,6 +50,33 @@ const MealDetailScreen = () => {
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return "#4CAF50";
+    if (score >= 6) return "#F5A623";
+    if (score >= 4) return "#2196F3";
+    return "#E53935";
+  };
+
+  const renderMacroCard = (
+    icon: string,
+    label: string,
+    value: string,
+    color: string,
+    bgColor: string
+  ) => (
+    <View style={styles.macroCard}>
+      <View style={[styles.macroIconContainer, { backgroundColor: bgColor }]}>
+        <MaterialCommunityIcons
+          name={icon as any}
+          size={scale(18)}
+          color={color}
+        />
+      </View>
+      <Text style={[styles.macroValue, { color }]}>{value}</Text>
+      <Text style={styles.macroLabel}>{label}</Text>
+    </View>
+  );
+
   const renderNutritionBar = () => {
     const total =
       parseInt(meal.proteins) + parseInt(meal.carbs) + parseInt(meal.fats);
@@ -65,63 +87,66 @@ const MealDetailScreen = () => {
     const fatsPercentage = Math.round((parseInt(meal.fats) / total) * 100);
 
     return (
-      <View style={styles.macroPercentagesContainer}>
-        <View style={styles.macroPercentageBar}>
+      <View style={styles.nutritionBarContainer}>
+        <View style={styles.nutritionBar}>
           <View
             style={[
-              styles.macroPercentageFill,
+              styles.nutritionSegment,
               {
                 width: `${proteinPercentage}%`,
-                backgroundColor: colors["color-success-400"],
+                backgroundColor: MACRO_COLORS.protein,
               },
             ]}
           />
           <View
             style={[
-              styles.macroPercentageFill,
+              styles.nutritionSegment,
               {
                 width: `${carbsPercentage}%`,
-                backgroundColor: colors["color-info-400"],
+                backgroundColor: MACRO_COLORS.carbs,
               },
             ]}
           />
           <View
             style={[
-              styles.macroPercentageFill,
+              styles.nutritionSegment,
               {
                 width: `${fatsPercentage}%`,
-                backgroundColor: colors["color-primary-400"],
+                backgroundColor: MACRO_COLORS.fats,
               },
             ]}
           />
         </View>
-        <View style={styles.macroLegendContainer}>
-          <View style={styles.macroLegendItem}>
+        <View style={styles.nutritionLegend}>
+          <View style={styles.legendItem}>
             <View
               style={[
-                styles.macroLegendColor,
-                { backgroundColor: colors["color-success-400"] },
+                styles.legendDot,
+                { backgroundColor: MACRO_COLORS.protein },
               ]}
             />
-            <Text style={styles.macroLegendText}>{t("proteins")}</Text>
+            <Text style={styles.legendText}>
+              {t("proteins")} {proteinPercentage}%
+            </Text>
           </View>
-          <View style={styles.macroLegendItem}>
+          <View style={styles.legendItem}>
             <View
               style={[
-                styles.macroLegendColor,
-                { backgroundColor: colors["color-info-400"] },
+                styles.legendDot,
+                { backgroundColor: MACRO_COLORS.carbs },
               ]}
             />
-            <Text style={styles.macroLegendText}>{t("carbs")}</Text>
+            <Text style={styles.legendText}>
+              {t("carbs")} {carbsPercentage}%
+            </Text>
           </View>
-          <View style={styles.macroLegendItem}>
+          <View style={styles.legendItem}>
             <View
-              style={[
-                styles.macroLegendColor,
-                { backgroundColor: colors["color-primary-400"] },
-              ]}
+              style={[styles.legendDot, { backgroundColor: MACRO_COLORS.fats }]}
             />
-            <Text style={styles.macroLegendText}>{t("fats")}</Text>
+            <Text style={styles.legendText}>
+              {t("fats")} {fatsPercentage}%
+            </Text>
           </View>
         </View>
       </View>
@@ -137,38 +162,31 @@ const MealDetailScreen = () => {
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
-        scrollEventThrottle={16}
       >
-        <View style={[styles.headerSection, { paddingTop: scale(24) }]}>
+        {/* Header Buttons */}
+        <View style={[styles.headerButtons, { top: scale(24) }]}>
           <TouchableOpacity
-            style={styles.backButtonTransparent}
+            style={styles.headerButton}
             onPress={() => navigation.goBack()}
           >
             <MaterialCommunityIcons
               name="arrow-left"
-              size={scale(24)}
+              size={scale(22)}
               color="white"
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.shareButtonTransparent}
-            onPress={shareRecipe}
-          >
+          <TouchableOpacity style={styles.headerButton} onPress={shareRecipe}>
             <MaterialCommunityIcons
               name="share-variant"
-              size={scale(24)}
+              size={scale(22)}
               color="white"
             />
           </TouchableOpacity>
         </View>
 
-        {/* Meal image or placeholder */}
+        {/* Image */}
         <View style={styles.imageContainer}>
           {meal.image ? (
             <FastImage
@@ -178,69 +196,100 @@ const MealDetailScreen = () => {
             />
           ) : (
             <View style={styles.placeholderImage}>
-              <MaterialCommunityIcons
-                name="food"
-                size={scale(80)}
-                color={colors["color-primary-300"]}
-              />
+              <Text style={styles.placeholderEmoji}>{meal.emoji || "🍽️"}</Text>
             </View>
           )}
         </View>
 
-        {/* Meal info card */}
-        <View style={styles.mealInfoCard}>
-          <View style={styles.mealHeader}>
-            <View style={styles.mealTitleContainer}>
+        {/* Content Card */}
+        <View style={styles.contentCard}>
+          {/* Title & Time */}
+          <View style={styles.titleSection}>
+            <View style={styles.titleRow}>
               <Text style={styles.mealTitle}>{meal.mealTypeLocalized}</Text>
-              <View style={styles.timeContainer}>
-                <MaterialCommunityIcons
-                  name="clock-outline"
-                  size={scale(18)}
-                  color={colors["color-success-400"]}
-                />
-                <Text style={styles.mealTime}>
-                  {t("preparationTime")}: {meal.preparationTime}
-                </Text>
-              </View>
+              {meal.score > 0 && (
+                <View
+                  style={[
+                    styles.scoreBadge,
+                    { backgroundColor: getScoreColor(meal.score) + "15" },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name="star"
+                    size={scale(14)}
+                    color={getScoreColor(meal.score)}
+                  />
+                  <Text
+                    style={[
+                      styles.scoreText,
+                      { color: getScoreColor(meal.score) },
+                    ]}
+                  >
+                    {meal.score.toFixed(1)}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.timeRow}>
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={scale(16)}
+                color="#888888"
+              />
+              <Text style={styles.timeText}>{meal.preparationTime}</Text>
             </View>
           </View>
 
-          <Text style={styles.mealDescription}>{meal.description}</Text>
+          {/* Description */}
+          <Text style={styles.description}>{meal.description}</Text>
 
-          {/* Macros */}
-          <View style={styles.macrosContainer}>
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.calories}</Text>
-              <Text style={styles.macroLabel}>{t("calories")}</Text>
-            </View>
-            <View style={[styles.macroSeparator]} />
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.proteins}g</Text>
-              <Text style={styles.macroLabel}>{t("proteins")}</Text>
-            </View>
-            <View style={[styles.macroSeparator]} />
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.carbs}g</Text>
-              <Text style={styles.macroLabel}>{t("carbs")}</Text>
-            </View>
-            <View style={[styles.macroSeparator]} />
-            <View style={styles.macroItem}>
-              <Text style={styles.macroValue}>{meal.fats}g</Text>
-              <Text style={styles.macroLabel}>{t("fats")}</Text>
-            </View>
+          {/* Macros Grid */}
+          <View style={styles.macrosGrid}>
+            {renderMacroCard(
+              "fire",
+              t("calories"),
+              `${meal.calories}`,
+              MACRO_COLORS.calories,
+              "#FFF8E7"
+            )}
+            {renderMacroCard(
+              "lightning-bolt",
+              t("proteins"),
+              `${meal.proteins}g`,
+              MACRO_COLORS.protein,
+              "#E8F5E9"
+            )}
+            {renderMacroCard(
+              "bread-slice",
+              t("carbs"),
+              `${meal.carbs}g`,
+              MACRO_COLORS.carbs,
+              "#E3F2FD"
+            )}
+            {renderMacroCard(
+              "water",
+              t("fats"),
+              `${meal.fats}g`,
+              MACRO_COLORS.fats,
+              "#FBE9E7"
+            )}
           </View>
 
           {/* Nutrition Bar */}
           {renderNutritionBar()}
 
           {/* Ingredients */}
-          <View style={styles.sectionContainer}>
+          <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons
-                name="food-apple"
-                size={scale(24)}
-                color={colors["color-success-400"]}
-              />
+              <View
+                style={[styles.sectionIcon, { backgroundColor: "#E8F5E9" }]}
+              >
+                <MaterialCommunityIcons
+                  name="food-apple"
+                  size={scale(20)}
+                  color={MACRO_COLORS.protein}
+                />
+              </View>
               <Text style={styles.sectionTitle}>{t("ingredients")}</Text>
             </View>
             <View style={styles.ingredientsList}>
@@ -254,20 +303,26 @@ const MealDetailScreen = () => {
           </View>
 
           {/* Instructions */}
-          <View style={styles.sectionContainer}>
+          <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons
-                name="chef-hat"
-                size={scale(24)}
-                color={colors["color-info-400"]}
-              />
+              <View
+                style={[styles.sectionIcon, { backgroundColor: "#E3F2FD" }]}
+              >
+                <MaterialCommunityIcons
+                  name="chef-hat"
+                  size={scale(20)}
+                  color={MACRO_COLORS.carbs}
+                />
+              </View>
               <Text style={styles.sectionTitle}>{t("instructions")}</Text>
             </View>
             <View style={styles.instructionsList}>
               {meal.instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionItem}>
-                  <View style={styles.instructionNumberContainer}>
-                    <Text style={styles.instructionNumber}>{index + 1}</Text>
+                  <View style={styles.instructionNumber}>
+                    <Text style={styles.instructionNumberText}>
+                      {index + 1}
+                    </Text>
                   </View>
                   <Text style={styles.instructionText}>{instruction}</Text>
                 </View>
@@ -277,22 +332,26 @@ const MealDetailScreen = () => {
 
           {/* Insights */}
           {meal.insights && meal.insights.length > 0 && (
-            <View style={styles.sectionContainer}>
+            <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <MaterialCommunityIcons
-                  name="lightbulb-outline"
-                  size={scale(24)}
-                  color={colors["color-primary-400"]}
-                />
+                <View
+                  style={[styles.sectionIcon, { backgroundColor: "#FFF8E7" }]}
+                >
+                  <MaterialCommunityIcons
+                    name="lightbulb-outline"
+                    size={scale(20)}
+                    color={MACRO_COLORS.calories}
+                  />
+                </View>
                 <Text style={styles.sectionTitle}>{t("insights")}</Text>
               </View>
               <View style={styles.insightsList}>
                 {meal.insights.map((insight, index) => (
                   <View key={index} style={styles.insightItem}>
                     <MaterialCommunityIcons
-                      name="star-circle"
-                      size={scale(20)}
-                      color={colors["color-primary-400"]}
+                      name="check-circle"
+                      size={scale(18)}
+                      color={MACRO_COLORS.protein}
                       style={styles.insightIcon}
                     />
                     <Text style={styles.insightText}>{insight}</Text>
@@ -310,257 +369,259 @@ const MealDetailScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
-  },
-  headerTitle: {
-    ...fontStyles.headline3,
-    flex: 1,
-    textAlign: "center",
-    marginHorizontal: scale(10),
-  },
-  backButton: {
-    padding: scale(8),
-  },
-  shareButton: {
-    padding: scale(8),
+    backgroundColor: "#F5F5F5",
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
   },
   scrollContent: {
-    paddingBottom: scale(100),
-    backgroundColor: "white",
+    paddingBottom: scale(40),
   },
-  headerSection: {
-    paddingHorizontal: scale(16),
-    paddingBottom: scale(16),
+  // Header Buttons
+  headerButtons: {
+    position: "absolute",
+    left: scale(16),
+    right: scale(16),
     flexDirection: "row",
     justifyContent: "space-between",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
     zIndex: 10,
   },
-  backButtonTransparent: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: "rgba(0,0,0,0.3)",
+  headerButton: {
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(14),
+    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
   },
-  shareButtonTransparent: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  // Image
   imageContainer: {
-    position: "absolute",
     width: "100%",
-    height: SCREEN_WIDTH,
-    backgroundColor: colors["color-primary-200"],
+    height: SCREEN_WIDTH * 0.85,
+    backgroundColor: "#E8E8E8",
   },
   mealImage: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH,
+    width: "100%",
+    height: "100%",
   },
   placeholderImage: {
     width: "100%",
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors["color-primary-200"],
+    backgroundColor: "#F0F0F0",
   },
-  mealInfoCard: {
-    marginTop: SCREEN_WIDTH - scale(30),
+  placeholderEmoji: {
+    fontSize: scale(80),
+  },
+  // Content Card
+  contentCard: {
     backgroundColor: "white",
-    borderTopLeftRadius: scale(30),
-    borderTopRightRadius: scale(30),
+    borderTopLeftRadius: scale(28),
+    borderTopRightRadius: scale(28),
+    marginTop: -scale(28),
     padding: scale(24),
-    paddingTop: scale(30),
+    paddingTop: scale(28),
+    minHeight: scale(400),
   },
-  mealHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  // Title Section
+  titleSection: {
     marginBottom: scale(16),
   },
-  mealTitleContainer: {
-    flex: 1,
-  },
-  timeContainer: {
+  titleRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: scale(8),
   },
   mealTitle: {
     ...fontStyles.headline2,
+    color: "#1A1A1A",
+    fontWeight: "700",
+    flex: 1,
   },
-  mealTime: {
-    ...fontStyles.body2,
-    color: colors["color-primary-400"],
-    marginLeft: scale(6),
-  },
-  scoreContainer: {
-    backgroundColor: colors["color-success-100"],
-    borderRadius: scale(12),
-    padding: scale(8),
+  scoreBadge: {
+    flexDirection: "row",
     alignItems: "center",
-    minWidth: scale(50),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(6),
+    borderRadius: scale(12),
+    gap: scale(4),
   },
-  scoreValue: {
-    ...fontStyles.headline3,
-    color: colors["color-success-500"],
+  scoreText: {
+    ...fontStyles.body2,
+    fontWeight: "700",
   },
-  scoreLabel: {
-    ...fontStyles.caption,
-    color: colors["color-success-500"],
-    textTransform: "uppercase",
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: scale(8),
+    gap: scale(6),
   },
-  mealDescription: {
+  timeText: {
+    ...fontStyles.body2,
+    color: "#888888",
+  },
+  // Description
+  description: {
     ...fontStyles.body1,
+    color: "#555555",
+    lineHeight: scale(24),
     marginBottom: scale(24),
   },
-  macrosContainer: {
+  // Macros Grid
+  macrosGrid: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: colors["color-primary-100"],
-    borderBottomWidth: 1,
-    borderBottomColor: colors["color-primary-100"],
-    paddingVertical: scale(20),
+    gap: scale(10),
     marginBottom: scale(20),
   },
-  macroItem: {
+  macroCard: {
     flex: 1,
+    backgroundColor: "#FAFAFA",
+    borderRadius: scale(16),
+    padding: scale(12),
     alignItems: "center",
+  },
+  macroIconContainer: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(10),
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: scale(8),
   },
   macroValue: {
-    ...fontStyles.headline3,
-    color: colors["color-success-400"],
-    marginBottom: scale(6),
+    ...fontStyles.headline4,
+    fontWeight: "700",
+    marginBottom: scale(2),
   },
   macroLabel: {
-    ...fontStyles.footnote,
-    color: colors["color-primary-400"],
-    textAlign: "center",
+    ...fontStyles.caption,
+    color: "#888888",
   },
-  macroSeparator: {
-    width: 1,
-    height: scale(40),
-    backgroundColor: colors["color-primary-100"],
+  // Nutrition Bar
+  nutritionBarContainer: {
+    marginBottom: scale(24),
   },
-  macroPercentagesContainer: {},
-  macroPercentageBar: {
-    height: scale(16),
+  nutritionBar: {
+    height: scale(10),
     flexDirection: "row",
-    backgroundColor: colors["color-primary-100"],
-    borderRadius: scale(8),
+    borderRadius: scale(5),
     overflow: "hidden",
-    marginBottom: scale(16),
+    backgroundColor: "#E8E8E8",
+    marginBottom: scale(12),
   },
-  macroPercentageFill: {
+  nutritionSegment: {
     height: "100%",
   },
-  macroLegendContainer: {
+  nutritionLegend: {
     flexDirection: "row",
     justifyContent: "center",
+    gap: scale(16),
   },
-  macroLegendItem: {
+  legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: scale(10),
+    gap: scale(6),
   },
-  macroLegendColor: {
-    width: scale(12),
-    height: scale(12),
-    borderRadius: scale(6),
-    marginRight: scale(6),
+  legendDot: {
+    width: scale(10),
+    height: scale(10),
+    borderRadius: scale(5),
   },
-  macroLegendText: {
-    ...fontStyles.footnote,
-    color: colors["color-primary-400"],
+  legendText: {
+    ...fontStyles.caption,
+    color: "#888888",
   },
-  sectionContainer: {
-    marginTop: scale(24),
+  // Sections
+  section: {
+    marginBottom: scale(24),
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: scale(16),
+    gap: scale(12),
+  },
+  sectionIcon: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(12),
+    justifyContent: "center",
+    alignItems: "center",
   },
   sectionTitle: {
     ...fontStyles.headline3,
-    marginLeft: scale(10),
+    color: "#1A1A1A",
+    fontWeight: "600",
   },
-  ingredientsList: {
-    marginLeft: scale(10),
-  },
+  // Ingredients
+  ingredientsList: {},
   ingredientItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: scale(12),
+    marginBottom: scale(10),
+    paddingLeft: scale(4),
   },
   ingredientBullet: {
-    width: scale(8),
-    height: scale(8),
-    borderRadius: scale(4),
-    backgroundColor: colors["color-success-400"],
-    marginTop: scale(6),
+    width: scale(6),
+    height: scale(6),
+    borderRadius: scale(3),
+    backgroundColor: MACRO_COLORS.protein,
+    marginTop: scale(8),
     marginRight: scale(12),
   },
   ingredientText: {
     ...fontStyles.body2,
-    flex: 1,
-  },
-  instructionsList: {
-    marginLeft: scale(10),
-  },
-  instructionItem: {
-    flexDirection: "row",
-    marginBottom: scale(20),
-  },
-  instructionNumberContainer: {
-    width: scale(28),
-    height: scale(28),
-    borderRadius: scale(14),
-    backgroundColor: colors["color-info-100"],
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(12),
-    marginTop: scale(2),
-  },
-  instructionNumber: {
-    ...fontStyles.headline4,
-    color: colors["color-info-500"],
-  },
-  instructionText: {
-    ...fontStyles.body2,
+    color: "#555555",
     flex: 1,
     lineHeight: scale(22),
   },
-  insightsList: {
-    marginLeft: scale(10),
+  // Instructions
+  instructionsList: {},
+  instructionItem: {
+    flexDirection: "row",
+    marginBottom: scale(16),
+    alignItems: "flex-start",
   },
+  instructionNumber: {
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(10),
+    backgroundColor: "#E3F2FD",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  instructionNumberText: {
+    ...fontStyles.body2,
+    fontWeight: "700",
+    color: MACRO_COLORS.carbs,
+  },
+  instructionText: {
+    ...fontStyles.body2,
+    color: "#555555",
+    flex: 1,
+    lineHeight: scale(22),
+  },
+  // Insights
+  insightsList: {},
   insightItem: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: scale(12),
+    backgroundColor: "#F8FFF8",
+    padding: scale(12),
+    borderRadius: scale(12),
   },
   insightIcon: {
-    marginRight: scale(12),
+    marginRight: scale(10),
     marginTop: scale(2),
   },
   insightText: {
     ...fontStyles.body2,
+    color: "#555555",
     flex: 1,
-    color: colors["color-primary-500"],
+    lineHeight: scale(20),
   },
 });
 

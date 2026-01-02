@@ -172,6 +172,10 @@ export const resources = {
       score: "Puan",
       over: "Aşıldı",
       tapToAddMeal: "Öğün eklemek için dokun",
+      analyzingMeal: "Öğününüz analiz ediliyor...",
+      calculatingNutrients: "Besin değerleri hesaplanıyor...",
+      evaluatingScore: "Puan değerlendiriliyor...",
+      almostReady: "Neredeyse hazır...",
     },
   },
 
@@ -348,6 +352,10 @@ export const resources = {
       score: "Score",
       over: "Over",
       tapToAddMeal: "Tap to add a meal",
+      analyzingMeal: "Analyzing your meal...",
+      calculatingNutrients: "Calculating nutrients...",
+      evaluatingScore: "Evaluating score...",
+      almostReady: "Almost ready...",
     },
   },
 };
