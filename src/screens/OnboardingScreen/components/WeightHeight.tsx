@@ -260,8 +260,8 @@ const styles = StyleSheet.create({
   },
   bmiLabels: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: scale(8),
+    justifyContent: "space-between",
+    paddingHorizontal: scale(20),
   },
   bmiLabelText: {
     ...fontStyles.caption,
