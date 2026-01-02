@@ -6,16 +6,20 @@ import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
-import { LiquidGlassView } from "@callstack/liquid-glass";
 import { useTranslation } from "react-i18next";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import useMealsStore from "../../../zustand/useMealsStore";
 import Animated, {
-  interpolate,
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { SwipeableRef } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable/ReanimatedSwipeable";
+
+const getScoreColor = (score: number) => {
+  if (score >= 8) return "#4CAF50";
+  if (score >= 6) return "#F5A623";
+  if (score >= 4) return "#2196F3";
+  return "#E53935";
+};
 
 const renderRightActions = (
   prog: SharedValue<number>,
@@ -23,11 +27,8 @@ const renderRightActions = (
   handleDelete: () => void
 ) => {
   const styleAnimation = useAnimatedStyle(() => {
-    console.log("showRightProgress:", prog.value);
-    console.log("appliedTranslation:", drag.value);
-
     return {
-      transform: [{ translateX: drag.value + 80 }],
+      transform: [{ translateX: drag.value + 70 }],
     };
   });
 
@@ -40,13 +41,14 @@ const renderRightActions = (
       >
         <MaterialCommunityIcons
           name="delete-outline"
-          size={scale(24)}
+          size={scale(22)}
           color="white"
         />
       </TouchableOpacity>
     </Animated.View>
   );
 };
+
 interface Props {
   meal: IMeal;
   onPress: (meal: IMeal) => void;
@@ -54,7 +56,9 @@ interface Props {
 
 const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
   const { t } = useTranslation();
-  const swipeableRef = useRef<SwipeableRef>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const swipeableRef = useRef<any>(null);
+  const scoreColor = getScoreColor(meal.score || 0);
 
   const handleDelete = () => {
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
@@ -97,29 +101,69 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
       }
       ref={swipeableRef}
     >
-      <LiquidGlassView effect="clear" interactive style={styles.mealItem}>
-        <TouchableOpacity
-          activeOpacity={1}
-          key={meal.description}
-          style={styles.liquid}
-          onPress={() => onPress(meal)}
-        >
-          <View style={styles.mealItemLeft}>
-            <Text style={styles.mealItemTitle}>
-              {meal.emoji} {meal.description}
-            </Text>
-          </View>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={styles.container}
+        onPress={() => onPress(meal)}
+      >
+        {/* Emoji Container */}
+        <View style={styles.emojiContainer}>
+          <Text style={styles.emoji}>{meal.emoji}</Text>
+        </View>
 
-          <View style={styles.mealItemRight}>
-            <Text style={styles.caloriesText}>{meal.calories} kcal</Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={scale(24)}
-              color={colors["color-primary-300"]}
-            />
+        {/* Content */}
+        <View style={styles.content}>
+          <Text style={styles.description} numberOfLines={1}>
+            {meal.description}
+          </Text>
+          <View style={styles.macrosRow}>
+            <View style={styles.macroBadge}>
+              <MaterialCommunityIcons
+                name="fire"
+                size={scale(12)}
+                color="#F5A623"
+              />
+              <Text style={styles.macroText}>{meal.calories}</Text>
+            </View>
+            <View style={[styles.macroBadge, styles.proteinBadge]}>
+              <MaterialCommunityIcons
+                name="lightning-bolt"
+                size={scale(12)}
+                color="#4CAF50"
+              />
+              <Text style={[styles.macroText, styles.proteinText]}>
+                {meal.proteins}g
+              </Text>
+            </View>
           </View>
-        </TouchableOpacity>
-      </LiquidGlassView>
+        </View>
+
+        {/* Score & Arrow */}
+        <View style={styles.rightSection}>
+          {meal.score > 0 && (
+            <View
+              style={[
+                styles.scoreBadge,
+                { backgroundColor: scoreColor + "15" },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="star"
+                size={scale(12)}
+                color={scoreColor}
+              />
+              <Text style={[styles.scoreText, { color: scoreColor }]}>
+                {meal.score.toFixed(1)}
+              </Text>
+            </View>
+          )}
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={scale(20)}
+            color="#CCCCCC"
+          />
+        </View>
+      </TouchableOpacity>
     </Swipeable>
   );
 };
@@ -127,61 +171,97 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
 export default SwipeableMealCard;
 
 const styles = StyleSheet.create({
-  liquid: {
-    flexDirection: "row",
-    flex: 1,
-  },
-  mealItem: {
+  container: {
     backgroundColor: "white",
-    borderRadius: scale(28),
-    marginBottom: scale(12),
-    shadowColor: colors["color-primary-500"],
+    borderRadius: scale(20),
+    marginBottom: scale(10),
+    padding: scale(14),
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: scale(2),
     },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: scale(8),
     elevation: 3,
-    overflow: "hidden",
-    flexDirection: "row",
-    padding: scale(16),
   },
-  mealItemDetails: {
-    padding: scale(16),
+  emojiContainer: {
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(14),
+    backgroundColor: "#F8F8F8",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
   },
-  mealItemLeft: {
+  emoji: {
+    fontSize: scale(22),
+  },
+  content: {
     flex: 1,
-    flexDirection: "row",
+    marginRight: scale(8),
   },
-  mealItemTitle: {
-    ...fontStyles.body1Bold,
+  description: {
+    ...fontStyles.body1,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: scale(4),
   },
-  mealItemTime: {
-    ...fontStyles.caption,
-    color: colors["color-primary-400"],
-  },
-  mealItemRight: {
+  macrosRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: "auto",
+    gap: scale(8),
   },
-  caloriesText: {
-    ...fontStyles.body1,
-    color: colors["color-success-400"],
-    marginRight: scale(2),
+  macroBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF8E7",
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(3),
+    borderRadius: scale(8),
+    gap: scale(3),
+  },
+  proteinBadge: {
+    backgroundColor: "#F0F9F0",
+  },
+  macroText: {
+    ...fontStyles.caption,
+    fontWeight: "600",
+    color: "#F5A623",
+  },
+  proteinText: {
+    color: "#4CAF50",
+  },
+  rightSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+  },
+  scoreBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(4),
+    borderRadius: scale(10),
+    gap: scale(3),
+  },
+  scoreText: {
+    ...fontStyles.caption,
+    fontWeight: "700",
   },
   deleteButtonContainer: {
     justifyContent: "center",
     alignItems: "center",
-    width: scale(80),
-    marginBottom: scale(12),
+    width: scale(70),
+    marginBottom: scale(10),
   },
   deleteButton: {
     backgroundColor: colors["color-danger-500"],
     justifyContent: "center",
     alignItems: "center",
-    width: scale(60),
+    width: scale(56),
     height: "100%",
     borderRadius: scale(16),
   },

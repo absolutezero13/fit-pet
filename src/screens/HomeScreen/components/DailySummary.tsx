@@ -1,12 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Modal,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, Text, Modal, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -18,13 +11,6 @@ import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
 import Slider from "@react-native-community/slider";
 import AppButton from "../../../components/AppButton";
-
-const macroColors: Record<string, string> = {
-  calories: colors["color-warning-400"], // golden yellow, attention-grabbing
-  proteins: colors["color-success-500"], // healthy green
-  carbs: colors["color-info-400"], // light blue, energetic feel
-  fats: colors["color-danger-400"], // warm red-orange, rich
-};
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -99,48 +85,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     return colors["color-danger-400"];
   };
 
-  const circleData = [
-    {
-      type: "calories",
-      label: t("calories"),
-      value: totals.calories,
-      goal: goals.calories,
-      progress: progress.calories,
-      unit: "kcal",
-      icon: "food",
-    },
-    {
-      type: "proteins",
-      label: t("proteins"),
-      value: totals.proteins,
-      goal: goals.proteins,
-      progress: progress.proteins,
-      unit: "g",
-      icon: "weight-lifter",
-      kcalValue: 4,
-    },
-    {
-      type: "carbs",
-      label: t("carbs"),
-      value: totals.carbs,
-      goal: goals.carbs,
-      progress: progress.carbs,
-      unit: "g",
-      icon: "bread-slice",
-      kcalValue: 4,
-    },
-    {
-      type: "fats",
-      label: t("fats"),
-      value: totals.fats,
-      goal: goals.fats,
-      progress: progress.fats,
-      unit: "g",
-      icon: "oil",
-      kcalValue: 9,
-    },
-  ];
-
   const saveGoals = async () => {
     userService.createOrUpdateUser({
       macroGoals: goals,
@@ -151,127 +95,150 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const proteinGoal = (goals.proteins * goals.calories) / 100 / 4;
   const carbsGoal = (goals.carbs * goals.calories) / 100 / 4;
   const fatsGoal = (goals.fats * goals.calories) / 100 / 9;
+  const isOverCalorieGoal = totals.calories > goals.calories;
+  const remainingCalories = Math.max(0, goals.calories - totals.calories);
+  const overCalories = Math.max(0, totals.calories - goals.calories);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <View style={styles.headerTitleRow}>
-          <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
-          <Pressable onPress={() => setModalVisible(true)}>
-            <Icon
-              name="format-list-bulleted"
-              size={scale(24)}
-              color={colors["color-primary-500"]}
-            />
-          </Pressable>
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.scoreBadge,
-            { backgroundColor: getScoreColor(averageScore) },
-          ]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Icon
-            name="star"
-            size={scale(14)}
-            color="white"
-            style={{ marginRight: scale(6) }}
-          />
-          <Text style={styles.scoreBadgeText}>
-            {averageScore.toFixed(1)} Puan
-          </Text>
-        </TouchableOpacity>
+        <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+        <Pressable onPress={() => setModalVisible(true)}>
+          <Icon name="cog-outline" size={scale(22)} color="#888888" />
+        </Pressable>
       </View>
 
-      <>
-        {/* Calories */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroHeader}>
+      {/* Calories Hero Section */}
+      <View
+        style={[
+          styles.caloriesHero,
+          isOverCalorieGoal && styles.caloriesHeroOver,
+        ]}
+      >
+        <View style={styles.caloriesMainRow}>
+          <View style={styles.caloriesConsumed}>
             <View
               style={[
-                styles.macroIndicator,
-                { backgroundColor: macroColors.calories },
+                styles.heroIconContainer,
+                isOverCalorieGoal && styles.heroIconContainerOver,
               ]}
-            />
-            <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("calories")}</Text>
-              <Text style={styles.macroValue}>
-                {totals.calories.toFixed(0)}{" "}
-                <Text style={styles.macroGoal}>/ {goals.calories} kcal</Text>
+            >
+              <Icon
+                name="fire"
+                size={scale(28)}
+                color={isOverCalorieGoal ? "#E53935" : "#F5A623"}
+              />
+            </View>
+            <View>
+              <Text
+                style={[
+                  styles.heroValue,
+                  isOverCalorieGoal && styles.heroValueOver,
+                ]}
+              >
+                {totals.calories.toFixed(0)}
               </Text>
+              <Text style={styles.heroLabel}>{t("consumed")}</Text>
             </View>
           </View>
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                {
-                  width: `${Math.min(progress.calories * 100, 100)}%`,
-                  backgroundColor: macroColors.calories,
-                },
-              ]}
-            />
+
+          <View style={styles.caloriesRemaining}>
+            <View>
+              {isOverCalorieGoal ? (
+                <>
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={styles.heroValueOver}
+                  >
+                    +{overCalories.toFixed(0)}
+                  </Text>
+                  <Text style={styles.heroLabelOver}>{t("over")}</Text>
+                </>
+              ) : (
+                <>
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={styles.heroValueRemaining}
+                  >
+                    {remainingCalories.toFixed(0)}
+                  </Text>
+                  <Text style={styles.heroLabelRemaining}>
+                    {t("remaining")}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
         </View>
 
-        {/* Protein */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroHeader}>
-            <View
-              style={[
-                styles.macroIndicator,
-                { backgroundColor: macroColors.proteins },
-              ]}
-            />
-            <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("proteins")}</Text>
-              <Text style={styles.macroValue}>
-                {totals.proteins.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>
-                  / {proteinGoal.toFixed(0)}g
-                </Text>
-              </Text>
-            </View>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                {
-                  width: `${Math.min(progress.proteins * 100, 100)}%`,
-                  backgroundColor: macroColors.proteins,
-                },
-              ]}
-            />
-          </View>
+        {/* Calorie Progress Bar */}
+        <View
+          style={[
+            styles.heroProgressContainer,
+            isOverCalorieGoal && styles.heroProgressContainerOver,
+          ]}
+        >
+          <View
+            style={[
+              styles.heroProgress,
+              isOverCalorieGoal && styles.heroProgressOver,
+              { width: `${Math.min(progress.calories * 100, 100)}%` },
+            ]}
+          />
         </View>
+        <Text style={styles.heroGoalText}>
+          {t("goal")}: {goals.calories} kcal
+        </Text>
+      </View>
 
+      {/* Protein Section */}
+      <View style={styles.proteinCard}>
+        <View style={styles.proteinRow}>
+          <View style={styles.proteinIconContainer}>
+            <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
+          </View>
+          <View style={styles.proteinInfo}>
+            <Text style={styles.proteinLabel}>{t("proteins")}</Text>
+            <Text style={styles.proteinValues}>
+              {totals.proteins.toFixed(0)}g{" "}
+              <Text style={styles.proteinGoal}>
+                / {proteinGoal.toFixed(0)}g
+              </Text>
+            </Text>
+          </View>
+          <Text style={styles.proteinPercent}>
+            {Math.round(progress.proteins * 100)}%
+          </Text>
+        </View>
+        <View style={styles.proteinProgressContainer}>
+          <View
+            style={[
+              styles.proteinProgress,
+              { width: `${Math.min(progress.proteins * 100, 100)}%` },
+            ]}
+          />
+        </View>
+      </View>
+
+      {/* Other Macros Row */}
+      <View style={styles.otherMacrosRow}>
         {/* Carbs */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroHeader}>
-            <View
-              style={[
-                styles.macroIndicator,
-                { backgroundColor: macroColors.carbs },
-              ]}
-            />
-            <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("carbs")}</Text>
-              <Text style={styles.macroValue}>
-                {totals.carbs.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>/ {carbsGoal.toFixed(0)}g</Text>
-              </Text>
-            </View>
+        <View style={styles.miniMacroCard}>
+          <View style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}>
+            <Icon name="bread-slice" size={scale(16)} color="#2196F3" />
           </View>
-          <View style={styles.progressBarContainer}>
+          <Text style={styles.miniMacroLabel}>{t("carbs")}</Text>
+          <Text style={styles.miniMacroValue}>{totals.carbs.toFixed(0)}g</Text>
+          <View style={styles.miniProgressContainer}>
             <View
               style={[
-                styles.progressBar,
+                styles.miniProgress,
                 {
                   width: `${Math.min(progress.carbs * 100, 100)}%`,
-                  backgroundColor: macroColors.carbs,
+                  backgroundColor: "#2196F3",
                 },
               ]}
             />
@@ -279,35 +246,53 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         </View>
 
         {/* Fats */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroHeader}>
-            <View
-              style={[
-                styles.macroIndicator,
-                { backgroundColor: macroColors.fats },
-              ]}
-            />
-            <View style={styles.macroTextContainer}>
-              <Text style={styles.macroLabel}>{t("fats")}</Text>
-              <Text style={styles.macroValue}>
-                {totals.fats.toFixed(0)}g{" "}
-                <Text style={styles.macroGoal}>/ {fatsGoal.toFixed(0)}g</Text>
-              </Text>
-            </View>
+        <View style={styles.miniMacroCard}>
+          <View style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}>
+            <Icon name="water" size={scale(16)} color="#FF7043" />
           </View>
-          <View style={styles.progressBarContainer}>
+          <Text style={styles.miniMacroLabel}>{t("fats")}</Text>
+          <Text style={styles.miniMacroValue}>{totals.fats.toFixed(0)}g</Text>
+          <View style={styles.miniProgressContainer}>
             <View
               style={[
-                styles.progressBar,
+                styles.miniProgress,
                 {
                   width: `${Math.min(progress.fats * 100, 100)}%`,
-                  backgroundColor: macroColors.fats,
+                  backgroundColor: "#FF7043",
                 },
               ]}
             />
           </View>
         </View>
-      </>
+
+        {/* Score */}
+        <Pressable
+          style={[styles.miniMacroCard, styles.scoreCard]}
+          onPress={() => setModalVisible(true)}
+        >
+          <View
+            style={[
+              styles.miniMacroIcon,
+              { backgroundColor: getScoreColor(averageScore) + "20" },
+            ]}
+          >
+            <Icon
+              name="star"
+              size={scale(16)}
+              color={getScoreColor(averageScore)}
+            />
+          </View>
+          <Text style={styles.miniMacroLabel}>{t("score")}</Text>
+          <Text
+            style={[
+              styles.miniMacroValue,
+              { color: getScoreColor(averageScore) },
+            ]}
+          >
+            {averageScore.toFixed(1)}
+          </Text>
+        </Pressable>
+      </View>
       {/* Settings Modal */}
       <Modal
         animationType="fade"
@@ -412,79 +397,221 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    borderRadius: scale(32),
+    borderRadius: scale(24),
     padding: scale(20),
-    marginBottom: scale(20),
-  },
-  headerTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  headerRow: {
-    justifyContent: "space-between",
-    marginBottom: scale(20),
-  },
-  summaryTitle: {
-    ...fontStyles.headline2,
-    color: colors["color-primary-800"],
-    fontWeight: "700",
-  },
-  scoreBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: scale(12),
-    paddingVertical: scale(6),
-    borderRadius: scale(20),
-    alignSelf: "flex-start",
-  },
-  scoreBadgeText: {
-    ...fontStyles.body2,
-    color: "white",
-    fontWeight: "700",
-    fontSize: scale(13),
-  },
-  macroRow: {
     marginBottom: scale(16),
   },
-  macroHeader: {
+  headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: scale(8),
+    justifyContent: "space-between",
+    marginBottom: scale(16),
   },
-  macroIndicator: {
-    width: scale(4),
-    height: scale(32),
-    borderRadius: scale(2),
-    marginRight: scale(12),
-  },
-  macroTextContainer: {
-    flex: 1,
-  },
-  macroLabel: {
-    ...fontStyles.caption,
-    color: colors["color-primary-500"],
-    marginBottom: scale(2),
-  },
-  macroValue: {
-    ...fontStyles.body1,
-    color: colors["color-primary-900"],
+  summaryTitle: {
+    ...fontStyles.headline3,
+    color: "#1A1A1A",
     fontWeight: "700",
   },
-  macroGoal: {
+  // Calories Hero Section
+  caloriesHero: {
+    backgroundColor: "#FFFBF5",
+    borderRadius: scale(20),
+    padding: scale(16),
+    marginBottom: scale(16),
+  },
+  caloriesHeroOver: {
+    backgroundColor: "#FFF5F5",
+  },
+  caloriesMainRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scale(12),
+  },
+  caloriesConsumed: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  heroIconContainer: {
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(14),
+    backgroundColor: "#FFF0D4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  heroIconContainerOver: {
+    backgroundColor: "#FFEBEE",
+  },
+  heroValue: {
+    fontSize: scale(32),
+    fontWeight: "700",
+    color: "#F5A623",
+  },
+  heroValueOver: {
+    fontSize: scale(32),
+    fontWeight: "700",
+    color: "#E53935",
+  },
+  heroLabelOver: {
     ...fontStyles.caption,
-    color: colors["color-primary-400"],
+    color: "#E53935",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    textAlign: "right",
+  },
+  heroLabel: {
+    ...fontStyles.caption,
+    color: "#888888",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  caloriesDivider: {
+    width: 1,
+    height: scale(40),
+    backgroundColor: "#E8E8E8",
+    marginHorizontal: scale(16),
+  },
+  caloriesRemaining: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  heroValueRemaining: {
+    fontSize: scale(28),
+    fontWeight: "600",
+    color: "#1A1A1A",
+    textAlign: "right",
+  },
+  heroLabelRemaining: {
+    ...fontStyles.caption,
+    color: "#888888",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    textAlign: "right",
+  },
+  heroProgressContainer: {
+    height: scale(8),
+    backgroundColor: "#FFE4B8",
+    borderRadius: scale(4),
+    overflow: "hidden",
+    marginBottom: scale(8),
+  },
+  heroProgressContainerOver: {
+    backgroundColor: "#FFCDD2",
+  },
+  heroProgress: {
+    height: "100%",
+    backgroundColor: "#F5A623",
+    borderRadius: scale(4),
+  },
+  heroProgressOver: {
+    backgroundColor: "#E53935",
+  },
+  heroGoalText: {
+    ...fontStyles.caption,
+    color: "#888888",
+    textAlign: "center",
+  },
+  // Protein Card
+  proteinCard: {
+    backgroundColor: "#F0F9F0",
+    borderRadius: scale(16),
+    padding: scale(14),
+    marginBottom: scale(12),
+  },
+  proteinRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scale(10),
+  },
+  proteinIconContainer: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(10),
+    backgroundColor: "#DCEDC8",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(12),
+  },
+  proteinInfo: {
+    flex: 1,
+  },
+  proteinLabel: {
+    ...fontStyles.body2,
+    color: "#1A1A1A",
+    fontWeight: "600",
+  },
+  proteinValues: {
+    ...fontStyles.body1,
+    color: "#4CAF50",
+    fontWeight: "700",
+  },
+  proteinGoal: {
+    ...fontStyles.body2,
+    color: "#888888",
     fontWeight: "400",
   },
-  progressBarContainer: {
+  proteinPercent: {
+    ...fontStyles.headline3,
+    color: "#4CAF50",
+    fontWeight: "700",
+  },
+  proteinProgressContainer: {
     height: scale(6),
-    backgroundColor: colors["color-primary-100"],
+    backgroundColor: "#C8E6C9",
     borderRadius: scale(3),
     overflow: "hidden",
   },
-  progressBar: {
+  proteinProgress: {
     height: "100%",
+    backgroundColor: "#4CAF50",
     borderRadius: scale(3),
+  },
+  // Other Macros Row
+  otherMacrosRow: {
+    flexDirection: "row",
+    gap: scale(10),
+  },
+  miniMacroCard: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
+    borderRadius: scale(14),
+    padding: scale(12),
+    alignItems: "center",
+  },
+  scoreCard: {
+    backgroundColor: "#FAFAFA",
+  },
+  miniMacroIcon: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(10),
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: scale(6),
+  },
+  miniMacroLabel: {
+    ...fontStyles.caption,
+    color: "#888888",
+    marginBottom: scale(2),
+  },
+  miniMacroValue: {
+    ...fontStyles.body1,
+    color: "#1A1A1A",
+    fontWeight: "700",
+    marginBottom: scale(6),
+  },
+  miniProgressContainer: {
+    width: "100%",
+    height: scale(4),
+    backgroundColor: "#E8E8E8",
+    borderRadius: scale(2),
+    overflow: "hidden",
+  },
+  miniProgress: {
+    height: "100%",
+    borderRadius: scale(2),
   },
   // Modal styles
   modalContainer: {

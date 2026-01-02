@@ -1,20 +1,11 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { useTranslation } from "react-i18next";
 
 type Props = {
-  title?: string;
-  ctaText?: string;
   onPress?: () => void;
 };
 
@@ -22,52 +13,65 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
   const { t } = useTranslation();
   return (
     <Pressable style={styles.card} onPress={onPress}>
-      <Text style={styles.title}>{t("noMealsLogged")}</Text>
+      <View style={styles.iconContainer}>
+        <MaterialCommunityIcons
+          name="silverware-fork-knife"
+          size={scale(28)}
+          color="#CCCCCC"
+        />
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{t("noMealsLogged")}</Text>
+        <Text style={styles.subtitle}>{t("tapToAddMeal")}</Text>
+      </View>
+      <View style={styles.addButton}>
+        <MaterialCommunityIcons name="plus" size={scale(20)} color="#4CAF50" />
+      </View>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: "center",
-  },
   card: {
     width: "100%",
-    borderRadius: scale(28),
-    borderWidth: 2,
+    borderRadius: scale(20),
+    backgroundColor: "#FAFAFA",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: scale(14),
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
     borderStyle: "dashed",
-    borderColor: colors["color-primary-200"],
-    backgroundColor: "white",
+  },
+  iconContainer: {
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(14),
+    backgroundColor: "#F0F0F0",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: scale(24),
-    paddingHorizontal: scale(16),
+    marginRight: scale(12),
+  },
+  textContainer: {
+    flex: 1,
   },
   title: {
     ...fontStyles.body1,
-    color: colors["color-primary-400"],
-    textAlign: "center",
-    marginBottom: scale(8),
+    fontWeight: "500",
+    color: "#888888",
+    marginBottom: scale(2),
   },
-  cta: {
-    ...fontStyles.headline4,
-    color: colors["color-success-400"],
+  subtitle: {
+    ...fontStyles.caption,
+    color: "#AAAAAA",
   },
-  fab: {
-    position: "absolute",
-    bottom: scale(-26),
-    alignSelf: "center",
-    width: scale(68),
-    height: scale(68),
-    borderRadius: scale(34),
-    backgroundColor: colors["color-success-400"],
+  addButton: {
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(12),
+    backgroundColor: "#E8F5E9",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: colors["color-success-500"],
-    shadowOffset: { width: 0, height: scale(6) },
-    shadowOpacity: 0.3,
-    shadowRadius: scale(10),
-    elevation: 6,
   },
 });
 
