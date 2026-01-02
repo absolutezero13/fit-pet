@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Platform } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -49,11 +49,12 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   ];
 
   // Animation values
-  const rotation = useSharedValue(0);
-  const rotationReverse = useSharedValue(0);
-  const bounce = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const orbitRadius = useSharedValue(0);
+  const haloPulse = useSharedValue(1);
+  const coreScale = useSharedValue(1);
+  const orbitRotation = useSharedValue(0);
+  const orbitRotationReverse = useSharedValue(0);
+  const floatingBackground = useSharedValue(0);
+  const progress = useSharedValue(1 / statusMessages.length);
   const statusOpacity = useSharedValue(1);
   const statusY = useSharedValue(0);
 
@@ -64,7 +65,14 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
   const updateStatus = () => {
     setTimeout(() => {
-      setCurrentStatus((prev) => (prev + 1) % statusMessages.length);
+      setCurrentStatus((prev) => {
+        const next = (prev + 1) % statusMessages.length;
+        progress.value = withTiming(
+          (next + 1) / statusMessages.length,
+          { duration: 600, easing: Easing.out(Easing.exp) }
+        );
+        return next;
+      });
     }, 200);
   };
 
@@ -148,7 +156,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       return;
     }
 
-    updateUser();
+    if (Platform.OS !== "web") {
+      updateUser();
+    }
 
     // Animate status message every 2 seconds
     const statusInterval = setInterval(() => {
@@ -164,44 +174,52 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     }, 2000);
 
     // Main animations
-    rotation.value = withRepeat(
+    haloPulse.value = withRepeat(
+      withSequence(
+        withTiming(1.08, { duration: 900 }),
+        withTiming(0.92, { duration: 900 })
+      ),
+      -1,
+      true
+    );
+
+    coreScale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 700 }),
+        withTiming(0.96, { duration: 700 })
+      ),
+      -1,
+      true
+    );
+
+    orbitRotation.value = withRepeat(
       withTiming(360, {
-        duration: 1500,
+        duration: 3200,
         easing: Easing.linear,
       }),
       -1
     );
 
-    rotationReverse.value = withRepeat(
+    orbitRotationReverse.value = withRepeat(
       withTiming(-360, {
-        duration: 2000,
+        duration: 3800,
         easing: Easing.linear,
       }),
       -1
     );
 
-    bounce.value = withRepeat(
+    floatingBackground.value = withRepeat(
       withSequence(
-        withSpring(1, { damping: 2, stiffness: 80 }),
-        withSpring(0, { damping: 2, stiffness: 80 })
+        withTiming(1, { duration: 1800 }),
+        withTiming(0, { duration: 1800 })
       ),
-      -1
+      -1,
+      true
     );
 
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 700 }),
-        withTiming(0.8, { duration: 700 })
-      ),
-      -1
-    );
-
-    orbitRadius.value = withRepeat(
-      withSequence(
-        withTiming(30, { duration: 1000 }),
-        withTiming(0, { duration: 1000 })
-      ),
-      -1
+    progress.value = withTiming(
+      1 / statusMessages.length,
+      { duration: 600, easing: Easing.out(Easing.exp) }
     );
 
     // Staggered card animations
@@ -220,15 +238,49 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   }, [focused]);
 
   // Animated styles
-  const mainLoaderStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rotation.value}deg` },
-      { scale: interpolate(bounce.value, [0, 1], [1, 1.2]) },
-    ],
+  const haloStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: haloPulse.value }],
+    opacity: interpolate(haloPulse.value, [0.92, 1.08], [0.35, 0.6]),
   }));
   const statusTextStyle = useAnimatedStyle(() => ({
     opacity: statusOpacity.value,
     transform: [{ translateY: statusY.value }],
+  }));
+  const coreLoaderStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: coreScale.value }],
+    shadowOpacity: interpolate(coreScale.value, [0.96, 1.05], [0.12, 0.32]),
+  }));
+
+  const orbitStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${orbitRotation.value}deg` },
+      { translateX: scale(54) },
+    ],
+  }));
+
+  const orbitReverseStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${orbitRotationReverse.value}deg` },
+      { translateX: scale(44) },
+    ],
+  }));
+
+  const blobOneStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(floatingBackground.value, [0, 1], [0, -12]) },
+      { scale: interpolate(floatingBackground.value, [0, 1], [1, 1.05]) },
+    ],
+  }));
+
+  const blobTwoStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(floatingBackground.value, [0, 1], [-6, 6]) },
+      { scale: interpolate(floatingBackground.value, [0, 1], [1.02, 0.98]) },
+    ],
+  }));
+
+  const progressStyle = useAnimatedStyle(() => ({
+    width: `${progress.value * 100}%`,
   }));
 
   const cardAnimations = cardScales.map((animValue) =>
@@ -258,8 +310,24 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
   return (
     <View style={styles.container}>
+      <Animated.View
+        style={[styles.gradientBlob, styles.blobPrimary, blobOneStyle]}
+      />
+      <Animated.View
+        style={[styles.gradientBlob, styles.blobSecondary, blobTwoStyle]}
+      />
+
       <View style={styles.content}>
-        {/* Status Message */}
+        <View style={styles.header}>
+          <Text style={styles.kicker}>{t("analyzing")}</Text>
+          <Text style={styles.title}>{t("almostThere")}</Text>
+          <Text style={styles.subtitle}>{`${t("optimizing")}...`}</Text>
+        </View>
+
+        <View style={styles.progressTrack}>
+          <Animated.View style={[styles.progressFill, progressStyle]} />
+        </View>
+
         <Animated.Text
           onPress={updateUser}
           style={[styles.statusText, statusTextStyle]}
@@ -267,15 +335,18 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           {statusMessages[currentStatus]}
         </Animated.Text>
 
-        {/* Crazy Loader */}
         <View style={styles.loaderContainer}>
-          <Animated.View style={[styles.mainLoader, mainLoaderStyle]}>
-            <View style={styles.loaderInnerRing} />
-            <View style={styles.loaderCore} />
+          <Animated.View style={[styles.halo, haloStyle]} />
+          <Animated.View style={[styles.loaderCore, coreLoaderStyle]}>
+            <View style={styles.loaderGlow} />
+            <View style={styles.loaderInnerCore} />
           </Animated.View>
+          <Animated.View style={[styles.orbitDot, orbitStyle]} />
+          <Animated.View
+            style={[styles.orbitDot, styles.orbitDotSecondary, orbitReverseStyle]}
+          />
         </View>
 
-        {/* Info Cards */}
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
             <InfoCard
@@ -300,7 +371,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             />
             <InfoCard
               label={t("gender")}
-              value={useOnboardingStore.getState().gender as GenderEnum}
+              value={
+                (useOnboardingStore.getState().gender as GenderEnum) || "-"
+              }
               style={cardAnimations[3]}
             />
           </View>
@@ -313,60 +386,112 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+    backgroundColor: colors["color-primary-900"],
   },
   content: {
     alignItems: "center",
     padding: scale(24),
+    gap: scale(14),
+  },
+  gradientBlob: {
+    position: "absolute",
+    width: width * 0.9,
+    height: width * 0.9,
+    borderRadius: width * 0.45,
+    opacity: 0.32,
+  },
+  blobPrimary: {
+    backgroundColor: colors["color-info-300"],
+    top: -width * 0.2,
+    left: -width * 0.1,
+  },
+  blobSecondary: {
+    backgroundColor: colors["color-warning-300"],
+    bottom: -width * 0.15,
+    right: -width * 0.25,
+  },
+  header: {
+    width: "100%",
+    gap: scale(4),
+  },
+  kicker: {
+    ...fontStyles.body1Bold,
+    color: colors["color-info-900"],
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  title: {
+    ...fontStyles.headline1,
+    color: colors["color-primary-50"],
+  },
+  subtitle: {
+    ...fontStyles.body1,
+    color: colors["color-primary-200"],
   },
   statusText: {
     ...fontStyles.headline3,
-    marginBottom: scale(32),
+    color: colors["color-primary-50"],
+    marginBottom: scale(12),
     textAlign: "center",
   },
   loaderContainer: {
-    height: scale(120),
+    height: scale(140),
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: scale(30),
+    marginBottom: scale(10),
+    marginTop: scale(8),
   },
-  mainLoader: {
-    width: scale(80),
-    height: scale(80),
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loaderRing: {
-    width: "100%",
-    height: "100%",
-    borderRadius: scale(40),
-    borderWidth: scale(4),
-    borderColor: colors["color-primary-900"],
-    borderStyle: "dotted",
-  },
-  loaderInnerRing: {
+  halo: {
     position: "absolute",
-    width: "70%",
-    height: "70%",
-    borderRadius: scale(35),
-    borderWidth: scale(3),
-    borderColor: colors["color-primary-300"],
+    width: scale(140),
+    height: scale(140),
+    borderRadius: scale(70),
+    backgroundColor: colors["color-info-100"],
   },
   loaderCore: {
-    position: "absolute",
-    width: "40%",
-    height: "40%",
-    borderRadius: scale(20),
-    backgroundColor: colors["color-primary-300"],
+    width: scale(96),
+    height: scale(96),
+    borderRadius: scale(48),
+    backgroundColor: colors["color-primary-800"],
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors["color-info-400"],
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 24,
   },
-  orbitingLoader: {
+  loaderGlow: {
+    position: "absolute",
+    width: "90%",
+    height: "90%",
+    borderRadius: scale(48),
+    borderWidth: scale(2),
+    borderColor: colors["color-info-400"],
+    opacity: 0.5,
+  },
+  loaderInnerCore: {
+    width: "62%",
+    height: "62%",
+    borderRadius: scale(32),
+    backgroundColor: colors["color-info-300"],
+  },
+  orbitDot: {
     position: "absolute",
     width: scale(20),
     height: scale(20),
     borderRadius: scale(10),
-    backgroundColor: colors["color-primary-900"],
+    backgroundColor: colors["color-info-400"],
+    opacity: 0.9,
+  },
+  orbitDotSecondary: {
+    backgroundColor: colors["color-warning-300"],
+    width: scale(14),
+    height: scale(14),
+    borderRadius: scale(7),
+    opacity: 0.8,
   },
   infoContainer: {
     width: SCREEN_WIDTH - scale(40),
+    marginTop: scale(6),
   },
   infoRow: {
     flexDirection: "row",
@@ -374,21 +499,37 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   infoCard: {
-    backgroundColor: "white",
-    borderRadius: scale(16),
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: scale(18),
     padding: scale(16),
     width: (width - scale(52)) / 2,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
     ...shadowStyle,
   },
   infoLabel: {
     ...fontStyles.body1,
+    color: colors["color-primary-200"],
     marginBottom: scale(4),
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   infoValue: {
-    ...fontStyles.headline3,
-    color: colors["color-success-900"],
+    ...fontStyles.headline2,
+    color: colors["color-primary-50"],
+  },
+  progressTrack: {
+    width: "100%",
+    height: scale(10),
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: scale(12),
+    overflow: "hidden",
+    marginTop: scale(6),
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors["color-info-400"],
+    borderRadius: scale(12),
   },
 });
 
