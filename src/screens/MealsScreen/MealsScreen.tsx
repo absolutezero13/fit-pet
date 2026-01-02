@@ -7,7 +7,6 @@ import {
   createGeminiCompletion,
   createGeminiImage,
 } from "../../services/gptApi";
-import GradientSpinner from "../../components/GradientSpinner";
 import { IMeal } from "../../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import useMealsStore from "../../zustand/useMealsStore";
@@ -15,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import MealCard from "./components/MealCard";
 import TotalNutrition from "./components/TotalNutritionCard";
+import MealsScreenSkeleton from "./components/MealCardSkeleton";
 import promptBuilder from "../../utils/promptBuilder";
 import useUserStore, { IUser } from "../../zustand/useUserStore";
 import { storageService } from "../../storage/AsyncStorageService";
@@ -133,33 +133,27 @@ const MealsScreen = () => {
         <Text style={styles.date}>{formatHeaderDate(new Date())}</Text>
       </LiquidGlassView>
 
-      {loading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <GradientSpinner />
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingTop: top + scale(100),
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          {meals.map((meal, index) => (
-            <MealCard key={index} meal={meal} onPress={onMealPress} />
-          ))}
-          {meals.length > 0 && <TotalNutrition meals={meals} />}
-        </ScrollView>
-      )}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: top + scale(100),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {loading ? (
+          <MealsScreenSkeleton />
+        ) : (
+          <>
+            {meals.map((meal, index) => (
+              <MealCard key={index} meal={meal} onPress={onMealPress} />
+            ))}
+            {meals.length > 0 && <TotalNutrition meals={meals} />}
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 };
