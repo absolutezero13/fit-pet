@@ -253,33 +253,36 @@ const SettingsScreen = () => {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                t("logoutConfirmation"),
-                t("logoutConfirmationMessage"),
-                [
-                  {
-                    text: t("cancel"),
-                    style: "cancel",
-                  },
-                  {
-                    text: t("logoutConfirmation"),
-                    style: "destructive",
-                    onPress: () => {
-                      authService.logout(navigation);
+        {user?.email && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  t("logoutConfirmation"),
+                  t("logoutConfirmationMessage"),
+                  [
+                    {
+                      text: t("cancel"),
+                      style: "cancel",
                     },
-                  },
-                ]
-              );
-            }}
-            style={styles.card}
-          >
-            <Text style={fontStyles.headline4}>{t("logoutConfirmation")}</Text>
-          </TouchableOpacity>
-        </View>
-
+                    {
+                      text: t("logoutConfirmation"),
+                      style: "destructive",
+                      onPress: () => {
+                        authService.logout(navigation);
+                      },
+                    },
+                  ]
+                );
+              }}
+              style={styles.card}
+            >
+              <Text style={fontStyles.headline4}>
+                {t("logoutConfirmation")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <View style={styles.section}>
           <TouchableOpacity
             onPress={async () => {

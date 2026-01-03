@@ -28,7 +28,7 @@ const WelcomeScreen = () => {
   const authService = useAuthService();
   const [loading, setLoading] = React.useState(false);
 
-  const login = async (type: LoginType) => {
+  const loginSilent = async () => {
     setLoading(true);
 
     let user: undefined | IUser;
@@ -36,7 +36,9 @@ const WelcomeScreen = () => {
 
     if (!getAuth().currentUser) {
       console.log("signing in");
-      const { success, user: loginUser } = await authService.handleLogin(type);
+      const { success, user: loginUser } = await authService.handleLogin(
+        LoginType.Anonymous
+      );
       if (!success || !loginUser) {
         setLoading(false);
         console.error("Google login failed");
@@ -48,6 +50,27 @@ const WelcomeScreen = () => {
       user = (await userService.getUser()).user;
     }
     console.log("user after login", user);
+
+    if (user?.onboardingCompleted) {
+      await userService.getUser();
+
+      navigation.reset({
+        routes: [{ name: "HomeTabs" }],
+        index: 0,
+      });
+    } else {
+      navigation.navigate("Onboarding");
+    }
+    setLoading(false);
+  };
+
+  const googleLogin = async () => {
+    setLoading(true);
+    const { success, user } = await authService.handleLogin(LoginType.Google);
+    if (!success || !user) {
+      console.error("Google login failed");
+      return;
+    }
 
     if (user?.onboardingCompleted) {
       await userService.getUser();
@@ -94,7 +117,7 @@ const WelcomeScreen = () => {
             disableAnimation={disableAnimation}
             title={t("getStarted")}
             loading={loading}
-            onPress={() => login(LoginType.Anonymous)}
+            onPress={loginSilent}
           />
         </Animated.View>
         <Animated.View
@@ -102,7 +125,7 @@ const WelcomeScreen = () => {
           style={styles.loginContainer}
         >
           <Text style={styles.loginText}>{t("existingUser")}</Text>
-          <TouchableOpacity onPress={() => login(LoginType.Google)}>
+          <TouchableOpacity onPress={googleLogin}>
             <Text style={styles.loginLink}>{t("login")}</Text>
           </TouchableOpacity>
         </Animated.View>
