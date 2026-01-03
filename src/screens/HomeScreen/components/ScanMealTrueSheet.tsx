@@ -60,7 +60,6 @@ type ScreenState = "camera" | "captured" | "analyzing" | "analyzed";
 
 // Animation timing constants
 const ANIMATION_DISMISS_DELAY = 200;
-const ANIMATION_NAVIGATION_DELAY = 300;
 
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const device = useCameraDevice("back");
@@ -68,7 +67,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
+
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast")
   );
@@ -120,7 +119,11 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       loaderPulse.value = withRepeat(
         withSequence(
           withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) })
+          withTiming(0.95, {
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+          }),
+          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
         ),
         -1
       );
@@ -161,8 +164,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       setScreenState("captured");
     }
   };
-
-  console.log("photo", photo?.path);
 
   const savePhoto = async () => {
     try {
@@ -397,7 +398,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               <MaterialCommunityIcons
                 name="magnify"
                 size={scale(32)}
-                color="white"
+                color={colors["color-primary-50"]}
               />
             </Animated.View>
             <Text style={styles.analyzingText}>{t("analyzingMeal")}</Text>
