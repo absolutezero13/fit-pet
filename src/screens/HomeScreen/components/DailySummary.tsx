@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { View, StyleSheet, Text, Modal, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
+import { colors, macroColors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { IMeal } from "../../../services/apiTypes";
@@ -196,7 +196,11 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         <View style={styles.proteinCard}>
           <View style={styles.proteinRow}>
             <View style={styles.proteinIconContainer}>
-              <Icon name="lightning-bolt" size={scale(20)} color="#4CAF50" />
+              <Icon
+                name="lightning-bolt"
+                size={scale(20)}
+                color={macroColors.protein}
+              />
             </View>
             <View style={styles.proteinInfo}>
               <Text style={styles.proteinLabel}>{t("proteins")}</Text>
@@ -226,7 +230,11 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
             <View
               style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}
             >
-              <Icon name="bread-slice" size={scale(16)} color="#2196F3" />
+              <Icon
+                name="bread-slice"
+                size={scale(16)}
+                color={macroColors.carbs}
+              />
             </View>
             <Text style={styles.miniMacroLabel}>{t("carbs")}</Text>
             <Text style={styles.miniMacroValue}>
@@ -579,13 +587,13 @@ const styles = StyleSheet.create({
   },
   miniMacroCard: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors["color-primary-50"],
     borderRadius: scale(14),
     padding: scale(12),
     alignItems: "center",
   },
   scoreCard: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors["color-primary-50"],
   },
   miniMacroIcon: {
     width: scale(32),
@@ -597,19 +605,19 @@ const styles = StyleSheet.create({
   },
   miniMacroLabel: {
     ...fontStyles.caption,
-    color: "#888888",
+    color: colors["color-primary-400"],
     marginBottom: scale(2),
   },
   miniMacroValue: {
     ...fontStyles.body1,
-    color: "#1A1A1A",
+    color: colors["color-primary-500"],
     fontWeight: "700",
     marginBottom: scale(6),
   },
   miniProgressContainer: {
     width: "100%",
     height: scale(4),
-    backgroundColor: "#E8E8E8",
+    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(2),
     overflow: "hidden",
   },
@@ -650,10 +658,10 @@ const styles = StyleSheet.create({
   calorieCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors["color-primary-50"],
     borderRadius: scale(16),
     borderWidth: 1,
-    borderColor: "#E8E8E8",
+    borderColor: colors["color-primary-100"],
     padding: scale(16),
     marginBottom: scale(24),
   },
@@ -676,7 +684,7 @@ const styles = StyleSheet.create({
   },
   calorieSublabel: {
     ...fontStyles.caption,
-    color: "#4CAF50",
+    color: macroColors.protein,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -687,13 +695,13 @@ const styles = StyleSheet.create({
   },
   calorieValue: {
     ...fontStyles.headline1,
-    color: "#1A1A1A",
+    color: colors["color-primary-500"],
     fontWeight: "300",
     fontSize: scale(36),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: "#888888",
+    color: colors["color-primary-400"],
     marginLeft: scale(4),
   },
   // Protein Distribution
@@ -705,7 +713,7 @@ const styles = StyleSheet.create({
   },
   proteinDistributionTitle: {
     ...fontStyles.body1,
-    color: "#1A1A1A",
+    color: colors["color-primary-500"],
     fontWeight: "600",
   },
   distributionBar: {
@@ -720,14 +728,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   proteinSegment: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: macroColors.protein,
   },
   otherSegment: {
-    backgroundColor: "#E8E8E8",
+    backgroundColor: colors["color-primary-100"],
   },
   segmentText: {
     ...fontStyles.body2,
-    color: "white",
+    color: colors["color-primary-50"],
     fontWeight: "600",
   },
   segmentTextOther: {
