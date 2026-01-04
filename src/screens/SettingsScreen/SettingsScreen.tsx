@@ -386,9 +386,7 @@ const SettingsScreen = () => {
               { backgroundColor: colors["color-danger-500"] },
             ]}
           >
-            <Text
-              style={[fontStyles.headline4, { color: colors.textInverse }]}
-            >
+            <Text style={[fontStyles.headline4, { color: colors.textInverse }]}>
               {t("deleteAccountConfirmation")}
             </Text>
           </TouchableOpacity>
@@ -424,13 +422,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 1,
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 1,
-    shadowRadius: scale(8),
-    elevation: 3,
   },
   title: {
     ...fontStyles.headline1,
