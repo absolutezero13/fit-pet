@@ -5,7 +5,7 @@ import FemaleImage from "../../assets/female.jpg";
 import NonBinaryImage from "../../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
@@ -41,69 +41,58 @@ const genders: GenderItem[] = [
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const renderItem = ({ item }: { item: GenderItem }) => {
     return (
-      <LiquidGlassView
-        interactive
-        tintColor={
-          item.key === gender
-            ? colors["color-primary-500"]
-            : colors["color-primary-100"]
-        }
+      <Pressable
+        onPress={() => useOnboardingStore.setState({ gender: item.key })}
         style={{
+          backgroundColor:
+            item.key === gender
+              ? colors["color-primary-500"]
+              : colors["color-primary-200"],
+          flexDirection: "row",
           borderRadius: scale(16),
+          alignItems: "center",
         }}
       >
-        <Pressable
-          onPress={() => useOnboardingStore.setState({ gender: item.key })}
+        <Image
+          source={item.image}
           style={{
-            backgroundColor:
-              item.key === gender
-                ? colors["color-primary-500"]
-                : colors["color-primary-100"],
-            flexDirection: "row",
+            width: scale(100),
+            height: scale(100),
             borderRadius: scale(16),
-            alignItems: "center",
+            marginRight: scale(32),
           }}
+        />
+        <Text
+          style={[
+            fontStyles.headline2,
+            {
+              textAlign: "center",
+              marginTop: scale(8),
+              color:
+                item.key === gender
+                  ? colors["color-primary-100"]
+                  : colors["color-primary-500"],
+            },
+          ]}
         >
-          <Image
-            source={item.image}
-            style={{
-              width: scale(100),
-              height: scale(100),
-              borderRadius: scale(16),
-              marginRight: scale(32),
-            }}
-          />
-          <Text
-            style={[
-              fontStyles.headline2,
-              {
-                textAlign: "center",
-                marginTop: scale(8),
-                color:
-                  item.key === gender
-                    ? colors["color-primary-100"]
-                    : colors["color-primary-500"],
-              },
-            ]}
-          >
-            {t(item.titleKey)}
-          </Text>
+          {t(item.titleKey)}
+        </Text>
 
-          <FontAwesome6
-            name="circle-check"
-            size={scale(24)}
-            color={colors["color-primary-100"]}
-            style={{
-              position: "absolute",
-              top: scale(16),
-              right: scale(16),
-            }}
-          />
-        </Pressable>
-      </LiquidGlassView>
+        <FontAwesome6
+          name="circle-check"
+          size={scale(24)}
+          color={colors["color-primary-100"]}
+          style={{
+            position: "absolute",
+            top: scale(16),
+            right: scale(16),
+          }}
+        />
+      </Pressable>
     );
   };
 

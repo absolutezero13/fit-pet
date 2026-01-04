@@ -236,9 +236,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }}
       name={TrueSheetNames.LOG_MEAL}
       detents={["auto"]}
-      blurTint={
-        isDark ? "system-thick-material-dark" : "system-thick-material-light"
-      }
+      blurTint={isDark ? "dark" : "light"}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
