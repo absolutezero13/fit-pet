@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { View, StyleSheet, Text, Modal, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
-import { colors, macroColors } from "../../../theme/colors";
+import { macroColors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { IMeal } from "../../../services/apiTypes";
@@ -13,9 +13,11 @@ import Slider from "@react-native-community/slider";
 import AppButton from "../../../components/AppButton";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const currentMacroGoals = useUserStore((state) => state?.macroGoals);
   const [goals, setGoals] = useState<MacroGoals>(
@@ -100,12 +102,12 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const overCalories = Math.max(0, totals.calories - goals.calories);
 
   return (
-    <LiquidGlassView effect="clear" style={styles.container}>
+    <LiquidGlassView effect="clear" style={[styles.container, { backgroundColor: colors.surface }]}>
       <Animated.View entering={FadeIn} exiting={FadeOut}>
         <View style={styles.headerRow}>
-          <Text style={styles.summaryTitle}>{t("dailySummary")}</Text>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>{t("dailySummary")}</Text>
           <Pressable onPress={() => setModalVisible(true)}>
-            <Icon name="cog-outline" size={scale(22)} color="#888888" />
+            <Icon name="cog-outline" size={scale(22)} color={colors.textSecondary} />
           </Pressable>
         </View>
 
@@ -226,7 +228,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         </View>
 
         <View style={styles.otherMacrosRow}>
-          <View style={styles.miniMacroCard}>
+          <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
             <View
               style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}
             >
@@ -236,11 +238,11 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 color={macroColors.carbs}
               />
             </View>
-            <Text style={styles.miniMacroLabel}>{t("carbs")}</Text>
-            <Text style={styles.miniMacroValue}>
+            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("carbs")}</Text>
+            <Text style={[styles.miniMacroValue, { color: colors.text }]}>
               {totals.carbs.toFixed(0)}g
             </Text>
-            <View style={styles.miniProgressContainer}>
+            <View style={[styles.miniProgressContainer, { backgroundColor: colors.border }]}>
               <View
                 style={[
                   styles.miniProgress,
@@ -252,15 +254,15 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               />
             </View>
           </View>
-          <View style={styles.miniMacroCard}>
+          <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
             <View
               style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}
             >
               <Icon name="water" size={scale(16)} color="#FF7043" />
             </View>
-            <Text style={styles.miniMacroLabel}>{t("fats")}</Text>
-            <Text style={styles.miniMacroValue}>{totals.fats.toFixed(0)}g</Text>
-            <View style={styles.miniProgressContainer}>
+            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("fats")}</Text>
+            <Text style={[styles.miniMacroValue, { color: colors.text }]}>{totals.fats.toFixed(0)}g</Text>
+            <View style={[styles.miniProgressContainer, { backgroundColor: colors.border }]}>
               <View
                 style={[
                   styles.miniProgress,
@@ -274,7 +276,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           </View>
 
           <Pressable
-            style={[styles.miniMacroCard, styles.scoreCard]}
+            style={[styles.miniMacroCard, styles.scoreCard, { backgroundColor: colors.backgroundSecondary }]}
             onPress={() => setModalVisible(true)}
           >
             <View
@@ -289,7 +291,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 color={getScoreColor(averageScore)}
               />
             </View>
-            <Text style={styles.miniMacroLabel}>{t("score")}</Text>
+            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("score")}</Text>
             <Text
               style={[
                 styles.miniMacroValue,
@@ -307,22 +309,22 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
               {/* Header */}
-              <Text style={styles.modalTitle}>{t("nutritionGoals")}</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{t("nutritionGoals")}</Text>
 
               {/* Calorie Card */}
-              <View style={styles.calorieCard}>
+              <View style={[styles.calorieCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
                 <View style={styles.calorieIconContainer}>
                   <Icon name="fire" size={scale(24)} color="#F5A623" />
                 </View>
                 <View style={styles.calorieLabelContainer}>
-                  <Text style={styles.calorieLabel}>{t("calories")}</Text>
+                  <Text style={[styles.calorieLabel, { color: colors.text }]}>{t("calories")}</Text>
                   <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
                 </View>
                 <View style={styles.calorieValueContainer}>
-                  <Text style={styles.calorieValue}>{goals.calories}</Text>
-                  <Text style={styles.calorieUnit}>kcal</Text>
+                  <Text style={[styles.calorieValue, { color: colors.text }]}>{goals.calories}</Text>
+                  <Text style={[styles.calorieUnit, { color: colors.textSecondary }]}>kcal</Text>
                 </View>
               </View>
               <Slider
@@ -347,8 +349,8 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     color="#4CAF50"
                   />
                 </View>
-                <Text style={styles.sliderLabel}>{t("proteins")}</Text>
-                <Text style={styles.sliderGrams}>
+                <Text style={[styles.sliderLabel, { color: colors.text }]}>{t("proteins")}</Text>
+                <Text style={[styles.sliderGrams, { color: colors.textSecondary }]}>
                   {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
                 </Text>
                 <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
@@ -379,9 +381,9 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     color="#9E9E9E"
                   />
                 </View>
-                <Text style={styles.otherLabel}>{t("otherCarbsFat")}</Text>
+                <Text style={[styles.otherLabel, { color: colors.text }]}>{t("otherCarbsFat")}</Text>
 
-                <Text style={styles.otherPercent}>{100 - goals.proteins}%</Text>
+                <Text style={[styles.otherPercent, { color: colors.textSecondary }]}>{100 - goals.proteins}%</Text>
               </View>
 
               <View style={styles.modalButtons}>
@@ -587,14 +589,11 @@ const styles = StyleSheet.create({
   },
   miniMacroCard: {
     flex: 1,
-    backgroundColor: colors["color-primary-50"],
     borderRadius: scale(14),
     padding: scale(12),
     alignItems: "center",
   },
-  scoreCard: {
-    backgroundColor: colors["color-primary-50"],
-  },
+  scoreCard: {},
   miniMacroIcon: {
     width: scale(32),
     height: scale(32),
@@ -605,19 +604,16 @@ const styles = StyleSheet.create({
   },
   miniMacroLabel: {
     ...fontStyles.caption,
-    color: colors["color-primary-400"],
     marginBottom: scale(2),
   },
   miniMacroValue: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
     fontWeight: "700",
     marginBottom: scale(6),
   },
   miniProgressContainer: {
     width: "100%",
     height: scale(4),
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(2),
     overflow: "hidden",
   },
@@ -634,11 +630,9 @@ const styles = StyleSheet.create({
     padding: scale(20),
   },
   modalContent: {
-    backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(24),
     width: "100%",
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: scale(4),
@@ -646,6 +640,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: scale(12),
     elevation: 8,
+  },
   },
   modalTitle: {
     ...fontStyles.headline2,
@@ -658,10 +653,8 @@ const styles = StyleSheet.create({
   calorieCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors["color-primary-50"],
     borderRadius: scale(16),
     borderWidth: 1,
-    borderColor: colors["color-primary-100"],
     padding: scale(16),
     marginBottom: scale(24),
   },
@@ -679,7 +672,6 @@ const styles = StyleSheet.create({
   },
   calorieLabel: {
     ...fontStyles.body1,
-    color: "#1A1A1A",
     fontWeight: "600",
   },
   calorieSublabel: {
@@ -695,13 +687,11 @@ const styles = StyleSheet.create({
   },
   calorieValue: {
     ...fontStyles.headline1,
-    color: colors["color-primary-500"],
     fontWeight: "300",
     fontSize: scale(36),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: colors["color-primary-400"],
     marginLeft: scale(4),
   },
   // Protein Distribution
@@ -713,7 +703,6 @@ const styles = StyleSheet.create({
   },
   proteinDistributionTitle: {
     ...fontStyles.body1,
-    color: colors["color-primary-500"],
     fontWeight: "600",
   },
   distributionBar: {
@@ -730,17 +719,13 @@ const styles = StyleSheet.create({
   proteinSegment: {
     backgroundColor: macroColors.protein,
   },
-  otherSegment: {
-    backgroundColor: colors["color-primary-100"],
-  },
+  otherSegment: {},
   segmentText: {
     ...fontStyles.body2,
-    color: colors["color-primary-50"],
     fontWeight: "600",
   },
   segmentTextOther: {
     ...fontStyles.body2,
-    color: "#888888",
     fontWeight: "500",
   },
   // Slider Row
@@ -760,13 +745,11 @@ const styles = StyleSheet.create({
   },
   sliderLabel: {
     ...fontStyles.body1,
-    color: "#1A1A1A",
     fontWeight: "500",
     flex: 1,
   },
   sliderGrams: {
     ...fontStyles.body2,
-    color: "#888888",
     marginRight: scale(8),
   },
   sliderPercent: {
@@ -796,18 +779,15 @@ const styles = StyleSheet.create({
   },
   otherLabel: {
     ...fontStyles.body1,
-    color: "#1A1A1A",
     fontWeight: "500",
     flex: 1,
   },
   otherKcal: {
     ...fontStyles.body2,
-    color: "#AAAAAA",
     marginRight: scale(8),
   },
   otherPercent: {
     ...fontStyles.body1,
-    color: "#AAAAAA",
     fontWeight: "600",
   },
   // Buttons

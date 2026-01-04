@@ -1,7 +1,7 @@
 import React, { FC, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import { colors } from "../../../theme/colors";
+import { lightColors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -13,6 +13,7 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const getScoreColor = (score: number) => {
   if (score >= 8) return "#4CAF50";
@@ -42,7 +43,7 @@ const renderRightActions = (
         <MaterialCommunityIcons
           name="delete-outline"
           size={scale(22)}
-          color="white"
+          color={lightColors.textInverse}
         />
       </TouchableOpacity>
     </Animated.View>
@@ -56,6 +57,7 @@ interface Props {
 
 const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swipeableRef = useRef<any>(null);
   const scoreColor = getScoreColor(meal.score || 0);
@@ -101,15 +103,23 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
       }
       ref={swipeableRef}
     >
-      <TouchableOpacity style={styles.container} onPress={() => onPress(meal)}>
+      <TouchableOpacity
+        style={[styles.container, { backgroundColor: colors.surface }]}
+        onPress={() => onPress(meal)}
+      >
         {/* Emoji Container */}
-        <View style={styles.emojiContainer}>
+        <View
+          style={[
+            styles.emojiContainer,
+            { backgroundColor: colors.backgroundSecondary },
+          ]}
+        >
           <Text style={styles.emoji}>{meal.emoji}</Text>
         </View>
 
         {/* Content */}
         <View style={styles.content}>
-          <Text style={styles.description} numberOfLines={1}>
+          <Text style={[styles.description, { color: colors.text }]} numberOfLines={1}>
             {meal.description}
           </Text>
           <View style={styles.macrosRow}>
@@ -154,7 +164,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
           <MaterialCommunityIcons
             name="chevron-right"
             size={scale(20)}
-            color="#CCCCCC"
+            color={colors.textTertiary}
           />
         </View>
       </TouchableOpacity>
@@ -166,13 +176,11 @@ export default SwipeableMealCard;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
     borderRadius: scale(20),
     marginBottom: scale(10),
     padding: scale(14),
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -186,7 +194,6 @@ const styles = StyleSheet.create({
     width: scale(44),
     height: scale(44),
     borderRadius: scale(14),
-    backgroundColor: "#F8F8F8",
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -201,7 +208,6 @@ const styles = StyleSheet.create({
   description: {
     ...fontStyles.body1,
     fontWeight: "600",
-    color: "#1A1A1A",
     marginBottom: scale(4),
   },
   macrosRow: {
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: scale(10),
   },
   deleteButton: {
-    backgroundColor: colors["color-danger-500"],
+    backgroundColor: lightColors["color-danger-500"],
     justifyContent: "center",
     alignItems: "center",
     width: scale(56),

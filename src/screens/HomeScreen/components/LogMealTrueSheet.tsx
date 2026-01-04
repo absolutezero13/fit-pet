@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 import AppButton from "../../../components/AppButton";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
@@ -40,6 +39,7 @@ import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import MealTypes from "./MealTypes";
 import useUserStore from "../../../zustand/useUserStore";
 import { TrueSheetNames } from "../../../navigation/constants";
+import { useTheme } from "../../../theme/ThemeContext";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -59,6 +59,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const params = props.params;
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const mealToEdit = useMealsStore((state) =>
     state.loggedMeals.find((meal) => meal._id === params.mealId)
   );
@@ -235,7 +236,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }}
       name={TrueSheetNames.LOG_MEAL}
       detents={["auto"]}
-      blurTint="system-thick-material-light"
+      blurTint={isDark ? "system-thick-material-dark" : "system-thick-material-light"}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
@@ -249,7 +250,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       >
         <View style={[styles.container, {}]}>
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("describeYourMeal")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("describeYourMeal")}</Text>
             <View style={styles.textInputWrapper}>
               <TextInput
                 keyboardType="default"
@@ -258,10 +259,12 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   styles.textInput,
                   {
                     paddingRight: image ? scale(140) : scale(24),
+                    borderColor: colors.border,
+                    color: colors.text,
                   },
                 ]}
                 placeholder={t("exampleMeal")}
-                placeholderTextColor={colors["color-primary-300"]}
+                placeholderTextColor={colors.textTertiary}
                 value={mealDescription}
                 onChangeText={setMealDescription}
                 multiline
@@ -269,7 +272,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
               />
               {!image && (
                 <TouchableOpacity
-                  style={styles.imagePickerButton}
+                  style={[styles.imagePickerButton, { backgroundColor: colors.background }]}
                   onPress={() => {
                     Alert.alert(t("addImage"), t("chooseImageSource"), [
                       {
@@ -290,7 +293,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   <FontAwesome5
                     name="image"
                     size={scale(24)}
-                    color={colors["color-primary-500"]}
+                    color={colors.text}
                   />
                 </TouchableOpacity>
               )}
@@ -318,7 +321,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
           </View>
 
           <View style={styles.mealTypeContainer}>
-            <Text style={styles.inputLabel}>{t("mealType")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("mealType")}</Text>
             <MealTypes
               selectedMealType={selectedMealType}
               setSelectedMealType={setSelectedMealType}
@@ -358,19 +361,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...fontStyles.headline2,
-    color: colors["color-primary-500"],
   },
   inputContainer: {
     marginBottom: scale(20),
   },
   inputLabel: {
     ...fontStyles.headline3,
-    color: colors["color-primary-500"],
     marginBottom: scale(8),
   },
   textInput: {
     borderWidth: 1,
-    borderColor: colors["color-primary-300"],
     borderRadius: scale(12),
     padding: scale(12),
     ...fontStyles.body1,
@@ -391,7 +391,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: scale(8),
     right: scale(8),
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(20),
     width: scale(36),
     height: scale(36),
