@@ -12,10 +12,11 @@ import { useTranslation } from "react-i18next";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
-import { colors } from "../theme/colors";
+import { useTheme } from "../theme/ThemeContext";
 
 const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const rotation = useSharedValue(0);
   const pulse = useSharedValue(1);
@@ -52,20 +53,54 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.container}>
-        <View style={styles.content}>
-          <Animated.View style={[styles.iconOuterRing, rotationStyle]}>
-            <View style={styles.ringDot} />
-            <View style={[styles.ringDot, styles.ringDot2]} />
-            <View style={[styles.ringDot, styles.ringDot3]} />
+        <View style={[styles.content, { backgroundColor: colors.surface }]}>
+          <Animated.View
+            style={[
+              styles.iconOuterRing,
+              { borderColor: colors["color-success-500"] + "30" },
+              rotationStyle,
+            ]}
+          >
+            <View
+              style={[
+                styles.ringDot,
+                { backgroundColor: colors["color-success-500"] },
+              ]}
+            />
+            <View
+              style={[
+                styles.ringDot,
+                styles.ringDot2,
+                { backgroundColor: colors["color-success-500"] },
+              ]}
+            />
+            <View
+              style={[
+                styles.ringDot,
+                styles.ringDot3,
+                { backgroundColor: colors["color-success-500"] },
+              ]}
+            />
           </Animated.View>
-          <Animated.View style={[styles.iconContainer, pulseStyle]}>
+          <Animated.View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: colors["color-success-500"],
+                shadowColor: colors["color-success-500"],
+              },
+              pulseStyle,
+            ]}
+          >
             <MaterialCommunityIcons
               name="magnify"
               size={scale(36)}
-              color={colors["color-primary-50"]}
+              color={colors.textInverse}
             />
           </Animated.View>
-          <Text style={styles.statusText}>{t("analyzingMeal")}</Text>
+          <Text style={[styles.statusText, { color: colors.text }]}>
+            {t("analyzingMeal")}
+          </Text>
         </View>
       </View>
     </Modal>
@@ -82,12 +117,10 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: "center",
-    backgroundColor: "white",
     borderRadius: scale(28),
     padding: scale(32),
     paddingTop: scale(48),
     width: scale(260),
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 20,
@@ -100,7 +133,6 @@ const styles = StyleSheet.create({
     height: scale(100),
     borderRadius: scale(50),
     borderWidth: 2,
-    borderColor: colors["color-success-500"] + "30",
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -110,7 +142,6 @@ const styles = StyleSheet.create({
     width: scale(8),
     height: scale(8),
     borderRadius: scale(4),
-    backgroundColor: colors["color-success-500"],
     top: -scale(4),
   },
   ringDot2: {
@@ -127,11 +158,9 @@ const styles = StyleSheet.create({
     width: scale(80),
     height: scale(80),
     borderRadius: scale(40),
-    backgroundColor: colors["color-success-500"],
     alignItems: "center",
     justifyContent: "center",
     marginBottom: scale(24),
-    shadowColor: colors["color-success-500"],
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,

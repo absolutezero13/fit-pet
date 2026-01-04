@@ -1,9 +1,11 @@
 import React from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
-import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
+import { useTheme } from "../theme/ThemeContext";
 
 const GradientSpinner = ({ size = scale(100) }) => {
+  const { colors } = useTheme();
+
   return (
     <View
       style={[
@@ -14,7 +16,7 @@ const GradientSpinner = ({ size = scale(100) }) => {
         },
       ]}
     >
-      <ActivityIndicator size="large" color={colors["color-primary-50"]} />
+      <ActivityIndicator size="large" color={colors.textInverse} />
     </View>
   );
 };
@@ -45,12 +47,6 @@ const styles = StyleSheet.create({
     width: scale(20),
     height: scale(20),
     borderRadius: scale(10),
-    backgroundColor: colors["color-primary-200"],
-    shadowColor: colors["color-primary-900"],
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
   },
 });
 
