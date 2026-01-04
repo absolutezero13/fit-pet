@@ -168,18 +168,9 @@ const SettingsScreen = () => {
               >
                 <Text style={styles.goalText}>{option.label}</Text>
                 <View style={styles.checkboxContainer}>
-                  <View
-                    style={[
-                      styles.checkbox,
-                      aiTone === option.key && styles.checkboxSelected,
-                    ]}
-                  >
+                  <View style={[styles.radioButton]}>
                     {aiTone === option.key && (
-                      <Ionicons
-                        name="checkmark"
-                        size={scale(16)}
-                        color="white"
-                      />
+                      <View style={styles.radioButtonSelectedInner} />
                     )}
                   </View>
                 </View>
@@ -481,6 +472,25 @@ const styles = StyleSheet.create({
     bottom: scale(16),
     left: 0,
     right: 0,
+  },
+  radioButton: {
+    width: scale(24),
+    height: scale(24),
+    borderRadius: scale(12),
+    borderWidth: 2,
+    borderColor: colors["color-primary-300"],
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioButtonSelected: {
+    backgroundColor: colors["color-primary-500"],
+    borderColor: colors["color-primary-500"],
+  },
+  radioButtonSelectedInner: {
+    width: scale(14),
+    height: scale(14),
+    borderRadius: scale(7),
+    backgroundColor: colors["color-primary-500"],
   },
 });
 

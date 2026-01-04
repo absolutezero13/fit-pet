@@ -61,7 +61,7 @@ const OnboardingScreen = () => {
 
   const onButtonPress = () => {
     console.log("step", step);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     ref.current?.scrollToIndex({ index: step + 1, animated: true });
     setStep((prev) => prev + 1);

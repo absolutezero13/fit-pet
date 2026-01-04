@@ -5,6 +5,7 @@ import { scale } from "../../../theme/utils";
 import { colors } from "../../../theme/colors";
 import {
   Alert,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -59,15 +60,11 @@ const SignUpTrueSheet = () => {
     TrueSheet.dismiss(TrueSheetNames.SIGN_UP);
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleSocialSignUp = async (type: LoginType) => {
     setLoading(true);
-    await authService.linkUser(LoginType.Google);
+    await authService.linkUser(type);
     setLoading(false);
     TrueSheet.dismiss(TrueSheetNames.SIGN_UP);
-  };
-
-  const handleAppleSignUp = () => {
-    console.log("Apple sign up");
   };
 
   const signUpOptions = [
@@ -75,23 +72,25 @@ const SignUpTrueSheet = () => {
       type: LoginType.Google,
       label: t("signUpWithGoogle"),
       icon: "google",
-      onPress: handleGoogleSignUp,
+      onPress: () => handleSocialSignUp(LoginType.Google),
       disabled: false,
+      filter: () => true,
     },
     {
       type: LoginType.Apple,
       label: t("signUpWithApple"),
       icon: "apple",
-      onPress: handleAppleSignUp,
-      disabled: true,
+      onPress: () => handleSocialSignUp(LoginType.Apple),
+      filter: () => Platform.OS === "ios",
     },
     {
       type: LoginType.Email,
       label: t("signUpWithEmail"),
       icon: "email",
       onPress: () => setShowEmailForm(true),
+      filter: () => true,
     },
-  ];
+  ].filter((option) => option.filter?.());
 
   const onDidDismiss = () => {
     setShowEmailForm(false);

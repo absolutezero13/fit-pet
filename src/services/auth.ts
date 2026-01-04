@@ -11,6 +11,7 @@ import useOnboardingStore, {
 } from "../zustand/useOnboardingStore";
 import { storageService } from "../storage/AsyncStorageService";
 import auth, {
+  AppleAuthProvider,
   EmailAuthProvider,
   getAuth,
   GoogleAuthProvider,
@@ -19,6 +20,7 @@ import api from "./api";
 import userService from "./user";
 import { Alert } from "react-native";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
+import AppleAuthentication from "@invertase/react-native-apple-authentication";
 
 const GOOGLE_WEB_CLIENT_ID =
   "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com";
@@ -61,11 +63,49 @@ export class AuthService {
         return this.linkAnonymousToGoogle();
       case LoginType.Email:
         return this.linkAnonymousToEmail(email, password);
+      case LoginType.Apple:
+        return this.linkAnonymousToApple();
       default:
         throw new Error("Invalid login type");
     }
   }
 
+  private linkAnonymousToApple = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user || !user.isAnonymous) {
+      throw new Error("No anonymous user to link");
+    }
+
+    try {
+      const appleResponse = await AppleAuthentication.performRequest({
+        requestedOperation: AppleAuthentication.Operation.LOGIN,
+        requestedScopes: [
+          AppleAuthentication.Scope.EMAIL,
+          AppleAuthentication.Scope.FULL_NAME,
+        ],
+      });
+
+      const appleCredential = AppleAuthProvider.credential(
+        appleResponse.identityToken,
+        appleResponse.nonce
+      );
+      const result = await user.linkWithCredential(appleCredential);
+      console.log("Linked user UID:", result.user.uid);
+      await userService.createOrUpdateUser({
+        email: result.user.email ?? undefined,
+        displayName: result.user.displayName ?? undefined,
+        picture: result.user.photoURL ?? undefined,
+      });
+      await userService.getUser();
+      return result.user;
+    } catch (error: any) {
+      Alert.alert("Error linking Apple account", error.message);
+      getCrashlytics().recordError(error);
+      throw error;
+    }
+  };
   private linkAnonymousToEmail = async (email?: string, password?: string) => {
     if (!email || !password) {
       Alert.alert("Email and password are required");

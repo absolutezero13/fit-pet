@@ -1762,6 +1762,11 @@
     protobufjs "^7.2.5"
     yargs "^17.7.2"
 
+"@invertase/react-native-apple-authentication@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@invertase/react-native-apple-authentication/-/react-native-apple-authentication-2.5.0.tgz#04626e2fd35e13724fad70621bffa62939895ed4"
+  integrity sha512-PL5tUd1WCw365L2fWlkB4HXy7QjZHCU9o6qi8osMvftBIlynSpi76YStJCeJcwU6aYXB09+iV/V5g+8lwafNwQ==
+
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz"
