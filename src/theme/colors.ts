@@ -65,6 +65,7 @@ export const lightColors = {
   textInverse: "#FFFFFF",
   border: "#C7D4EA",
   shadow: "#000000",
+  skeleton: "#C7D4EA",
 };
 
 // Dark theme colors (dark blue dominated)
@@ -90,6 +91,7 @@ export const darkColors = {
   textInverse: "#1F2431",
   border: "#1F3A5F",
   shadow: "#000000",
+  skeleton: "#1F3A5F",
 };
 
 export type ThemeColors = typeof lightColors;

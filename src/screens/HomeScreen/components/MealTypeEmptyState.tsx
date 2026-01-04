@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 
 type Props = {
   onPress?: () => void;
@@ -12,20 +12,30 @@ type Props = {
 
 const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <View style={styles.iconContainer}>
+    <Pressable
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+        },
+      ]}
+      onPress={onPress}
+    >
+      <View style={[styles.iconContainer, { backgroundColor: colors.backgroundSecondary }]}>
         <MaterialCommunityIcons
           name="silverware-fork-knife"
           size={scale(28)}
-          color={colors["color-primary-200"]}
+          color={colors.textTertiary}
         />
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{t("noMealsLogged")}</Text>
-        <Text style={styles.subtitle}>{t("tapToAddMeal")}</Text>
+        <Text style={[styles.title, { color: colors.textSecondary }]}>{t("noMealsLogged")}</Text>
+        <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{t("tapToAddMeal")}</Text>
       </View>
-      <View style={styles.addButton}>
+      <View style={[styles.addButton, { backgroundColor: colors["color-success-50"] }]}>
         <MaterialCommunityIcons
           name="plus"
           size={scale(20)}
@@ -39,12 +49,10 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
 const styles = StyleSheet.create({
   card: {
     borderRadius: scale(20),
-    backgroundColor: colors["color-primary-50"],
     flexDirection: "row",
     alignItems: "center",
     padding: scale(14),
     borderWidth: 2,
-    borderColor: colors["color-primary-100"],
     borderStyle: "dashed",
     marginHorizontal: scale(24),
   },
@@ -52,7 +60,6 @@ const styles = StyleSheet.create({
     width: scale(44),
     height: scale(44),
     borderRadius: scale(14),
-    backgroundColor: colors["color-primary-100"],
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -63,18 +70,15 @@ const styles = StyleSheet.create({
   title: {
     ...fontStyles.body1,
     fontWeight: "500",
-    color: colors["color-primary-400"],
     marginBottom: scale(2),
   },
   subtitle: {
     ...fontStyles.caption,
-    color: "#AAAAAA",
   },
   addButton: {
     width: scale(36),
     height: scale(36),
     borderRadius: scale(12),
-    backgroundColor: colors["color-success-50"],
     justifyContent: "center",
     alignItems: "center",
   },

@@ -2,14 +2,15 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import { IMeal } from "../../../services/apiTypes";
-import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const totals = useMemo(() => {
     return meals.reduce(
       (acc, meal) => {
@@ -25,7 +26,7 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
   }, [meals]);
 
   return (
-    <View style={styles.totalCard}>
+    <View style={[styles.totalCard, { backgroundColor: colors.surface }]}>
       <View style={styles.totalHeaderRow}>
         <MaterialCommunityIcons
           name="calculator"
@@ -33,30 +34,48 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
           color={colors["color-info-400"]}
           style={styles.totalIcon}
         />
-        <Text style={styles.totalTitle}>{t("dailyTotal")}</Text>
+        <Text style={[styles.totalTitle, { color: colors["color-info-500"] }]}>
+          {t("dailyTotal")}
+        </Text>
       </View>
 
       <View style={styles.totalMacrosContainer}>
         <View style={styles.totalMacroItem}>
-          <Text style={styles.totalMacroValue}>{totals.calories}</Text>
-          <Text style={styles.totalMacroLabel}>{t("calories")}</Text>
+          <Text style={[styles.totalMacroValue, { color: colors["color-info-500"] }]}>
+            {totals.calories}
+          </Text>
+          <Text style={[styles.totalMacroLabel, { color: colors.textSecondary }]}>
+            {t("calories")}
+          </Text>
         </View>
         <View style={styles.totalMacroItem}>
-          <Text style={styles.totalMacroValue}>{totals.proteins}g</Text>
-          <Text style={styles.totalMacroLabel}>{t("proteins")}</Text>
+          <Text style={[styles.totalMacroValue, { color: colors["color-info-500"] }]}>
+            {totals.proteins}g
+          </Text>
+          <Text style={[styles.totalMacroLabel, { color: colors.textSecondary }]}>
+            {t("proteins")}
+          </Text>
         </View>
         <View style={styles.totalMacroItem}>
-          <Text style={styles.totalMacroValue}>{totals.carbs}g</Text>
-          <Text style={styles.totalMacroLabel}>{t("carbs")} </Text>
+          <Text style={[styles.totalMacroValue, { color: colors["color-info-500"] }]}>
+            {totals.carbs}g
+          </Text>
+          <Text style={[styles.totalMacroLabel, { color: colors.textSecondary }]}>
+            {t("carbs")}
+          </Text>
         </View>
         <View style={styles.totalMacroItem}>
-          <Text style={styles.totalMacroValue}>{totals.fats}g</Text>
-          <Text style={styles.totalMacroLabel}>{t("fats")} </Text>
+          <Text style={[styles.totalMacroValue, { color: colors["color-info-500"] }]}>
+            {totals.fats}g
+          </Text>
+          <Text style={[styles.totalMacroLabel, { color: colors.textSecondary }]}>
+            {t("fats")}
+          </Text>
         </View>
       </View>
 
       <View style={styles.macroPercentagesContainer}>
-        <View style={styles.macroPercentageBar}>
+        <View style={[styles.macroPercentageBar, { backgroundColor: colors.border }]}>
           <View
             style={[
               styles.macroPercentageFill,
@@ -86,7 +105,7 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
                 width: `${Math.round(
                   ((totals.fats * 9) / totals.calories) * 100
                 )}%`,
-                backgroundColor: colors["color-primary-400"],
+                backgroundColor: colors.textSecondary,
               },
             ]}
           />
@@ -99,7 +118,7 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
                 { backgroundColor: colors["color-success-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>
               {t("proteins").toUpperCase()}
             </Text>
           </View>
@@ -110,7 +129,7 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
                 { backgroundColor: colors["color-info-400"] },
               ]}
             />
-            <Text style={styles.macroLegendText}>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>
               {t("carbs").toUpperCase()}
             </Text>
           </View>
@@ -118,10 +137,10 @@ const TotalNutrition = ({ meals }: { meals: IMeal[] }) => {
             <View
               style={[
                 styles.macroLegendColor,
-                { backgroundColor: colors["color-primary-400"] },
+                { backgroundColor: colors.textSecondary },
               ]}
             />
-            <Text style={styles.macroLegendText}>
+            <Text style={[styles.macroLegendText, { color: colors.textSecondary }]}>
               {t("fats").toUpperCase()}
             </Text>
           </View>
@@ -136,11 +155,9 @@ export default TotalNutrition;
 const styles = StyleSheet.create({
   // Total Card Styles
   totalCard: {
-    backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),
-    shadowColor: colors["color-primary-500"],
     shadowOffset: {
       width: 0,
       height: scale(4),
@@ -159,7 +176,6 @@ const styles = StyleSheet.create({
   },
   totalTitle: {
     ...fontStyles.headline2,
-    color: colors["color-info-500"],
   },
   totalMacrosContainer: {
     flexDirection: "row",
@@ -172,12 +188,10 @@ const styles = StyleSheet.create({
   },
   totalMacroValue: {
     ...fontStyles.headline3,
-    color: colors["color-info-500"],
     marginBottom: scale(6),
   },
   totalMacroLabel: {
     ...fontStyles.footnote,
-    color: colors["color-primary-400"],
     textAlign: "center",
   },
   macroPercentagesContainer: {
@@ -186,7 +200,6 @@ const styles = StyleSheet.create({
   macroPercentageBar: {
     height: scale(16),
     flexDirection: "row",
-    backgroundColor: colors["color-primary-100"],
     borderRadius: scale(8),
     overflow: "hidden",
     marginBottom: scale(16),
@@ -212,6 +225,5 @@ const styles = StyleSheet.create({
   },
   macroLegendText: {
     ...fontStyles.footnote,
-    color: colors["color-primary-400"],
   },
 });

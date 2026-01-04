@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { scale } from "../../../theme/utils";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const MealCardSkeleton = () => {
   const shimmerAnim = useRef(new Animated.Value(0)).current;
+  const { colors } = useTheme();
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -48,6 +50,7 @@ const MealCardSkeleton = () => {
           height,
           borderRadius,
           opacity,
+          backgroundColor: colors.skeleton,
         },
         style,
       ]}
@@ -55,7 +58,7 @@ const MealCardSkeleton = () => {
   );
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.surface }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -93,7 +96,7 @@ const MealCardSkeleton = () => {
       </View>
 
       {/* Macros */}
-      <View style={styles.macros}>
+      <View style={[styles.macros, { borderTopColor: colors.border }]}>
         {[1, 2, 3, 4].map((i) => (
           <View key={i} style={styles.macroItem}>
             <SkeletonBox width={scale(40)} height={scale(20)} />
@@ -127,7 +130,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(24),
     marginBottom: scale(24),
@@ -137,9 +139,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  skeletonBox: {
-    backgroundColor: "#E8E8E8",
-  },
+  skeletonBox: {},
   header: {
     marginBottom: scale(16),
   },
@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
     paddingTop: scale(20),
   },
   macroItem: {
