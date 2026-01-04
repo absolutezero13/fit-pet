@@ -1,17 +1,8 @@
 import eva from "@eva-design/eva";
 
-export const colors = {
+// Base colors that are shared between themes
+const baseColors = {
   ...eva,
-  "color-primary-50": "#F5F7FA",
-  "color-primary-100": "#E2E9F4",
-  "color-primary-200": "#C7D4EA",
-  "color-primary-300": "#96A4C1",
-  "color-primary-400": "#5F6A83",
-  "color-primary-500": "#1F2431",
-  "color-primary-600": "#161B2A",
-  "color-primary-700": "#0F1323",
-  "color-primary-800": "#090D1C",
-  "color-primary-900": "#050817",
   "color-success-50": "#E8F5E9",
   "color-success-100": "#CFF9CD",
   "color-success-200": "#9EF3A2",
@@ -50,6 +41,64 @@ export const colors = {
   "color-danger-800": "#580814",
   "color-danger-900": "#490414",
 };
+
+// Light theme colors (original colors)
+export const lightColors = {
+  ...baseColors,
+  "color-primary-50": "#F5F7FA",
+  "color-primary-100": "#E2E9F4",
+  "color-primary-200": "#C7D4EA",
+  "color-primary-300": "#96A4C1",
+  "color-primary-400": "#5F6A83",
+  "color-primary-500": "#1F2431",
+  "color-primary-600": "#161B2A",
+  "color-primary-700": "#0F1323",
+  "color-primary-800": "#090D1C",
+  "color-primary-900": "#050817",
+  // Semantic colors for light theme
+  background: "#E2E9F4",
+  backgroundSecondary: "#F5F7FA",
+  surface: "#FFFFFF",
+  text: "#1F2431",
+  textSecondary: "#5F6A83",
+  textTertiary: "#96A4C1",
+  textInverse: "#FFFFFF",
+  border: "#C7D4EA",
+  shadow: "#000000",
+  skeleton: "#C7D4EA",
+};
+
+// Dark theme colors (dark blue dominated)
+export const darkColors = {
+  ...baseColors,
+  "color-primary-50": "#050817",
+  "color-primary-100": "#0F1323",
+  "color-primary-200": "#161B2A",
+  "color-primary-300": "#1F2431",
+  "color-primary-400": "#96A4C1",
+  "color-primary-500": "#E2E9F4",
+  "color-primary-600": "#F5F7FA",
+  "color-primary-700": "#FFFFFF",
+  "color-primary-800": "#FFFFFF",
+  "color-primary-900": "#FFFFFF",
+  // Semantic colors for dark theme
+  background: "#0A1628",
+  backgroundSecondary: "#0F1D32",
+  surface: "#162A46",
+  text: "#E2E9F4",
+  textSecondary: "#96A4C1",
+  textTertiary: "#5F6A83",
+  textInverse: "#1F2431",
+  border: "#1F3A5F",
+  shadow: "#000000",
+  skeleton: "#1F3A5F",
+};
+
+export type ThemeColors = typeof lightColors;
+export type ThemeMode = "light" | "dark";
+
+// Default export for backward compatibility
+export const colors = lightColors;
 
 export const macroColors = {
   calories: colors["color-warning-500"],

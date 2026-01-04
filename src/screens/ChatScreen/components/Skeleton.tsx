@@ -8,10 +8,11 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { scale } from "../../../theme/utils";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const MessageSkeleton = () => {
   const opacity = useSharedValue(0.3);
+  const { colors } = useTheme();
 
   useEffect(() => {
     opacity.value = withRepeat(
@@ -27,12 +28,12 @@ const MessageSkeleton = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.line, styles.line1, animatedStyle]} />
-      <Animated.View style={[styles.line, styles.line1, animatedStyle]} />
-      <Animated.View style={[styles.line, styles.line1, animatedStyle]} />
-      <Animated.View style={[styles.line, styles.line1, animatedStyle]} />
-      <Animated.View style={[styles.line, styles.line2, animatedStyle]} />
-      <Animated.View style={[styles.line, styles.line3, animatedStyle]} />
+      <Animated.View style={[styles.line, styles.line1, animatedStyle, { backgroundColor: colors.skeleton }]} />
+      <Animated.View style={[styles.line, styles.line1, animatedStyle, { backgroundColor: colors.skeleton }]} />
+      <Animated.View style={[styles.line, styles.line1, animatedStyle, { backgroundColor: colors.skeleton }]} />
+      <Animated.View style={[styles.line, styles.line1, animatedStyle, { backgroundColor: colors.skeleton }]} />
+      <Animated.View style={[styles.line, styles.line2, animatedStyle, { backgroundColor: colors.skeleton }]} />
+      <Animated.View style={[styles.line, styles.line3, animatedStyle, { backgroundColor: colors.skeleton }]} />
     </View>
   );
 };
@@ -46,7 +47,6 @@ const styles = StyleSheet.create({
   },
   line: {
     height: scale(14),
-    backgroundColor: colors["color-primary-200"],
     borderRadius: scale(7),
   },
   line1: {

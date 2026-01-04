@@ -73,7 +73,11 @@ const Age = () => {
           });
         }}
         style={{ width: scale(300), height: 400, alignSelf: "center" }}
-        itemStyle={{ height: scale(350), ...fontStyles.headline2 }}
+        itemStyle={{
+          height: scale(350),
+          ...fontStyles.headline2,
+          color: "white",
+        }}
       >
         {ageData.map((age) => (
           <Picker.Item key={age} label={age.toString()} value={age} />

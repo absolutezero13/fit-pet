@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../theme/colors";
 import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { useTheme } from "../theme/ThemeContext";
 
 interface Props {
   title: string;
@@ -30,16 +30,20 @@ interface Props {
 const AppButton: FC<Props> = ({
   title,
   onPress,
-  backgroundColor = colors["color-primary-500"],
+  backgroundColor,
   margin,
   position,
   disabled,
   disableAnimation = false,
   loading,
-  color = "white",
+  color,
   flex = false,
 }) => {
   const { bottom } = useSafeAreaInsets();
+  const { colors } = useTheme();
+
+  const buttonBackgroundColor = backgroundColor ?? colors["color-primary-500"];
+  const buttonTextColor = color ?? colors.textInverse;
 
   const renderButton = () => (
     <LiquidGlassView
@@ -56,7 +60,7 @@ const AppButton: FC<Props> = ({
         activeOpacity={1}
         style={[
           {
-            backgroundColor,
+            backgroundColor: buttonBackgroundColor,
             padding: scale(16),
             borderRadius: scale(32),
             alignItems: "center",
@@ -68,9 +72,11 @@ const AppButton: FC<Props> = ({
         onPress={onPress}
       >
         {loading ? (
-          <ActivityIndicator color={color} />
+          <ActivityIndicator color={buttonTextColor} />
         ) : (
-          <Text style={[fontStyles.headline4, { color }]}>{title}</Text>
+          <Text style={[fontStyles.headline4, { color: buttonTextColor }]}>
+            {title}
+          </Text>
         )}
       </TouchableOpacity>
     </LiquidGlassView>

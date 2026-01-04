@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { scale } from "../theme/utils";
-import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
@@ -19,12 +18,14 @@ import useAuthService, { LoginType } from "../services/auth";
 import userService from "../services/user";
 import { getAuth } from "@react-native-firebase/auth";
 import { IUser } from "../zustand/useUserStore";
+import { useTheme } from "../theme/ThemeContext";
 
 const disableAnimation = Platform.OS === "android";
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const authService = useAuthService();
   const [loading, setLoading] = React.useState(false);
 
@@ -86,26 +87,26 @@ const WelcomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.heroSection}>
         <Image source={badger} style={styles.image} resizeMode="contain" />
       </View>
-      <View style={styles.contentCard}>
+      <View style={[styles.contentCard, { backgroundColor: colors.surface }]}>
         <Animated.Text
           entering={disableAnimation ? undefined : FadeInUp}
-          style={styles.welcomeText}
+          style={[styles.welcomeText, { color: colors.textSecondary }]}
         >
           {t("welcome").toUpperCase()}
         </Animated.Text>
         <Animated.Text
           entering={disableAnimation ? undefined : FadeInUp.delay(100)}
-          style={styles.appName}
+          style={[styles.appName, { color: colors.text }]}
         >
           {t("appName")}
         </Animated.Text>
         <Animated.Text
           entering={disableAnimation ? undefined : FadeInUp.delay(200)}
-          style={styles.description}
+          style={[styles.description, { color: colors.textSecondary }]}
         >
           {t("welcomeExplanation")}
         </Animated.Text>
@@ -124,13 +125,17 @@ const WelcomeScreen = () => {
           entering={disableAnimation ? undefined : FadeInUp.delay(400)}
           style={styles.loginContainer}
         >
-          <Text style={styles.loginText}>{t("existingUser")}</Text>
+          <Text style={[styles.loginText, { color: colors.textSecondary }]}>
+            {t("existingUser")}
+          </Text>
           <TouchableOpacity onPress={googleLogin}>
-            <Text style={styles.loginLink}>{t("login")}</Text>
+            <Text style={[styles.loginLink, { color: colors.text }]}>
+              {t("login")}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
 
-        <View style={styles.bottomIndicator} />
+        <View style={[styles.bottomIndicator, { backgroundColor: colors.border }]} />
       </View>
     </View>
   );
@@ -139,7 +144,6 @@ const WelcomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors["color-primary-100"],
   },
   heroSection: {
     flex: 1,
@@ -152,7 +156,6 @@ const styles = StyleSheet.create({
     height: scale(320),
   },
   contentCard: {
-    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: scale(32),
     borderTopRightRadius: scale(32),
     paddingHorizontal: scale(32),
@@ -169,7 +172,6 @@ const styles = StyleSheet.create({
   },
   appName: {
     ...fontStyles.hero,
-    color: "#111827",
     textAlign: "center",
     marginBottom: scale(24),
   },
@@ -194,7 +196,6 @@ const styles = StyleSheet.create({
   loginLink: {
     ...fontStyles.body2,
     fontWeight: "600",
-    color: "#111827",
     textDecorationLine: "underline",
   },
   bottomIndicator: {

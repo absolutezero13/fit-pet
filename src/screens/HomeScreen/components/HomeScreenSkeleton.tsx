@@ -8,14 +8,14 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { scale } from "../../../theme/utils";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const SkeletonBox = ({
   width,
   height,
   borderRadius = scale(8),
   style,
-  color = colors["color-primary-200"],
+  color,
 }: {
   width: number | string;
   height: number;
@@ -23,6 +23,8 @@ const SkeletonBox = ({
   style?: any;
   color?: string;
 }) => {
+  const { colors } = useTheme();
+  const skeletonColor = color || colors.skeleton;
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const SkeletonBox = ({
     <Animated.View
       style={[
         styles.skeletonBox,
-        { width: width as any, height, borderRadius, backgroundColor: color },
+        { width: width as any, height, borderRadius, backgroundColor: skeletonColor },
         animatedStyle,
         style,
       ]}
@@ -50,8 +52,9 @@ const SkeletonBox = ({
 };
 
 const DailySummarySkeleton = () => {
+  const { colors } = useTheme();
   return (
-    <View style={styles.summaryContainer}>
+    <View style={[styles.summaryContainer, { backgroundColor: colors.surface }]}>
       <View style={styles.headerRow}>
         <SkeletonBox width={scale(120)} height={scale(22)} />
         <SkeletonBox
@@ -60,26 +63,23 @@ const DailySummarySkeleton = () => {
           borderRadius={scale(11)}
         />
       </View>
-      <View style={styles.caloriesHero}>
+      <View style={[styles.caloriesHero, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.caloriesMainRow}>
           <View style={styles.caloriesConsumed}>
             <SkeletonBox
               width={scale(48)}
               height={scale(48)}
               borderRadius={scale(14)}
-              color="#FFE4B8"
             />
             <View style={{ marginLeft: scale(12) }}>
               <SkeletonBox
                 width={scale(80)}
                 height={scale(32)}
-                color="#FFE4B8"
               />
               <SkeletonBox
                 width={scale(60)}
                 height={scale(12)}
                 style={{ marginTop: scale(4) }}
-                color="#FFE4B8"
               />
             </View>
           </View>
@@ -96,7 +96,6 @@ const DailySummarySkeleton = () => {
           width="100%"
           height={scale(8)}
           borderRadius={scale(4)}
-          color="#FFE4B8"
           style={{ marginBottom: scale(8) }}
         />
         <SkeletonBox
@@ -106,40 +105,36 @@ const DailySummarySkeleton = () => {
         />
       </View>
 
-      <View style={styles.proteinCard}>
+      <View style={[styles.proteinCard, { backgroundColor: colors.backgroundSecondary }]}>
         <View style={styles.proteinRow}>
           <SkeletonBox
             width={scale(36)}
             height={scale(36)}
             borderRadius={scale(10)}
-            color="#C8E6C9"
           />
           <View style={styles.proteinInfo}>
-            <SkeletonBox width={scale(60)} height={scale(14)} color="#C8E6C9" />
+            <SkeletonBox width={scale(60)} height={scale(14)} />
             <SkeletonBox
               width={scale(80)}
               height={scale(16)}
               style={{ marginTop: scale(4) }}
-              color="#C8E6C9"
             />
           </View>
-          <SkeletonBox width={scale(40)} height={scale(20)} color="#C8E6C9" />
+          <SkeletonBox width={scale(40)} height={scale(20)} />
         </View>
         <SkeletonBox
           width="100%"
           height={scale(6)}
           borderRadius={scale(3)}
-          color="#C8E6C9"
         />
       </View>
 
       <View style={styles.otherMacrosRow}>
-        <View style={styles.miniMacroCard}>
+        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
           <SkeletonBox
             width={scale(32)}
             height={scale(32)}
             borderRadius={scale(10)}
-            color="#BBDEFB"
           />
           <SkeletonBox
             width={scale(35)}
@@ -154,12 +149,11 @@ const DailySummarySkeleton = () => {
           <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
         </View>
 
-        <View style={styles.miniMacroCard}>
+        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
           <SkeletonBox
             width={scale(32)}
             height={scale(32)}
             borderRadius={scale(10)}
-            color="#FFCCBC"
           />
           <SkeletonBox
             width={scale(30)}
@@ -173,12 +167,11 @@ const DailySummarySkeleton = () => {
           />
           <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
         </View>
-        <View style={styles.miniMacroCard}>
+        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
           <SkeletonBox
             width={scale(32)}
             height={scale(32)}
             borderRadius={scale(10)}
-            color="#E8E8E8"
           />
           <SkeletonBox
             width={scale(35)}
@@ -197,8 +190,9 @@ const DailySummarySkeleton = () => {
 };
 
 const MealCardSkeleton = () => {
+  const { colors } = useTheme();
   return (
-    <View style={styles.mealCard}>
+    <View style={[styles.mealCard, { backgroundColor: colors.surface }]}>
       <SkeletonBox
         width={scale(48)}
         height={scale(48)}
@@ -258,9 +252,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: scale(24),
   },
-  skeletonBox: {
-    backgroundColor: colors["color-primary-200"],
-  },
+  skeletonBox: {},
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -268,13 +260,11 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
   },
   summaryContainer: {
-    backgroundColor: "white",
     borderRadius: scale(24),
     padding: scale(20),
     marginBottom: scale(16),
   },
   caloriesHero: {
-    backgroundColor: "#FFFBF5",
     borderRadius: scale(20),
     padding: scale(16),
     marginBottom: scale(16),
@@ -294,7 +284,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   proteinCard: {
-    backgroundColor: "#F0F9F0",
     borderRadius: scale(16),
     padding: scale(14),
     marginBottom: scale(12),
@@ -314,7 +303,6 @@ const styles = StyleSheet.create({
   },
   miniMacroCard: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
     borderRadius: scale(14),
     padding: scale(12),
     alignItems: "center",
@@ -323,7 +311,6 @@ const styles = StyleSheet.create({
     marginBottom: scale(12),
   },
   mealCard: {
-    backgroundColor: "white",
     borderRadius: scale(16),
     padding: scale(12),
     flexDirection: "row",
