@@ -11,7 +11,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { lightColors } from "../../theme/colors";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
@@ -350,13 +349,13 @@ const styles = StyleSheet.create({
   },
   calorieValue: {
     ...fontStyles.headline3,
-    color: lightColors["color-danger-600"],
+    color: "#DC2626",
     fontWeight: "700",
     marginLeft: scale(6),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: lightColors["color-danger-600"],
+    color: "#DC2626",
     marginLeft: scale(2),
     fontWeight: "600",
   },

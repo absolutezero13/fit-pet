@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View } from "react-native";
-import { lightColors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import Markdown, {

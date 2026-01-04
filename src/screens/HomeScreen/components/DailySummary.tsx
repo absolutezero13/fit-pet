@@ -641,10 +641,8 @@ const styles = StyleSheet.create({
     shadowRadius: scale(12),
     elevation: 8,
   },
-  },
   modalTitle: {
     ...fontStyles.headline2,
-    color: "#1A1A1A",
     fontWeight: "700",
     textAlign: "center",
     marginBottom: scale(20),
