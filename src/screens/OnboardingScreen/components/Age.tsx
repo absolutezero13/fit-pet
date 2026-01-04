@@ -10,7 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
@@ -22,6 +22,7 @@ const ITEM_HEIGHT = scale(70);
 
 const Age = () => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const [selectedIndex, setSelectedIndex] = useState(9);
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -76,7 +77,7 @@ const Age = () => {
         itemStyle={{
           height: scale(350),
           ...fontStyles.headline2,
-          color: "white",
+          color: colors.text,
         }}
       >
         {ageData.map((age) => (
@@ -90,7 +91,7 @@ const Age = () => {
     return (
       <View style={styles.androidPickerContainer}>
         {/* Selection indicator */}
-        <View style={styles.selectionIndicator} pointerEvents="none" />
+        <View style={[styles.selectionIndicator, { borderColor: colors.border }]} pointerEvents="none" />
 
         {/* Scrollable wheel */}
         <ScrollView
@@ -116,7 +117,7 @@ const Age = () => {
                 },
               ]}
             >
-              <Text style={[fontStyles.headline2, styles.itemText]}>{age}</Text>
+              <Text style={[fontStyles.headline2, { color: colors.text }]}>{age}</Text>
             </View>
           ))}
 
@@ -145,11 +146,11 @@ const Age = () => {
         {Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={[fontStyles.headline3, styles.infoCardTitle]}>
+      <View style={[styles.infoCard, { backgroundColor: colors["color-primary-500"], borderColor: colors.border }]}>
+        <Text style={[fontStyles.headline3, { color: colors["color-primary-100"] }]}>
           {t("whyWeAsk")}
         </Text>
-        <Text style={[fontStyles.body2, styles.infoCardDescription]}>
+        <Text style={[fontStyles.body2, styles.infoCardDescription, { color: colors["color-primary-100"] }]}>
           {t("whyWeAskDescription")}
         </Text>
       </View>
@@ -179,10 +180,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  itemText: {
-    color: colors["color-primary-700"],
-  },
-  selectedItemText: {},
   selectionIndicator: {
     position: "absolute",
     top: ITEM_HEIGHT * 2,
@@ -215,15 +212,10 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(24),
     borderRadius: scale(16),
     padding: scale(12),
-    backgroundColor: colors["color-primary-500"],
     ...shadowStyle,
-  },
-  infoCardTitle: {
-    color: colors["color-primary-100"],
   },
   infoCardDescription: {
     marginTop: scale(8),
-    color: colors["color-primary-100"],
   },
 });
 

@@ -5,7 +5,7 @@ import FemaleImage from "../../assets/female.jpg";
 import NonBinaryImage from "../../assets/nonbinary.jpg";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
@@ -41,6 +41,7 @@ const genders: GenderItem[] = [
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const renderItem = ({ item }: { item: GenderItem }) => {
     return (
