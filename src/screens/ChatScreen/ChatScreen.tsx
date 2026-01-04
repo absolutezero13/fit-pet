@@ -230,23 +230,40 @@ const ChatScreen = () => {
           </View>
         )}
       />
-      <View style={[styles.inputContainer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.inputContainer,
+          { backgroundColor: colors.background, borderTopColor: colors.border },
+        ]}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[styles.suggestionsContainer, { backgroundColor: colors.background }]}
+          contentContainerStyle={[
+            styles.suggestionsContainer,
+            { backgroundColor: colors.background },
+          ]}
         >
           {SUGGESTIONS.map((suggestion, index) => (
             <LiquidGlassView
               key={index}
               interactive
               effect="clear"
-              style={[styles.suggestionBubble, { backgroundColor: colors.surface }]}
+              style={[
+                styles.suggestionBubble,
+                { backgroundColor: colors.surface },
+              ]}
             >
               <Pressable
-                onPress={loading ? undefined : () => handleSuggestionPress(suggestion.prompt)}
+                onPress={
+                  loading
+                    ? undefined
+                    : () => handleSuggestionPress(suggestion.prompt)
+                }
               >
-                <Text style={[styles.suggestionBubbleText, { color: colors.text }]}>
+                <Text
+                  style={[styles.suggestionBubbleText, { color: colors.text }]}
+                >
                   {suggestion.text}
                 </Text>
               </Pressable>
@@ -272,7 +289,10 @@ const ChatScreen = () => {
           ]}
         >
           <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+            style={[
+              styles.input,
+              { backgroundColor: colors.surface, color: colors.text },
+            ]}
             placeholder={t("typeYourMessage")}
             placeholderTextColor={colors.textTertiary}
             value={inputText}
@@ -320,7 +340,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     alignItems: "center",
     paddingBottom: scale(12),
-    borderTopWidth: 1,
   },
   input: {
     borderRadius: scale(36),
