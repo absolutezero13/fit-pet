@@ -236,7 +236,9 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }}
       name={TrueSheetNames.LOG_MEAL}
       detents={["auto"]}
-      blurTint={isDark ? "system-thick-material-dark" : "system-thick-material-light"}
+      blurTint={
+        isDark ? "system-thick-material-dark" : "system-thick-material-light"
+      }
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
@@ -250,7 +252,9 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       >
         <View style={[styles.container, {}]}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("describeYourMeal")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>
+              {t("describeYourMeal")}
+            </Text>
             <View style={styles.textInputWrapper}>
               <TextInput
                 keyboardType="default"
@@ -259,7 +263,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   styles.textInput,
                   {
                     paddingRight: image ? scale(140) : scale(24),
-                    borderColor: colors.border,
+                    borderColor: colors["color-primary-900"],
                     color: colors.text,
                   },
                 ]}
@@ -272,7 +276,10 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
               />
               {!image && (
                 <TouchableOpacity
-                  style={[styles.imagePickerButton, { backgroundColor: colors.background }]}
+                  style={[
+                    styles.imagePickerButton,
+                    { backgroundColor: colors.background },
+                  ]}
                   onPress={() => {
                     Alert.alert(t("addImage"), t("chooseImageSource"), [
                       {
@@ -321,7 +328,9 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
           </View>
 
           <View style={styles.mealTypeContainer}>
-            <Text style={[styles.inputLabel, { color: colors.text }]}>{t("mealType")}</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>
+              {t("mealType")}
+            </Text>
             <MealTypes
               selectedMealType={selectedMealType}
               setSelectedMealType={setSelectedMealType}
