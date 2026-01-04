@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View,
   ScrollView,
@@ -78,6 +78,9 @@ const ChatScreen = () => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Track streaming message ID with a ref (no state needed)
+  const streamingMessageIdRef = useRef<string | null>(null);
+
   const loggedMeals = useMealsStore((state) => state.loggedMeals);
 
   const SUGGESTIONS: Suggestion[] = [
@@ -107,8 +110,14 @@ const ChatScreen = () => {
     });
   }, [navigation, textInputRef]);
 
+  const handleStreamComplete = () => {
+    streamingMessageIdRef.current = null;
+    // Force a re-render to update the message's streaming state
+    setMessages((prev) => [...prev]);
+  };
+
   const handleSendMessage = async (message?: string, data?: {}) => {
-    if (loading) {
+    if (loading || streamingMessageIdRef.current) {
       return;
     }
     const textToSend = message || inputText;
@@ -142,8 +151,11 @@ const ChatScreen = () => {
     setLoading(false);
 
     if (geminiResponse.response) {
+      const botMessageId = (Date.now() + 1).toString();
+      streamingMessageIdRef.current = botMessageId;
+
       const botMessage: IChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: botMessageId,
         text: geminiResponse.response.candidates[0].content.parts[0].text,
         role: "model",
         timestamp: new Date(),
@@ -166,6 +178,16 @@ const ChatScreen = () => {
     }
   }, [messages, isKeyboardVisible]);
 
+  const renderItem = useCallback(
+    ({ item }: { item: IChatMessage }) => (
+      <ChatMessage
+        message={item}
+        streaming={item.id === streamingMessageIdRef.current}
+        onStreamComplete={handleStreamComplete}
+      />
+    ),
+    [streamingMessageIdRef.current, messages]
+  );
   return (
     <View style={styles.container}>
       <AnimatedLiquidGlassView
@@ -201,7 +223,8 @@ const ChatScreen = () => {
       <FlatList
         ref={flatListRef}
         data={messages}
-        renderItem={({ item }) => <ChatMessage message={item} />}
+        extraData={streamingMessageIdRef.current}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ListFooterComponent={loading ? <ChatMessage loading /> : null}
         style={[
@@ -254,13 +277,11 @@ const ChatScreen = () => {
             ref={textInputRef}
             onSubmitEditing={() => handleSendMessage()}
           />
-          <Pressable style={styles.sendButton}>
-            <MaterialCommunityIcons
-              name="send"
-              size={24}
-              color="black"
-              onPress={() => handleSendMessage()}
-            />
+          <Pressable
+            style={styles.sendButton}
+            onPress={() => handleSendMessage()}
+          >
+            <MaterialCommunityIcons name="send" size={24} color="black" />
           </Pressable>
         </Animated.View>
       </View>
@@ -311,14 +332,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
     marginHorizontal: scale(16),
+    marginRight: scale(8),
     maxHeight: scale(120),
-    ...fontStyles.headline4,
+    ...fontStyles.body1,
     flex: 1,
   },
   sendButton: {
-    width: scale(44),
-    height: scale(44),
-    borderRadius: scale(22),
+    width: scale(50),
+    height: scale(50),
+    borderRadius: scale(25),
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),

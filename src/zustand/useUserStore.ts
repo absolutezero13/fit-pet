@@ -22,6 +22,8 @@ export interface IUser {
   uid?: string;
 }
 
+export type GeminiUserInfo = Pick<IUser, "onboarding" | "macroGoals">;
+
 export const INITIAL_USER_STORE = null;
 
 const useUserStore = create(

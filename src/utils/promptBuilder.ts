@@ -1,7 +1,7 @@
 import i18next from "i18next";
-import useMealsStore from "../zustand/useMealsStore";
 import { IUser } from "../zustand/useUserStore";
 import usePreferencesStore, { AITone } from "../zustand/usePreferencesStore";
+import parseGeminiUserInfo from "./parseGeminiUserInfo";
 
 const getLanguage = () => i18next.language;
 const getCurrentDate = () => new Date().toISOString();
@@ -28,7 +28,8 @@ You're here to dissect meals with surgical sarcasm and nutritional savagery.`,
     chat: `You're a world-class nutritionist with a gold medal in sarcasm and a heart of (slightly judgmental) gold.
 Tone: Honest, witty, brief. Like a dietitian with stand-up potential.
 Roast gently when deserved.`,
-    rating: "Be harsh. If it's a disaster, say it. If it's decent, reluctantly admit it.",
+    rating:
+      "Be harsh. If it's a disaster, say it. If it's decent, reluctantly admit it.",
   },
   [AITone.Friendly]: {
     analysis: `You're a supportive, encouraging nutritionist who gives clear, constructive feedback.
@@ -80,7 +81,7 @@ const createMealPrompt = (userInfo: IUser): string => `date: ${getCurrentDate()}
 You are a meal planner creating a precise daily meal plan.
 
 USER INFORMATION:
-${JSON.stringify(userInfo, null, 2)}
+${JSON.stringify(parseGeminiUserInfo(userInfo), null, 2)}
 
 CRITICAL REQUIREMENTS:
 
@@ -143,8 +144,8 @@ The meal is vague or not a meal.
 The input is outrageously unrealistic (e.g., 50 eggs, 10kg rice) → return localized: "Something went wrong, check your input".
 If the food is unhealthy but real, analyze it anyway—just roast it accordingly.
 Respond in the user’s language: ${
-  languageMapping[getLanguage() ?? getLanguage()]
-}
+    languageMapping[getLanguage() ?? getLanguage()]
+  }
 mealType must be one of: breakfast, lunch, dinner, or snack—language doesn’t matter.
 Include one to three emojis based on what’s in the meal.
 Repetition? Stack it. (e.g., 5 eggs → 🍳🍳🍳)
@@ -152,10 +153,10 @@ Multiple items? Show them. (e.g., chicken & rice → 🍗🍚)
 Max limit: 3 emojis total.
 Insights should be about the quality of the food and how it fits into the user's goals.
 There should be about 2 to 4 insights,
-User info: ${stringifyUserInfo(userInfo)}
+User info: ${stringifyUserInfo(parseGeminiUserInfo(userInfo))}
 Meal Description: ${
-  meal ?? "[YOU SHOULD FILL THE DESCRIPTION]"
-} Meal Type: ${mealType}
+    meal ?? "[YOU SHOULD FILL THE DESCRIPTION]"
+  } Meal Type: ${mealType}
 If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies."
 `;
 };
@@ -169,7 +170,7 @@ ${tone.chat}
 ${chatBaseInstructions}
 Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 User info:
-${stringifyUserInfo(userInfo ?? {})}
+${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
 `;
 };
 const createMacroGoalsPrompt = (userInfo: {}) => `
@@ -179,7 +180,7 @@ Based on the user's age, body measurements, lifestyle, goals, and diet preferenc
 select appropriate DAILY intake amounts.
 
 User info:
-${stringifyUserInfo(userInfo ?? {})}
+${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
 `;
 
 const createImagePrompt = (description: string) => `

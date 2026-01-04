@@ -6,6 +6,7 @@ import Markdown, {
   RenderRules,
 } from "@ronradtke/react-native-markdown-display";
 import MessageSkeleton from "./Skeleton";
+import StreamingText from "./StreamingText";
 
 export type IChatMessage = {
   id: string;
@@ -62,12 +63,17 @@ const MarkdownWrapper: React.FC<any> = ({ children, textColor }) => {
     </Markdown>
   );
 };
+
 const ChatMessage = ({
   message,
   loading,
+  streaming,
+  onStreamComplete,
 }: {
   message?: IChatMessage;
   loading?: boolean;
+  streaming?: boolean;
+  onStreamComplete?: () => void;
 }) => {
   const time = message?.timestamp.toLocaleTimeString("tr-TR", {
     hour: "numeric",
@@ -89,11 +95,21 @@ const ChatMessage = ({
       ) : (
         <>
           <View>
-            <MarkdownWrapper
-              textColor={isUser ? "white" : colors["color-primary-500"]}
-            >
-              {message?.text}
-            </MarkdownWrapper>
+            {streaming && !isUser ? (
+              <StreamingText
+                text={message?.text || ""}
+                textColor={colors["color-primary-500"]}
+                onComplete={onStreamComplete}
+                charsPerFrame={2}
+                frameDelay={20}
+              />
+            ) : (
+              <MarkdownWrapper
+                textColor={isUser ? "white" : colors["color-primary-500"]}
+              >
+                {message?.text}
+              </MarkdownWrapper>
+            )}
           </View>
           <Text
             style={[
