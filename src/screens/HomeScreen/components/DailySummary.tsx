@@ -114,7 +114,8 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         <View
           style={[
             styles.caloriesHero,
-            isOverCalorieGoal && styles.caloriesHeroOver,
+            { backgroundColor: colors.backgroundSecondary },
+            isOverCalorieGoal && { backgroundColor: colors["color-danger-100"] },
           ]}
         >
           <View style={styles.caloriesMainRow}>
@@ -122,7 +123,8 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               <View
                 style={[
                   styles.heroIconContainer,
-                  isOverCalorieGoal && styles.heroIconContainerOver,
+                  { backgroundColor: colors.surface },
+                  isOverCalorieGoal && { backgroundColor: colors["color-danger-100"] },
                 ]}
               >
                 <Icon
@@ -140,7 +142,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 >
                   {totals.calories.toFixed(0)}
                 </Text>
-                <Text style={styles.heroLabel}>{t("consumed")}</Text>
+                <Text style={[styles.heroLabel, { color: colors.textSecondary }]}>{t("consumed")}</Text>
               </View>
             </View>
 
@@ -162,11 +164,11 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     <Text
                       numberOfLines={1}
                       adjustsFontSizeToFit
-                      style={styles.heroValueRemaining}
+                      style={[styles.heroValueRemaining, { color: colors.text }]}
                     >
                       {remainingCalories.toFixed(0)}
                     </Text>
-                    <Text style={styles.heroLabelRemaining}>
+                    <Text style={[styles.heroLabelRemaining, { color: colors.textSecondary }]}>
                       {t("remaining")}
                     </Text>
                   </>
@@ -178,6 +180,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           <View
             style={[
               styles.heroProgressContainer,
+              { backgroundColor: colors.border },
               isOverCalorieGoal && styles.heroProgressContainerOver,
             ]}
           >
@@ -189,15 +192,15 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               ]}
             />
           </View>
-          <Text style={styles.heroGoalText}>
+          <Text style={[styles.heroGoalText, { color: colors.textSecondary }]}>
             {t("goal")}: {goals.calories} kcal
           </Text>
         </View>
 
         {/* Protein Section */}
-        <View style={styles.proteinCard}>
+        <View style={[styles.proteinCard, { backgroundColor: colors.backgroundSecondary }]}>
           <View style={styles.proteinRow}>
-            <View style={styles.proteinIconContainer}>
+            <View style={[styles.proteinIconContainer, { backgroundColor: colors.surface }]}>
               <Icon
                 name="lightning-bolt"
                 size={scale(20)}
@@ -205,10 +208,10 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               />
             </View>
             <View style={styles.proteinInfo}>
-              <Text style={styles.proteinLabel}>{t("proteins")}</Text>
+              <Text style={[styles.proteinLabel, { color: colors.text }]}>{t("proteins")}</Text>
               <Text style={styles.proteinValues}>
                 {totals.proteins.toFixed(0)}g{" "}
-                <Text style={styles.proteinGoal}>
+                <Text style={[styles.proteinGoal, { color: colors.textSecondary }]}>
                   / {proteinGoal.toFixed(0)}g
                 </Text>
               </Text>
@@ -217,7 +220,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               {Math.round(progress.proteins * 100)}%
             </Text>
           </View>
-          <View style={styles.proteinProgressContainer}>
+          <View style={[styles.proteinProgressContainer, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.proteinProgress,
