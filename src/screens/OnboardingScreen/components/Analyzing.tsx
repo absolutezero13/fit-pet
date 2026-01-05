@@ -6,6 +6,7 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
+  withDelay,
   Easing,
   runOnJS,
   SlideInRight,
@@ -67,31 +68,27 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const userHeight = onboardingState.height ?? 170;
   const userWeight = onboardingState.weight ?? 70;
 
-  // Carousel slide content with personalized messages
+  // Carousel slide content with personalized messages (titles removed per feedback)
   const slides = [
     {
-      title: t("carouselTitle1"),
       message: t("carouselMessage1", { age: userAge }),
       image: SLIDE_IMAGES[0],
       gradient: SLIDE_GRADIENTS[0],
       icon: "🚀",
     },
     {
-      title: t("carouselTitle2"),
       message: t("carouselMessage2", { height: userHeight }),
       image: SLIDE_IMAGES[1],
       gradient: SLIDE_GRADIENTS[1],
       icon: "💪",
     },
     {
-      title: t("carouselTitle3"),
       message: t("carouselMessage3"),
       image: SLIDE_IMAGES[2],
       gradient: SLIDE_GRADIENTS[2],
       icon: "🎯",
     },
     {
-      title: t("carouselTitle4"),
       message: t("carouselMessage4"),
       image: SLIDE_IMAGES[3],
       gradient: SLIDE_GRADIENTS[3],
@@ -103,6 +100,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const progressWidth = useSharedValue(0);
   const pulseScale = useSharedValue(1);
   const iconRotation = useSharedValue(0);
+  // Animated dots for loading indicator
+  const dot1Opacity = useSharedValue(0.3);
+  const dot2Opacity = useSharedValue(0.3);
+  const dot3Opacity = useSharedValue(0.3);
 
   const updateUser = async () => {
     storageService.setItem("User", {
@@ -222,6 +223,35 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       -1
     );
 
+    // Animated dots - sequential fade in/out
+    dot1Opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 300 }),
+        withDelay(600, withTiming(0.3, { duration: 300 }))
+      ),
+      -1
+    );
+    dot2Opacity.value = withDelay(
+      200,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(600, withTiming(0.3, { duration: 300 }))
+        ),
+        -1
+      )
+    );
+    dot3Opacity.value = withDelay(
+      400,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(600, withTiming(0.3, { duration: 300 }))
+        ),
+        -1
+      )
+    );
+
     return () => {
       if (slideTimerRef.current) {
         clearTimeout(slideTimerRef.current);
@@ -267,6 +297,18 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     transform: [{ rotate: `${iconRotation.value}deg` }],
   }));
 
+  const dot1Style = useAnimatedStyle(() => ({
+    opacity: dot1Opacity.value,
+  }));
+
+  const dot2Style = useAnimatedStyle(() => ({
+    opacity: dot2Opacity.value,
+  }));
+
+  const dot3Style = useAnimatedStyle(() => ({
+    opacity: dot3Opacity.value,
+  }));
+
   const currentSlideData = slides[currentSlide] || slides[0];
 
   return (
@@ -300,12 +342,24 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           exiting={SlideOutLeft.duration(400)}
           style={styles.slideContent}
         >
-          {/* Animated Icon */}
-          <Animated.View style={[styles.iconContainer, pulseStyle]}>
-            <Animated.Text style={[styles.iconText, iconStyle]}>
-              {currentSlideData.icon}
-            </Animated.Text>
-          </Animated.View>
+          {/* Animated Icon with Loading Text */}
+          <View style={styles.loadingSection}>
+            <Animated.View style={[styles.iconContainer, pulseStyle]}>
+              <Animated.Text style={[styles.iconText, iconStyle]}>
+                {currentSlideData.icon}
+              </Animated.Text>
+            </Animated.View>
+            
+            {/* Loading text with animated dots */}
+            <View style={styles.loadingTextContainer}>
+              <Text style={styles.loadingText}>{t("analyzing")}</Text>
+              <View style={styles.dotsContainer}>
+                <Animated.Text style={[styles.dot, dot1Style]}>.</Animated.Text>
+                <Animated.Text style={[styles.dot, dot2Style]}>.</Animated.Text>
+                <Animated.Text style={[styles.dot, dot3Style]}>.</Animated.Text>
+              </View>
+            </View>
+          </View>
 
           {/* Image */}
           <View style={styles.imageContainer}>
@@ -317,9 +371,8 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             <View style={styles.imageOverlay} />
           </View>
 
-          {/* Text Content */}
+          {/* Message Content (no title) */}
           <View style={styles.textContainer}>
-            <Text style={styles.slideTitle}>{currentSlideData.title}</Text>
             <Text style={styles.slideMessage}>{currentSlideData.message}</Text>
           </View>
 
@@ -376,6 +429,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
   },
+  loadingSection: {
+    alignItems: "center",
+    marginBottom: scale(24),
+  },
   iconContainer: {
     width: scale(80),
     height: scale(80),
@@ -383,12 +440,34 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: scale(24),
+    marginBottom: scale(12),
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.4)",
   },
   iconText: {
     fontSize: scale(40),
+  },
+  loadingTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  loadingText: {
+    ...fontStyles.headline2,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    marginLeft: scale(2),
+  },
+  dot: {
+    ...fontStyles.headline2,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   imageContainer: {
     width: SCREEN_WIDTH - scale(48),
@@ -413,15 +492,6 @@ const styles = StyleSheet.create({
   textContainer: {
     alignItems: "center",
     paddingHorizontal: scale(16),
-  },
-  slideTitle: {
-    ...fontStyles.hero,
-    color: "white",
-    textAlign: "center",
-    marginBottom: scale(12),
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
   },
   slideMessage: {
     ...fontStyles.headline3,
