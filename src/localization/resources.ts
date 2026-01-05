@@ -178,6 +178,15 @@ export const resources = {
       calculatingNutrients: "Besin değerleri hesaplanıyor...",
       evaluatingScore: "Puan değerlendiriliyor...",
       almostReady: "Neredeyse hazır...",
+      // Carousel motivational messages
+      carouselTitle1: "Harika Bir Başlangıç!",
+      carouselMessage1: "{{age}} yaşında sağlıklı bir yaşam yolculuğuna çıkıyorsunuz. Her adım önemli!",
+      carouselTitle2: "Mükemmel Fizik!",
+      carouselMessage2: "{{height}} cm boyunuzla ideal kilonuza ulaşmak artık çok kolay olacak.",
+      carouselTitle3: "Hedefler Belirlendi!",
+      carouselMessage3: "Kişiselleştirilmiş planınız hazırlanıyor. Başarı sizin için kaçınılmaz!",
+      carouselTitle4: "Her Şey Hazır!",
+      carouselMessage4: "Sağlıklı yaşam yolculuğunuz başlamak üzere. Hazır mısınız?",
     },
   },
 
@@ -360,6 +369,15 @@ export const resources = {
       calculatingNutrients: "Calculating nutrients...",
       evaluatingScore: "Evaluating score...",
       almostReady: "Almost ready...",
+      // Carousel motivational messages
+      carouselTitle1: "Great Start!",
+      carouselMessage1: "At {{age}} years old, you're embarking on a healthy lifestyle journey. Every step counts!",
+      carouselTitle2: "Perfect Physique!",
+      carouselMessage2: "With your {{height}} cm height, reaching your ideal weight will be easier than ever.",
+      carouselTitle3: "Goals Set!",
+      carouselMessage3: "Your personalized plan is being prepared. Success is inevitable for you!",
+      carouselTitle4: "All Ready!",
+      carouselMessage4: "Your healthy lifestyle journey is about to begin. Are you ready?",
     },
   },
 };
