@@ -1,34 +1,32 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
   withSequence,
-  withSpring,
   withDelay,
   Easing,
-  interpolate,
   runOnJS,
+  SlideInRight,
+  SlideOutLeft,
 } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { storageService } from "../../../storage/AsyncStorageService";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { scale, shadowStyle } from "../../../theme/utils";
-import useOnboardingStore, {
-  GenderEnum,
-} from "../../../zustand/useOnboardingStore";
+import { colors } from "../../../theme/colors";
+import { scale, SCREEN_WIDTH } from "../../../theme/utils";
+import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
   proteins: 30,
@@ -36,37 +34,96 @@ const DEFAULT_MACRO_GOALS: MacroGoals = {
   fats: 30,
 };
 
+// Carousel slide duration in milliseconds (2.5 seconds)
+const SLIDE_DURATION = 2500;
+const TOTAL_SLIDES = 4;
+
+// Gradient colors for each slide - using theme colors
+const SLIDE_GRADIENTS: [string, string, string][] = [
+  [
+    colors["color-info-500"],
+    colors["color-info-400"],
+    colors["color-info-300"],
+  ], // Blue-Cyan
+  [
+    colors["color-success-500"],
+    colors["color-success-400"],
+    colors["color-success-300"],
+  ], // Green
+  [
+    colors["color-warning-500"],
+    colors["color-warning-400"],
+    colors["color-warning-300"],
+  ], // Orange-Yellow
+  [
+    colors["color-info-500"],
+    colors["color-success-500"],
+    colors["color-success-400"],
+  ], // Blue-Green
+];
+
+// Placeholder images for each slide (from Unsplash - free to use)
+const SLIDE_IMAGES = [
+  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop",
+  "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=300&fit=crop",
+];
+
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [currentStatus, setCurrentStatus] = React.useState(0);
-  const statusMessages = [
-    t("analyzing"),
-    t("calculating"),
-    t("finding"),
-    t("optimizing"),
-    t("almostThere"),
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const updateUserCalled = useRef(false);
+  const insets = useSafeAreaInsets();
+  // Get user data
+  const onboardingState = useOnboardingStore.getState();
+  const userAge =
+    new Date().getFullYear() - (onboardingState.yearOfBirth ?? 1990);
+  const userHeight = onboardingState.height ?? 170;
+  const userWeight = onboardingState.weight ?? 70;
+
+  // Carousel slide content with personalized messages (titles removed per feedback)
+  const slides = [
+    {
+      message: t("carouselMessage1", { age: userAge }),
+      image: SLIDE_IMAGES[0],
+      gradient: SLIDE_GRADIENTS[0],
+      icon: "🚀",
+      title: t("analyzing"),
+    },
+    {
+      message: t("carouselMessage2", { height: userHeight }),
+      image: SLIDE_IMAGES[1],
+      gradient: SLIDE_GRADIENTS[1],
+      icon: "💪",
+      title: t("calculating"),
+    },
+    {
+      message: t("carouselMessage3"),
+      image: SLIDE_IMAGES[2],
+      gradient: SLIDE_GRADIENTS[2],
+      icon: "🎯",
+      title: t("finding"),
+    },
+    {
+      message: t("carouselMessage4"),
+      image: SLIDE_IMAGES[3],
+      gradient: SLIDE_GRADIENTS[3],
+      icon: "✨",
+      title: t("optimizing"),
+    },
   ];
 
   // Animation values
-  const rotation = useSharedValue(0);
-  const rotationReverse = useSharedValue(0);
-  const bounce = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const orbitRadius = useSharedValue(0);
-  const statusOpacity = useSharedValue(1);
-  const statusY = useSharedValue(0);
-
-  // Info card animations
-  const cardScales = Array(4)
-    .fill(0)
-    .map(() => useSharedValue(0));
-
-  const updateStatus = () => {
-    setTimeout(() => {
-      setCurrentStatus((prev) => (prev + 1) % statusMessages.length);
-    }, 200);
-  };
+  const progressWidth = useSharedValue(0);
+  const pulseScale = useSharedValue(1);
+  const iconRotation = useSharedValue(0);
+  // Animated dots for loading indicator
+  const dot1Opacity = useSharedValue(0.3);
+  const dot2Opacity = useSharedValue(0.3);
+  const dot3Opacity = useSharedValue(0.3);
 
   const updateUser = async () => {
     storageService.setItem("User", {
@@ -143,252 +200,346 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     navigation.navigate("HomeTabs");
   };
 
+  const advanceSlide = () => {
+    setCurrentSlide((prev) => {
+      const nextSlide = prev + 1;
+      if (nextSlide >= TOTAL_SLIDES) {
+        // All slides shown, navigate to home
+        if (!updateUserCalled.current) {
+          updateUserCalled.current = true;
+          updateUser();
+        }
+        return prev;
+      }
+      return nextSlide;
+    });
+  };
+
   useEffect(() => {
     if (!focused) {
       return;
     }
 
-    updateUser();
+    // Reset state when focused
+    updateUserCalled.current = false;
+    setCurrentSlide(0);
 
-    // Animate status message every 2 seconds
-    const statusInterval = setInterval(() => {
-      statusOpacity.value = withSequence(
-        withTiming(0, { duration: 200 }),
-        withTiming(1, { duration: 200 })
-      );
-      statusY.value = withSequence(
-        withTiming(20, { duration: 200 }),
-        withTiming(0, { duration: 200 })
-      );
-      runOnJS(updateStatus)();
-    }, 2000);
-
-    // Main animations
-    rotation.value = withRepeat(
-      withTiming(360, {
-        duration: 1500,
-        easing: Easing.linear,
-      }),
-      -1
-    );
-
-    rotationReverse.value = withRepeat(
-      withTiming(-360, {
-        duration: 2000,
-        easing: Easing.linear,
-      }),
-      -1
-    );
-
-    bounce.value = withRepeat(
+    // Pulse animation for icon
+    pulseScale.value = withRepeat(
       withSequence(
-        withSpring(1, { damping: 2, stiffness: 80 }),
-        withSpring(0, { damping: 2, stiffness: 80 })
+        withTiming(1.2, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
       ),
       -1
     );
 
-    scale.value = withRepeat(
+    // Icon rotation animation
+    iconRotation.value = withRepeat(
       withSequence(
-        withTiming(1.2, { duration: 700 }),
-        withTiming(0.8, { duration: 700 })
+        withTiming(10, { duration: 500 }),
+        withTiming(-10, { duration: 500 }),
+        withTiming(0, { duration: 500 })
       ),
       -1
     );
 
-    orbitRadius.value = withRepeat(
+    // Animated dots - sequential fade in/out
+    dot1Opacity.value = withRepeat(
       withSequence(
-        withTiming(30, { duration: 1000 }),
-        withTiming(0, { duration: 1000 })
+        withTiming(1, { duration: 300 }),
+        withDelay(600, withTiming(0.3, { duration: 300 }))
       ),
       -1
     );
+    dot2Opacity.value = withDelay(
+      200,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(600, withTiming(0.3, { duration: 300 }))
+        ),
+        -1
+      )
+    );
+    dot3Opacity.value = withDelay(
+      400,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withDelay(600, withTiming(0.3, { duration: 300 }))
+        ),
+        -1
+      )
+    );
 
-    // Staggered card animations
-    cardScales.forEach((cardScale, index) => {
-      cardScale.value = withDelay(
-        200 * (index + 1),
-        withSpring(1, {
-          damping: 8,
-          stiffness: 100,
-          mass: 0.5,
-        })
-      );
-    });
-
-    return () => clearInterval(statusInterval);
+    return () => {
+      if (slideTimerRef.current) {
+        clearTimeout(slideTimerRef.current);
+      }
+    };
   }, [focused]);
 
+  // Handle slide transitions
+  useEffect(() => {
+    if (!focused || currentSlide >= TOTAL_SLIDES) {
+      return;
+    }
+
+    // Reset and animate progress bar for current slide
+    progressWidth.value = 0;
+    progressWidth.value = withTiming(100, {
+      duration: SLIDE_DURATION,
+      easing: Easing.linear,
+    });
+
+    // Set timer for next slide
+    slideTimerRef.current = setTimeout(() => {
+      runOnJS(advanceSlide)();
+    }, SLIDE_DURATION);
+
+    return () => {
+      if (slideTimerRef.current) {
+        clearTimeout(slideTimerRef.current);
+      }
+    };
+  }, [currentSlide, focused]);
+
   // Animated styles
-  const mainLoaderStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rotation.value}deg` },
-      { scale: interpolate(bounce.value, [0, 1], [1, 1.2]) },
-    ],
-  }));
-  const statusTextStyle = useAnimatedStyle(() => ({
-    opacity: statusOpacity.value,
-    transform: [{ translateY: statusY.value }],
+  const progressBarStyle = useAnimatedStyle(() => ({
+    width: `${progressWidth.value}%`,
   }));
 
-  const cardAnimations = cardScales.map((animValue) =>
-    useAnimatedStyle(() => ({
-      transform: [
-        { scale: animValue.value },
-        { rotate: `${interpolate(animValue.value, [0, 1], [-15, 0])}deg` },
-      ],
-      opacity: animValue.value,
-    }))
-  );
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
-  const InfoCard = ({
-    label,
-    value,
-    style,
-  }: {
-    label: string;
-    value: string | null;
-    style: any;
-  }) => (
-    <Animated.View style={[styles.infoCard, style]}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </Animated.View>
-  );
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${iconRotation.value}deg` }],
+  }));
+
+  const dot1Style = useAnimatedStyle(() => ({
+    opacity: dot1Opacity.value,
+  }));
+
+  const dot2Style = useAnimatedStyle(() => ({
+    opacity: dot2Opacity.value,
+  }));
+
+  const dot3Style = useAnimatedStyle(() => ({
+    opacity: dot3Opacity.value,
+  }));
+
+  const currentSlideData = slides[currentSlide] || slides[0];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Status Message */}
-        <Animated.Text
-          onPress={updateUser}
-          style={[styles.statusText, statusTextStyle]}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={currentSlideData.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBackground}
+      />
+
+      {/* Slide Content */}
+      <View style={styles.slideContainer}>
+        <Animated.View
+          key={`slide-${currentSlide}`}
+          entering={SlideInRight.duration(400)}
+          exiting={SlideOutLeft.duration(400)}
+          style={styles.slideContent}
         >
-          {statusMessages[currentStatus]}
-        </Animated.Text>
+          {/* Animated Icon with Loading Text */}
+          <View style={styles.loadingSection}>
+            <Animated.View style={[styles.iconContainer, pulseStyle]}>
+              <Animated.Text style={[styles.iconText, iconStyle]}>
+                {currentSlideData.icon}
+              </Animated.Text>
+            </Animated.View>
 
-        {/* Crazy Loader */}
-        <View style={styles.loaderContainer}>
-          <Animated.View style={[styles.mainLoader, mainLoaderStyle]}>
-            <View style={styles.loaderInnerRing} />
-            <View style={styles.loaderCore} />
-          </Animated.View>
-        </View>
+            {/* Loading text with animated dots */}
+            <View style={styles.loadingTextContainer}>
+              <Text style={styles.loadingText}>{currentSlideData.title}</Text>
+              <View style={styles.dotsContainer}>
+                <Animated.Text style={[styles.dot, dot1Style]}>.</Animated.Text>
+                <Animated.Text style={[styles.dot, dot2Style]}>.</Animated.Text>
+                <Animated.Text style={[styles.dot, dot3Style]}>.</Animated.Text>
+              </View>
+            </View>
+          </View>
 
-        {/* Info Cards */}
-        <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <InfoCard
-              label={t("age")}
-              value={`${
-                new Date().getFullYear() -
-                (useOnboardingStore.getState().yearOfBirth ?? 1990)
-              } years`}
-              style={cardAnimations[0]}
-            />
-            <InfoCard
-              label={t("height")}
-              value={`${useOnboardingStore.getState().height} cm`}
-              style={cardAnimations[1]}
-            />
+          <View style={styles.textContainer}>
+            <Text style={styles.slideMessage}>{currentSlideData.message}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <InfoCard
-              label={t("weight")}
-              value={`${useOnboardingStore.getState().weight} kg`}
-              style={cardAnimations[2]}
-            />
-            <InfoCard
-              label={t("gender")}
-              value={t(useOnboardingStore.getState().gender as GenderEnum)}
-              style={cardAnimations[3]}
-            />
+
+          {/* User Info Badge */}
+          <View style={styles.userInfoBadge}>
+            <Text style={styles.userInfoText}>
+              {userWeight} kg • {userHeight} cm • {userAge}{" "}
+              {t("age").toLowerCase()}
+            </Text>
           </View>
-        </View>
+        </Animated.View>
       </View>
+
+      {/* Decorative Elements */}
+      <View style={styles.decorativeCircle1} />
+      <View style={styles.decorativeCircle2} />
+      <View style={styles.decorativeCircle3} />
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    overflow: "hidden",
+  },
+  gradientBackground: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  progressContainer: {
+    flexDirection: "row",
+    paddingHorizontal: scale(20),
+    paddingTop: scale(20),
+    gap: scale(6),
+  },
+  progressBarBackground: {
+    flex: 1,
+    height: scale(4),
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: scale(2),
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "white",
+    borderRadius: scale(2),
+  },
+  slideContainer: {
+    flex: 1,
     justifyContent: "center",
-  },
-  content: {
     alignItems: "center",
-    padding: scale(24),
+    paddingHorizontal: scale(24),
   },
-  statusText: {
-    ...fontStyles.headline3,
-    marginBottom: scale(32),
-    textAlign: "center",
-  },
-  loaderContainer: {
-    height: scale(120),
+  slideContent: {
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: scale(30),
+    width: "100%",
   },
-  mainLoader: {
+  loadingSection: {
+    alignItems: "center",
+    marginBottom: scale(24),
+  },
+  iconContainer: {
     width: scale(80),
     height: scale(80),
-    alignItems: "center",
+    borderRadius: scale(40),
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
+    alignItems: "center",
+    marginBottom: scale(12),
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.4)",
   },
-  loaderRing: {
+  iconText: {
+    fontSize: scale(40),
+  },
+  loadingTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  loadingText: {
+    ...fontStyles.headline2,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    marginLeft: scale(2),
+  },
+  dot: {
+    ...fontStyles.headline2,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  imageContainer: {
+    width: SCREEN_WIDTH - scale(48),
+    height: scale(200),
+    borderRadius: scale(24),
+    overflow: "hidden",
+    marginBottom: scale(32),
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  slideImage: {
     width: "100%",
     height: "100%",
-    borderRadius: scale(40),
-    borderWidth: scale(4),
-    borderColor: colors["color-primary-900"],
-    borderStyle: "dotted",
   },
-  loaderInnerRing: {
-    position: "absolute",
-    width: "70%",
-    height: "70%",
-    borderRadius: scale(35),
-    borderWidth: scale(3),
-    borderColor: colors["color-primary-300"],
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
-  loaderCore: {
-    position: "absolute",
-    width: "40%",
-    height: "40%",
-    borderRadius: scale(20),
-    backgroundColor: colors["color-primary-300"],
+  textContainer: {
+    alignItems: "center",
+    paddingHorizontal: scale(16),
   },
-  orbitingLoader: {
-    position: "absolute",
-    width: scale(20),
-    height: scale(20),
-    borderRadius: scale(10),
-    backgroundColor: colors["color-primary-900"],
-  },
-  infoContainer: {
-    width: SCREEN_WIDTH - scale(40),
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: scale(12),
-  },
-  infoCard: {
-    backgroundColor: "white",
-    borderRadius: scale(16),
-    padding: scale(16),
-    width: (width - scale(52)) / 2,
-    ...shadowStyle,
-  },
-  infoLabel: {
-    ...fontStyles.body1,
-    marginBottom: scale(4),
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  infoValue: {
+  slideMessage: {
     ...fontStyles.headline3,
-    color: colors["color-success-900"],
+    color: "rgba(255, 255, 255, 0.9)",
+    textAlign: "center",
+    lineHeight: scale(28),
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  userInfoBadge: {
+    marginTop: scale(32),
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(12),
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: scale(25),
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  userInfoText: {
+    ...fontStyles.body1Bold,
+    color: "white",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  decorativeCircle1: {
+    position: "absolute",
+    width: scale(200),
+    height: scale(200),
+    borderRadius: scale(100),
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    top: -scale(50),
+    right: -scale(50),
+  },
+  decorativeCircle2: {
+    position: "absolute",
+    width: scale(150),
+    height: scale(150),
+    borderRadius: scale(75),
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    bottom: scale(100),
+    left: -scale(50),
+  },
+  decorativeCircle3: {
+    position: "absolute",
+    width: scale(100),
+    height: scale(100),
+    borderRadius: scale(50),
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    bottom: scale(50),
+    right: scale(30),
   },
 });
 
