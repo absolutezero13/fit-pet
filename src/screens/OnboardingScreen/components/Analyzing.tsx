@@ -41,9 +41,9 @@ const TOTAL_SLIDES = 4;
 // Gradient colors for each slide - using theme colors
 const SLIDE_GRADIENTS: [string, string, string][] = [
   [
-    colors["color-info-500"],
-    colors["color-info-400"],
-    colors["color-info-300"],
+    colors["color-primary-500"],
+    colors["color-primary-400"],
+    colors["color-primary-300"],
   ], // Blue-Cyan
   [
     colors["color-success-500"],
@@ -56,9 +56,9 @@ const SLIDE_GRADIENTS: [string, string, string][] = [
     colors["color-warning-300"],
   ], // Orange-Yellow
   [
-    colors["color-info-500"],
+    colors["color-primary-500"],
     colors["color-success-500"],
-    colors["color-success-400"],
+    colors["color-primary-400"],
   ], // Blue-Green
 ];
 
@@ -197,7 +197,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       onboardingCompleted: true,
     });
 
-    navigation.navigate("HomeTabs");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "HomeTabs" }],
+    });
   };
 
   const advanceSlide = () => {

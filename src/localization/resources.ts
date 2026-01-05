@@ -135,7 +135,7 @@ export const resources = {
       deleteAccountConfirmationMessage:
         "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
       appearance: "Görünüm",
-      darkMode: "Karanlık Mod",
+      darkMode: "Koyu Mod",
       welcomeExplanation:
         "Kendinize özel tarifler keşfedin, öğünlerinizi takip edin ve hedeflerinize ulaşın. Bahane yok.",
       existingUser: "Zaten hesabın var mı?",
@@ -185,6 +185,8 @@ export const resources = {
       over: "Aşıldı",
       tapToAddMeal: "Öğün eklemek için dokun",
       analyzingMeal: "Öğününüz analiz ediliyor",
+      readyToAnalyze: "Analiz İçin Hazır",
+      selectMealTypeAndAnalyze: "Öğün türünü seçin ve analiz edin",
       calculatingNutrients: "Besin değerleri hesaplanıyor",
       evaluatingScore: "Puan değerlendiriliyor",
       almostReady: "Neredeyse hazır",
@@ -390,6 +392,8 @@ export const resources = {
       over: "Over",
       tapToAddMeal: "Tap to add a meal",
       analyzingMeal: "Analyzing your meal",
+      readyToAnalyze: "Ready to Analyze",
+      selectMealTypeAndAnalyze: "Select meal type and analyze",
       calculatingNutrients: "Calculating nutrients",
       evaluatingScore: "Evaluating score",
       almostReady: "Almost ready",

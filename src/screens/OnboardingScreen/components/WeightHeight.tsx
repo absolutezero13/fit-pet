@@ -22,6 +22,7 @@ import useOnboardingStore, {
 } from "../../../zustand/useOnboardingStore";
 import { Picker } from "@react-native-picker/picker";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const imageMapping: Record<GenderEnum, ImageSourcePropType> = {
   [GenderEnum.Female]: femaleStandingPerson,
@@ -45,6 +46,7 @@ const getWeightScale = (weight: number | null) => {
 const WeightHeight = () => {
   const { t } = useTranslation();
   const { height, weight, gender } = useOnboardingStore();
+  const { colors } = useTheme();
   const heightScrollRef = useRef<ScrollView>(null);
   const weightScrollRef = useRef<ScrollView>(null);
 
@@ -121,7 +123,7 @@ const WeightHeight = () => {
         selectedValue={selectedValue ?? data[0]}
         onValueChange={onValueChange}
         style={styles.iosPicker}
-        itemStyle={styles.iosPickerItem}
+        itemStyle={[styles.iosPickerItem, { color: colors.text }]}
       >
         {data.map((value) => (
           <Picker.Item key={value} label={`${value}`} value={value} />
@@ -173,7 +175,6 @@ const WeightHeight = () => {
 
   return (
     <View style={styles.container}>
-      {/* Image */}
       <View style={styles.imageContainer}>
         <Image
           source={imageMapping[gender || GenderEnum.Female]}
@@ -182,11 +183,11 @@ const WeightHeight = () => {
         />
       </View>
 
-      {/* Pickers Row */}
       <View style={styles.pickersRow}>
-        {/* Height Picker */}
         <View style={styles.pickerCard}>
-          <Text style={styles.pickerLabel}>{t("height")}</Text>
+          <Text style={[styles.pickerLabel, { color: colors.text }]}>
+            {t("height")}
+          </Text>
           {Platform.OS === "ios"
             ? renderIOSPicker(
                 heightData,
@@ -205,7 +206,9 @@ const WeightHeight = () => {
 
         {/* Weight Picker */}
         <View style={styles.pickerCard}>
-          <Text style={styles.pickerLabel}>{t("weight")}</Text>
+          <Text style={[styles.pickerLabel, { color: colors.text }]}>
+            {t("weight")}
+          </Text>
           {Platform.OS === "ios"
             ? renderIOSPicker(
                 weightData,
@@ -242,25 +245,18 @@ const styles = StyleSheet.create({
   },
   pickerCard: {
     flex: 1,
-    backgroundColor: "white",
     borderRadius: scale(20),
     padding: scale(16),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
   },
   pickerLabel: {
     ...fontStyles.body2,
     fontWeight: "600",
-    color: "#888888",
+    color: colors["color-primary-50"],
     textAlign: "center",
     marginBottom: scale(8),
     textTransform: "uppercase",
     letterSpacing: 1,
   },
-  // iOS Picker
   iosPickerWrapper: {
     position: "relative",
   },
@@ -269,7 +265,6 @@ const styles = StyleSheet.create({
   },
   iosPickerItem: {
     ...fontStyles.headline2,
-    color: colors["color-primary-700"],
     height: scale(180),
   },
   iosUnit: {
@@ -281,13 +276,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#AAAAAA",
   },
-  // Android Picker
   androidPickerWrapper: {
     height: ITEM_HEIGHT * 5,
     position: "relative",
     borderRadius: scale(12),
     overflow: "hidden",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors["color-primary-50"],
   },
   selectionIndicator: {
     position: "absolute",
@@ -295,7 +289,7 @@ const styles = StyleSheet.create({
     left: scale(8),
     right: scale(8),
     height: ITEM_HEIGHT,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: colors["color-primary-50"],
     borderRadius: scale(10),
     zIndex: 0,
   },

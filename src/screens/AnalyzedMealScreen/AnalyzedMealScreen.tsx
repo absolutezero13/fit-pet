@@ -129,7 +129,9 @@ const AnalyzedMealScreen = () => {
             color={colors.text}
           />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>{t("mealAnalysis")}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {t("mealAnalysis")}
+        </Text>
         <View style={styles.headerSpacer} />
       </LiquidGlassView>
 
@@ -145,15 +147,28 @@ const AnalyzedMealScreen = () => {
           {meal.image ? (
             <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
           ) : (
-            <View style={[styles.emojiContainer, { backgroundColor: colors.backgroundSecondary }]}>
+            <View
+              style={[
+                styles.emojiContainer,
+                { backgroundColor: colors.backgroundSecondary },
+              ]}
+            >
               <Text style={styles.emoji}>{meal.emoji || "🍽️"}</Text>
             </View>
           )}
           <View style={styles.basicInfo}>
-            <Text style={[styles.mealName, { color: colors.text }]} numberOfLines={3}>
+            <Text
+              style={[styles.mealName, { color: colors.text }]}
+              numberOfLines={3}
+            >
               {meal.description}
             </Text>
-            <View style={[styles.calorieContainer, { backgroundColor: colors["color-danger-100"] }]}>
+            <View
+              style={[
+                styles.calorieContainer,
+                { backgroundColor: colors["color-danger-100"] },
+              ]}
+            >
               <MaterialCommunityIcons
                 name="fire"
                 size={scale(20)}
@@ -164,17 +179,23 @@ const AnalyzedMealScreen = () => {
             </View>
           </View>
         </View>
-        <View style={[styles.scoreSection, { backgroundColor: colors.surface }]}>
+        <View
+          style={[styles.scoreSection, { backgroundColor: colors.surface }]}
+        >
           <View
             style={[
               styles.scoreContainer,
               { backgroundColor: getScoreColor(meal.score) },
             ]}
           >
-            <Text style={[styles.scoreValue, { color: colors.textInverse }]}>{meal.score}</Text>
+            <Text style={[styles.scoreValue, { color: colors.textInverse }]}>
+              {meal.score}
+            </Text>
           </View>
           <View style={styles.scoreTextContainer}>
-            <Text style={[styles.scoreHeading, { color: colors.text }]}>{t("nutritionScore")}</Text>
+            <Text style={[styles.scoreHeading, { color: colors.text }]}>
+              {t("nutritionScore")}
+            </Text>
             <Text
               style={[styles.scoreLabel, { color: getScoreColor(meal.score) }]}
             >
@@ -182,38 +203,65 @@ const AnalyzedMealScreen = () => {
             </Text>
           </View>
         </View>
-        <Text style={[styles.sectionHeading, { color: colors.text }]}>{t("macronutrients")}</Text>
-        <View style={[styles.macrosContainer, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.sectionHeading, { color: colors.text }]}>
+          {t("macronutrients")}
+        </Text>
+        <View
+          style={[styles.macrosContainer, { backgroundColor: colors.surface }]}
+        >
           <View style={styles.macroItem}>
             {renderMacroIcon("protein")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.proteins}g</Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("proteins")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>
+              {meal.proteins}g
+            </Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
+              {t("proteins")}
+            </Text>
           </View>
           <View style={styles.macroItem}>
             {renderMacroIcon("carbs")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.carbs}g</Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("carbs")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>
+              {meal.carbs}g
+            </Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
+              {t("carbs")}
+            </Text>
           </View>
           <View style={styles.macroItem}>
             {renderMacroIcon("fats")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>{meal.fats}g</Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{t("fats")}</Text>
+            <Text style={[styles.macroValue, { color: colors.text }]}>
+              {meal.fats}g
+            </Text>
+            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
+              {t("fats")}
+            </Text>
           </View>
         </View>
         {meal.insights && meal.insights.length > 0 && (
           <>
-            <Text style={[styles.sectionHeading, { color: colors.text }]}>{t("insights")}</Text>
-            <View style={[styles.insightsList, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.sectionHeading, { color: colors.text }]}>
+              {t("insights")}
+            </Text>
+            <View
+              style={[styles.insightsList, { backgroundColor: colors.surface }]}
+            >
               {meal.insights.map((insight, index) => (
                 <View key={index} style={styles.insightItem}>
-                  <View style={[styles.insightIconContainer, { backgroundColor: colors["color-warning-100"] }]}>
+                  <View
+                    style={[
+                      styles.insightIconContainer,
+                      { backgroundColor: colors["color-warning-100"] },
+                    ]}
+                  >
                     <MaterialCommunityIcons
                       name="lightbulb"
                       size={scale(20)}
                       color={colors["color-warning-600"]}
                     />
                   </View>
-                  <Text style={[styles.insightText, { color: colors.text }]}>{insight}</Text>
+                  <Text style={[styles.insightText, { color: colors.text }]}>
+                    {insight}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -224,7 +272,10 @@ const AnalyzedMealScreen = () => {
           <LiquidGlassView
             effect="clear"
             interactive
-            style={[styles.actionButtonPrimary, { backgroundColor: colors.surface }]}
+            style={[
+              styles.actionButtonPrimary,
+              { backgroundColor: colors.surface },
+            ]}
           >
             <TouchableOpacity
               style={styles.actionButtonInner}
@@ -235,14 +286,19 @@ const AnalyzedMealScreen = () => {
                 size={scale(22)}
                 color={colors.text}
               />
-              <Text style={[styles.actionText, { color: colors.text }]}>{t("edit")}</Text>
+              <Text style={[styles.actionText, { color: colors.text }]}>
+                {t("edit")}
+              </Text>
             </TouchableOpacity>
           </LiquidGlassView>
 
           <LiquidGlassView
             effect="clear"
             interactive
-            style={[styles.actionButtonDanger, { backgroundColor: colors["color-danger-500"] }]}
+            style={[
+              styles.actionButtonDanger,
+              { backgroundColor: colors["color-danger-500"] },
+            ]}
           >
             <TouchableOpacity
               style={styles.actionButtonInner}
@@ -251,14 +307,9 @@ const AnalyzedMealScreen = () => {
               <MaterialCommunityIcons
                 name="delete-outline"
                 size={scale(22)}
-                color={colors.textInverse}
+                color={colors.text}
               />
-              <Text
-                style={[
-                  styles.actionText,
-                  { color: colors.textInverse },
-                ]}
-              >
+              <Text style={[styles.actionText, { color: colors.text }]}>
                 {t("delete")}
               </Text>
             </TouchableOpacity>

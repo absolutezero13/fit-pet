@@ -85,7 +85,7 @@ export const darkColors = {
   background: "#0A1628",
   backgroundSecondary: "#0F1D32",
   surface: "#162A46",
-  text: "#E2E9F4",
+  text: "#FFFFFF",
   textSecondary: "#96A4C1",
   textTertiary: "#5F6A83",
   textInverse: "#1F2431",

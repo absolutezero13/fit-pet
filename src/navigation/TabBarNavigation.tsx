@@ -6,16 +6,12 @@ import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
-import { fontStyles } from "../theme/fontStyles";
-import { scale } from "../theme/utils";
-import { TAB_BAR_HEIGHT } from "./constants";
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 
 const Tabs = createNativeBottomTabNavigator();
 
 const TabNavigator = () => {
   const { t } = useTranslation();
-  const { bottom } = useSafeAreaInsets();
 
   return (
     <Tabs.Navigator

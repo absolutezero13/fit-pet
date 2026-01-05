@@ -41,7 +41,7 @@ const genders: GenderItem[] = [
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const renderItem = ({ item }: { item: GenderItem }) => {
     return (
@@ -50,8 +50,10 @@ const Gender = () => {
         style={{
           backgroundColor:
             item.key === gender
-              ? colors["color-primary-500"]
-              : colors["color-primary-200"],
+              ? isDark
+                ? colors["color-success-600"]
+                : colors["color-primary-200"]
+              : colors["color-primary-500"],
           flexDirection: "row",
           borderRadius: scale(16),
           alignItems: "center",
@@ -74,8 +76,8 @@ const Gender = () => {
               marginTop: scale(8),
               color:
                 item.key === gender
-                  ? colors["color-primary-100"]
-                  : colors["color-primary-500"],
+                  ? colors["color-primary-500"]
+                  : colors["color-primary-100"],
             },
           ]}
         >
@@ -85,7 +87,7 @@ const Gender = () => {
         <FontAwesome6
           name="circle-check"
           size={scale(24)}
-          color={colors["color-primary-100"]}
+          color={colors["color-primary-500"]}
           style={{
             position: "absolute",
             top: scale(16),

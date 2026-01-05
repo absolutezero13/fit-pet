@@ -1,5 +1,12 @@
 import React, { FC, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+  Pressable,
+} from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { lightColors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
@@ -103,7 +110,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
       }
       ref={swipeableRef}
     >
-      <TouchableOpacity
+      <Pressable
         style={[styles.container, { backgroundColor: colors.surface }]}
         onPress={() => onPress(meal)}
       >
@@ -119,7 +126,10 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
 
         {/* Content */}
         <View style={styles.content}>
-          <Text style={[styles.description, { color: colors.text }]} numberOfLines={1}>
+          <Text
+            style={[styles.description, { color: colors.text }]}
+            numberOfLines={1}
+          >
             {meal.description}
           </Text>
           <View style={styles.macrosRow}>
@@ -167,7 +177,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
             color={colors.textTertiary}
           />
         </View>
-      </TouchableOpacity>
+      </Pressable>
     </Swipeable>
   );
 };

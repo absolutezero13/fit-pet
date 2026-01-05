@@ -33,6 +33,7 @@ import SignUpTrueSheet from "./components/SignUpTrueSheet";
 import { TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
+import FullPageSpinner from "../../components/FullPageSpinner";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -42,11 +43,11 @@ const SettingsScreen = () => {
   const authService = useAuthService();
   const { top } = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
-
+  const [loading, setLoading] = useState(false);
   const user = useUserStore();
   const aiTone = usePreferencesStore((state) => state.aiTone);
   const setAiTone = usePreferencesStore((state) => state.setAiTone);
-
+  const [deleting, setDeleting] = useState(false);
   const [localWeight, setLocalWeight] = useState(
     user?.onboarding?.weight ? user.onboarding.weight.toString() : ""
   );
@@ -81,6 +82,7 @@ const SettingsScreen = () => {
   };
 
   const saveChanges = async () => {
+    setLoading(true);
     // Validate inputs
     const weightNum = parseFloat(localWeight);
     const heightNum = parseFloat(localHeight);
@@ -102,6 +104,7 @@ const SettingsScreen = () => {
     });
 
     navigation.goBack();
+    setLoading(false);
   };
 
   const currentLanguage =
@@ -165,7 +168,6 @@ const SettingsScreen = () => {
                   false: colors.border,
                   true: colors["color-success-400"],
                 }}
-                thumbColor={colors.surface}
               />
             </View>
           </View>
@@ -374,19 +376,27 @@ const SettingsScreen = () => {
                     text: t("deleteAccountConfirmation"),
                     style: "destructive",
                     onPress: async () => {
+                      setDeleting(true);
                       await userService.deletUser();
+                      setDeleting(false);
                       authService.logout(navigation);
                     },
                   },
                 ]
               );
             }}
-            style={[
-              styles.card,
-              { backgroundColor: colors["color-danger-500"] },
-            ]}
+            style={[styles.card, { alignItems: "center" }]}
           >
-            <Text style={[fontStyles.headline4, { color: colors.textInverse }]}>
+            <Text
+              style={[
+                fontStyles.headline4,
+                {
+                  color: colors["color-danger-500"],
+                  textAlign: "center",
+                  textDecorationLine: "underline",
+                },
+              ]}
+            >
               {t("deleteAccountConfirmation")}
             </Text>
           </TouchableOpacity>
@@ -402,8 +412,10 @@ const SettingsScreen = () => {
         margin={{
           marginHorizontal: scale(24),
         }}
+        loading={loading || deleting}
       />
       <SignUpTrueSheet />
+      <FullPageSpinner visible={deleting} />
     </View>
   );
 };
