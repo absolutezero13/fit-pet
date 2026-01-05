@@ -57,7 +57,12 @@ const MealDetailScreen = () => {
     value: string,
     color: string
   ) => (
-    <View style={[styles.macroCard, { backgroundColor: colors.backgroundSecondary }]}>
+    <View
+      style={[
+        styles.macroCard,
+        { backgroundColor: colors.backgroundSecondary },
+      ]}
+    >
       <View style={[styles.macroIconContainer]}>
         <MaterialCommunityIcons
           name={icon as any}
@@ -66,7 +71,9 @@ const MealDetailScreen = () => {
         />
       </View>
       <Text style={[styles.macroValue, { color }]}>{value}</Text>
-      <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
+        {label}
+      </Text>
     </View>
   );
 
@@ -147,7 +154,10 @@ const MealDetailScreen = () => {
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.background, paddingTop: Platform.select({ android: top, default: 0 }) },
+        {
+          backgroundColor: colors.background,
+          paddingTop: Platform.select({ android: top, default: 0 }),
+        },
       ]}
     >
       <ScrollView
@@ -162,20 +172,22 @@ const MealDetailScreen = () => {
             onPress={() => navigation.goBack()}
           >
             <MaterialCommunityIcons
-              name="arrow-left"
-              size={scale(22)}
-              color={colors.textInverse}
+              name="chevron-left"
+              size={scale(40)}
+              color={colors.text}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={shareRecipe}>
             <MaterialCommunityIcons
               name="share-variant"
-              size={scale(22)}
-              color={colors.textInverse}
+              size={scale(32)}
+              color={colors.text}
             />
           </TouchableOpacity>
         </View>
-        <View style={[styles.imageContainer, { backgroundColor: colors.border }]}>
+        <View
+          style={[styles.imageContainer, { backgroundColor: colors.border }]}
+        >
           {meal.image ? (
             <FastImage
               source={{ uri: meal.image }}
@@ -183,7 +195,12 @@ const MealDetailScreen = () => {
               resizeMode="cover"
             />
           ) : (
-            <View style={[styles.placeholderImage, { backgroundColor: colors.backgroundSecondary }]}>
+            <View
+              style={[
+                styles.placeholderImage,
+                { backgroundColor: colors.backgroundSecondary },
+              ]}
+            >
               <Text style={styles.placeholderEmoji}>{meal.emoji || "🍽️"}</Text>
             </View>
           )}
@@ -191,7 +208,9 @@ const MealDetailScreen = () => {
         <View style={[styles.contentCard, { backgroundColor: colors.surface }]}>
           <View style={styles.titleSection}>
             <View style={styles.titleRow}>
-              <Text style={[styles.mealTitle, { color: colors.text }]}>{meal.mealTypeLocalized}</Text>
+              <Text style={[styles.mealTitle, { color: colors.text }]}>
+                {meal.mealTypeLocalized}
+              </Text>
               {meal.score > 0 && (
                 <View
                   style={[
@@ -221,10 +240,14 @@ const MealDetailScreen = () => {
                 size={scale(16)}
                 color={colors.textSecondary}
               />
-              <Text style={[styles.timeText, { color: colors.textSecondary }]}>{meal.preparationTime}</Text>
+              <Text style={[styles.timeText, { color: colors.textSecondary }]}>
+                {meal.preparationTime}
+              </Text>
             </View>
           </View>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>{meal.description}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
+            {meal.description}
+          </Text>
 
           <View style={styles.macrosGrid}>
             {renderMacroCard(
@@ -266,13 +289,22 @@ const MealDetailScreen = () => {
                   color={macroColors.protein}
                 />
               </View>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("ingredients")}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                {t("ingredients")}
+              </Text>
             </View>
             <View style={styles.ingredientsList}>
               {meal.ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
                   <View style={styles.ingredientBullet} />
-                  <Text style={[styles.ingredientText, { color: colors.textSecondary }]}>{ingredient}</Text>
+                  <Text
+                    style={[
+                      styles.ingredientText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {ingredient}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -290,7 +322,9 @@ const MealDetailScreen = () => {
                   color={macroColors.carbs}
                 />
               </View>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("instructions")}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                {t("instructions")}
+              </Text>
             </View>
             <View style={styles.instructionsList}>
               {meal.instructions.map((instruction, index) => (
@@ -300,7 +334,14 @@ const MealDetailScreen = () => {
                       {index + 1}
                     </Text>
                   </View>
-                  <Text style={[styles.instructionText, { color: colors.textSecondary }]}>{instruction}</Text>
+                  <Text
+                    style={[
+                      styles.instructionText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {instruction}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -319,18 +360,33 @@ const MealDetailScreen = () => {
                     color={macroColors.calories}
                   />
                 </View>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("insights")}</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  {t("insights")}
+                </Text>
               </View>
               <View>
                 {meal.insights.map((insight, index) => (
-                  <View key={index} style={[styles.insightItem, { backgroundColor: colors.backgroundSecondary }]}>
+                  <View
+                    key={index}
+                    style={[
+                      styles.insightItem,
+                      { backgroundColor: colors.backgroundSecondary },
+                    ]}
+                  >
                     <MaterialCommunityIcons
                       name="check-circle"
                       size={scale(18)}
                       color={macroColors.protein}
                       style={styles.insightIcon}
                     />
-                    <Text style={[styles.insightText, { color: colors.textSecondary }]}>{insight}</Text>
+                    <Text
+                      style={[
+                        styles.insightText,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {insight}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -365,7 +421,6 @@ const styles = StyleSheet.create({
     width: scale(44),
     height: scale(44),
     borderRadius: scale(14),
-    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -544,7 +599,7 @@ const styles = StyleSheet.create({
   instructionItem: {
     flexDirection: "row",
     marginBottom: scale(16),
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   instructionNumber: {
     width: scale(28),
@@ -567,7 +622,7 @@ const styles = StyleSheet.create({
   },
   insightItem: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: scale(12),
     padding: scale(12),
     borderRadius: scale(12),
