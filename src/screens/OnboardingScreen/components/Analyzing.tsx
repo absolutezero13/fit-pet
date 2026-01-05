@@ -6,31 +6,25 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
-  withSpring,
   Easing,
-  interpolate,
   runOnJS,
-  FadeIn,
-  FadeOut,
   SlideInRight,
   SlideOutLeft,
 } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { storageService } from "../../../storage/AsyncStorageService";
-import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { scale, SCREEN_WIDTH, SCREEN_HEIGHT } from "../../../theme/utils";
+import { scale, SCREEN_WIDTH } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { MacroGoals } from "../../../zustand/useUserStore";
 import { createGeminiCompletion } from "../../../services/gptApi";
 import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
-import { useTheme } from "../../../theme/ThemeContext";
 import { LinearGradient } from "expo-linear-gradient";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
@@ -62,7 +56,6 @@ const SLIDE_IMAGES = [
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const { colors: themeColors } = useTheme();
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateUserCalled = useRef(false);
