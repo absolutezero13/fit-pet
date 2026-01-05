@@ -18,6 +18,7 @@ import { createGeminiStream } from "../../services/gptApi";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_HEIGHT } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
+import useUserStore from "../../zustand/useUserStore";
 import useKeyboardVisible from "./components/useKeyboardVisible";
 import { TAB_BAR_HEIGHT } from "../../navigation/constants";
 import ChatMessage, { IChatMessage } from "./components/ChatMessage";
@@ -57,6 +58,7 @@ const ChatScreen = () => {
   const streamingMessageIdRef = useRef<string | null>(null);
 
   const loggedMeals = useMealsStore((state) => state.loggedMeals);
+  const userData = useUserStore();
 
   const SUGGESTIONS: Suggestion[] = [
     {
@@ -66,6 +68,52 @@ const ChatScreen = () => {
         data: {
           ...loggedMeals[loggedMeals.length - 1],
           insights: null,
+        },
+      }),
+    },
+    {
+      text: t("howHealthyIsMyBmi"),
+      prompt: JSON.stringify({
+        context: t("howHealthyIsMyBmi"),
+        data: {
+          weight: userData?.onboarding?.weight,
+          height: userData?.onboarding?.height,
+          age: userData?.onboarding?.yearOfBirth
+            ? new Date().getFullYear() - userData.onboarding.yearOfBirth
+            : null,
+          gender: userData?.onboarding?.gender,
+        },
+      }),
+    },
+    {
+      text: t("amIGettingEnoughProtein"),
+      prompt: JSON.stringify({
+        context: t("amIGettingEnoughProtein"),
+        data: {
+          todaysMeals: loggedMeals.filter(
+            (meal) =>
+              new Date(meal.date).toDateString() === new Date().toDateString()
+          ),
+          macroGoals: userData?.macroGoals,
+        },
+      }),
+    },
+    {
+      text: t("whatShouldIEatForDinner"),
+      prompt: JSON.stringify({
+        context: t("whatShouldIEatForDinner"),
+        data: {
+          dietTypes: userData?.onboarding?.dietTypes,
+          macroGoals: userData?.macroGoals,
+        },
+      }),
+    },
+    {
+      text: t("suggestAHealthySnack"),
+      prompt: JSON.stringify({
+        context: t("suggestAHealthySnack"),
+        data: {
+          dietTypes: userData?.onboarding?.dietTypes,
         },
       }),
     },
