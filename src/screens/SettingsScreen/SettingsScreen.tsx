@@ -30,7 +30,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
-import { TrueSheetNames } from "../../navigation/constants";
+import { TAB_BAR_HEIGHT, TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
@@ -103,8 +103,8 @@ const SettingsScreen = () => {
       },
     });
 
-    navigation.goBack();
     setLoading(false);
+    Alert.alert(t("success"), t("successMessage"));
   };
 
   const currentLanguage =
@@ -118,20 +118,13 @@ const SettingsScreen = () => {
         style={[
           styles.header,
           {
-            paddingTop: Platform.select({ android: top, ios: scale(16) }),
+            paddingTop: top,
             backgroundColor: isLiquidGlassSupported
               ? undefined
               : colors.backgroundSecondary,
           },
         ]}
       >
-        <MaterialCommunityIcons
-          name="chevron-left"
-          size={scale(40)}
-          color={colors.text}
-          onPress={navigation.goBack}
-        />
-
         <Text style={[styles.title, { color: colors.text }]}>
           {t("settingsTitle")}
         </Text>
@@ -139,7 +132,10 @@ const SettingsScreen = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: top + scale(64) },
+        ]}
       >
         {!user?.email && <SignUpBanner />}
 
@@ -411,6 +407,7 @@ const SettingsScreen = () => {
         position="bottom"
         margin={{
           marginHorizontal: scale(24),
+          marginBottom: TAB_BAR_HEIGHT,
         }}
         loading={loading || deleting}
       />
@@ -443,8 +440,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: scale(72),
-    paddingTop: scale(96),
+    paddingBottom: TAB_BAR_HEIGHT + scale(72),
   },
   section: {
     marginBottom: scale(24),

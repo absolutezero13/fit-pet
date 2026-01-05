@@ -203,6 +203,10 @@ export const resources = {
       carouselTitle4: "Her Şey Hazır!",
       carouselMessage4:
         "Sağlıklı yaşam yolculuğunuz başlamak üzere. Hazır mısınız?",
+      success: "Başarılı",
+      successMessage: "Değişiklikleriniz kaydedildi",
+      validationError: "Hata",
+      enterValidNumbers: "Lütfen geçerli bir sayı girin",
     },
   },
 
@@ -410,6 +414,10 @@ export const resources = {
       carouselTitle4: "All Ready!",
       carouselMessage4:
         "Your healthy lifestyle journey is about to begin. Are you ready?",
+      success: "Success",
+      successMessage: "Changes saved successfully",
+      validationError: "Error",
+      enterValidNumbers: "Please enter a valid number",
     },
   },
 };
