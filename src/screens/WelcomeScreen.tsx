@@ -19,6 +19,9 @@ import userService from "../services/user";
 import { getAuth } from "@react-native-firebase/auth";
 import { IUser } from "../zustand/useUserStore";
 import { useTheme } from "../theme/ThemeContext";
+import LoginTrueSheet from "./SettingsScreen/components/LoginTrueSheet";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheetNames } from "../navigation/constants";
 
 const disableAnimation = Platform.OS === "android";
 
@@ -65,25 +68,8 @@ const WelcomeScreen = () => {
     setLoading(false);
   };
 
-  const googleLogin = async () => {
-    setLoading(true);
-    const { success, user } = await authService.handleLogin(LoginType.Google);
-    if (!success || !user) {
-      console.error("Google login failed");
-      return;
-    }
-
-    if (user?.onboardingCompleted) {
-      await userService.getUser();
-
-      navigation.reset({
-        routes: [{ name: "HomeTabs" }],
-        index: 0,
-      });
-    } else {
-      navigation.navigate("Onboarding");
-    }
-    setLoading(false);
+  const openLoginSheet = () => {
+    TrueSheet.present(TrueSheetNames.LOGIN);
   };
 
   return (
@@ -128,7 +114,7 @@ const WelcomeScreen = () => {
           <Text style={[styles.loginText, { color: colors.textSecondary }]}>
             {t("existingUser")}
           </Text>
-          <TouchableOpacity onPress={googleLogin}>
+          <TouchableOpacity onPress={openLoginSheet}>
             <Text style={[styles.loginLink, { color: colors.text }]}>
               {t("login")}
             </Text>
@@ -137,6 +123,7 @@ const WelcomeScreen = () => {
 
         <View style={[styles.bottomIndicator, { backgroundColor: colors.border }]} />
       </View>
+      <LoginTrueSheet />
     </View>
   );
 };

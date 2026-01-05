@@ -40,15 +40,23 @@ export class AuthService {
   }
 
   public async handleLogin(
-    type: LoginType
+    type: LoginType,
+    email?: string,
+    password?: string
   ): Promise<{ success: boolean; user?: IUser }> {
-    let response: { success: boolean };
+    let response: { success: boolean; user?: IUser };
     switch (type) {
       case LoginType.Google:
         response = await this.handleGoogleLogin();
         break;
       case LoginType.Anonymous:
         response = await this.handleAnonymousLogin();
+        break;
+      case LoginType.Apple:
+        response = await this.handleAppleLogin();
+        break;
+      case LoginType.Email:
+        response = await this.handleEmailLogin(email, password);
         break;
       default:
         throw new Error("Invalid login type");
@@ -145,6 +153,65 @@ export class AuthService {
         idToken: await getAuth().currentUser?.getIdToken(),
       });
       return { success: true, user: response.data.user };
+    } catch (error) {
+      getCrashlytics().recordError(error as Error);
+      return { success: false };
+    }
+  }
+
+  private async handleAppleLogin(): Promise<{ success: boolean; user?: IUser }> {
+    try {
+      const appleResponse = await AppleAuthentication.performRequest({
+        requestedOperation: AppleAuthentication.Operation.LOGIN,
+        requestedScopes: [
+          AppleAuthentication.Scope.EMAIL,
+          AppleAuthentication.Scope.FULL_NAME,
+        ],
+      });
+
+      const appleCredential = AppleAuthProvider.credential(
+        appleResponse.identityToken,
+        appleResponse.nonce
+      );
+      await getAuth().signInWithCredential(appleCredential);
+
+      const response = await api.post("/auth/login/google", {
+        idToken: await getAuth().currentUser?.getIdToken(),
+      });
+
+      if (response.data) {
+        const { user } = response.data;
+        storageService.setItem("User", user);
+        return { success: true, user };
+      }
+      return { success: false };
+    } catch (error) {
+      getCrashlytics().recordError(error as Error);
+      return { success: false };
+    }
+  }
+
+  private async handleEmailLogin(
+    email?: string,
+    password?: string
+  ): Promise<{ success: boolean; user?: IUser }> {
+    if (!email || !password) {
+      return { success: false };
+    }
+
+    try {
+      await getAuth().signInWithEmailAndPassword(email, password);
+
+      const response = await api.post("/auth/login/google", {
+        idToken: await getAuth().currentUser?.getIdToken(),
+      });
+
+      if (response.data) {
+        const { user } = response.data;
+        storageService.setItem("User", user);
+        return { success: true, user };
+      }
+      return { success: false };
     } catch (error) {
       getCrashlytics().recordError(error as Error);
       return { success: false };
