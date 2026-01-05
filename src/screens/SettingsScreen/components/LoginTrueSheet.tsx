@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -20,6 +21,7 @@ import useAuthService, { LoginType } from "../../../services/auth";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 import userService from "../../../services/user";
+import { IUser } from "../../../zustand/useUserStore";
 
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,17 +51,17 @@ const LoginTrueSheet = ({ onLoginSuccess }: LoginTrueSheetProps) => {
     }
   }, [showEmailForm]);
 
-  const handleLoginSuccess = async (user: any) => {
+  const handleLoginSuccess = async (user: IUser) => {
     TrueSheet.dismiss(TrueSheetNames.LOGIN);
 
     if (user?.onboardingCompleted) {
       await userService.getUser();
       navigation.reset({
-        routes: [{ name: "HomeTabs" }],
+        routes: [{ name: "HomeTabs" as const }],
         index: 0,
       });
     } else {
-      navigation.navigate("Onboarding");
+      navigation.navigate("Onboarding" as never);
     }
 
     onLoginSuccess?.();
@@ -234,10 +236,14 @@ const LoginTrueSheet = ({ onLoginSuccess }: LoginTrueSheetProps) => {
       )}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          {t("noAccountYet")}{" "}
-          <Text style={styles.signUpLink}>{t("signUp")}</Text>
-        </Text>
+        <View style={styles.footerTextContainer}>
+          <Text style={styles.footerText}>{t("noAccountYet")} </Text>
+          <TouchableOpacity
+            onPress={() => TrueSheet.dismiss(TrueSheetNames.LOGIN)}
+          >
+            <Text style={styles.signUpLink}>{t("signUp")}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TrueSheet>
   );
@@ -320,6 +326,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: scale(12),
   },
+  footerTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   footerText: {
     ...fontStyles.body2,
     fontSize: scale(14),
@@ -327,8 +337,11 @@ const styles = StyleSheet.create({
     color: colors["color-primary-50"],
   },
   signUpLink: {
+    ...fontStyles.body2,
+    fontSize: scale(14),
     color: colors["color-primary-50"],
     fontWeight: "600",
+    textDecorationLine: "underline",
   },
 });
 
