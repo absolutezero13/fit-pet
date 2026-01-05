@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { storageService } from "../../../storage/AsyncStorageService";
 import { fontStyles } from "../../../theme/fontStyles";
+import { colors } from "../../../theme/colors";
 import { scale, SCREEN_WIDTH } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { MacroGoals } from "../../../zustand/useUserStore";
@@ -24,8 +25,7 @@ import promptBuilder from "../../../utils/promptBuilder";
 import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import { LinearGradient } from "expo-linear-gradient";
-
-const { width } = Dimensions.get("window");
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
@@ -38,12 +38,28 @@ const DEFAULT_MACRO_GOALS: MacroGoals = {
 const SLIDE_DURATION = 2500;
 const TOTAL_SLIDES = 4;
 
-// Gradient colors for each slide - vibrant and colorful
+// Gradient colors for each slide - using theme colors
 const SLIDE_GRADIENTS: [string, string, string][] = [
-  ["#667eea", "#764ba2", "#f093fb"], // Purple-Pink
-  ["#11998e", "#38ef7d", "#56ab2f"], // Green
-  ["#fc4a1a", "#f7b733", "#F5AF19"], // Orange-Yellow
-  ["#4facfe", "#00f2fe", "#43e97b"], // Blue-Cyan-Green
+  [
+    colors["color-info-500"],
+    colors["color-info-400"],
+    colors["color-info-300"],
+  ], // Blue-Cyan
+  [
+    colors["color-success-500"],
+    colors["color-success-400"],
+    colors["color-success-300"],
+  ], // Green
+  [
+    colors["color-warning-500"],
+    colors["color-warning-400"],
+    colors["color-warning-300"],
+  ], // Orange-Yellow
+  [
+    colors["color-info-500"],
+    colors["color-success-500"],
+    colors["color-success-400"],
+  ], // Blue-Green
 ];
 
 // Placeholder images for each slide (from Unsplash - free to use)
@@ -60,7 +76,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateUserCalled = useRef(false);
-
+  const insets = useSafeAreaInsets();
   // Get user data
   const onboardingState = useOnboardingStore.getState();
   const userAge =
@@ -75,24 +91,28 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       image: SLIDE_IMAGES[0],
       gradient: SLIDE_GRADIENTS[0],
       icon: "🚀",
+      title: t("analyzing"),
     },
     {
       message: t("carouselMessage2", { height: userHeight }),
       image: SLIDE_IMAGES[1],
       gradient: SLIDE_GRADIENTS[1],
       icon: "💪",
+      title: t("calculating"),
     },
     {
       message: t("carouselMessage3"),
       image: SLIDE_IMAGES[2],
       gradient: SLIDE_GRADIENTS[2],
       icon: "🎯",
+      title: t("finding"),
     },
     {
       message: t("carouselMessage4"),
       image: SLIDE_IMAGES[3],
       gradient: SLIDE_GRADIENTS[3],
       icon: "✨",
+      title: t("optimizing"),
     },
   ];
 
@@ -312,7 +332,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const currentSlideData = slides[currentSlide] || slides[0];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Background Gradient */}
       <LinearGradient
         colors={currentSlideData.gradient}
@@ -320,19 +340,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
         end={{ x: 1, y: 1 }}
         style={styles.gradientBackground}
       />
-
-      {/* Progress Indicators */}
-      <View style={styles.progressContainer}>
-        {slides.map((_, index) => (
-          <View key={index} style={styles.progressBarBackground}>
-            {index === currentSlide ? (
-              <Animated.View style={[styles.progressBarFill, progressBarStyle]} />
-            ) : index < currentSlide ? (
-              <View style={[styles.progressBarFill, { width: "100%" }]} />
-            ) : null}
-          </View>
-        ))}
-      </View>
 
       {/* Slide Content */}
       <View style={styles.slideContainer}>
@@ -349,10 +356,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
                 {currentSlideData.icon}
               </Animated.Text>
             </Animated.View>
-            
+
             {/* Loading text with animated dots */}
             <View style={styles.loadingTextContainer}>
-              <Text style={styles.loadingText}>{t("analyzing")}</Text>
+              <Text style={styles.loadingText}>{currentSlideData.title}</Text>
               <View style={styles.dotsContainer}>
                 <Animated.Text style={[styles.dot, dot1Style]}>.</Animated.Text>
                 <Animated.Text style={[styles.dot, dot2Style]}>.</Animated.Text>
@@ -361,17 +368,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             </View>
           </View>
 
-          {/* Image */}
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: currentSlideData.image }}
-              style={styles.slideImage}
-              resizeMode="cover"
-            />
-            <View style={styles.imageOverlay} />
-          </View>
-
-          {/* Message Content (no title) */}
           <View style={styles.textContainer}>
             <Text style={styles.slideMessage}>{currentSlideData.message}</Text>
           </View>
@@ -379,7 +375,8 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           {/* User Info Badge */}
           <View style={styles.userInfoBadge}>
             <Text style={styles.userInfoText}>
-              {userWeight} kg • {userHeight} cm • {userAge} {t("age").toLowerCase()}
+              {userWeight} kg • {userHeight} cm • {userAge}{" "}
+              {t("age").toLowerCase()}
             </Text>
           </View>
         </Animated.View>

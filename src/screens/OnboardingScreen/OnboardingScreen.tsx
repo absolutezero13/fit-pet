@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useRef, useState } from "react";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import AppButton from "../../components/AppButton";
@@ -26,7 +29,7 @@ const OnboardingScreen = () => {
   const { goBack } = useNavigation();
   const { t } = useTranslation();
   const { colors } = useTheme();
-
+  const insets = useSafeAreaInsets();
   const onboardingItems = [
     {
       title: t("defineGoals"),
@@ -57,6 +60,7 @@ const OnboardingScreen = () => {
     {
       title: "",
       component: Analyzing,
+      standAlone: true,
     },
   ];
 
@@ -67,8 +71,18 @@ const OnboardingScreen = () => {
     ref.current?.scrollToIndex({ index: step + 1, animated: true });
     setStep((prev) => prev + 1);
   };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: onboardingItems[step].standAlone
+            ? "transparent"
+            : colors.background,
+        },
+      ]}
+    >
       {onboardingItems[step]?.title ? (
         <View
           style={{
@@ -76,6 +90,7 @@ const OnboardingScreen = () => {
             alignItems: "center",
             marginHorizontal: scale(24),
             marginTop: scale(24),
+            paddingTop: insets.top,
           }}
         >
           <Pressable
@@ -144,7 +159,7 @@ const OnboardingScreen = () => {
           disabled={onboardingItems[step].disabled}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
