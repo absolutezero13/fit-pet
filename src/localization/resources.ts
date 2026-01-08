@@ -247,6 +247,21 @@ export const resources = {
       carouselTitle4: "Her Şey Hazır!",
       carouselMessage4:
         "Sağlıklı yaşam yolculuğunuz başlamak üzere. Hazır mısınız?",
+      // History screen translations
+      history: "Geçmiş",
+      calendarView: "Takvim",
+      chartView: "Grafik",
+      weekly: "Haftalık",
+      monthly: "Aylık",
+      loadingChart: "Grafik yükleniyor...",
+      average: "Ortalama",
+      last7Days: "Son 7 gün",
+      last30Days: "Son 30 gün",
+      noMealsForDate: "Bu tarihte öğün kaydı yok",
+      meal: "öğün",
+      mealsCount: "öğün",
+      dayTotal: "Günün Toplamı",
+      tabHistory: "Geçmiş",
     },
   },
 
@@ -498,6 +513,21 @@ export const resources = {
       carouselTitle4: "All Ready!",
       carouselMessage4:
         "Your healthy lifestyle journey is about to begin. Are you ready?",
+      // History screen translations
+      history: "History",
+      calendarView: "Calendar",
+      chartView: "Chart",
+      weekly: "Weekly",
+      monthly: "Monthly",
+      loadingChart: "Loading chart...",
+      average: "Average",
+      last7Days: "Last 7 days",
+      last30Days: "Last 30 days",
+      noMealsForDate: "No meals logged for this date",
+      meal: "meal",
+      mealsCount: "meals",
+      dayTotal: "Day Total",
+      tabHistory: "History",
     },
   },
 };

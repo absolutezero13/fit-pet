@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
+import HistoryScreen from "../screens/HistoryScreen/HistoryScreen";
 import { colors } from "../theme/colors";
 import { fontStyles } from "../theme/fontStyles";
 import { scale } from "../theme/utils";
@@ -33,6 +34,14 @@ const renderTabBarIcon = (screenName: string, focused: boolean) => {
     case "Home":
       return (
         <FontAwesome5 name="burn" size={TAB_BAR_ICON_SIZE} color={color} />
+      );
+    case "History":
+      return (
+        <MaterialCommunityIcons
+          name="chart-line"
+          size={TAB_BAR_ICON_SIZE}
+          color={color}
+        />
       );
     case "Chat":
       return (
@@ -95,6 +104,14 @@ const TabBarNavigationLegacy = () => {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => renderTabBarIcon("Home", focused),
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name={t("tabHistory")}
+        component={HistoryScreen}
+        options={{
+          tabBarIcon: ({ focused }) => renderTabBarIcon("History", focused),
           headerShown: false,
         }}
       />
