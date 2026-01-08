@@ -232,39 +232,38 @@ const SettingsScreen = () => {
             style={[styles.card, { backgroundColor: colors.surface }]}
             onPress={() => TrueSheet.present(TrueSheetNames.WEIGHT_HEIGHT_PICKER)}
           >
-            <View style={styles.settingRow}>
-              <View style={styles.settingLabelContainer}>
-                <MaterialCommunityIcons
-                  name="scale-bathroom"
-                  size={scale(20)}
-                  color={colors.text}
-                  style={styles.icon}
-                />
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
-                  {t("weight")}: {localWeight} kg
-                </Text>
+            <View style={styles.profileContent}>
+              <View style={styles.profileRows}>
+                <View style={styles.profileRow}>
+                  <View style={styles.settingLabelContainer}>
+                    <MaterialCommunityIcons
+                      name="scale-bathroom"
+                      size={scale(20)}
+                      color={colors.text}
+                      style={styles.icon}
+                    />
+                    <Text style={[styles.settingLabel, { color: colors.text }]}>
+                      {t("weight")}: {localWeight} kg
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.profileRow}>
+                  <View style={styles.settingLabelContainer}>
+                    <MaterialCommunityIcons
+                      name="human-male-height"
+                      size={scale(20)}
+                      color={colors.text}
+                      style={styles.icon}
+                    />
+                    <Text style={[styles.settingLabel, { color: colors.text }]}>
+                      {t("height")}: {localHeight} cm
+                    </Text>
+                  </View>
+                </View>
               </View>
               <MaterialCommunityIcons
-                name="chevron-right"
-                size={scale(24)}
-                color={colors.textSecondary}
-              />
-            </View>
-            <View style={styles.settingRow}>
-              <View style={styles.settingLabelContainer}>
-                <MaterialCommunityIcons
-                  name="human-male-height"
-                  size={scale(20)}
-                  color={colors.text}
-                  style={styles.icon}
-                />
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
-                  {t("height")}: {localHeight} cm
-                </Text>
-              </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={scale(24)}
+                name="pencil"
+                size={scale(20)}
                 color={colors.textSecondary}
               />
             </View>
@@ -389,6 +388,7 @@ const SettingsScreen = () => {
         height={localHeight}
         onWeightChange={setLocalWeight}
         onHeightChange={setLocalHeight}
+        isDark={isDark}
       />
 
       <AppButton
@@ -466,6 +466,17 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     ...fontStyles.headline4,
+  },
+  profileContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  profileRows: {
+    flex: 1,
+  },
+  profileRow: {
+    paddingVertical: scale(12),
   },
   goalRow: {
     flexDirection: "row",

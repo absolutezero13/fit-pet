@@ -28,6 +28,7 @@ type Props = {
   height: number;
   onWeightChange: (weight: number) => void;
   onHeightChange: (height: number) => void;
+  isDark: boolean;
 };
 
 const WeightHeightPicker: FC<Props> = ({
@@ -35,6 +36,7 @@ const WeightHeightPicker: FC<Props> = ({
   height,
   onWeightChange,
   onHeightChange,
+  isDark,
 }) => {
   const { t } = useTranslation();
   const { colors: themeColors } = useTheme();
@@ -166,7 +168,7 @@ const WeightHeightPicker: FC<Props> = ({
     <TrueSheet
       name={TrueSheetNames.WEIGHT_HEIGHT_PICKER}
       detents={["auto"]}
-      blurTint="system-thick-material-light"
+      blurTint={isDark ? "system-thick-material-dark" : "system-thick-material-light"}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
