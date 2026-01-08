@@ -14,6 +14,6 @@ export const getScoreTranslationKey = (score: number, aiTone: AITone): string =>
     return `score${roundedScore}`;
   }
 
-  // For other tones, use tone-prefixed keys
+  // For other tones, use tone-suffixed keys
   return `score${roundedScore}_${aiTone}`;
 };
