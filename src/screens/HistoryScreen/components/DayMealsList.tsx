@@ -10,6 +10,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import formatHeaderDate from "../../../utils/formatHeaderDate";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
+import { FATS_COLOR } from "../constants";
 
 interface DayMealsListProps {
   meals: IMeal[];
@@ -205,7 +206,7 @@ const DayMealsList: React.FC<DayMealsListProps> = ({
                 </Text>
               </View>
               <View style={styles.totalItem}>
-                <Text style={[styles.totalValue, { color: "#FF7043" }]}>
+                <Text style={[styles.totalValue, { color: FATS_COLOR }]}>
                   {Math.round(totals.fats)}g
                 </Text>
                 <Text

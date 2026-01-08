@@ -32,14 +32,16 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
   const weekDays = useMemo(() => {
     const locale = i18n.language === "tr" ? "tr-TR" : "en-US";
     const days: string[] = [];
-    // Start from Sunday (0) and go to Saturday (6)
+    // Use a reference date to get weekday names (January 4, 1970 is a Sunday)
+    const referenceDate = new Date(1970, 0, 4);
     for (let i = 0; i < 7; i++) {
-      const date = new Date(2024, 0, i); // January 2024 starts on Monday, Sunday is Jan 7
+      const date = new Date(referenceDate);
+      date.setDate(referenceDate.getDate() + i);
       days.push(
         date.toLocaleDateString(locale, { weekday: "short" }).substring(0, 2)
       );
     }
-    // Reorder to start from Monday
+    // Reorder to start from Monday (move Sunday to the end)
     return [...days.slice(1), days[0]];
   }, [i18n.language]);
 

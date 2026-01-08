@@ -23,6 +23,7 @@ import DayMealsList from "./components/DayMealsList";
 import { IMeal } from "../../services/apiTypes";
 import { getMealsByDate } from "../../services/mealAnalysis";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { HISTORY_MIN_DATE, FATS_COLOR } from "./constants";
 
 type ViewMode = "calendar" | "chart";
 type ChartPeriod = "weekly" | "monthly";
@@ -69,7 +70,7 @@ const HistoryScreen = () => {
       { key: "calories", label: t("calories"), color: colors["color-warning-500"] },
       { key: "proteins", label: t("proteins"), color: colors["color-success-500"] },
       { key: "carbs", label: t("carbs"), color: colors["color-info-500"] },
-      { key: "fats", label: t("fats"), color: "#FF7043" },
+      { key: "fats", label: t("fats"), color: FATS_COLOR },
     ];
 
   return (
@@ -167,7 +168,7 @@ const HistoryScreen = () => {
             <CustomCalendar
               selectedDate={selectedDate}
               onDateSelect={handleDateSelect}
-              minDate={new Date(2026, 0, 1)}
+              minDate={HISTORY_MIN_DATE}
             />
             <DayMealsList
               meals={meals}

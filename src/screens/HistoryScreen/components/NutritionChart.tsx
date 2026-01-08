@@ -8,6 +8,7 @@ import { LiquidGlassView } from "@callstack/liquid-glass";
 import { useTranslation } from "react-i18next";
 import { getMealsByDate } from "../../../services/mealAnalysis";
 import { IMeal } from "../../../services/apiTypes";
+import { HISTORY_MIN_DATE, FATS_COLOR } from "../constants";
 
 type ChartPeriod = "weekly" | "monthly";
 type ChartDataType = "calories" | "proteins" | "carbs" | "fats";
@@ -59,7 +60,7 @@ const NutritionChart: React.FC<NutritionChartProps> = ({
         label: t("carbs"),
       },
       fats: {
-        color: "#FF7043",
+        color: FATS_COLOR,
         unit: "g",
         label: t("fats"),
       },
@@ -98,12 +99,11 @@ const NutritionChart: React.FC<NutritionChartProps> = ({
     try {
       setLoading(true);
       const dates = getDateRange();
-      const minDate = new Date(2026, 0, 1);
 
       const dataPoints: DataPoint[] = await Promise.all(
         dates.map(async (date) => {
           // Don't fetch data before minimum date
-          if (date < minDate) {
+          if (date < HISTORY_MIN_DATE) {
             return {
               date,
               value: 0,
