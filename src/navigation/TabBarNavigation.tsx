@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
+import HistoryScreen from "../screens/HistoryScreen/HistoryScreen";
 import { colors } from "../theme/colors";
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 
@@ -37,6 +38,14 @@ const TabNavigator = () => {
           tabBarIcon: () => ({
             sfSymbol: "calendar",
           }),
+        }}
+      />
+      <Tabs.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
+          title: t("tabHistory"),
+          tabBarIcon: () => ({ sfSymbol: "chart.bar.xaxis" }),
         }}
       />
       <Tabs.Screen
