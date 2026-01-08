@@ -41,8 +41,8 @@ const WeightHeightPicker: FC<Props> = ({
   const heightScrollRef = useRef<ScrollView>(null);
   const weightScrollRef = useRef<ScrollView>(null);
 
-  const heightIndex = heightData.indexOf(height ?? 170);
-  const weightIndex = weightData.indexOf(weight ?? 70);
+  const heightIndex = Math.max(0, heightData.indexOf(height ?? 170));
+  const weightIndex = Math.max(0, weightData.indexOf(weight ?? 70));
 
   useEffect(() => {
     // Initialize scroll positions
@@ -56,7 +56,7 @@ const WeightHeightPicker: FC<Props> = ({
         animated: false,
       });
     }, 100);
-  }, [heightIndex, weightIndex]);
+  }, []);
 
   const handleHeightScroll = (
     event: NativeSyntheticEvent<NativeScrollEvent>
