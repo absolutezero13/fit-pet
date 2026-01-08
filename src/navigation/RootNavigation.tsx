@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen/OnboardingScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
+import PaywallScreen from "../screens/PaywallScreen";
 import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
@@ -24,6 +25,15 @@ const RootNavigator = () => {
         }}
         component={WelcomeScreen}
         name="Welcome"
+      />
+
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+        }}
+        component={PaywallScreen}
+        name="Paywall"
       />
 
       <Stack.Screen
@@ -76,6 +86,7 @@ export default RootNavigator;
 
 type RootStackParamList = {
   Welcome: undefined;
+  Paywall: undefined;
   HomeTabs: undefined;
   Profile: undefined;
   Settings: undefined;
