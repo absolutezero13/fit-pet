@@ -14,10 +14,12 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
+import usePreferencesStore from "../../zustand/usePreferencesStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
+import { getScoreTranslationKey } from "../../utils/scoreExplanations";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -32,6 +34,8 @@ const AnalyzedMealScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
   const { colors } = useTheme();
+  // Subscribe to aiTone to trigger re-render when it changes
+  const aiTone = usePreferencesStore((state) => state.aiTone);
 
   if (!meal) {
     return null;
@@ -74,8 +78,7 @@ const AnalyzedMealScreen = () => {
   };
 
   const getScoreLabel = (score: number) => {
-    const roundedScore = Math.max(1, Math.min(10, Math.floor(score)));
-    return t("score" + roundedScore);
+    return t(getScoreTranslationKey(score, aiTone));
   };
 
   const handleEdit = () => {
