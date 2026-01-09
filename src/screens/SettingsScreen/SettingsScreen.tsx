@@ -34,6 +34,7 @@ import { TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
+import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -378,6 +379,7 @@ const SettingsScreen = () => {
                     onPress: async () => {
                       setDeleting(true);
                       await userService.deletUser();
+                      analyticsService.logEvent(AnalyticsEvent.DeleteUser);
                       setDeleting(false);
                       authService.logout(navigation);
                     },

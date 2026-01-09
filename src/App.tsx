@@ -36,6 +36,9 @@ import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider } from "./theme/ThemeContext";
+import { analyticsService, AnalyticsEvent } from "./services/analytics";
+
+const AMPLITUDE_API_KEY = "YOUR_AMPLITUDE_API_KEY";
 
 i18next.use(initReactI18next).init({
   resources,
@@ -93,9 +96,20 @@ export function App() {
   const onReady = async () => {
     getCrashlytics().log("App ready");
 
+    // Initialize analytics
+    analyticsService.init(AMPLITUDE_API_KEY);
+
+    // Track first launch
+    const hasLaunched = await storageService.getItem("hasLaunched");
+    if (!hasLaunched) {
+      analyticsService.logEvent(AnalyticsEvent.FirstLaunch);
+      await storageService.setItem("hasLaunched", true);
+    }
+
     if (user) {
       try {
         await userService.getUser();
+        analyticsService.setUserId(user.uid);
       } catch (error) {
         console.error("Error fetching user data:", error);
         getCrashlytics().recordError(error as Error);

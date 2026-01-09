@@ -26,6 +26,7 @@ import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
@@ -195,6 +196,16 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       macroGoals: calculatedGoals,
       onboarding: useOnboardingStore.getState(),
       onboardingCompleted: true,
+    });
+
+    const onboardingState = useOnboardingStore.getState();
+    analyticsService.logEvent(AnalyticsEvent.OnboardingFinished, {
+      goals: onboardingState.goals,
+      gender: onboardingState.gender,
+      yearOfBirth: onboardingState.yearOfBirth,
+      weight: onboardingState.weight,
+      height: onboardingState.height,
+      dietTypes: onboardingState.dietTypes,
     });
 
     navigation.reset({

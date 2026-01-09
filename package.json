@@ -10,6 +10,7 @@
     "pods": "cd ios && pod install && cd .."
   },
   "dependencies": {
+    "@amplitude/analytics-react-native": "^1.5.32",
     "@bottom-tabs/react-navigation": "^1.0.2",
     "@callstack/liquid-glass": "^0.6.0",
     "@eva-design/eva": "^2.2.0",
