@@ -38,6 +38,8 @@ import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 
+// TODO: Replace with your actual Amplitude API key from environment variables
+// Consider using expo-constants or react-native-config for secure API key management
 const AMPLITUDE_API_KEY = "YOUR_AMPLITUDE_API_KEY";
 
 i18next.use(initReactI18next).init({
