@@ -51,6 +51,7 @@ import { deleteMeal } from "../../../services/mealAnalysis";
 import useUserStore from "../../../zustand/useUserStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
+import getScoreColor from "../../../utils/getScoreColor";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -277,12 +278,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     resetState();
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return colors["color-success-500"];
-    if (score >= 6) return colors["color-warning-500"];
-    return colors["color-danger-500"];
-  };
-
   const getScoreLabel = (score: number) => {
     const roundedScore = Math.max(1, Math.min(10, Math.floor(score)));
     return t("score" + roundedScore);
@@ -492,7 +487,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             <View
               style={[
                 styles.scoreContainer,
-                { backgroundColor: getScoreColor(analyzedMeal.score) },
+                { backgroundColor: getScoreColor(analyzedMeal.score, colors) },
               ]}
             >
               <Text style={styles.scoreValue}>{analyzedMeal.score}</Text>
@@ -506,7 +501,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               <Text
                 style={[
                   styles.scoreLabel,
-                  { color: getScoreColor(analyzedMeal.score) },
+                  { color: getScoreColor(analyzedMeal.score, colors) },
                 ]}
               >
                 {getScoreLabel(analyzedMeal.score)}

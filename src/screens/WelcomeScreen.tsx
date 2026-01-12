@@ -369,7 +369,7 @@ const WelcomeScreen = () => {
         <Animated.Text
           style={[styles.welcomeLabel, { color: accentColor }, subtitleStyle]}
         >
-          {t("welcome").toUpperCase()}
+          {t("welcome")}
         </Animated.Text>
 
         <Animated.Text

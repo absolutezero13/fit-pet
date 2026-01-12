@@ -18,6 +18,7 @@ import { fontStyles } from "../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
+import getScoreColor from "../../utils/getScoreColor";
 
 type MealDetailScreenProps = {
   meal: IMeal;
@@ -42,13 +43,6 @@ const MealDetailScreen = () => {
     } catch (error) {
       console.error("Error sharing recipe:", error);
     }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return colors["color-success-500"];
-    if (score >= 6) return colors["color-warning-500"];
-    if (score >= 4) return colors["color-info-500"];
-    return colors["color-danger-500"];
   };
 
   const renderMacroCard = (
@@ -215,18 +209,20 @@ const MealDetailScreen = () => {
                 <View
                   style={[
                     styles.scoreBadge,
-                    { backgroundColor: getScoreColor(meal.score) + "15" },
+                    {
+                      backgroundColor: getScoreColor(meal.score, colors) + "15",
+                    },
                   ]}
                 >
                   <MaterialCommunityIcons
                     name="star"
                     size={scale(14)}
-                    color={getScoreColor(meal.score)}
+                    color={getScoreColor(meal.score, colors)}
                   />
                   <Text
                     style={[
                       styles.scoreText,
-                      { color: getScoreColor(meal.score) },
+                      { color: getScoreColor(meal.score, colors) },
                     ]}
                   >
                     {meal.score.toFixed(1)}

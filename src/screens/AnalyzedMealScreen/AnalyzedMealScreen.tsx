@@ -20,6 +20,7 @@ import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
 import { getScoreTranslationKey } from "../../utils/scoreExplanations";
+import getScoreColor from "../../utils/getScoreColor";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -69,12 +70,6 @@ const AnalyzedMealScreen = () => {
         },
       },
     ]);
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return colors["color-success-500"];
-    if (score >= 6) return colors["color-warning-500"];
-    return colors["color-danger-500"];
   };
 
   const getScoreLabel = (score: number) => {
@@ -188,7 +183,7 @@ const AnalyzedMealScreen = () => {
           <View
             style={[
               styles.scoreContainer,
-              { backgroundColor: getScoreColor(meal.score) },
+              { backgroundColor: getScoreColor(meal.score, colors) },
             ]}
           >
             <Text style={[styles.scoreValue, { color: colors.textInverse }]}>
@@ -200,7 +195,10 @@ const AnalyzedMealScreen = () => {
               {t("nutritionScore")}
             </Text>
             <Text
-              style={[styles.scoreLabel, { color: getScoreColor(meal.score) }]}
+              style={[
+                styles.scoreLabel,
+                { color: getScoreColor(meal.score, colors) },
+              ]}
             >
               {getScoreLabel(meal.score)}
             </Text>

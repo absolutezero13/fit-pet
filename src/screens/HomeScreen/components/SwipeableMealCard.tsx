@@ -21,13 +21,7 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTheme } from "../../../theme/ThemeContext";
-
-const getScoreColor = (score: number) => {
-  if (score >= 8) return "#4CAF50";
-  if (score >= 6) return "#F5A623";
-  if (score >= 4) return "#2196F3";
-  return "#E53935";
-};
+import getScoreColor from "../../../utils/getScoreColor";
 
 const renderRightActions = (
   prog: SharedValue<number>,
@@ -67,7 +61,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
   const { colors } = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swipeableRef = useRef<any>(null);
-  const scoreColor = getScoreColor(meal.score || 0);
+  const scoreColor = getScoreColor(meal.score || 0, colors);
 
   const handleDelete = () => {
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
@@ -114,7 +108,6 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
         style={[styles.container, { backgroundColor: colors.surface }]}
         onPress={() => onPress(meal)}
       >
-        {/* Emoji Container */}
         <View
           style={[
             styles.emojiContainer,
@@ -123,8 +116,6 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
         >
           <Text style={styles.emoji}>{meal.emoji}</Text>
         </View>
-
-        {/* Content */}
         <View style={styles.content}>
           <Text
             style={[styles.description, { color: colors.text }]}

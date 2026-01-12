@@ -101,13 +101,13 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       icon: "💪",
       title: t("calculating"),
     },
-    {
-      message: t("carouselMessage3"),
-      image: SLIDE_IMAGES[2],
-      gradient: SLIDE_GRADIENTS[2],
-      icon: "🎯",
-      title: t("finding"),
-    },
+    // {
+    //   message: t("carouselMessage3"),
+    //   image: SLIDE_IMAGES[2],
+    //   gradient: SLIDE_GRADIENTS[2],
+    //   icon: "🎯",
+    //   title: t("finding"),
+    // },
     {
       message: t("carouselMessage4"),
       image: SLIDE_IMAGES[3],
@@ -343,15 +343,12 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Background Gradient */}
       <LinearGradient
         colors={currentSlideData.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradientBackground}
       />
-
-      {/* Slide Content */}
       <View style={styles.slideContainer}>
         <Animated.View
           key={`slide-${currentSlide}`}

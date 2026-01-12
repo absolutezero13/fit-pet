@@ -1,0 +1,10 @@
+import { lightColors } from "../theme/colors";
+
+const getScoreColor = (score: number, colors: typeof lightColors) => {
+  if (score >= 8) return colors["color-success-400"];
+  if (score >= 6) return colors["color-warning-400"];
+  if (score >= 4) return colors["color-info-400"];
+  return colors["color-danger-400"];
+};
+
+export default getScoreColor;

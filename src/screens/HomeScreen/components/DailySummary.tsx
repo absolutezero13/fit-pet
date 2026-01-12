@@ -14,6 +14,7 @@ import AppButton from "../../../components/AppButton";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { useTheme } from "../../../theme/ThemeContext";
+import getScoreColor from "../../../utils/getScoreColor";
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
@@ -81,14 +82,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     ),
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return colors["color-success-400"];
-    if (score >= 6) return colors["color-warning-400"];
-    if (score >= 4) return colors["color-info-400"];
-    if (score >= 2) return colors["color-warning-500"];
-    return colors["color-danger-400"];
-  };
-
   const saveGoals = async () => {
     userService.createOrUpdateUser({
       macroGoals: goals,
@@ -102,12 +95,21 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const overCalories = Math.max(0, totals.calories - goals.calories);
 
   return (
-    <LiquidGlassView effect="clear" style={[styles.container, { backgroundColor: colors.surface }]}>
+    <LiquidGlassView
+      effect="clear"
+      style={[styles.container, { backgroundColor: colors.surface }]}
+    >
       <Animated.View entering={FadeIn} exiting={FadeOut}>
         <View style={styles.headerRow}>
-          <Text style={[styles.summaryTitle, { color: colors.text }]}>{t("dailySummary")}</Text>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>
+            {t("dailySummary")}
+          </Text>
           <Pressable onPress={() => setModalVisible(true)}>
-            <Icon name="cog-outline" size={scale(22)} color={colors.textSecondary} />
+            <Icon
+              name="cog-outline"
+              size={scale(22)}
+              color={colors.textSecondary}
+            />
           </Pressable>
         </View>
 
@@ -115,7 +117,9 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           style={[
             styles.caloriesHero,
             { backgroundColor: colors.backgroundSecondary },
-            isOverCalorieGoal && { backgroundColor: colors["color-danger-100"] },
+            isOverCalorieGoal && {
+              backgroundColor: colors["color-danger-100"],
+            },
           ]}
         >
           <View style={styles.caloriesMainRow}>
@@ -124,7 +128,9 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 style={[
                   styles.heroIconContainer,
                   { backgroundColor: colors.surface },
-                  isOverCalorieGoal && { backgroundColor: colors["color-danger-100"] },
+                  isOverCalorieGoal && {
+                    backgroundColor: colors["color-danger-100"],
+                  },
                 ]}
               >
                 <Icon
@@ -142,7 +148,11 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 >
                   {totals.calories.toFixed(0)}
                 </Text>
-                <Text style={[styles.heroLabel, { color: colors.textSecondary }]}>{t("consumed")}</Text>
+                <Text
+                  style={[styles.heroLabel, { color: colors.textSecondary }]}
+                >
+                  {t("consumed")}
+                </Text>
               </View>
             </View>
 
@@ -164,11 +174,19 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     <Text
                       numberOfLines={1}
                       adjustsFontSizeToFit
-                      style={[styles.heroValueRemaining, { color: colors.text }]}
+                      style={[
+                        styles.heroValueRemaining,
+                        { color: colors.text },
+                      ]}
                     >
                       {remainingCalories.toFixed(0)}
                     </Text>
-                    <Text style={[styles.heroLabelRemaining, { color: colors.textSecondary }]}>
+                    <Text
+                      style={[
+                        styles.heroLabelRemaining,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {t("remaining")}
                     </Text>
                   </>
@@ -198,9 +216,19 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         </View>
 
         {/* Protein Section */}
-        <View style={[styles.proteinCard, { backgroundColor: colors.backgroundSecondary }]}>
+        <View
+          style={[
+            styles.proteinCard,
+            { backgroundColor: colors.backgroundSecondary },
+          ]}
+        >
           <View style={styles.proteinRow}>
-            <View style={[styles.proteinIconContainer, { backgroundColor: colors.surface }]}>
+            <View
+              style={[
+                styles.proteinIconContainer,
+                { backgroundColor: colors.surface },
+              ]}
+            >
               <Icon
                 name="lightning-bolt"
                 size={scale(20)}
@@ -208,10 +236,14 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               />
             </View>
             <View style={styles.proteinInfo}>
-              <Text style={[styles.proteinLabel, { color: colors.text }]}>{t("proteins")}</Text>
+              <Text style={[styles.proteinLabel, { color: colors.text }]}>
+                {t("proteins")}
+              </Text>
               <Text style={styles.proteinValues}>
                 {totals.proteins.toFixed(0)}g{" "}
-                <Text style={[styles.proteinGoal, { color: colors.textSecondary }]}>
+                <Text
+                  style={[styles.proteinGoal, { color: colors.textSecondary }]}
+                >
                   / {proteinGoal.toFixed(0)}g
                 </Text>
               </Text>
@@ -220,7 +252,12 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               {Math.round(progress.proteins * 100)}%
             </Text>
           </View>
-          <View style={[styles.proteinProgressContainer, { backgroundColor: colors.border }]}>
+          <View
+            style={[
+              styles.proteinProgressContainer,
+              { backgroundColor: colors.border },
+            ]}
+          >
             <View
               style={[
                 styles.proteinProgress,
@@ -231,7 +268,12 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
         </View>
 
         <View style={styles.otherMacrosRow}>
-          <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
+          <View
+            style={[
+              styles.miniMacroCard,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
+          >
             <View
               style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}
             >
@@ -241,11 +283,20 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 color={macroColors.carbs}
               />
             </View>
-            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("carbs")}</Text>
+            <Text
+              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
+            >
+              {t("carbs")}
+            </Text>
             <Text style={[styles.miniMacroValue, { color: colors.text }]}>
               {totals.carbs.toFixed(0)}g
             </Text>
-            <View style={[styles.miniProgressContainer, { backgroundColor: colors.border }]}>
+            <View
+              style={[
+                styles.miniProgressContainer,
+                { backgroundColor: colors.border },
+              ]}
+            >
               <View
                 style={[
                   styles.miniProgress,
@@ -257,15 +308,31 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
               />
             </View>
           </View>
-          <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
+          <View
+            style={[
+              styles.miniMacroCard,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
+          >
             <View
               style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}
             >
               <Icon name="water" size={scale(16)} color="#FF7043" />
             </View>
-            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("fats")}</Text>
-            <Text style={[styles.miniMacroValue, { color: colors.text }]}>{totals.fats.toFixed(0)}g</Text>
-            <View style={[styles.miniProgressContainer, { backgroundColor: colors.border }]}>
+            <Text
+              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
+            >
+              {t("fats")}
+            </Text>
+            <Text style={[styles.miniMacroValue, { color: colors.text }]}>
+              {totals.fats.toFixed(0)}g
+            </Text>
+            <View
+              style={[
+                styles.miniProgressContainer,
+                { backgroundColor: colors.border },
+              ]}
+            >
               <View
                 style={[
                   styles.miniProgress,
@@ -279,26 +346,34 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           </View>
 
           <Pressable
-            style={[styles.miniMacroCard, styles.scoreCard, { backgroundColor: colors.backgroundSecondary }]}
+            style={[
+              styles.miniMacroCard,
+              styles.scoreCard,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
             onPress={() => setModalVisible(true)}
           >
             <View
               style={[
                 styles.miniMacroIcon,
-                { backgroundColor: getScoreColor(averageScore) + "20" },
+                { backgroundColor: getScoreColor(averageScore, colors) + "20" },
               ]}
             >
               <Icon
                 name="star"
                 size={scale(16)}
-                color={getScoreColor(averageScore)}
+                color={getScoreColor(averageScore, colors)}
               />
             </View>
-            <Text style={[styles.miniMacroLabel, { color: colors.textSecondary }]}>{t("score")}</Text>
+            <Text
+              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
+            >
+              {t("score")}
+            </Text>
             <Text
               style={[
                 styles.miniMacroValue,
-                { color: getScoreColor(averageScore) },
+                { color: getScoreColor(averageScore, colors) },
               ]}
             >
               {averageScore.toFixed(1)}
@@ -312,22 +387,45 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <View
+              style={[styles.modalContent, { backgroundColor: colors.surface }]}
+            >
               {/* Header */}
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{t("nutritionGoals")}</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                {t("nutritionGoals")}
+              </Text>
 
               {/* Calorie Card */}
-              <View style={[styles.calorieCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+              <View
+                style={[
+                  styles.calorieCard,
+                  {
+                    backgroundColor: colors.backgroundSecondary,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
                 <View style={styles.calorieIconContainer}>
                   <Icon name="fire" size={scale(24)} color="#F5A623" />
                 </View>
                 <View style={styles.calorieLabelContainer}>
-                  <Text style={[styles.calorieLabel, { color: colors.text }]}>{t("calories")}</Text>
+                  <Text style={[styles.calorieLabel, { color: colors.text }]}>
+                    {t("calories")}
+                  </Text>
                   <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
                 </View>
                 <View style={styles.calorieValueContainer}>
-                  <Text style={[styles.calorieValue, { color: colors.text }]}>{goals.calories}</Text>
-                  <Text style={[styles.calorieUnit, { color: colors.textSecondary }]}>kcal</Text>
+                  <Text style={[styles.calorieValue, { color: colors.text }]}>
+                    {goals.calories}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.calorieUnit,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    kcal
+                  </Text>
                 </View>
               </View>
               <Slider
@@ -352,8 +450,12 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     color="#4CAF50"
                   />
                 </View>
-                <Text style={[styles.sliderLabel, { color: colors.text }]}>{t("proteins")}</Text>
-                <Text style={[styles.sliderGrams, { color: colors.textSecondary }]}>
+                <Text style={[styles.sliderLabel, { color: colors.text }]}>
+                  {t("proteins")}
+                </Text>
+                <Text
+                  style={[styles.sliderGrams, { color: colors.textSecondary }]}
+                >
                   {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
                 </Text>
                 <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
@@ -384,9 +486,15 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     color="#9E9E9E"
                   />
                 </View>
-                <Text style={[styles.otherLabel, { color: colors.text }]}>{t("otherCarbsFat")}</Text>
+                <Text style={[styles.otherLabel, { color: colors.text }]}>
+                  {t("otherCarbsFat")}
+                </Text>
 
-                <Text style={[styles.otherPercent, { color: colors.textSecondary }]}>{100 - goals.proteins}%</Text>
+                <Text
+                  style={[styles.otherPercent, { color: colors.textSecondary }]}
+                >
+                  {100 - goals.proteins}%
+                </Text>
               </View>
 
               <View style={styles.modalButtons}>
