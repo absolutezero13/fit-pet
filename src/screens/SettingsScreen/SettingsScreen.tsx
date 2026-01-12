@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   Alert,
   Platform,
   Switch,
@@ -30,11 +29,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
-import { TrueSheetNames } from "../../navigation/constants";
+import { TAB_BAR_HEIGHT, TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
+import WeightHeightPicker from "./components/WeightHeightPicker";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -50,10 +50,10 @@ const SettingsScreen = () => {
   const setAiTone = usePreferencesStore((state) => state.setAiTone);
   const [deleting, setDeleting] = useState(false);
   const [localWeight, setLocalWeight] = useState(
-    user?.onboarding?.weight ? user.onboarding.weight.toString() : ""
+    user?.onboarding?.weight ?? 70
   );
   const [localHeight, setLocalHeight] = useState(
-    user?.onboarding?.height ? user.onboarding.height.toString() : ""
+    user?.onboarding?.height ?? 170
   );
   const [selectedGoals, setSelectedGoals] = useState<GoalEnum[]>(
     user?.onboarding?.goals || []
@@ -84,28 +84,17 @@ const SettingsScreen = () => {
 
   const saveChanges = async () => {
     setLoading(true);
-    // Validate inputs
-    const weightNum = parseFloat(localWeight);
-    const heightNum = parseFloat(localHeight);
-
-    if (isNaN(weightNum) || isNaN(heightNum)) {
-      Alert.alert(
-        t("settings.validationError"),
-        t("settings.enterValidNumbers")
-      );
-      return;
-    }
 
     await userService.createOrUpdateUser({
       onboarding: {
         goals: selectedGoals,
-        height: heightNum,
-        weight: weightNum,
+        height: localHeight,
+        weight: localWeight,
       },
     });
 
-    navigation.goBack();
     setLoading(false);
+    Alert.alert(t("success"), t("successMessage"));
   };
 
   const currentLanguage =
@@ -119,20 +108,13 @@ const SettingsScreen = () => {
         style={[
           styles.header,
           {
-            paddingTop: Platform.select({ android: top, ios: scale(16) }),
+            paddingTop: top,
             backgroundColor: isLiquidGlassSupported
               ? undefined
               : colors.backgroundSecondary,
           },
         ]}
       >
-        <MaterialCommunityIcons
-          name="chevron-left"
-          size={scale(40)}
-          color={colors.text}
-          onPress={navigation.goBack}
-        />
-
         <Text style={[styles.title, { color: colors.text }]}>
           {t("settingsTitle")}
         </Text>
@@ -140,7 +122,10 @@ const SettingsScreen = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: top + scale(64) },
+        ]}
       >
         {!user?.email && <SignUpBanner />}
 
@@ -240,57 +225,48 @@ const SettingsScreen = () => {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             {t("profile")}
           </Text>
-          <View style={[styles.card, { backgroundColor: colors.surface }]}>
-            <View style={styles.inputRow}>
-              <Text
-                style={[styles.inputLabel, { color: colors.textSecondary }]}
-              >
-                {t("weight")}
-              </Text>
-              <View
-                style={[styles.inputWrapper, { borderColor: colors.border }]}
-              >
-                <TextInput
-                  style={[styles.input, { color: colors.text }]}
-                  value={localWeight}
-                  onChangeText={setLocalWeight}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  placeholderTextColor={colors.textTertiary}
-                />
-                <Text
-                  style={[styles.inputUnit, { color: colors.textSecondary }]}
-                >
-                  kg
-                </Text>
+          <TouchableOpacity
+            style={[styles.card, { backgroundColor: colors.surface }]}
+            onPress={() =>
+              TrueSheet.present(TrueSheetNames.WEIGHT_HEIGHT_PICKER)
+            }
+          >
+            <View style={styles.profileContent}>
+              <View style={styles.profileRows}>
+                <View style={styles.profileRow}>
+                  <View style={styles.settingLabelContainer}>
+                    <MaterialCommunityIcons
+                      name="scale-bathroom"
+                      size={scale(20)}
+                      color={colors.text}
+                      style={styles.icon}
+                    />
+                    <Text style={[styles.settingLabel, { color: colors.text }]}>
+                      {t("weight")}: {localWeight} kg
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.profileRow}>
+                  <View style={styles.settingLabelContainer}>
+                    <MaterialCommunityIcons
+                      name="human-male-height"
+                      size={scale(20)}
+                      color={colors.text}
+                      style={styles.icon}
+                    />
+                    <Text style={[styles.settingLabel, { color: colors.text }]}>
+                      {t("height")}: {localHeight} cm
+                    </Text>
+                  </View>
+                </View>
               </View>
+              <MaterialCommunityIcons
+                name="pencil"
+                size={scale(20)}
+                color={colors.textSecondary}
+              />
             </View>
-
-            <View style={styles.inputRow}>
-              <Text
-                style={[styles.inputLabel, { color: colors.textSecondary }]}
-              >
-                {t("height")}
-              </Text>
-              <View
-                style={[styles.inputWrapper, { borderColor: colors.border }]}
-              >
-                <TextInput
-                  style={[styles.input, { color: colors.text }]}
-                  value={localHeight}
-                  onChangeText={setLocalHeight}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  placeholderTextColor={colors.textTertiary}
-                />
-                <Text
-                  style={[styles.inputUnit, { color: colors.textSecondary }]}
-                >
-                  cm
-                </Text>
-              </View>
-            </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -407,12 +383,21 @@ const SettingsScreen = () => {
 
       <LanguageSelection languageOptions={languageOptions} />
 
+      <WeightHeightPicker
+        weight={localWeight}
+        height={localHeight}
+        onWeightChange={setLocalWeight}
+        onHeightChange={setLocalHeight}
+        isDark={isDark}
+      />
+
       <AppButton
         title={t("saveChanges")}
         onPress={saveChanges}
         position="bottom"
         margin={{
           marginHorizontal: scale(24),
+          marginBottom: TAB_BAR_HEIGHT,
         }}
         loading={loading || deleting}
       />
@@ -445,8 +430,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: scale(72),
-    paddingTop: scale(96),
+    paddingBottom: TAB_BAR_HEIGHT + scale(72),
   },
   section: {
     marginBottom: scale(24),
@@ -483,30 +467,16 @@ const styles = StyleSheet.create({
   settingLabel: {
     ...fontStyles.headline4,
   },
-  inputRow: {
-    marginBottom: scale(16),
-  },
-  inputLabel: {
-    ...fontStyles.headline3,
-    marginBottom: scale(8),
-  },
-  inputWrapper: {
+  profileContent: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    borderWidth: 1,
-    borderRadius: scale(12),
-    height: scale(48),
-    paddingHorizontal: scale(12),
   },
-  input: {
+  profileRows: {
     flex: 1,
-    ...fontStyles.headline4,
-    height: scale(48),
   },
-  inputUnit: {
-    ...fontStyles.body2,
-    width: scale(24),
-    textAlign: "center",
+  profileRow: {
+    paddingVertical: scale(12),
   },
   goalRow: {
     flexDirection: "row",

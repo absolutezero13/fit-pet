@@ -183,21 +183,6 @@ const LoggedMealsScreen = () => {
               size={scale(36)}
             />
           </View>
-
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              top: top + scale(12),
-              right: scale(24),
-            }}
-            onPress={() => navigation.navigate("Settings")}
-          >
-            <MaterialIcons
-              name="settings"
-              size={scale(24)}
-              color={colors.text}
-            />
-          </TouchableOpacity>
         </LiquidGlassView>
 
         <Animated.ScrollView
