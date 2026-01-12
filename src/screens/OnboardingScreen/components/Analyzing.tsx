@@ -26,6 +26,7 @@ import userService from "../../../services/user";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
@@ -197,6 +198,16 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       onboardingCompleted: true,
     });
 
+    const onboardingState = useOnboardingStore.getState();
+    analyticsService.logEvent(AnalyticsEvent.OnboardingFinished, {
+      goals: onboardingState.goals,
+      gender: onboardingState.gender,
+      yearOfBirth: onboardingState.yearOfBirth,
+      weight: onboardingState.weight,
+      height: onboardingState.height,
+      dietTypes: onboardingState.dietTypes,
+    });
+
     navigation.reset({
       index: 0,
       routes: [{ name: "HomeTabs" }],
@@ -207,7 +218,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     setCurrentSlide((prev) => {
       const nextSlide = prev + 1;
       if (nextSlide >= TOTAL_SLIDES) {
-        // All slides shown, navigate to home
         if (!updateUserCalled.current) {
           updateUserCalled.current = true;
           updateUser();
@@ -223,11 +233,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       return;
     }
 
-    // Reset state when focused
     updateUserCalled.current = false;
     setCurrentSlide(0);
 
-    // Pulse animation for icon
     pulseScale.value = withRepeat(
       withSequence(
         withTiming(1.2, { duration: 800, easing: Easing.inOut(Easing.ease) }),
@@ -236,7 +244,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       -1
     );
 
-    // Icon rotation animation
     iconRotation.value = withRepeat(
       withSequence(
         withTiming(10, { duration: 500 }),

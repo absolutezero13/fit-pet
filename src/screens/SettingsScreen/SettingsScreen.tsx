@@ -33,6 +33,7 @@ import { TAB_BAR_HEIGHT, TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
+import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import WeightHeightPicker from "./components/WeightHeightPicker";
 
 type LanguageOption = { code: string; name: string; localName: string };
@@ -226,7 +227,9 @@ const SettingsScreen = () => {
           </Text>
           <TouchableOpacity
             style={[styles.card, { backgroundColor: colors.surface }]}
-            onPress={() => TrueSheet.present(TrueSheetNames.WEIGHT_HEIGHT_PICKER)}
+            onPress={() =>
+              TrueSheet.present(TrueSheetNames.WEIGHT_HEIGHT_PICKER)
+            }
           >
             <View style={styles.profileContent}>
               <View style={styles.profileRows}>
@@ -352,6 +355,7 @@ const SettingsScreen = () => {
                     onPress: async () => {
                       setDeleting(true);
                       await userService.deletUser();
+                      analyticsService.logEvent(AnalyticsEvent.DeleteUser);
                       setDeleting(false);
                       authService.logout(navigation);
                     },

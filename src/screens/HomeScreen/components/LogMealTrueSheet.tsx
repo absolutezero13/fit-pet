@@ -40,6 +40,7 @@ import MealTypes from "./MealTypes";
 import useUserStore from "../../../zustand/useUserStore";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { useTheme } from "../../../theme/ThemeContext";
+import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -201,12 +202,18 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       console.log("analyzed meal:", meal);
       if (meal.errorMessage) {
         setIsAnalyzing(false);
+        analyticsService.logEvent(AnalyticsEvent.MealLogError);
         Alert.alert(
           t("globalError"),
           meal.errorMessage ?? t("globalErrorMessage")
         );
         return;
       }
+
+      analyticsService.logEvent(AnalyticsEvent.MealLogged, {
+        type: "text",
+        description: meal.description ?? mealDescription,
+      });
 
       if (mealToEdit) {
         dismiss();
@@ -220,6 +227,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       });
     } catch (error) {
       console.error("Error analyzing meal:", error);
+      analyticsService.logEvent(AnalyticsEvent.MealLogError);
       Alert.alert(t("globalError"), t("globalErrorMessage"));
       setIsAnalyzing(false);
     } finally {

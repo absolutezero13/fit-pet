@@ -4,7 +4,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scale, SCREEN_WIDTH } from "../../theme/utils";
 import AppButton from "../../components/AppButton";
 import useOnboardingStore from "../../zustand/useOnboardingStore";
@@ -21,6 +21,7 @@ import WeightHeight from "./components/WeightHeight";
 import Gender from "./components/Gender";
 import DietType from "./components/DietType";
 import { useTheme } from "../../theme/ThemeContext";
+import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 
 const OnboardingScreen = () => {
   const ref = useRef<FlatList>(null);
@@ -30,6 +31,11 @@ const OnboardingScreen = () => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    analyticsService.logEvent(AnalyticsEvent.StartOnboarding);
+  }, []);
+
   const onboardingItems = [
     {
       title: t("defineGoals"),

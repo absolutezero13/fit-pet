@@ -21,6 +21,7 @@ import userService from "./user";
 import { Alert } from "react-native";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import AppleAuthentication from "@invertase/react-native-apple-authentication";
+import { analyticsService, AnalyticsEvent } from "./analytics";
 
 const GOOGLE_WEB_CLIENT_ID =
   "315038553874-o6io0tpi22tvod4t1ofrhj2j9naki8ce.apps.googleusercontent.com";
@@ -107,6 +108,7 @@ export class AuthService {
         picture: result.user.photoURL ?? undefined,
       });
       await userService.getUser();
+      analyticsService.logEvent(AnalyticsEvent.SignUp);
       return result.user;
     } catch (error: any) {
       Alert.alert("Error linking Apple account", error.message);
@@ -139,6 +141,7 @@ export class AuthService {
         picture: result.user.photoURL ?? undefined,
       });
       await userService.getUser();
+      analyticsService.logEvent(AnalyticsEvent.SignUp);
       return result.user;
     } catch (error: any) {
       getCrashlytics().recordError(error);
@@ -182,6 +185,7 @@ export class AuthService {
       if (response.data) {
         const { user } = response.data;
         storageService.setItem("User", user);
+        analyticsService.logEvent(AnalyticsEvent.SignIn);
         return { success: true, user };
       }
       return { success: false };
@@ -209,6 +213,7 @@ export class AuthService {
       if (response.data) {
         const { user } = response.data;
         storageService.setItem("User", user);
+        analyticsService.logEvent(AnalyticsEvent.SignIn);
         return { success: true, user };
       }
       return { success: false };
@@ -241,6 +246,7 @@ export class AuthService {
         picture: result.user.photoURL ?? undefined,
       });
       await userService.getUser();
+      analyticsService.logEvent(AnalyticsEvent.SignUp);
       return result.user;
     } catch (error) {
       // if (error.code === "auth/credential-already-in-use") {
@@ -274,6 +280,7 @@ export class AuthService {
       if (response.data) {
         const { user } = response.data;
         storageService.setItem("User", user);
+        analyticsService.logEvent(AnalyticsEvent.SignIn);
         return {
           success: true,
           user,

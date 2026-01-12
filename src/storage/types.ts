@@ -14,5 +14,6 @@ export interface StorageItems {
   language: {
     code: string;
   };
+  hasLaunched: boolean;
   // Add other storage keys and their types here
 }

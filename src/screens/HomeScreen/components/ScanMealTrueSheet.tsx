@@ -50,6 +50,7 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import useUserStore from "../../../zustand/useUserStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
+import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -197,6 +198,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       console.log("CREATING MEAL", meal);
 
       if (meal.errorMessage) {
+        analyticsService.logEvent(AnalyticsEvent.MealLogError);
         Alert.alert("Error", meal.errorMessage);
         resetState();
         return;
@@ -209,6 +211,11 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         const meals = useMealsStore.getState().loggedMeals;
         useMealsStore.setState({ loggedMeals: [...meals, meal] });
       }
+
+      analyticsService.logEvent(AnalyticsEvent.MealLogged, {
+        type: "scan",
+        description: meal.description ?? "",
+      });
 
       setAnalyzedMeal(meal);
       setScreenState("analyzed");
@@ -225,6 +232,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       updateMeal(meal);
     } catch (error) {
       console.log("ERROR SAVING PHOTO", error);
+      analyticsService.logEvent(AnalyticsEvent.MealLogError);
       Alert.alert("Error", "Failed to analyze meal");
       resetState();
     } finally {
