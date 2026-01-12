@@ -38,22 +38,18 @@ type EventParams = {
 
 interface IAnalyticsProvider {
   init(apiKey: string): void;
-  logEvent<T extends AnalyticsEvent>(
-    event: T,
-    params?: EventParams[T]
-  ): void;
+  logEvent<T extends AnalyticsEvent>(event: T, params?: EventParams[T]): void;
   setUserId(userId: string | null): void;
 }
 
 class AmplitudeProvider implements IAnalyticsProvider {
   init(apiKey: string): void {
-    Amplitude.init(apiKey);
+    Amplitude.init(apiKey, undefined, {
+      disableCookies: true,
+    });
   }
 
-  logEvent<T extends AnalyticsEvent>(
-    event: T,
-    params?: EventParams[T]
-  ): void {
+  logEvent<T extends AnalyticsEvent>(event: T, params?: EventParams[T]): void {
     if (params) {
       Amplitude.track(event, params);
     } else {
@@ -86,10 +82,7 @@ class AnalyticsService {
     this.initialized = true;
   }
 
-  logEvent<T extends AnalyticsEvent>(
-    event: T,
-    params?: EventParams[T]
-  ): void {
+  logEvent<T extends AnalyticsEvent>(event: T, params?: EventParams[T]): void {
     if (!this.initialized) {
       console.warn("Analytics not initialized. Call init() first.");
       return;

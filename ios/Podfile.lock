@@ -1,4 +1,6 @@
 PODS:
+  - amplitude-react-native (1.5.32):
+    - React-Core
   - AppAuth (1.7.6):
     - AppAuth/Core (= 1.7.6)
     - AppAuth/ExternalUserAgent (= 1.7.6)
@@ -2650,6 +2652,7 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
+  - "amplitude-react-native (from `../node_modules/@amplitude/analytics-react-native`)"
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
@@ -2795,6 +2798,8 @@ SPEC REPOS:
     - SwiftUIIntrospect
 
 EXTERNAL SOURCES:
+  amplitude-react-native:
+    :path: "../node_modules/@amplitude/analytics-react-native"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
   EXImageLoader:
@@ -3024,6 +3029,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  amplitude-react-native: e9e3ef2f83b4102f20a239a5539559c272da50ca
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   EXConstants: e6e50cdfcb4524f40121d1fdcff24e97b7dcd2fd
   EXImageLoader: e501c001bc40b8326605e82e6e80363c80fe06b5

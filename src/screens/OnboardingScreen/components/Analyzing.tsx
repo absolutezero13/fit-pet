@@ -218,7 +218,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     setCurrentSlide((prev) => {
       const nextSlide = prev + 1;
       if (nextSlide >= TOTAL_SLIDES) {
-        // All slides shown, navigate to home
         if (!updateUserCalled.current) {
           updateUserCalled.current = true;
           updateUser();
@@ -234,11 +233,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       return;
     }
 
-    // Reset state when focused
     updateUserCalled.current = false;
     setCurrentSlide(0);
 
-    // Pulse animation for icon
     pulseScale.value = withRepeat(
       withSequence(
         withTiming(1.2, { duration: 800, easing: Easing.inOut(Easing.ease) }),
@@ -247,7 +244,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       -1
     );
 
-    // Icon rotation animation
     iconRotation.value = withRepeat(
       withSequence(
         withTiming(10, { duration: 500 }),

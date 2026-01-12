@@ -38,15 +38,13 @@ import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 
-// TODO: Replace with your actual Amplitude API key from environment variables
-// Consider using expo-constants or react-native-config for secure API key management
-const AMPLITUDE_API_KEY = "YOUR_AMPLITUDE_API_KEY";
+const AMPLITUDE_API_KEY = "6fe402b8cb00cc133cbd85e986b37342";
 
 i18next.use(initReactI18next).init({
   resources,
-  lng: "en", // Default language
+  lng: "en",
   interpolation: {
-    escapeValue: false, // React already escapes values
+    escapeValue: false,
   },
 });
 
@@ -59,13 +57,6 @@ const initializeLanguage = async () => {
 // NavigationBar.setBackgroundColorAsync("#ffffff00");
 
 Asset.loadAsync([...NavigationAssets]);
-
-// Enable LayoutAnimation for Android
-if (Platform.OS === "android") {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 SplashScreen.preventAutoHideAsync();
 
