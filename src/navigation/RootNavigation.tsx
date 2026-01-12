@@ -9,7 +9,7 @@ import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen
 import { IMeal } from "../services/apiTypes";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
-import useUserStore from "../zustand/useUserStore";
+import useUserStore, { INITIAL_USER_STORE } from "../zustand/useUserStore";
 
 const Stack = createNativeStackNavigator();
 

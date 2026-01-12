@@ -8,7 +8,8 @@ import {
   Pressable,
 } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import { lightColors } from "../../../theme/colors";
+import FastImage from "react-native-fast-image";
+import { lightColors, macroColors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -108,14 +109,18 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
         style={[styles.container, { backgroundColor: colors.surface }]}
         onPress={() => onPress(meal)}
       >
-        <View
-          style={[
-            styles.emojiContainer,
-            { backgroundColor: colors.backgroundSecondary },
-          ]}
-        >
-          <Text style={styles.emoji}>{meal.emoji}</Text>
-        </View>
+        {meal.image ? (
+          <FastImage source={{ uri: meal.image }} style={styles.mealImage} />
+        ) : (
+          <View
+            style={[
+              styles.emojiContainer,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
+          >
+            <Text style={styles.emoji}>{meal.emoji}</Text>
+          </View>
+        )}
         <View style={styles.content}>
           <Text
             style={[styles.description, { color: colors.text }]}
@@ -128,7 +133,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
               <MaterialCommunityIcons
                 name="fire"
                 size={scale(12)}
-                color="#F5A623"
+                color={macroColors.calories}
               />
               <Text style={styles.macroText}>{meal.calories}</Text>
             </View>
@@ -136,7 +141,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
               <MaterialCommunityIcons
                 name="lightning-bolt"
                 size={scale(12)}
-                color="#4CAF50"
+                color={macroColors.protein}
               />
               <Text style={[styles.macroText, styles.proteinText]}>
                 {meal.proteins}g
@@ -199,6 +204,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(12),
   },
+  mealImage: {
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(14),
+    marginRight: scale(12),
+  },
   emoji: {
     fontSize: scale(22),
   },
@@ -219,22 +230,22 @@ const styles = StyleSheet.create({
   macroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF8E7",
+    backgroundColor: macroColors.calories + "10",
     paddingHorizontal: scale(8),
     paddingVertical: scale(3),
     borderRadius: scale(8),
     gap: scale(3),
   },
   proteinBadge: {
-    backgroundColor: "#F0F9F0",
+    backgroundColor: macroColors.protein + "10",
   },
   macroText: {
     ...fontStyles.caption,
     fontWeight: "600",
-    color: "#F5A623",
+    color: macroColors.calories,
   },
   proteinText: {
-    color: "#4CAF50",
+    color: macroColors.protein,
   },
   rightSection: {
     flexDirection: "row",

@@ -308,9 +308,9 @@ const AnalyzedMealScreen = () => {
               <MaterialCommunityIcons
                 name="delete-outline"
                 size={scale(22)}
-                color={colors.text}
+                color={colors.white}
               />
-              <Text style={[styles.actionText, { color: colors.text }]}>
+              <Text style={[styles.actionText, { color: colors.white }]}>
                 {t("delete")}
               </Text>
             </TouchableOpacity>

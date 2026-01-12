@@ -24,7 +24,12 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
       ]}
       onPress={onPress}
     >
-      <View style={[styles.iconContainer, { backgroundColor: colors.backgroundSecondary }]}>
+      <View
+        style={[
+          styles.iconContainer,
+          { backgroundColor: colors.backgroundSecondary },
+        ]}
+      >
         <MaterialCommunityIcons
           name="silverware-fork-knife"
           size={scale(28)}
@@ -32,10 +37,16 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
         />
       </View>
       <View style={styles.textContainer}>
-        <Text style={[styles.title, { color: colors.textSecondary }]}>{t("noMealsLogged")}</Text>
-        <Text style={[styles.subtitle, { color: colors.textTertiary }]}>{t("tapToAddMeal")}</Text>
+        <Text style={[styles.title, { color: colors.textSecondary }]}>
+          {t("tapToAddMeal")}
+        </Text>
       </View>
-      <View style={[styles.addButton, { backgroundColor: colors["color-success-50"] }]}>
+      <View
+        style={[
+          styles.addButton,
+          { backgroundColor: colors["color-success-50"] },
+        ]}
+      >
         <MaterialCommunityIcons
           name="plus"
           size={scale(20)}

@@ -89,7 +89,10 @@ const ChatMessage = ({
       style={[
         styles.messageContainer,
         isUser
-          ? [styles.userMessageContainer, { backgroundColor: colors["color-success-400"] }]
+          ? [
+              styles.userMessageContainer,
+              { backgroundColor: colors["color-success-400"] },
+            ]
           : [styles.botMessageContainer, { backgroundColor: colors.surface }],
       ]}
     >
@@ -118,7 +121,7 @@ const ChatMessage = ({
             style={[
               styles.messageTime,
               isUser
-                ? [styles.userMessageTime, { color: colors.textTertiary }]
+                ? [styles.userMessageTime, { color: colors.white }]
                 : [styles.botMessageTime, { color: colors.textSecondary }],
             ]}
           >

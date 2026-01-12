@@ -66,6 +66,7 @@ export const lightColors = {
   border: "#C7D4EA",
   shadow: "#000000",
   skeleton: "#C7D4EA",
+  white: "#FFFFFF",
 };
 
 // Dark theme colors (dark blue dominated)
@@ -92,6 +93,7 @@ export const darkColors = {
   border: "#1F3A5F",
   shadow: "#000000",
   skeleton: "#1F3A5F",
+  white: "#FFFFFF",
 };
 
 export type ThemeColors = typeof lightColors;
@@ -101,8 +103,15 @@ export type ThemeMode = "light" | "dark";
 export const colors = lightColors;
 
 export const macroColors = {
-  calories: colors["color-warning-500"],
-  protein: colors["color-success-500"],
-  carbs: colors["color-info-500"],
-  fats: colors["color-warning-500"],
+  calories: "#F5A623",
+  protein: colors["color-success-400"],
+  carbs: colors["color-info-400"],
+  fats: "#FF7043",
+};
+
+export const macroBackgrounds = {
+  calories: macroColors.calories + "15",
+  protein: macroColors.protein + "15",
+  carbs: macroColors.carbs + "15",
+  fats: macroColors.fats + "15",
 };

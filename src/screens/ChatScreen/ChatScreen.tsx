@@ -135,7 +135,6 @@ const ChatScreen = () => {
 
   const handleStreamComplete = () => {
     streamingMessageIdRef.current = null;
-    // Force a re-render to update the message's streaming state
     setMessages((prev) => [...prev]);
   };
 
@@ -373,9 +372,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   title: {},
-  date: {
-    ...fontStyles.headline4,
-  },
   messageList: {
     flexGrow: 1,
   },

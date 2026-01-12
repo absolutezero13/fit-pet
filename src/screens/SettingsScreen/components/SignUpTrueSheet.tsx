@@ -108,6 +108,7 @@ const SignUpTrueSheet = () => {
       insetAdjustment="never"
       blurTint="dark"
       style={styles.container}
+      dismissible={!loading}
     >
       <View style={styles.header}>
         {showEmailForm && (

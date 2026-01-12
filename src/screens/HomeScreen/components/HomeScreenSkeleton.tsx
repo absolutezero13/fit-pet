@@ -43,7 +43,12 @@ const SkeletonBox = ({
     <Animated.View
       style={[
         styles.skeletonBox,
-        { width: width as any, height, borderRadius, backgroundColor: skeletonColor },
+        {
+          width: width as any,
+          height,
+          borderRadius,
+          backgroundColor: skeletonColor,
+        },
         animatedStyle,
         style,
       ]}
@@ -54,136 +59,76 @@ const SkeletonBox = ({
 const DailySummarySkeleton = () => {
   const { colors } = useTheme();
   return (
-    <View style={[styles.summaryContainer, { backgroundColor: colors.surface }]}>
-      <View style={styles.headerRow}>
-        <SkeletonBox width={scale(120)} height={scale(22)} />
-        <SkeletonBox
-          width={scale(22)}
-          height={scale(22)}
-          borderRadius={scale(11)}
-        />
-      </View>
-      <View style={[styles.caloriesHero, { backgroundColor: colors.backgroundSecondary }]}>
-        <View style={styles.caloriesMainRow}>
-          <View style={styles.caloriesConsumed}>
-            <SkeletonBox
-              width={scale(48)}
-              height={scale(48)}
-              borderRadius={scale(14)}
-            />
-            <View style={{ marginLeft: scale(12) }}>
-              <SkeletonBox
-                width={scale(80)}
-                height={scale(32)}
-              />
-              <SkeletonBox
-                width={scale(60)}
-                height={scale(12)}
-                style={{ marginTop: scale(4) }}
-              />
-            </View>
-          </View>
-          <View style={styles.caloriesRemaining}>
-            <SkeletonBox width={scale(70)} height={scale(28)} />
-            <SkeletonBox
-              width={scale(60)}
-              height={scale(12)}
-              style={{ marginTop: scale(4) }}
-            />
-          </View>
-        </View>
-        <SkeletonBox
-          width="100%"
-          height={scale(8)}
-          borderRadius={scale(4)}
-          style={{ marginBottom: scale(8) }}
-        />
-        <SkeletonBox
-          width={scale(100)}
-          height={scale(12)}
-          style={{ alignSelf: "center" }}
-        />
-      </View>
-
-      <View style={[styles.proteinCard, { backgroundColor: colors.backgroundSecondary }]}>
-        <View style={styles.proteinRow}>
+    <View
+      style={[styles.summaryContainer, { backgroundColor: colors.surface }]}
+    >
+      <View style={styles.ringSection}>
+        <View style={styles.sideStats}>
+          <SkeletonBox width={scale(50)} height={scale(20)} />
           <SkeletonBox
-            width={scale(36)}
-            height={scale(36)}
-            borderRadius={scale(10)}
-          />
-          <View style={styles.proteinInfo}>
-            <SkeletonBox width={scale(60)} height={scale(14)} />
-            <SkeletonBox
-              width={scale(80)}
-              height={scale(16)}
-              style={{ marginTop: scale(4) }}
-            />
-          </View>
-          <SkeletonBox width={scale(40)} height={scale(20)} />
-        </View>
-        <SkeletonBox
-          width="100%"
-          height={scale(6)}
-          borderRadius={scale(3)}
-        />
-      </View>
-
-      <View style={styles.otherMacrosRow}>
-        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
-          <SkeletonBox
-            width={scale(32)}
-            height={scale(32)}
-            borderRadius={scale(10)}
-          />
-          <SkeletonBox
-            width={scale(35)}
+            width={scale(60)}
             height={scale(12)}
-            style={{ marginTop: scale(6) }}
-          />
-          <SkeletonBox
-            width={scale(30)}
-            height={scale(16)}
-            style={{ marginTop: scale(4), marginBottom: scale(6) }}
-          />
-          <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
-        </View>
-
-        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
-          <SkeletonBox
-            width={scale(32)}
-            height={scale(32)}
-            borderRadius={scale(10)}
-          />
-          <SkeletonBox
-            width={scale(30)}
-            height={scale(12)}
-            style={{ marginTop: scale(6) }}
-          />
-          <SkeletonBox
-            width={scale(30)}
-            height={scale(16)}
-            style={{ marginTop: scale(4), marginBottom: scale(6) }}
-          />
-          <SkeletonBox width="100%" height={scale(4)} borderRadius={scale(2)} />
-        </View>
-        <View style={[styles.miniMacroCard, { backgroundColor: colors.backgroundSecondary }]}>
-          <SkeletonBox
-            width={scale(32)}
-            height={scale(32)}
-            borderRadius={scale(10)}
-          />
-          <SkeletonBox
-            width={scale(35)}
-            height={scale(12)}
-            style={{ marginTop: scale(6) }}
-          />
-          <SkeletonBox
-            width={scale(25)}
-            height={scale(16)}
             style={{ marginTop: scale(4) }}
           />
         </View>
+
+        <View style={styles.ringContainer}>
+          <SkeletonBox
+            width={scale(140)}
+            height={scale(140)}
+            borderRadius={scale(70)}
+          />
+        </View>
+
+        <View style={styles.sideStats}>
+          <SkeletonBox width={scale(50)} height={scale(20)} />
+          <SkeletonBox
+            width={scale(45)}
+            height={scale(12)}
+            style={{ marginTop: scale(4) }}
+          />
+        </View>
+      </View>
+
+      <View style={styles.macrosSection}>
+        <View style={styles.macroItem}>
+          <SkeletonBox width={scale(50)} height={scale(12)} />
+          <SkeletonBox
+            width="100%"
+            height={scale(5)}
+            borderRadius={scale(3)}
+            style={{ marginVertical: scale(6) }}
+          />
+          <SkeletonBox width={scale(55)} height={scale(12)} />
+        </View>
+        <View style={styles.macroItem}>
+          <SkeletonBox width={scale(35)} height={scale(12)} />
+          <SkeletonBox
+            width="100%"
+            height={scale(5)}
+            borderRadius={scale(3)}
+            style={{ marginVertical: scale(6) }}
+          />
+          <SkeletonBox width={scale(50)} height={scale(12)} />
+        </View>
+        <View style={styles.macroItem}>
+          <SkeletonBox width={scale(40)} height={scale(12)} />
+          <SkeletonBox
+            width="100%"
+            height={scale(5)}
+            borderRadius={scale(3)}
+            style={{ marginVertical: scale(6) }}
+          />
+          <SkeletonBox width={scale(55)} height={scale(12)} />
+        </View>
+      </View>
+
+      <View style={styles.toggleContainer}>
+        <SkeletonBox
+          width={scale(180)}
+          height={scale(36)}
+          borderRadius={scale(18)}
+        />
       </View>
     </View>
   );
@@ -253,59 +198,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(24),
   },
   skeletonBox: {},
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: scale(16),
-  },
   summaryContainer: {
     borderRadius: scale(24),
     padding: scale(20),
     marginBottom: scale(16),
   },
-  caloriesHero: {
-    borderRadius: scale(20),
-    padding: scale(16),
+  ringSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: scale(20),
+    gap: scale(8),
+  },
+  sideStats: {
+    alignItems: "center",
+    minWidth: scale(70),
+  },
+  ringContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  macrosSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: scale(12),
     marginBottom: scale(16),
   },
-  caloriesMainRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: scale(12),
-  },
-  caloriesConsumed: {
+  macroItem: {
     flex: 1,
-    flexDirection: "row",
     alignItems: "center",
   },
-  caloriesRemaining: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  proteinCard: {
-    borderRadius: scale(16),
-    padding: scale(14),
-    marginBottom: scale(12),
-  },
-  proteinRow: {
-    flexDirection: "row",
+  toggleContainer: {
     alignItems: "center",
-    marginBottom: scale(10),
-  },
-  proteinInfo: {
-    flex: 1,
-    marginLeft: scale(12),
-  },
-  otherMacrosRow: {
-    flexDirection: "row",
-    gap: scale(10),
-  },
-  miniMacroCard: {
-    flex: 1,
-    borderRadius: scale(14),
-    padding: scale(12),
-    alignItems: "center",
+    justifyContent: "center",
   },
   sectionContainer: {
     marginBottom: scale(12),

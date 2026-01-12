@@ -35,6 +35,7 @@ import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import WeightHeightPicker from "./components/WeightHeightPicker";
+import { getAuth } from "@react-native-firebase/auth";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -101,6 +102,9 @@ const SettingsScreen = () => {
     languageOptions.find((lang) => lang.code === i18n.language) ||
     languageOptions[0];
 
+  const userName = user?.displayName || user?.name;
+  const firstName = userName?.split(" ")[0];
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
@@ -115,9 +119,16 @@ const SettingsScreen = () => {
           },
         ]}
       >
-        <Text style={[styles.title, { color: colors.text }]}>
-          {t("settingsTitle")}
-        </Text>
+        <View>
+          {firstName && (
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+              {t("hi")}, {firstName}! 👋
+            </Text>
+          )}
+          <Text style={[styles.title, { color: colors.text }]}>
+            {t("settingsTitle")}
+          </Text>
+        </View>
       </LiquidGlassView>
 
       <ScrollView
@@ -424,6 +435,10 @@ const styles = StyleSheet.create({
   },
   title: {
     ...fontStyles.headline1,
+  },
+  greeting: {
+    ...fontStyles.body2,
+    marginBottom: scale(2),
   },
   scrollView: {
     flex: 1,

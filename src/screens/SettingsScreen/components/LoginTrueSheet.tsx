@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../../theme/utils";
 import { colors } from "../../../theme/colors";
 import {
+  ActivityIndicator,
   Alert,
   Platform,
   Pressable,
@@ -142,109 +143,119 @@ const LoginTrueSheet = ({ onLoginSuccess }: LoginTrueSheetProps) => {
       insetAdjustment="never"
       blurTint="dark"
       style={styles.container}
+      dismissible={!loading}
     >
-      <View style={styles.header}>
-        {showEmailForm && (
-          <Pressable
-            onPress={() => setShowEmailForm(false)}
-            style={styles.backButton}
-          >
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={scale(24)}
-              color={colors["color-primary-50"]}
-            />
-          </Pressable>
-        )}
-        <Text style={styles.title}>{t("loginTitle")}</Text>
-        {!showEmailForm && (
-          <Text style={styles.subtitle}>{t("loginSubtitle")}</Text>
-        )}
-      </View>
-
-      {!showEmailForm ? (
-        <KeyboardGestureArea
-          interpolator="ios"
-          offset={scale(50)}
-          textInputNativeID="composer"
-          style={{
-            flex: 1,
-          }}
-        >
-          <View style={styles.buttonsContainer}>
-            {loginOptions.map((option) => (
-              <Pressable
-                key={option.type}
-                onPress={option.onPress}
-                style={[
-                  styles.loginButton,
-                  { opacity: option.disabled ? 0.5 : 1 },
-                ]}
-                disabled={option.disabled}
-              >
-                <MaterialCommunityIcons
-                  name={option.icon as any}
-                  size={scale(24)}
-                  color={colors["color-primary-500"]}
-                />
-                <Text style={styles.loginButtonText}>{option.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </KeyboardGestureArea>
-      ) : (
-        <View style={styles.emailFormContainer}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("email")}</Text>
-            <TextInput
-              ref={emailInputRef}
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder={t("enterEmail")}
-              placeholderTextColor={colors["color-primary-300"]}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("password")}</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t("enterPassword")}
-              placeholderTextColor={colors["color-primary-300"]}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <AppButton
-            title={t("logIn")}
-            onPress={handleEmailLogin}
-            backgroundColor={colors["color-primary-50"]}
-            color={colors["color-primary-500"]}
-            margin={{ marginTop: scale(8) }}
-            disabled={disabled}
-            loading={loading}
-          />
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors["color-primary-500"]} />
         </View>
       )}
+      {!loading && (
+        <>
+          <View style={styles.header}>
+            {showEmailForm && (
+              <Pressable
+                onPress={() => setShowEmailForm(false)}
+                style={styles.backButton}
+              >
+                <MaterialCommunityIcons
+                  name="arrow-left"
+                  size={scale(24)}
+                  color={colors["color-primary-50"]}
+                />
+              </Pressable>
+            )}
+            <Text style={styles.title}>{t("loginTitle")}</Text>
+            {!showEmailForm && (
+              <Text style={styles.subtitle}>{t("loginSubtitle")}</Text>
+            )}
+          </View>
 
-      <View style={styles.footer}>
-        <View style={styles.footerTextContainer}>
-          <Text style={styles.footerText}>{t("noAccountYet")} </Text>
-          <TouchableOpacity
-            onPress={() => TrueSheet.dismiss(TrueSheetNames.LOGIN)}
-          >
-            <Text style={styles.signUpLink}>{t("signUp")}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          {!showEmailForm ? (
+            <KeyboardGestureArea
+              interpolator="ios"
+              offset={scale(50)}
+              textInputNativeID="composer"
+              style={{
+                flex: 1,
+              }}
+            >
+              <View style={styles.buttonsContainer}>
+                {loginOptions.map((option) => (
+                  <Pressable
+                    key={option.type}
+                    onPress={option.onPress}
+                    style={[
+                      styles.loginButton,
+                      { opacity: option.disabled ? 0.5 : 1 },
+                    ]}
+                    disabled={option.disabled}
+                  >
+                    <MaterialCommunityIcons
+                      name={option.icon as any}
+                      size={scale(24)}
+                      color={colors["color-primary-500"]}
+                    />
+                    <Text style={styles.loginButtonText}>{option.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </KeyboardGestureArea>
+          ) : (
+            <View style={styles.emailFormContainer}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>{t("email")}</Text>
+                <TextInput
+                  ref={emailInputRef}
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder={t("enterEmail")}
+                  placeholderTextColor={colors["color-primary-300"]}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>{t("password")}</Text>
+                <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder={t("enterPassword")}
+                  placeholderTextColor={colors["color-primary-300"]}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              <AppButton
+                title={t("logIn")}
+                onPress={handleEmailLogin}
+                backgroundColor={colors["color-primary-50"]}
+                color={colors["color-primary-500"]}
+                margin={{ marginTop: scale(8) }}
+                disabled={disabled}
+                loading={loading}
+              />
+            </View>
+          )}
+
+          <View style={styles.footer}>
+            <View style={styles.footerTextContainer}>
+              <Text style={styles.footerText}>{t("noAccountYet")} </Text>
+              <TouchableOpacity
+                onPress={() => TrueSheet.dismiss(TrueSheetNames.LOGIN)}
+              >
+                <Text style={styles.signUpLink}>{t("signUp")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
+      )}
     </TrueSheet>
   );
 };
@@ -254,6 +265,15 @@ const styles = StyleSheet.create({
     paddingTop: scale(24),
     paddingHorizontal: scale(24),
     paddingBottom: scale(24),
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     alignItems: "center",

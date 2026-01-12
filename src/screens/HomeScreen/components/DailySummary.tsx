@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { View, StyleSheet, Text, Modal, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import { macroColors } from "../../../theme/colors";
+import getMacroConfig from "../../../utils/getMacroConfig";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { IMeal } from "../../../services/apiTypes";
@@ -11,15 +12,169 @@ import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
 import Slider from "@react-native-community/slider";
 import AppButton from "../../../components/AppButton";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+  FadeIn,
+  FadeOut,
+} from "react-native-reanimated";
 import { useTheme } from "../../../theme/ThemeContext";
-import getScoreColor from "../../../utils/getScoreColor";
+import Svg, { Path } from "react-native-svg";
+import LiquidPicker from "../../../components/LiquidPicker";
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+const RING_SIZE = scale(140);
+const STROKE_WIDTH = scale(12);
+const RADIUS = (RING_SIZE - STROKE_WIDTH) / 2;
+const ARC_ANGLE = 270;
+const ARC_LENGTH = (ARC_ANGLE / 360) * 2 * Math.PI * RADIUS;
+const START_ANGLE = 0;
+
+const polarToCartesian = (cx: number, cy: number, r: number, angle: number) => {
+  const rad = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad),
+  };
+};
+
+const describeArc = (
+  cx: number,
+  cy: number,
+  r: number,
+  startAngle: number,
+  endAngle: number
+) => {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+};
+
+interface ArcProgressProps {
+  progress: number;
+  color: string;
+  trackColor: string;
+}
+
+const ArcProgress = ({ progress, color, trackColor }: ArcProgressProps) => {
+  const animatedProgress = useSharedValue(0);
+  const cx = RING_SIZE / 2;
+  const cy = RING_SIZE / 2;
+
+  useEffect(() => {
+    animatedProgress.value = withTiming(Math.min(progress, 1), {
+      duration: 1000,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress, animatedProgress]);
+
+  const trackPath = describeArc(
+    cx,
+    cy,
+    RADIUS,
+    START_ANGLE,
+    START_ANGLE + ARC_ANGLE
+  );
+
+  const animatedProps = useAnimatedProps(() => {
+    const currentAngle = ARC_ANGLE * animatedProgress.value;
+    const strokeDashoffset =
+      ARC_LENGTH - (currentAngle / 360) * 2 * Math.PI * RADIUS;
+    return {
+      strokeDashoffset,
+    };
+  });
+
+  return (
+    <Svg
+      width={RING_SIZE}
+      height={RING_SIZE}
+      style={{ transform: [{ rotate: "225deg" }] }}
+    >
+      <Path
+        d={trackPath}
+        stroke={trackColor}
+        strokeWidth={STROKE_WIDTH}
+        fill="none"
+        strokeLinecap="round"
+      />
+      <AnimatedPath
+        d={trackPath}
+        stroke={color}
+        strokeWidth={STROKE_WIDTH}
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray={ARC_LENGTH}
+        animatedProps={animatedProps}
+      />
+    </Svg>
+  );
+};
+
+interface MacroProgressBarProps {
+  label: string;
+  current: number;
+  goal: number;
+  color: string;
+  trackColor: string;
+  showRemaining: boolean;
+}
+
+const MacroProgressBar = ({
+  label,
+  current,
+  goal,
+  color,
+  trackColor,
+  showRemaining,
+}: MacroProgressBarProps) => {
+  const remaining = Math.max(0, goal - current);
+  const displayValue = showRemaining ? remaining : current;
+  const progress = Math.min(current / goal, 1);
+  const animatedWidth = useSharedValue(0);
+
+  useEffect(() => {
+    animatedWidth.value = withTiming(progress * 100, {
+      duration: 800,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress, animatedWidth]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${animatedWidth.value}%`,
+  }));
+
+  return (
+    <View style={styles.macroItem}>
+      <Text style={[styles.macroLabel, { color }]}>{label}</Text>
+      <View
+        style={[styles.macroProgressTrack, { backgroundColor: trackColor }]}
+      >
+        <Animated.View
+          style={[
+            styles.macroProgressFill,
+            { backgroundColor: color },
+            animatedStyle,
+          ]}
+        />
+      </View>
+      <Text style={[styles.macroValues, { color }]}>
+        {displayValue} / {goal}g
+      </Text>
+    </View>
+  );
+};
 
 const DailySummary = ({ meals }: { meals: IMeal[] }) => {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
+  const [showRemaining, setShowRemaining] = useState(false);
   const currentMacroGoals = useUserStore((state) => state?.macroGoals);
   const [goals, setGoals] = useState<MacroGoals>(
     currentMacroGoals as MacroGoals
@@ -45,11 +200,6 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
       initialTotals
     );
   }, [meals]);
-
-  const averageScore = useMemo(() => {
-    if (!totals || meals.length === 0) return 0;
-    return Math.round(totals.score / meals.length);
-  }, [totals, meals]);
 
   const progress = {
     calories: Math.min(totals.calories / goals.calories, 1),
@@ -89,313 +239,146 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
     setModalVisible(false);
   };
 
-  const proteinGoal = (goals.proteins * goals.calories) / 100 / 4;
+  const proteinGoal = Math.round((goals.proteins * goals.calories) / 100 / 4);
+  const carbsGoal = Math.round((goals.carbs * goals.calories) / 100 / 4);
+  const fatsGoal = Math.round((goals.fats * goals.calories) / 100 / 9);
   const isOverCalorieGoal = totals.calories > goals.calories;
   const remainingCalories = Math.max(0, goals.calories - totals.calories);
-  const overCalories = Math.max(0, totals.calories - goals.calories);
+
+  const ringColor = isOverCalorieGoal
+    ? colors["color-danger-400"]
+    : macroColors.calories;
+
+  const trackColor = isDark ? colors.textTertiary + "40" : colors.border + "60";
+
+  const centerValue = showRemaining
+    ? remainingCalories.toFixed(0)
+    : totals.calories.toFixed(0);
+
+  const centerLabel = showRemaining ? t("remaining") : t("consumed");
 
   return (
-    <LiquidGlassView
-      effect="clear"
-      style={[styles.container, { backgroundColor: colors.surface }]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Animated.View entering={FadeIn} exiting={FadeOut}>
-        <View style={styles.headerRow}>
-          <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            {t("dailySummary")}
-          </Text>
-          <Pressable onPress={() => setModalVisible(true)}>
-            <Icon
-              name="cog-outline"
-              size={scale(22)}
-              color={colors.textSecondary}
-            />
-          </Pressable>
-        </View>
-
-        <View
-          style={[
-            styles.caloriesHero,
-            { backgroundColor: colors.backgroundSecondary },
-            isOverCalorieGoal && {
-              backgroundColor: colors["color-danger-100"],
-            },
-          ]}
+        <Pressable
+          style={styles.settingsButton}
+          onPress={() => setModalVisible(true)}
         >
-          <View style={styles.caloriesMainRow}>
-            <View style={styles.caloriesConsumed}>
-              <View
+          <Icon
+            name="cog-outline"
+            size={scale(20)}
+            color={colors.textSecondary}
+          />
+        </Pressable>
+
+        <View style={styles.ringSection}>
+          <View style={styles.sideStats}>
+            <Text style={[styles.sideValue, { color: colors.text }]}>
+              {remainingCalories.toFixed(0)}
+            </Text>
+            <Text style={[styles.sideLabel, { color: colors.textSecondary }]}>
+              {t("remaining")}
+            </Text>
+          </View>
+
+          <View style={styles.ringContainer}>
+            <ArcProgress
+              progress={progress.calories}
+              color={ringColor}
+              trackColor={trackColor}
+            />
+            <View style={styles.ringCenter}>
+              <Text
                 style={[
-                  styles.heroIconContainer,
-                  { backgroundColor: colors.surface },
-                  isOverCalorieGoal && {
-                    backgroundColor: colors["color-danger-100"],
+                  styles.calorieValue,
+                  {
+                    color: isOverCalorieGoal
+                      ? colors["color-danger-400"]
+                      : colors.text,
                   },
                 ]}
               >
-                <Icon
-                  name="fire"
-                  size={scale(28)}
-                  color={isOverCalorieGoal ? "#E53935" : "#F5A623"}
-                />
-              </View>
-              <View>
-                <Text
-                  style={[
-                    styles.heroValue,
-                    isOverCalorieGoal && styles.heroValueOver,
-                  ]}
-                >
-                  {totals.calories.toFixed(0)}
-                </Text>
-                <Text
-                  style={[styles.heroLabel, { color: colors.textSecondary }]}
-                >
-                  {t("consumed")}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.caloriesRemaining}>
-              <View>
-                {isOverCalorieGoal ? (
-                  <>
-                    <Text
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                      style={styles.heroValueOver}
-                    >
-                      +{overCalories.toFixed(0)}
-                    </Text>
-                    <Text style={styles.heroLabelOver}>{t("over")}</Text>
-                  </>
-                ) : (
-                  <>
-                    <Text
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                      style={[
-                        styles.heroValueRemaining,
-                        { color: colors.text },
-                      ]}
-                    >
-                      {remainingCalories.toFixed(0)}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.heroLabelRemaining,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {t("remaining")}
-                    </Text>
-                  </>
-                )}
-              </View>
-            </View>
-          </View>
-
-          <View
-            style={[
-              styles.heroProgressContainer,
-              { backgroundColor: colors.border },
-              isOverCalorieGoal && styles.heroProgressContainerOver,
-            ]}
-          >
-            <View
-              style={[
-                styles.heroProgress,
-                isOverCalorieGoal && styles.heroProgressOver,
-                { width: `${Math.min(progress.calories * 100, 100)}%` },
-              ]}
-            />
-          </View>
-          <Text style={[styles.heroGoalText, { color: colors.textSecondary }]}>
-            {t("goal")}: {goals.calories} kcal
-          </Text>
-        </View>
-
-        {/* Protein Section */}
-        <View
-          style={[
-            styles.proteinCard,
-            { backgroundColor: colors.backgroundSecondary },
-          ]}
-        >
-          <View style={styles.proteinRow}>
-            <View
-              style={[
-                styles.proteinIconContainer,
-                { backgroundColor: colors.surface },
-              ]}
-            >
-              <Icon
-                name="lightning-bolt"
-                size={scale(20)}
-                color={macroColors.protein}
-              />
-            </View>
-            <View style={styles.proteinInfo}>
-              <Text style={[styles.proteinLabel, { color: colors.text }]}>
-                {t("proteins")}
+                {centerValue}
               </Text>
-              <Text style={styles.proteinValues}>
-                {totals.proteins.toFixed(0)}g{" "}
-                <Text
-                  style={[styles.proteinGoal, { color: colors.textSecondary }]}
-                >
-                  / {proteinGoal.toFixed(0)}g
-                </Text>
+              <Text
+                style={[styles.calorieLabel, { color: colors.textSecondary }]}
+              >
+                {centerLabel}
               </Text>
             </View>
-            <Text style={styles.proteinPercent}>
-              {Math.round(progress.proteins * 100)}%
-            </Text>
           </View>
-          <View
-            style={[
-              styles.proteinProgressContainer,
-              { backgroundColor: colors.border },
-            ]}
-          >
-            <View
-              style={[
-                styles.proteinProgress,
-                { width: `${Math.min(progress.proteins * 100, 100)}%` },
-              ]}
-            />
+
+          <View style={styles.sideStats}>
+            <Text style={[styles.sideValue, { color: colors.text }]}>
+              {goals.calories}
+            </Text>
+            <Text style={[styles.sideLabel, { color: colors.textSecondary }]}>
+              {t("target")}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.otherMacrosRow}>
-          <View
-            style={[
-              styles.miniMacroCard,
-              { backgroundColor: colors.backgroundSecondary },
-            ]}
-          >
-            <View
-              style={[styles.miniMacroIcon, { backgroundColor: "#E3F2FD" }]}
-            >
-              <Icon
-                name="bread-slice"
-                size={scale(16)}
-                color={macroColors.carbs}
-              />
-            </View>
-            <Text
-              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
-            >
-              {t("carbs")}
-            </Text>
-            <Text style={[styles.miniMacroValue, { color: colors.text }]}>
-              {totals.carbs.toFixed(0)}g
-            </Text>
-            <View
-              style={[
-                styles.miniProgressContainer,
-                { backgroundColor: colors.border },
-              ]}
-            >
-              <View
-                style={[
-                  styles.miniProgress,
-                  {
-                    width: `${Math.min(progress.carbs * 100, 100)}%`,
-                    backgroundColor: "#2196F3",
-                  },
-                ]}
-              />
-            </View>
-          </View>
-          <View
-            style={[
-              styles.miniMacroCard,
-              { backgroundColor: colors.backgroundSecondary },
-            ]}
-          >
-            <View
-              style={[styles.miniMacroIcon, { backgroundColor: "#FBE9E7" }]}
-            >
-              <Icon name="water" size={scale(16)} color="#FF7043" />
-            </View>
-            <Text
-              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
-            >
-              {t("fats")}
-            </Text>
-            <Text style={[styles.miniMacroValue, { color: colors.text }]}>
-              {totals.fats.toFixed(0)}g
-            </Text>
-            <View
-              style={[
-                styles.miniProgressContainer,
-                { backgroundColor: colors.border },
-              ]}
-            >
-              <View
-                style={[
-                  styles.miniProgress,
-                  {
-                    width: `${Math.min(progress.fats * 100, 100)}%`,
-                    backgroundColor: "#FF7043",
-                  },
-                ]}
-              />
-            </View>
-          </View>
-
-          <Pressable
-            style={[
-              styles.miniMacroCard,
-              styles.scoreCard,
-              { backgroundColor: colors.backgroundSecondary },
-            ]}
-            onPress={() => setModalVisible(true)}
-          >
-            <View
-              style={[
-                styles.miniMacroIcon,
-                { backgroundColor: getScoreColor(averageScore, colors) + "20" },
-              ]}
-            >
-              <Icon
-                name="star"
-                size={scale(16)}
-                color={getScoreColor(averageScore, colors)}
-              />
-            </View>
-            <Text
-              style={[styles.miniMacroLabel, { color: colors.textSecondary }]}
-            >
-              {t("score")}
-            </Text>
-            <Text
-              style={[
-                styles.miniMacroValue,
-                { color: getScoreColor(averageScore, colors) },
-              ]}
-            >
-              {averageScore.toFixed(1)}
-            </Text>
-          </Pressable>
+        <View style={styles.macrosSection}>
+          <MacroProgressBar
+            label={t("proteins")}
+            current={Math.round(totals.proteins)}
+            goal={proteinGoal}
+            color={getMacroConfig("protein").color}
+            trackColor={trackColor}
+            showRemaining={showRemaining}
+          />
+          <MacroProgressBar
+            label={t("fats")}
+            current={Math.round(totals.fats)}
+            goal={fatsGoal}
+            color={getMacroConfig("fats").color}
+            trackColor={trackColor}
+            showRemaining={showRemaining}
+          />
+          <MacroProgressBar
+            label={t("carbs")}
+            current={Math.round(totals.carbs)}
+            goal={carbsGoal}
+            color={getMacroConfig("carbs").color}
+            trackColor={trackColor}
+            showRemaining={showRemaining}
+          />
         </View>
+
+        <LiquidPicker
+          options={[t("consumed"), t("remaining")]}
+          selectedIndex={showRemaining ? 1 : 0}
+          onSelected={(index) => setShowRemaining(index === 1)}
+        />
         <Modal
           animationType="fade"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.modalContainer}>
+          <View
+            style={[
+              styles.modalContainer,
+              {
+                backgroundColor: isDark
+                  ? "rgba(0, 0, 0, 0.6)"
+                  : "rgba(0, 0, 0, 0.3)",
+              },
+            ]}
+          >
             <View
-              style={[styles.modalContent, { backgroundColor: colors.surface }]}
+              style={[
+                styles.modalContent,
+                {
+                  backgroundColor: colors.surface,
+                  shadowColor: colors.shadow,
+                },
+              ]}
             >
-              {/* Header */}
               <Text style={[styles.modalTitle, { color: colors.text }]}>
                 {t("nutritionGoals")}
               </Text>
 
-              {/* Calorie Card */}
               <View
                 style={[
                   styles.calorieCard,
@@ -405,17 +388,37 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                   },
                 ]}
               >
-                <View style={styles.calorieIconContainer}>
-                  <Icon name="fire" size={scale(24)} color="#F5A623" />
+                <View
+                  style={[
+                    styles.calorieIconContainer,
+                    { backgroundColor: getMacroConfig("calories").background },
+                  ]}
+                >
+                  <Icon
+                    name={getMacroConfig("calories").icon}
+                    size={scale(24)}
+                    color={getMacroConfig("calories").color}
+                  />
                 </View>
                 <View style={styles.calorieLabelContainer}>
-                  <Text style={[styles.calorieLabel, { color: colors.text }]}>
+                  <Text
+                    style={[styles.calorieCardLabel, { color: colors.text }]}
+                  >
                     {t("calories")}
                   </Text>
-                  <Text style={styles.calorieSublabel}>{t("dailyGoal")}</Text>
+                  <Text
+                    style={[
+                      styles.calorieSublabel,
+                      { color: getMacroConfig("protein").color },
+                    ]}
+                  >
+                    {t("dailyGoal")}
+                  </Text>
                 </View>
                 <View style={styles.calorieValueContainer}>
-                  <Text style={[styles.calorieValue, { color: colors.text }]}>
+                  <Text
+                    style={[styles.calorieCardValue, { color: colors.text }]}
+                  >
                     {goals.calories}
                   </Text>
                   <Text
@@ -428,6 +431,7 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                   </Text>
                 </View>
               </View>
+
               <Slider
                 style={styles.slider}
                 value={goals.calories}
@@ -437,17 +441,22 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 onValueChange={(value) =>
                   setGoals((prev) => ({ ...prev, calories: Math.round(value) }))
                 }
-                minimumTrackTintColor="#F5A623"
-                maximumTrackTintColor="#E8E8E8"
-                thumbTintColor="#F5A623"
+                minimumTrackTintColor={getMacroConfig("calories").color}
+                maximumTrackTintColor={colors.border}
+                thumbTintColor={getMacroConfig("calories").color}
               />
 
               <View style={styles.sliderRow}>
-                <View style={styles.sliderIconContainer}>
+                <View
+                  style={[
+                    styles.sliderIconContainer,
+                    { backgroundColor: getMacroConfig("protein").background },
+                  ]}
+                >
                   <Icon
-                    name="lightning-bolt"
+                    name={getMacroConfig("protein").icon}
                     size={scale(20)}
-                    color="#4CAF50"
+                    color={getMacroConfig("protein").color}
                   />
                 </View>
                 <Text style={[styles.sliderLabel, { color: colors.text }]}>
@@ -458,8 +467,16 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                 >
                   {((goals.proteins * goals.calories) / 100 / 4).toFixed(0)} g
                 </Text>
-                <Text style={styles.sliderPercent}>{goals.proteins}%</Text>
+                <Text
+                  style={[
+                    styles.sliderPercent,
+                    { color: getMacroConfig("protein").color },
+                  ]}
+                >
+                  {goals.proteins}%
+                </Text>
               </View>
+
               <Slider
                 style={styles.slider}
                 value={goals.proteins}
@@ -474,22 +491,27 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
                     fats: Math.round((100 - Math.round(value)) * 0.4),
                   }))
                 }
-                minimumTrackTintColor="#4CAF50"
-                maximumTrackTintColor="#E8E8E8"
-                thumbTintColor="#4CAF50"
+                minimumTrackTintColor={getMacroConfig("protein").color}
+                maximumTrackTintColor={colors.border}
+                thumbTintColor={getMacroConfig("protein").color}
               />
+
               <View style={styles.otherRow}>
-                <View style={styles.otherIconContainer}>
+                <View
+                  style={[
+                    styles.otherIconContainer,
+                    { backgroundColor: colors.backgroundSecondary },
+                  ]}
+                >
                   <Icon
                     name="circle-half-full"
                     size={scale(20)}
-                    color="#9E9E9E"
+                    color={colors.textSecondary}
                   />
                 </View>
                 <Text style={[styles.otherLabel, { color: colors.text }]}>
                   {t("otherCarbsFat")}
                 </Text>
-
                 <Text
                   style={[styles.otherPercent, { color: colors.textSecondary }]}
                 >
@@ -514,240 +536,120 @@ const DailySummary = ({ meals }: { meals: IMeal[] }) => {
           </View>
         </Modal>
       </Animated.View>
-    </LiquidGlassView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: scale(24),
+    padding: scale(20),
     marginBottom: scale(16),
-    paddingHorizontal: scale(24),
     marginHorizontal: scale(24),
     borderRadius: scale(24),
   },
-  headerRow: {
+  settingsButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    zIndex: 1,
+    padding: scale(4),
+  },
+  ringSection: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: scale(16),
-  },
-  summaryTitle: {
-    ...fontStyles.headline3,
-    color: "#1A1A1A",
-    fontWeight: "700",
-  },
-  // Calories Hero Section
-  caloriesHero: {
-    backgroundColor: "#FFFBF5",
-    borderRadius: scale(20),
-    padding: scale(16),
-    marginBottom: scale(16),
-  },
-  caloriesHeroOver: {
-    backgroundColor: "#FFF5F5",
-  },
-  caloriesMainRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: scale(12),
-  },
-  caloriesConsumed: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  heroIconContainer: {
-    width: scale(48),
-    height: scale(48),
-    borderRadius: scale(14),
-    backgroundColor: "#FFF0D4",
     justifyContent: "center",
+    marginBottom: scale(20),
+    gap: scale(8),
+  },
+  sideStats: {
     alignItems: "center",
-    marginRight: scale(12),
+    minWidth: scale(70),
   },
-  heroIconContainerOver: {
-    backgroundColor: "#FFEBEE",
+  sideValue: {
+    fontSize: scale(20),
+    fontWeight: "600",
   },
-  heroValue: {
-    fontSize: scale(32),
-    fontWeight: "700",
-    color: "#F5A623",
-  },
-  heroValueOver: {
-    fontSize: scale(32),
-    fontWeight: "700",
-    color: "#E53935",
-  },
-  heroLabelOver: {
+  sideLabel: {
     ...fontStyles.caption,
-    color: "#E53935",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    textAlign: "right",
+    marginTop: scale(2),
   },
-  heroLabel: {
-    ...fontStyles.caption,
-    color: "#888888",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+  ringContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  caloriesDivider: {
-    width: 1,
-    height: scale(40),
-    backgroundColor: "#E8E8E8",
-    marginHorizontal: scale(16),
+  ringCenter: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  caloriesRemaining: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  heroValueRemaining: {
+  calorieValue: {
     fontSize: scale(28),
-    fontWeight: "600",
-    color: "#1A1A1A",
-    textAlign: "right",
-  },
-  heroLabelRemaining: {
-    ...fontStyles.caption,
-    color: "#888888",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    textAlign: "right",
-  },
-  heroProgressContainer: {
-    height: scale(8),
-    backgroundColor: "#FFE4B8",
-    borderRadius: scale(4),
-    overflow: "hidden",
-    marginBottom: scale(8),
-  },
-  heroProgressContainerOver: {
-    backgroundColor: "#FFCDD2",
-  },
-  heroProgress: {
-    height: "100%",
-    backgroundColor: "#F5A623",
-    borderRadius: scale(4),
-  },
-  heroProgressOver: {
-    backgroundColor: "#E53935",
-  },
-  heroGoalText: {
-    ...fontStyles.caption,
-    color: "#888888",
-    textAlign: "center",
-  },
-  // Protein Card
-  proteinCard: {
-    backgroundColor: "#F0F9F0",
-    borderRadius: scale(16),
-    padding: scale(14),
-    marginBottom: scale(12),
-  },
-  proteinRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: scale(10),
-  },
-  proteinIconContainer: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(10),
-    backgroundColor: "#DCEDC8",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(12),
-  },
-  proteinInfo: {
-    flex: 1,
-  },
-  proteinLabel: {
-    ...fontStyles.body2,
-    color: "#1A1A1A",
-    fontWeight: "600",
-  },
-  proteinValues: {
-    ...fontStyles.body1,
-    color: "#4CAF50",
     fontWeight: "700",
   },
-  proteinGoal: {
-    ...fontStyles.body2,
-    color: "#888888",
-    fontWeight: "400",
+  calorieLabel: {
+    ...fontStyles.caption,
+    marginTop: scale(2),
   },
-  proteinPercent: {
-    ...fontStyles.headline3,
-    color: "#4CAF50",
-    fontWeight: "700",
-  },
-  proteinProgressContainer: {
-    height: scale(6),
-    backgroundColor: "#C8E6C9",
-    borderRadius: scale(3),
-    overflow: "hidden",
-  },
-  proteinProgress: {
-    height: "100%",
-    backgroundColor: "#4CAF50",
-    borderRadius: scale(3),
-  },
-  // Other Macros Row
-  otherMacrosRow: {
+  macrosSection: {
     flexDirection: "row",
-    gap: scale(10),
+    justifyContent: "space-between",
+    gap: scale(12),
+    marginBottom: scale(16),
   },
-  miniMacroCard: {
+  macroItem: {
     flex: 1,
-    borderRadius: scale(14),
-    padding: scale(12),
     alignItems: "center",
   },
-  scoreCard: {},
-  miniMacroIcon: {
-    width: scale(32),
-    height: scale(32),
-    borderRadius: scale(10),
-    justifyContent: "center",
-    alignItems: "center",
+  macroLabel: {
+    ...fontStyles.caption,
+    fontWeight: "500",
     marginBottom: scale(6),
   },
-  miniMacroLabel: {
-    ...fontStyles.caption,
-    marginBottom: scale(2),
-  },
-  miniMacroValue: {
-    ...fontStyles.body1,
-    fontWeight: "700",
-    marginBottom: scale(6),
-  },
-  miniProgressContainer: {
+  macroProgressTrack: {
     width: "100%",
-    height: scale(4),
-    borderRadius: scale(2),
+    height: scale(5),
+    borderRadius: scale(3),
     overflow: "hidden",
+    marginBottom: scale(6),
   },
-  miniProgress: {
+  macroProgressFill: {
     height: "100%",
-    borderRadius: scale(2),
+    borderRadius: scale(3),
   },
-  // Modal styles
+  macroValues: {
+    ...fontStyles.caption,
+    fontWeight: "600",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(4),
+  },
+  toggleButton: {
+    paddingVertical: scale(8),
+    paddingHorizontal: scale(20),
+    borderRadius: scale(18),
+  },
+  toggleButtonActive: {
+    borderRadius: scale(18),
+  },
+  toggleText: {
+    ...fontStyles.body2,
+    fontWeight: "600",
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
     padding: scale(20),
   },
   modalContent: {
     borderRadius: scale(24),
     padding: scale(24),
     width: "100%",
-    shadowOffset: {
-      width: 0,
-      height: scale(4),
-    },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.15,
     shadowRadius: scale(12),
     elevation: 8,
@@ -758,7 +660,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: scale(20),
   },
-  // Calorie Card
   calorieCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -771,7 +672,6 @@ const styles = StyleSheet.create({
     width: scale(48),
     height: scale(48),
     borderRadius: scale(12),
-    backgroundColor: "#FFF8E7",
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -779,13 +679,12 @@ const styles = StyleSheet.create({
   calorieLabelContainer: {
     flex: 1,
   },
-  calorieLabel: {
+  calorieCardLabel: {
     ...fontStyles.body1,
     fontWeight: "600",
   },
   calorieSublabel: {
     ...fontStyles.caption,
-    color: macroColors.protein,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -794,7 +693,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
   },
-  calorieValue: {
+  calorieCardValue: {
     ...fontStyles.headline1,
     fontWeight: "300",
     fontSize: scale(36),
@@ -803,41 +702,6 @@ const styles = StyleSheet.create({
     ...fontStyles.body2,
     marginLeft: scale(4),
   },
-  // Protein Distribution
-  proteinDistributionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: scale(12),
-  },
-  proteinDistributionTitle: {
-    ...fontStyles.body1,
-    fontWeight: "600",
-  },
-  distributionBar: {
-    flexDirection: "row",
-    height: scale(36),
-    borderRadius: scale(18),
-    overflow: "hidden",
-    marginBottom: scale(20),
-  },
-  distributionSegment: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  proteinSegment: {
-    backgroundColor: macroColors.protein,
-  },
-  otherSegment: {},
-  segmentText: {
-    ...fontStyles.body2,
-    fontWeight: "600",
-  },
-  segmentTextOther: {
-    ...fontStyles.body2,
-    fontWeight: "500",
-  },
-  // Slider Row
   sliderRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -847,7 +711,6 @@ const styles = StyleSheet.create({
     width: scale(36),
     height: scale(36),
     borderRadius: scale(10),
-    backgroundColor: "#F0F9F0",
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -863,7 +726,6 @@ const styles = StyleSheet.create({
   },
   sliderPercent: {
     ...fontStyles.body1,
-    color: "#4CAF50",
     fontWeight: "700",
   },
   slider: {
@@ -871,7 +733,6 @@ const styles = StyleSheet.create({
     height: scale(40),
     marginBottom: scale(16),
   },
-  // Other Row
   otherRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -881,7 +742,6 @@ const styles = StyleSheet.create({
     width: scale(36),
     height: scale(36),
     borderRadius: scale(10),
-    backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(12),
@@ -891,41 +751,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
-  otherKcal: {
-    ...fontStyles.body2,
-    marginRight: scale(8),
-  },
   otherPercent: {
     ...fontStyles.body1,
     fontWeight: "600",
   },
-  // Buttons
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: scale(12),
-  },
-  button: {
-    flex: 1,
-    paddingVertical: scale(16),
-    borderRadius: scale(28),
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#E57373",
-  },
-  saveButton: {
-    backgroundColor: "#5D6B3D",
-  },
-  cancelButtonText: {
-    ...fontStyles.body1,
-    color: "white",
-    fontWeight: "600",
-  },
-  saveButtonText: {
-    ...fontStyles.body1,
-    color: "white",
-    fontWeight: "600",
   },
 });
 
