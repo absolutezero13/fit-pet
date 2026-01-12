@@ -395,9 +395,9 @@ const styles = StyleSheet.create({
     paddingVertical: scale(12),
     marginHorizontal: scale(16),
     marginRight: scale(8),
-    maxHeight: scale(120),
     ...fontStyles.body1,
     flex: 1,
+    lineHeight: undefined,
   },
   sendButton: {
     width: scale(50),

@@ -7,6 +7,7 @@ import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
+import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 
 const Tabs = createNativeBottomTabNavigator();
 
@@ -21,12 +22,20 @@ const TabNavigator = () => {
         tabBarActiveTintColor: colors["color-success-400"],
       }}
     >
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="Meals"
         component={MealsScreen}
         options={{
           title: t("tabMeals"),
           tabBarIcon: () => ({ sfSymbol: "list.star" }),
+        }}
+      /> */}
+      <Tabs.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          title: t("tabChat"),
+          tabBarIcon: () => ({ sfSymbol: "sparkle" }),
         }}
       />
       <Tabs.Screen
@@ -40,12 +49,12 @@ const TabNavigator = () => {
         }}
       />
       <Tabs.Screen
-        name="Chat"
-        component={ChatScreen}
         options={{
-          title: t("tabChat"),
-          tabBarIcon: () => ({ sfSymbol: "sparkle" }),
+          title: t("tabSettings"),
+          tabBarIcon: () => ({ sfSymbol: "gearshape" }),
         }}
+        name="Settings"
+        component={SettingsScreen}
       />
     </Tabs.Navigator>
   );
