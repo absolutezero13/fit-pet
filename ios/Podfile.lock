@@ -2307,8 +2307,6 @@ PODS:
     - Firebase/Storage (= 11.12.0)
     - React-Core
     - RNFBApp
-  - RNFS (2.20.0):
-    - React-Core
   - RNGestureHandler (2.28.0):
     - hermes-engine
     - RCTRequired
@@ -2756,7 +2754,6 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
-  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNLocalize (from `../node_modules/react-native-localize`)
@@ -3005,8 +3002,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/crashlytics"
   RNFBStorage:
     :path: "../node_modules/@react-native-firebase/storage"
-  RNFS:
-    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
@@ -3155,7 +3150,6 @@ SPEC CHECKSUMS:
   RNFBAuth: 40ae86e2d4a3598e0060e7f33754b2d742cda9b7
   RNFBCrashlytics: d672fb16fb9c1189fff293cb586efb538d8a33f9
   RNFBStorage: e8fd8feb564850c029a1f70d9d859d894b4846a8
-  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: c971f0a10fdffe00dfb4c142e87f34cdcd704376
   RNGoogleSignin: b95586dfb65bd76b19bec82f5ccb7ed1cd52f881
   RNLocalize: 8cbc922bfe863bd66e46ce7a537ff37dad99d323

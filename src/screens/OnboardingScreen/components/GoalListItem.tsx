@@ -8,10 +8,9 @@ import Animated, {
 } from "react-native-reanimated";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useTranslation } from "react-i18next";
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { colors } from "../../../theme/colors";
 import { fontStyles } from "../../../theme/fontStyles";
-import { scale } from "../../../theme/utils";
+import { scale, SCREEN_WIDTH } from "../../../theme/utils";
 import { GoalEnum } from "../../../zustand/useOnboardingStore";
 import {
   isLiquidGlassSupported,

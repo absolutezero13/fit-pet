@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
 import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, shadowStyle } from "../../../theme/utils";
@@ -91,7 +90,10 @@ const Age = () => {
     return (
       <View style={styles.androidPickerContainer}>
         {/* Selection indicator */}
-        <View style={[styles.selectionIndicator, { borderColor: colors.border }]} pointerEvents="none" />
+        <View
+          style={[styles.selectionIndicator, { borderColor: colors.border }]}
+          pointerEvents="none"
+        />
 
         {/* Scrollable wheel */}
         <ScrollView
@@ -117,7 +119,9 @@ const Age = () => {
                 },
               ]}
             >
-              <Text style={[fontStyles.headline2, { color: colors.text }]}>{age}</Text>
+              <Text style={[fontStyles.headline2, { color: colors.text }]}>
+                {age}
+              </Text>
             </View>
           ))}
 
@@ -146,11 +150,27 @@ const Age = () => {
         {Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
       </View>
 
-      <View style={[styles.infoCard, { backgroundColor: colors["color-primary-500"], borderColor: colors.border }]}>
-        <Text style={[fontStyles.headline3, { color: colors["color-primary-100"] }]}>
+      <View
+        style={[
+          styles.infoCard,
+          {
+            backgroundColor: colors["color-primary-500"],
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <Text
+          style={[fontStyles.headline3, { color: colors["color-primary-100"] }]}
+        >
           {t("whyWeAsk")}
         </Text>
-        <Text style={[fontStyles.body2, styles.infoCardDescription, { color: colors["color-primary-100"] }]}>
+        <Text
+          style={[
+            fontStyles.body2,
+            styles.infoCardDescription,
+            { color: colors["color-primary-100"] },
+          ]}
+        >
           {t("whyWeAskDescription")}
         </Text>
       </View>

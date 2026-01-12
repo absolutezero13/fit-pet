@@ -24,8 +24,6 @@ import {
   Nunito_900Black_Italic,
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Platform, UIManager } from "react-native";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import i18next, { changeLanguage } from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
@@ -119,13 +117,11 @@ export function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <BottomSheetModalProvider>
-          <KeyboardProvider>
-            <NavigationContainer onReady={onReady}>
-              <RootNavigator />
-            </NavigationContainer>
-          </KeyboardProvider>
-        </BottomSheetModalProvider>
+        <KeyboardProvider>
+          <NavigationContainer onReady={onReady}>
+            <RootNavigator />
+          </NavigationContainer>
+        </KeyboardProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
