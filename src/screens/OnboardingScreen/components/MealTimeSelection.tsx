@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../theme/ThemeContext";
 import useNotificationStore, {
   MealTime,
-  MealType,
 } from "../../../zustand/useNotificationStore";
 import notificationService from "../../../services/notificationService";
+import { formatMealTime, adjustMealTime } from "../../../utils/mealTimeUtils";
 
 interface MealTimeRowProps {
   label: string;
@@ -17,12 +17,6 @@ interface MealTimeRowProps {
   onChangeTime: (time: MealTime) => void;
   icon: string;
 }
-
-const formatTime = (time: MealTime): string => {
-  const hours = time.hour.toString().padStart(2, "0");
-  const minutes = time.minute.toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
 
 const MealTimeRow: React.FC<MealTimeRowProps> = ({
   label,
@@ -32,19 +26,8 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
 }) => {
   const { colors } = useTheme();
 
-  const adjustTime = (increment: number) => {
-    let newMinute = time.minute + increment;
-    let newHour = time.hour;
-
-    if (newMinute >= 60) {
-      newMinute = 0;
-      newHour = (newHour + 1) % 24;
-    } else if (newMinute < 0) {
-      newMinute = 30;
-      newHour = newHour === 0 ? 23 : newHour - 1;
-    }
-
-    onChangeTime({ hour: newHour, minute: newMinute });
+  const handleAdjustTime = (increment: number) => {
+    onChangeTime(adjustMealTime(time, increment));
   };
 
   return (
@@ -59,7 +42,7 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
       </View>
       <View style={styles.timePickerContainer}>
         <TouchableOpacity
-          onPress={() => adjustTime(-30)}
+          onPress={() => handleAdjustTime(-30)}
           style={styles.timeButton}
         >
           <MaterialCommunityIcons
@@ -69,10 +52,10 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
           />
         </TouchableOpacity>
         <Text style={[styles.timeText, { color: colors.text }]}>
-          {formatTime(time)}
+          {formatMealTime(time)}
         </Text>
         <TouchableOpacity
-          onPress={() => adjustTime(30)}
+          onPress={() => handleAdjustTime(30)}
           style={styles.timeButton}
         >
           <MaterialCommunityIcons

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
-import notificationService from "../../services/notificationService";
-import useNotificationStore from "../../zustand/useNotificationStore";
+import notificationService from "../services/notificationService";
+import useNotificationStore from "../zustand/useNotificationStore";
 
 /**
  * Component that checks for progressive unlock opportunities

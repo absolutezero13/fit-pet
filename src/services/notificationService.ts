@@ -95,8 +95,12 @@ class NotificationService {
     if (!notifeeModule) return false;
 
     try {
-      // For Android 13+, we need to request POST_NOTIFICATIONS permission
-      if (Platform.OS === "android" && Platform.Version >= 33) {
+      // For Android 13+ (API level 33), we need to request POST_NOTIFICATIONS permission
+      if (
+        Platform.OS === "android" &&
+        typeof Platform.Version === "number" &&
+        Platform.Version >= 33
+      ) {
         const result = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
         );

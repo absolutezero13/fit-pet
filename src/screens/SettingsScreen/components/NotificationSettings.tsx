@@ -14,15 +14,9 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../theme/ThemeContext";
 import useNotificationStore, {
   MealTime,
-  MealType,
 } from "../../../zustand/useNotificationStore";
 import notificationService from "../../../services/notificationService";
-
-const formatTime = (time: MealTime): string => {
-  const hours = time.hour.toString().padStart(2, "0");
-  const minutes = time.minute.toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
+import { formatMealTime, adjustMealTime } from "../../../utils/mealTimeUtils";
 
 interface MealReminderRowProps {
   label: string;
@@ -48,21 +42,9 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
   const { colors } = useTheme();
   const { t } = useTranslation();
 
-  const adjustTime = (increment: number) => {
+  const handleAdjustTime = (increment: number) => {
     if (!enabled) return;
-
-    let newMinute = time.minute + increment;
-    let newHour = time.hour;
-
-    if (newMinute >= 60) {
-      newMinute = 0;
-      newHour = (newHour + 1) % 24;
-    } else if (newMinute < 0) {
-      newMinute = 30;
-      newHour = newHour === 0 ? 23 : newHour - 1;
-    }
-
-    onChangeTime({ hour: newHour, minute: newMinute });
+    onChangeTime(adjustMealTime(time, increment));
   };
 
   const handleToggle = (value: boolean) => {
@@ -115,7 +97,7 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
           </Text>
           <View style={styles.timePickerContainer}>
             <TouchableOpacity
-              onPress={() => adjustTime(-30)}
+              onPress={() => handleAdjustTime(-30)}
               style={styles.timeButton}
             >
               <MaterialCommunityIcons
@@ -125,10 +107,10 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
               />
             </TouchableOpacity>
             <Text style={[styles.timeText, { color: colors.text }]}>
-              {formatTime(time)}
+              {formatMealTime(time)}
             </Text>
             <TouchableOpacity
-              onPress={() => adjustTime(30)}
+              onPress={() => handleAdjustTime(30)}
               style={styles.timeButton}
             >
               <MaterialCommunityIcons
