@@ -1,5 +1,8 @@
 import { MealTime } from "../zustand/useNotificationStore";
 
+/** Default time adjustment increment in minutes */
+export const TIME_ADJUSTMENT_INCREMENT = 30;
+
 /**
  * Format a MealTime object to a string like "08:00" or "19:30"
  */
@@ -27,7 +30,8 @@ export const adjustMealTime = (
     newMinute = 0;
     newHour = (newHour + 1) % 24;
   } else if (newMinute < 0) {
-    newMinute = 30;
+    // When going below 0, wrap to previous hour at TIME_ADJUSTMENT_INCREMENT minutes
+    newMinute = TIME_ADJUSTMENT_INCREMENT;
     newHour = newHour === 0 ? 23 : newHour - 1;
   }
 

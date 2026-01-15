@@ -14,6 +14,9 @@ const NOTIFICATION_IDS = {
 // Notification channel ID for Android
 const CHANNEL_ID = "meal-reminders";
 
+// Android API level 33 (Tiramisu) - first version requiring POST_NOTIFICATIONS permission
+const ANDROID_API_LEVEL_TIRAMISU = 33;
+
 interface NotifeeModule {
   requestPermission: () => Promise<{ authorizationStatus: number }>;
   createChannel: (channel: {
@@ -99,7 +102,7 @@ class NotificationService {
       if (
         Platform.OS === "android" &&
         typeof Platform.Version === "number" &&
-        Platform.Version >= 33
+        Platform.Version >= ANDROID_API_LEVEL_TIRAMISU
       ) {
         const result = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS

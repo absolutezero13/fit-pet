@@ -4,6 +4,10 @@ import { useTranslation } from "react-i18next";
 import notificationService from "../services/notificationService";
 import useNotificationStore from "../zustand/useNotificationStore";
 
+// Delay before checking for progressive unlock (ms)
+// Allows the app to stabilize after mounting before showing prompts
+const PROGRESSIVE_UNLOCK_CHECK_DELAY_MS = 2000;
+
 /**
  * Component that checks for progressive unlock opportunities
  * and prompts user to enable breakfast/lunch reminders
@@ -66,7 +70,7 @@ const ProgressiveUnlockChecker: React.FC = () => {
     };
 
     // Small delay to avoid checking immediately on mount
-    const timer = setTimeout(checkUnlock, 2000);
+    const timer = setTimeout(checkUnlock, PROGRESSIVE_UNLOCK_CHECK_DELAY_MS);
     return () => clearTimeout(timer);
   }, [store.mealLogDates, store.notificationsEnabled, checked]);
 

@@ -16,7 +16,11 @@ import useNotificationStore, {
   MealTime,
 } from "../../../zustand/useNotificationStore";
 import notificationService from "../../../services/notificationService";
-import { formatMealTime, adjustMealTime } from "../../../utils/mealTimeUtils";
+import {
+  formatMealTime,
+  adjustMealTime,
+  TIME_ADJUSTMENT_INCREMENT,
+} from "../../../utils/mealTimeUtils";
 
 interface MealReminderRowProps {
   label: string;
@@ -97,7 +101,7 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
           </Text>
           <View style={styles.timePickerContainer}>
             <TouchableOpacity
-              onPress={() => handleAdjustTime(-30)}
+              onPress={() => handleAdjustTime(-TIME_ADJUSTMENT_INCREMENT)}
               style={styles.timeButton}
             >
               <MaterialCommunityIcons
@@ -110,7 +114,7 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
               {formatMealTime(time)}
             </Text>
             <TouchableOpacity
-              onPress={() => handleAdjustTime(30)}
+              onPress={() => handleAdjustTime(TIME_ADJUSTMENT_INCREMENT)}
               style={styles.timeButton}
             >
               <MaterialCommunityIcons
