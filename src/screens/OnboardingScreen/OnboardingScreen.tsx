@@ -20,6 +20,7 @@ import Goal from "./components/Goal";
 import WeightHeight from "./components/WeightHeight";
 import Gender from "./components/Gender";
 import DietType from "./components/DietType";
+import MealTimeSelection from "./components/MealTimeSelection";
 import { useTheme } from "../../theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 
@@ -62,6 +63,12 @@ const OnboardingScreen = () => {
       title: t("dietTypesTitle"),
       component: DietType,
       disabled: onboardingStore.dietTypes?.length === 0,
+    },
+    {
+      title: t("mealTimeTitle"),
+      component: MealTimeSelection,
+      disabled: false,
+      skippable: true,
     },
     {
       title: "",
@@ -156,14 +163,26 @@ const OnboardingScreen = () => {
         ref={ref}
       />
       {onboardingItems[step].title && (
-        <AppButton
-          disableAnimation={false}
-          position="bottom"
-          title={t("proceed")}
-          onPress={onButtonPress}
-          margin={{ marginHorizontal: scale(24) }}
-          disabled={onboardingItems[step].disabled}
-        />
+        <View style={styles.buttonContainer}>
+          {onboardingItems[step].skippable && (
+            <Pressable
+              onPress={onButtonPress}
+              style={styles.skipButton}
+            >
+              <Text style={[styles.skipText, { color: colors.textSecondary }]}>
+                {t("skip")}
+              </Text>
+            </Pressable>
+          )}
+          <AppButton
+            disableAnimation={false}
+            position="bottom"
+            title={t("proceed")}
+            onPress={onButtonPress}
+            margin={{ marginHorizontal: scale(24) }}
+            disabled={onboardingItems[step].disabled}
+          />
+        </View>
       )}
     </View>
   );
@@ -174,5 +193,20 @@ export default OnboardingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  buttonContainer: {
+    position: "relative",
+  },
+  skipButton: {
+    position: "absolute",
+    top: scale(-40),
+    right: scale(32),
+    paddingVertical: scale(8),
+    paddingHorizontal: scale(16),
+    zIndex: 1,
+  },
+  skipText: {
+    ...fontStyles.body1,
+    textDecorationLine: "underline",
   },
 });
