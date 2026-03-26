@@ -3,63 +3,25 @@ import useNotificationStore, {
   MealType,
   MealTime,
 } from "../zustand/useNotificationStore";
+import notifee, {
+  AndroidImportance,
+  AuthorizationStatus,
+  RepeatFrequency,
+  TriggerType,
+  type TimestampTrigger,
+} from "@notifee/react-native";
 
-// Notification IDs for each meal type
 const NOTIFICATION_IDS = {
   breakfast: "meal-reminder-breakfast",
   lunch: "meal-reminder-lunch",
   dinner: "meal-reminder-dinner",
 };
 
-// Notification channel ID for Android
 const CHANNEL_ID = "meal-reminders";
 
-// Android API level 33 (Tiramisu) - first version requiring POST_NOTIFICATIONS permission
 const ANDROID_API_LEVEL_TIRAMISU = 33;
 
-interface NotifeeModule {
-  requestPermission: () => Promise<{ authorizationStatus: number }>;
-  createChannel: (channel: {
-    id: string;
-    name: string;
-    importance?: number;
-  }) => Promise<string>;
-  createTriggerNotification: (
-    notification: {
-      id: string;
-      title: string;
-      body: string;
-      android?: { channelId: string; pressAction?: { id: string } };
-      ios?: { sound?: string };
-    },
-    trigger: { type: number; timestamp: number; repeatFrequency: number }
-  ) => Promise<string>;
-  cancelNotification: (id: string) => Promise<void>;
-  getTriggerNotificationIds: () => Promise<string[]>;
-  AuthorizationStatus: {
-    DENIED: number;
-    AUTHORIZED: number;
-    PROVISIONAL: number;
-    NOT_DETERMINED: number;
-  };
-  TriggerType: { TIMESTAMP: number };
-  RepeatFrequency: { DAILY: number };
-  AndroidImportance: { HIGH: number };
-}
-
-// Lazy load notifee to avoid issues in environments where it's not available
-let notifee: NotifeeModule | null = null;
-
-const getNotifee = async (): Promise<NotifeeModule | null> => {
-  if (notifee) return notifee;
-  try {
-    notifee = (await import("@notifee/react-native")).default as NotifeeModule;
-    return notifee;
-  } catch {
-    console.warn("Notifee not available");
-    return null;
-  }
-};
+const getNotifee = async () => notifee;
 
 class NotificationService {
   private initialized = false;
@@ -80,7 +42,7 @@ class NotificationService {
         await notifeeModule.createChannel({
           id: CHANNEL_ID,
           name: "Meal Reminders",
-          importance: notifeeModule.AndroidImportance.HIGH,
+          importance: AndroidImportance.HIGH,
         });
       }
       this.initialized = true;
@@ -105,7 +67,7 @@ class NotificationService {
         Platform.Version >= ANDROID_API_LEVEL_TIRAMISU
       ) {
         const result = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
         if (result !== PermissionsAndroid.RESULTS.GRANTED) {
           return false;
@@ -113,10 +75,7 @@ class NotificationService {
       }
 
       const settings = await notifeeModule.requestPermission();
-      return (
-        settings.authorizationStatus >=
-        notifeeModule.AuthorizationStatus.AUTHORIZED
-      );
+      return settings.authorizationStatus >= AuthorizationStatus.AUTHORIZED;
     } catch (error) {
       console.error("Failed to request notification permission:", error);
       return false;
@@ -132,10 +91,7 @@ class NotificationService {
 
     try {
       const settings = await notifeeModule.requestPermission();
-      return (
-        settings.authorizationStatus >=
-        notifeeModule.AuthorizationStatus.AUTHORIZED
-      );
+      return settings.authorizationStatus >= AuthorizationStatus.AUTHORIZED;
     } catch {
       return false;
     }
@@ -148,7 +104,7 @@ class NotificationService {
     mealType: MealType,
     time: MealTime,
     title: string,
-    body: string
+    body: string,
   ): Promise<void> {
     const notifeeModule = await getNotifee();
     if (!notifeeModule) return;
@@ -162,7 +118,7 @@ class NotificationService {
       await this.cancelMealReminder(mealType);
 
       // Calculate next trigger time
-      const trigger = this.createDailyTrigger(time, notifeeModule);
+      const trigger = this.createDailyTrigger(time);
 
       await notifeeModule.createTriggerNotification(
         {
@@ -179,7 +135,7 @@ class NotificationService {
             sound: "default",
           },
         },
-        trigger
+        trigger,
       );
     } catch (error) {
       console.error(`Failed to schedule ${mealType} reminder:`, error);
@@ -200,9 +156,6 @@ class NotificationService {
     }
   }
 
-  /**
-   * Cancel all meal reminders
-   */
   async cancelAllReminders(): Promise<void> {
     await Promise.all([
       this.cancelMealReminder("breakfast"),
@@ -211,12 +164,9 @@ class NotificationService {
     ]);
   }
 
-  /**
-   * Reschedule all enabled notifications based on current store state
-   */
   async rescheduleAllNotifications(
     titles: Record<MealType, string>,
-    body: string
+    body: string,
   ): Promise<void> {
     const store = useNotificationStore.getState();
 
@@ -231,7 +181,7 @@ class NotificationService {
         "dinner",
         store.dinnerTime,
         titles.dinner,
-        body
+        body,
       );
     } else {
       await this.cancelMealReminder("dinner");
@@ -243,7 +193,7 @@ class NotificationService {
         "breakfast",
         store.breakfastTime,
         titles.breakfast,
-        body
+        body,
       );
     } else {
       await this.cancelMealReminder("breakfast");
@@ -255,43 +205,29 @@ class NotificationService {
         "lunch",
         store.lunchTime,
         titles.lunch,
-        body
+        body,
       );
     } else {
       await this.cancelMealReminder("lunch");
     }
   }
 
-  /**
-   * Track meal logging for progressive enablement
-   * Call this whenever a user logs a meal
-   */
   trackMealLog(): void {
     const store = useNotificationStore.getState();
     const today = new Date().toISOString().split("T")[0];
     store.addMealLogDate(today);
   }
 
-  /**
-   * Check if user qualifies for progressive unlock
-   * Returns true if user has logged meals on 2+ different days
-   */
   shouldOfferProgressiveUnlock(): boolean {
     const store = useNotificationStore.getState();
     return store.shouldUnlockAllMeals();
   }
 
-  /**
-   * Mark progressive unlock as offered
-   */
   markProgressiveUnlockOffered(): void {
     const store = useNotificationStore.getState();
     store.setProgressiveUnlockOffered(true);
   }
 
-  /**
-   * Get scheduled notification IDs
-   */
   async getScheduledNotifications(): Promise<string[]> {
     const notifeeModule = await getNotifee();
     if (!notifeeModule) return [];
@@ -303,13 +239,7 @@ class NotificationService {
     }
   }
 
-  /**
-   * Create a daily trigger for the given time
-   */
-  private createDailyTrigger(
-    time: MealTime,
-    notifeeModule: NotifeeModule
-  ): { type: number; timestamp: number; repeatFrequency: number } {
+  private createDailyTrigger(time: MealTime): TimestampTrigger {
     const now = new Date();
     const triggerDate = new Date();
 
@@ -318,15 +248,14 @@ class NotificationService {
     triggerDate.setSeconds(0);
     triggerDate.setMilliseconds(0);
 
-    // If the time has already passed today, schedule for tomorrow
     if (triggerDate <= now) {
       triggerDate.setDate(triggerDate.getDate() + 1);
     }
 
     return {
-      type: notifeeModule.TriggerType.TIMESTAMP,
+      type: TriggerType.TIMESTAMP,
       timestamp: triggerDate.getTime(),
-      repeatFrequency: notifeeModule.RepeatFrequency.DAILY,
+      repeatFrequency: RepeatFrequency.DAILY,
     };
   }
 }

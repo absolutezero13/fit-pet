@@ -62,7 +62,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const { bottom } = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
   const mealToEdit = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal._id === params.mealId)
+    state.loggedMeals.find((meal) => meal._id === params.mealId),
   );
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -71,15 +71,15 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
 
   const [image, setImage] = useState<ImagePickerAsset | null>(null);
   const [mealDescription, setMealDescription] = useState(
-    mealToEdit?.description ?? ""
+    mealToEdit?.description ?? "",
   );
   const [selectedMealType, setSelectedMealType] = useState(
-    t(mealToEdit?.mealType ?? params.mealType ?? "breakfast")
+    t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
   );
 
   useEffect(() => {
     setSelectedMealType(
-      t(mealToEdit?.mealType ?? params.mealType ?? "breakfast")
+      t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
     );
   }, [params.mealType]);
 
@@ -108,7 +108,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       if (status !== "granted") {
         Alert.alert(
           "Sorry",
-          "Media library permission is required to select an image."
+          "Media library permission is required to select an image.",
         );
         return;
       }
@@ -132,7 +132,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       useOnboardingStore.getState(),
       mealDescription,
       mealType,
-      new Date(params.selectedDate).toLocaleDateString("en-US")
+      new Date(params.selectedDate).toLocaleDateString("en-US"),
     );
 
     let response: { response: GeminiResponse };
@@ -145,14 +145,14 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         },
 
         prompt ?? null,
-        "analyzedMeal"
+        "analyzedMeal",
       );
     } else {
       response = await createGeminiCompletion(prompt, "analyzedMeal");
     }
 
     const meal: IMeal = JSON.parse(
-      response.response.candidates[0].content.parts[0].text
+      response.response.candidates[0].content.parts[0].text,
     );
 
     console.log("ANALYZED MEAL RESPONSE", meal);
@@ -179,7 +179,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       const imageUrl = await uploadMealImageToFireStorage(
         meal.image,
         meal._id ?? "",
-        useUserStore.getState()?.uid ?? ""
+        useUserStore.getState()?.uid ?? "",
       );
       console.log("IMAGE URL", imageUrl);
       meal.image = imageUrl;
@@ -205,7 +205,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         analyticsService.logEvent(AnalyticsEvent.MealLogError);
         Alert.alert(
           t("globalError"),
-          meal.errorMessage ?? t("globalErrorMessage")
+          meal.errorMessage ?? t("globalErrorMessage"),
         );
         return;
       }
@@ -247,6 +247,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       blurTint={
         isDark ? "system-thick-material-dark" : "system-thick-material-light"
       }
+      backgroundColor={colors.background}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,

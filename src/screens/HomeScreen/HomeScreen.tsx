@@ -1,13 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  ScrollView,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../theme/utils";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
@@ -28,11 +21,10 @@ import formatHeaderDate from "../../utils/formatHeaderDate";
 import MealTypeEmptyState from "./components/MealTypeEmptyState";
 import LogMealTrueSheet from "./components/LogMealTrueSheet";
 import ScanMealTrueSheet from "./components/ScanMealTrueSheet";
-import { TrueSheet, TrueSheetRef } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemeColors } from "../../theme/colors";
-import { getAuth } from "@react-native-firebase/auth";
 
 const MealTypeSection = ({
   title,
@@ -51,8 +43,6 @@ const MealTypeSection = ({
   onPressAddMeal: () => void;
   colors: ThemeColors;
 }) => {
-  const navigation = useNavigation();
-
   return (
     <View style={styles.sectionContainer}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
@@ -81,12 +71,12 @@ const LoggedMealsScreen = () => {
   const [loading, setLoading] = useState(false);
   const meals = useMealsStore((state) => state.loggedMeals);
   const [selectedMealType, setSelectedMealType] = useState<string>(
-    t("breakfast")
+    t("breakfast"),
   );
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
-      (meal) => meal.mealType.toLowerCase() === type.toLowerCase()
+      (meal) => meal.mealType.toLowerCase() === type.toLowerCase(),
     );
   };
 
@@ -162,7 +152,7 @@ const LoggedMealsScreen = () => {
             <MaterialCommunityIcons
               onPress={() =>
                 setSelectedDate(
-                  new Date(selectedDate.setDate(selectedDate.getDate() - 1))
+                  new Date(selectedDate.setDate(selectedDate.getDate() - 1)),
                 )
               }
               name="chevron-left"
@@ -177,7 +167,7 @@ const LoggedMealsScreen = () => {
               color={isToday ? colors.textTertiary : colors.text}
               onPress={() =>
                 setSelectedDate(
-                  new Date(selectedDate.setDate(selectedDate.getDate() + 1))
+                  new Date(selectedDate.setDate(selectedDate.getDate() + 1)),
                 )
               }
               name="chevron-right"

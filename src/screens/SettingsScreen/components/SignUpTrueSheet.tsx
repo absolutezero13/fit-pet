@@ -18,6 +18,7 @@ import AppButton from "../../../components/AppButton";
 import { KeyboardGestureArea } from "react-native-keyboard-controller";
 import useAuthService, { LoginType } from "../../../services/auth";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,6 +28,7 @@ export const isValidEmail = (email: string): boolean => {
 const SignUpTrueSheet = () => {
   const { t } = useTranslation();
   const authService = useAuthService();
+  const { isDark } = useTheme();
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +37,7 @@ const SignUpTrueSheet = () => {
     !email || !password || !confirmPassword || password.length < 6;
   const emailInputRef = useRef<TextInput>(null);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (showEmailForm && emailInputRef.current) {
       setTimeout(() => {
@@ -102,13 +105,19 @@ const SignUpTrueSheet = () => {
 
   return (
     <TrueSheet
+      backgroundColor={colors.background}
       onDidDismiss={onDidDismiss}
       name={TrueSheetNames.SIGN_UP}
       detents={["auto", 1]}
       insetAdjustment="never"
-      blurTint="dark"
+      blurTint={
+        isDark ? "system-thick-material-dark" : "system-thick-material-light"
+      }
       style={styles.container}
       dismissible={!loading}
+      blurOptions={{
+        interaction: false,
+      }}
     >
       <View style={styles.header}>
         {showEmailForm && (
@@ -275,11 +284,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#D1D5DB",
+    overflow: "hidden",
   },
   googleButtonText: {
     ...fontStyles.headline4,
     fontSize: scale(16),
-    fontWeight: "600",
     color: "#1F2937",
   },
   appleButton: {

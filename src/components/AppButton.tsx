@@ -1,9 +1,23 @@
 import React, { FC } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LiquidGlassView } from "@callstack/liquid-glass";
+import {
+  isLiquidGlassSupported,
+  LiquidGlassView,
+} from "@callstack/liquid-glass";
 import { useTheme } from "../theme/ThemeContext";
 
 interface Props {
@@ -27,6 +41,9 @@ interface Props {
   flex?: boolean;
 }
 
+const BOUNCE_IN = { damping: 16, stiffness: 520, mass: 0.35 };
+const BOUNCE_OUT = { damping: 14, stiffness: 380, mass: 0.45 };
+
 const AppButton: FC<Props> = ({
   title,
   onPress,
@@ -41,46 +58,90 @@ const AppButton: FC<Props> = ({
 }) => {
   const { bottom } = useSafeAreaInsets();
   const { colors } = useTheme();
+  const bounceScale = useSharedValue(1);
 
   const buttonBackgroundColor = backgroundColor ?? colors["color-primary-500"];
   const buttonTextColor = color ?? colors.textInverse;
 
-  const renderButton = () => (
-    <LiquidGlassView
-      effect="clear"
-      interactive
+  const bounceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bounceScale.value }],
+  }));
+
+  const androidBounceable =
+    Platform.OS === "android" && !disableAnimation;
+
+  const onPressIn = () => {
+    if (!androidBounceable || disabled || loading) return;
+    bounceScale.value = withSpring(0.96, BOUNCE_IN);
+  };
+
+  const onPressOut = () => {
+    if (!androidBounceable) return;
+    bounceScale.value = withSpring(1, BOUNCE_OUT);
+  };
+
+  const outerStyle = [
+    { borderRadius: scale(32) },
+    ...(margin ? [margin] : []),
+    { flex: flex ? 1 : undefined },
+  ];
+
+  const touchable = (
+    <TouchableOpacity
+      disabled={disabled}
+      activeOpacity={1}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       style={[
-        { borderRadius: scale(32) },
-        margin,
-        { flex: flex ? 1 : undefined },
+        {
+          backgroundColor: buttonBackgroundColor,
+          padding: scale(16),
+          borderRadius: scale(32),
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: disabled ? 0.5 : 1,
+          height: scale(56),
+        },
       ]}
+      onPress={onPress}
     >
-      <TouchableOpacity
-        disabled={disabled}
-        activeOpacity={1}
+      {loading ? (
+        <ActivityIndicator color={buttonTextColor} />
+      ) : (
+        <Text style={[fontStyles.headline4, { color: buttonTextColor }]}>
+          {title}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+
+  const core =
+    androidBounceable ? (
+      <Animated.View
         style={[
+          bounceStyle,
           {
-            backgroundColor: buttonBackgroundColor,
-            padding: scale(16),
             borderRadius: scale(32),
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: disabled ? 0.5 : 1,
-            height: scale(56),
+            overflow: "hidden",
+            flex: flex ? 1 : undefined,
+            alignSelf: flex ? undefined : "stretch",
           },
         ]}
-        onPress={onPress}
       >
-        {loading ? (
-          <ActivityIndicator color={buttonTextColor} />
-        ) : (
-          <Text style={[fontStyles.headline4, { color: buttonTextColor }]}>
-            {title}
-          </Text>
-        )}
-      </TouchableOpacity>
-    </LiquidGlassView>
-  );
+        {touchable}
+      </Animated.View>
+    ) : (
+      touchable
+    );
+
+  const renderButton = () =>
+    isLiquidGlassSupported ? (
+      <LiquidGlassView effect="clear" interactive style={outerStyle}>
+        {core}
+      </LiquidGlassView>
+    ) : (
+      <View style={outerStyle}>{core}</View>
+    );
 
   if (disableAnimation) {
     return (

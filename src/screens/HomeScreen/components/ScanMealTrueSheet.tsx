@@ -74,7 +74,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const [loading, setLoading] = useState(false);
 
   const [selectedMealType, setSelectedMealType] = useState<string>(
-    t("breakfast")
+    t("breakfast"),
   );
   const [screenState, setScreenState] = useState<ScreenState>("camera");
   const [analyzedMeal, setAnalyzedMeal] = useState<IMeal | null>(null);
@@ -119,7 +119,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     if (screenState === "analyzing") {
       loaderRotation.value = withRepeat(
         withTiming(360, { duration: 2000, easing: Easing.linear }),
-        -1
+        -1,
       );
       loaderPulse.value = withRepeat(
         withSequence(
@@ -128,9 +128,9 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             duration: 800,
             easing: Easing.inOut(Easing.ease),
           }),
-          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
+          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
         ),
-        -1
+        -1,
       );
     } else {
       loaderRotation.value = 0;
@@ -178,7 +178,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         useOnboardingStore.getState(),
         "",
         selectedMealType,
-        new Date(props.params.selectedDate).toLocaleDateString("en-US")
+        new Date(props.params.selectedDate).toLocaleDateString("en-US"),
       );
       const response = await createGeminiVisionCompletion(
         {
@@ -186,11 +186,11 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           mimeType: "image/jpeg",
         },
         prompt,
-        "analyzedMeal"
+        "analyzedMeal",
       );
 
       const meal: IMeal = JSON.parse(
-        response.response.candidates[0].content.parts[0].text
+        response.response.candidates[0].content.parts[0].text,
       );
 
       meal.date = new Date(props.params.selectedDate).toISOString();
@@ -225,7 +225,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         const imageUrl = await uploadMealImageToFireStorage(
           meal.image,
           meal._id ?? "",
-          useUserStore.getState()?.uid ?? ""
+          useUserStore.getState()?.uid ?? "",
         );
         console.log("IMAGE URL", imageUrl);
         meal.image = imageUrl;
@@ -256,7 +256,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m._id !== analyzedMeal._id
+                (m) => m._id !== analyzedMeal._id,
               );
               if (analyzedMeal._id) {
                 deleteMeal(analyzedMeal._id);
@@ -316,6 +316,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
 
   return (
     <TrueSheet
+      backgroundColor={colors.background}
       dismissible={screenState !== "analyzing"}
       scrollable
       onDidDismiss={() => {

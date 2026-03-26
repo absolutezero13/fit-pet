@@ -25,6 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+
       "package": "com.ilks.fitpet",
       "permissions": ["android.permission.INTERNET"]
     },
@@ -44,6 +45,11 @@
       [
         "expo-build-properties",
         {
+          "android": {
+            "extraMavenRepos": [
+              "../../node_modules/@notifee/react-native/android/libs"
+            ]
+          },
           "ios": {
             "useFrameworks": "static",
             "forceStaticLinking": [

@@ -53,7 +53,10 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
 
   const handleToggle = (value: boolean) => {
     if (locked && value) {
-      Alert.alert(t("featureLocked"), lockedMessage || t("featureLockedMessage"));
+      Alert.alert(
+        t("featureLocked"),
+        lockedMessage || t("featureLockedMessage"),
+      );
       return;
     }
     onToggle(value);
@@ -135,8 +138,12 @@ const NotificationSettings: React.FC = () => {
   const { colors } = useTheme();
   const store = useNotificationStore();
 
-  const [globalEnabled, setGlobalEnabled] = useState(store.notificationsEnabled);
-  const [breakfastEnabled, setBreakfastEnabled] = useState(store.breakfastEnabled);
+  const [globalEnabled, setGlobalEnabled] = useState(
+    store.notificationsEnabled,
+  );
+  const [breakfastEnabled, setBreakfastEnabled] = useState(
+    store.breakfastEnabled,
+  );
   const [lunchEnabled, setLunchEnabled] = useState(store.lunchEnabled);
   const [dinnerEnabled, setDinnerEnabled] = useState(store.dinnerEnabled);
   const [breakfastTime, setBreakfastTime] = useState(store.breakfastTime);
@@ -153,7 +160,7 @@ const NotificationSettings: React.FC = () => {
         lunch: t("lunchReminder"),
         dinner: t("dinnerReminder"),
       },
-      t("mealReminderBody")
+      t("mealReminderBody"),
     );
   };
 
@@ -163,7 +170,7 @@ const NotificationSettings: React.FC = () => {
       if (!granted) {
         Alert.alert(
           t("notificationPermissionDenied"),
-          t("notificationPermissionDeniedMessage")
+          t("notificationPermissionDeniedMessage"),
         );
         return;
       }
@@ -254,7 +261,9 @@ const NotificationSettings: React.FC = () => {
               onChangeTime={handleBreakfastTimeChange}
               icon="food-croissant"
               locked={!unlocked}
-              lockedMessage={t("unlockBreakfastLunch", { days: 2 - uniqueDays })}
+              lockedMessage={t("unlockBreakfastLunch", {
+                days: 2 - uniqueDays,
+              })}
             />
             <MealReminderRow
               label={t("lunch")}
@@ -264,7 +273,9 @@ const NotificationSettings: React.FC = () => {
               onChangeTime={handleLunchTimeChange}
               icon="food"
               locked={!unlocked}
-              lockedMessage={t("unlockBreakfastLunch", { days: 2 - uniqueDays })}
+              lockedMessage={t("unlockBreakfastLunch", {
+                days: 2 - uniqueDays,
+              })}
             />
             <MealReminderRow
               label={t("dinner")}
@@ -319,7 +330,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: scale(12),
-    borderBottomWidth: 1,
   },
   mealRow: {
     paddingVertical: scale(12),
