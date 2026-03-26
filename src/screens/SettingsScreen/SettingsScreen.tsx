@@ -36,6 +36,7 @@ import FullPageSpinner from "../../components/FullPageSpinner";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import WeightHeightPicker from "./components/WeightHeightPicker";
 import { getAuth } from "@react-native-firebase/auth";
+import NotificationSettings from "./components/NotificationSettings";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -139,6 +140,9 @@ const SettingsScreen = () => {
         ]}
       >
         {!user?.email && <SignUpBanner />}
+
+        {/* Notifications Section */}
+        <NotificationSettings />
 
         {/* Theme Section */}
         <View style={styles.section}>

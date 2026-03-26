@@ -262,6 +262,35 @@ export const resources = {
       validationError: "Hata",
       enterValidNumbers: "Lütfen geçerli bir sayı girin",
       tabSettings: "Ayarlar",
+      // Notification strings
+      notifications: "Bildirimler",
+      enableNotifications: "Bildirimleri Etkinleştir",
+      mealReminders: "Öğün Hatırlatıcıları",
+      mealTimeTitle: "Öğün Saatlerini Ayarla",
+      mealTimeDescription:
+        "Öğün hatırlatıcıları almak için yaklaşık öğün saatlerinizi ayarlayın.",
+      reminderTime: "Hatırlatma saati",
+      breakfastReminder: "Kahvaltı Zamanı! 🍳",
+      lunchReminder: "Öğle Yemeği Zamanı! 🥗",
+      dinnerReminder: "Akşam Yemeği Zamanı! 🍽️",
+      mealReminderBody: "Öğününüzü kaydetmeyi unutmayın!",
+      dinnerReminderInfo:
+        "Başlangıçta sadece akşam yemeği hatırlatıcısı etkinleştirilecek. Daha fazla hatırlatıcı daha sonra açılabilir.",
+      notificationPermissionDenied: "Bildirim İzni Reddedildi",
+      notificationPermissionDeniedMessage:
+        "Lütfen hatırlatıcılar için ayarlardan bildirim iznini etkinleştirin.",
+      featureLocked: "Özellik Kilitli",
+      featureLockedMessage: "Bu özellik henüz mevcut değil.",
+      unlockBreakfastLunch:
+        "Bu hatırlatıcıyı açmak için {{days}} gün daha öğün kaydedin.",
+      progressiveUnlockInfo:
+        "Kahvaltı ve öğle yemeği hatırlatıcılarının kilidini açmak için {{days}} gün daha öğün kaydedin.",
+      unlockAllRemindersTitle: "Tüm Hatırlatıcıları Aç!",
+      unlockAllRemindersMessage:
+        "Tebrikler! 2 farklı günde öğün kaydettiniz. Şimdi kahvaltı ve öğle yemeği hatırlatıcılarını da etkinleştirebilirsiniz.",
+      enableNow: "Şimdi Etkinleştir",
+      maybeLater: "Belki Sonra",
+      skip: "Atla",
     },
   },
 
@@ -524,6 +553,35 @@ export const resources = {
       validationError: "Error",
       enterValidNumbers: "Please enter a valid number",
       tabSettings: "Settings",
+      // Notification strings
+      notifications: "Notifications",
+      enableNotifications: "Enable Notifications",
+      mealReminders: "Meal Reminders",
+      mealTimeTitle: "Set Meal Times",
+      mealTimeDescription:
+        "Set your approximate meal times to receive meal reminders.",
+      reminderTime: "Reminder time",
+      breakfastReminder: "Breakfast Time! 🍳",
+      lunchReminder: "Lunch Time! 🥗",
+      dinnerReminder: "Dinner Time! 🍽️",
+      mealReminderBody: "Don't forget to log your meal!",
+      dinnerReminderInfo:
+        "Only dinner reminder will be enabled initially. More reminders can be unlocked later.",
+      notificationPermissionDenied: "Notification Permission Denied",
+      notificationPermissionDeniedMessage:
+        "Please enable notification permission in settings for reminders.",
+      featureLocked: "Feature Locked",
+      featureLockedMessage: "This feature is not available yet.",
+      unlockBreakfastLunch:
+        "Log meals for {{days}} more day(s) to unlock this reminder.",
+      progressiveUnlockInfo:
+        "Log meals for {{days}} more day(s) to unlock breakfast and lunch reminders.",
+      unlockAllRemindersTitle: "Unlock All Reminders!",
+      unlockAllRemindersMessage:
+        "Congratulations! You've logged meals on 2 different days. You can now enable breakfast and lunch reminders too.",
+      enableNow: "Enable Now",
+      maybeLater: "Maybe Later",
+      skip: "Skip",
     },
   },
 };

@@ -35,6 +35,8 @@ import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
+import notificationService from "./services/notificationService";
+import ProgressiveUnlockChecker from "./components/ProgressiveUnlockChecker";
 
 const AMPLITUDE_API_KEY = "6fe402b8cb00cc133cbd85e986b37342";
 
@@ -90,6 +92,9 @@ export function App() {
     // Initialize analytics
     analyticsService.init(AMPLITUDE_API_KEY);
 
+    // Initialize notification service
+    await notificationService.initialize();
+
     // Track first launch
     const hasLaunched = await storageService.getItem("hasLaunched");
     if (!hasLaunched) {
@@ -120,6 +125,7 @@ export function App() {
         <KeyboardProvider>
           <NavigationContainer onReady={onReady}>
             <RootNavigator />
+            <ProgressiveUnlockChecker />
           </NavigationContainer>
         </KeyboardProvider>
       </ThemeProvider>
