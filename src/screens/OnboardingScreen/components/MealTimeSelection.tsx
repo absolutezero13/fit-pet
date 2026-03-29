@@ -35,7 +35,7 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
   };
 
   return (
-    <View style={[styles.mealTimeRow, { borderBottomColor: colors.border }]}>
+    <View style={[styles.mealTimeRow]}>
       <View style={styles.mealLabelContainer}>
         <MaterialCommunityIcons
           name={icon as keyof typeof MaterialCommunityIcons.glyphMap}
@@ -83,7 +83,7 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
   const notificationStore = useNotificationStore();
 
   const [breakfastTime, setBreakfastTime] = useState(
-    notificationStore.breakfastTime
+    notificationStore.breakfastTime,
   );
   const [lunchTime, setLunchTime] = useState(notificationStore.lunchTime);
   const [dinnerTime, setDinnerTime] = useState(notificationStore.dinnerTime);
@@ -118,10 +118,13 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
         "dinner",
         dinnerTime,
         t("dinnerReminder"),
-        t("mealReminderBody")
+        t("mealReminderBody"),
       );
     } else {
-      Alert.alert(t("notificationPermissionDenied"), t("notificationPermissionDeniedMessage"));
+      Alert.alert(
+        t("notificationPermissionDenied"),
+        t("notificationPermissionDeniedMessage"),
+      );
     }
   };
 
@@ -199,7 +202,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: scale(16),
-    borderBottomWidth: 1,
   },
   mealLabelContainer: {
     flexDirection: "row",

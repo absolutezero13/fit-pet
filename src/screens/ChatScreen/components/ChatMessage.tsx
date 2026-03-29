@@ -110,9 +110,7 @@ const ChatMessage = ({
                 frameDelay={20}
               />
             ) : (
-              <MarkdownWrapper
-                textColor={isUser ? colors.textInverse : colors.text}
-              >
+              <MarkdownWrapper textColor={isUser ? colors.white : colors.text}>
                 {message?.text}
               </MarkdownWrapper>
             )}

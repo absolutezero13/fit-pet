@@ -127,7 +127,6 @@ const LoggedMealsScreen = () => {
     <>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <LiquidGlassView
-          effect={"clear"}
           style={[
             styles.header,
             {
@@ -213,7 +212,6 @@ const LoggedMealsScreen = () => {
         </Animated.ScrollView>
 
         <LiquidGlassView
-          effect={"clear"}
           interactive
           style={{
             position: "absolute",
@@ -225,14 +223,18 @@ const LoggedMealsScreen = () => {
           <Pressable
             style={[
               styles.addButton,
-              { backgroundColor: colors["color-success-400"] },
+              {
+                backgroundColor: isLiquidGlassSupported
+                  ? undefined
+                  : colors["color-success-400"],
+              },
             ]}
             onPress={() => TrueSheet.present(TrueSheetNames.SCAN_MEAL)}
           >
             <MaterialCommunityIcons
               name="camera"
               size={scale(24)}
-              color={colors.textInverse}
+              color={isLiquidGlassSupported ? colors.text : colors.textInverse}
             />
           </Pressable>
         </LiquidGlassView>
@@ -249,14 +251,18 @@ const LoggedMealsScreen = () => {
           <Pressable
             style={[
               styles.addButton,
-              { backgroundColor: colors["color-success-400"] },
+              {
+                backgroundColor: isLiquidGlassSupported
+                  ? undefined
+                  : colors["color-success-400"],
+              },
             ]}
             onPress={() => navigateLogMeal(undefined)}
           >
             <MaterialCommunityIcons
               name="pencil"
               size={scale(24)}
-              color={colors.textInverse}
+              color={isLiquidGlassSupported ? colors.text : colors.textInverse}
             />
           </Pressable>
         </LiquidGlassView>

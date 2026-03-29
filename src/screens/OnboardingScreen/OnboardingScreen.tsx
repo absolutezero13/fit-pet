@@ -78,7 +78,6 @@ const OnboardingScreen = () => {
   ];
 
   const onButtonPress = () => {
-    console.log("step", step);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     ref.current?.scrollToIndex({ index: step + 1, animated: true });
@@ -164,16 +163,6 @@ const OnboardingScreen = () => {
       />
       {onboardingItems[step].title && (
         <View style={styles.buttonContainer}>
-          {onboardingItems[step].skippable && (
-            <Pressable
-              onPress={onButtonPress}
-              style={styles.skipButton}
-            >
-              <Text style={[styles.skipText, { color: colors.textSecondary }]}>
-                {t("skip")}
-              </Text>
-            </Pressable>
-          )}
           <AppButton
             disableAnimation={false}
             position="bottom"

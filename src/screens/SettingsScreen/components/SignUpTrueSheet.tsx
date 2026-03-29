@@ -105,7 +105,6 @@ const SignUpTrueSheet = () => {
 
   return (
     <TrueSheet
-      backgroundColor={colors.background}
       onDidDismiss={onDidDismiss}
       name={TrueSheetNames.SIGN_UP}
       detents={["auto", 1]}
@@ -114,6 +113,7 @@ const SignUpTrueSheet = () => {
         isDark ? "system-thick-material-dark" : "system-thick-material-light"
       }
       style={styles.container}
+      backgroundColor={colors.background}
       dismissible={!loading}
       blurOptions={{
         interaction: false,

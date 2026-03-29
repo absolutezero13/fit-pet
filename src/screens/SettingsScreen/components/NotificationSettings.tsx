@@ -333,7 +333,6 @@ const styles = StyleSheet.create({
   },
   mealRow: {
     paddingVertical: scale(12),
-    borderBottomWidth: 1,
   },
   rowTop: {
     flexDirection: "row",

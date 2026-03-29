@@ -29,7 +29,7 @@ type AnalyzedMealScreenProps = {
 const AnalyzedMealScreen = () => {
   const { mealId } = useRoute().params as AnalyzedMealScreenProps;
   const meal = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal._id === mealId)
+    state.loggedMeals.find((meal) => meal._id === mealId),
   );
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
@@ -55,7 +55,7 @@ const AnalyzedMealScreen = () => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m._id !== meal._id
+                (m) => m._id !== meal._id,
               );
               if (!meal._id) return state;
 
@@ -521,12 +521,10 @@ const styles = StyleSheet.create({
   actionButtonPrimary: {
     flex: 1.5,
     borderRadius: scale(20),
-    overflow: "hidden",
   },
   actionButtonDanger: {
     flex: 1,
     borderRadius: scale(20),
-    overflow: "hidden",
   },
   actionButtonInner: {
     flexDirection: "column",

@@ -326,9 +326,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       }}
       name={TrueSheetNames.SCAN_MEAL}
       detents={["auto"]}
-      blurTint={
-        isDark ? "system-thick-material-dark" : "system-thick-material-light"
-      }
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
