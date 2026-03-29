@@ -137,9 +137,23 @@ const LoggedMealsScreen = () => {
             },
           ]}
         >
-          <Text style={[styles.title, { color: colors.text }]}>
-            {t("loggedMeals")}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {t("loggedMeals")}
+            </Text>
+            <Pressable
+              onPress={() => navigation.navigate("Settings")}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={t("tabSettings")}
+            >
+              <MaterialCommunityIcons
+                name="cog-outline"
+                size={scale(28)}
+                color={colors.text}
+              />
+            </Pressable>
+          </View>
           <View
             style={{
               flexDirection: "row",
@@ -296,8 +310,15 @@ const styles = StyleSheet.create({
     width: "100%",
     zIndex: 10,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   title: {
     ...fontStyles.headline1,
+    flex: 1,
   },
   date: {
     ...fontStyles.headline4,

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform,
   Switch,
 } from "react-native";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
@@ -29,7 +28,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
-import { TAB_BAR_HEIGHT, TrueSheetNames } from "../../navigation/constants";
+import { TrueSheetNames } from "../../navigation/constants";
 import usePreferencesStore, { AITone } from "../../zustand/usePreferencesStore";
 import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
@@ -44,7 +43,7 @@ const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
   const navigation = useNavigation();
   const authService = useAuthService();
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   const user = useUserStore();
@@ -120,7 +119,19 @@ const SettingsScreen = () => {
           },
         ]}
       >
-        <View>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          hitSlop={12}
+          accessibilityRole="button"
+        >
+          <MaterialCommunityIcons
+            name="chevron-left"
+            size={scale(28)}
+            color={colors.text}
+          />
+        </TouchableOpacity>
+        <View style={styles.headerTitles}>
           {firstName && (
             <Text style={[styles.greeting, { color: colors.textSecondary }]}>
               {t("hi")}, {firstName}! 👋
@@ -136,7 +147,10 @@ const SettingsScreen = () => {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: top + scale(64) },
+          {
+            paddingTop: top + scale(88),
+            paddingBottom: bottom + scale(96),
+          },
         ]}
       >
         {!user?.email && <SignUpBanner />}
@@ -412,7 +426,7 @@ const SettingsScreen = () => {
         position="bottom"
         margin={{
           marginHorizontal: scale(24),
-          marginBottom: TAB_BAR_HEIGHT,
+          marginBottom: scale(16),
         }}
         loading={loading || deleting}
       />
@@ -449,7 +463,17 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: scale(24),
-    paddingBottom: TAB_BAR_HEIGHT + scale(72),
+  },
+  backButton: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(8),
+  },
+  headerTitles: {
+    flex: 1,
   },
   section: {
     marginBottom: scale(24),

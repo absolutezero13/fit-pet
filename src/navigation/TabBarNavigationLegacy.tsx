@@ -13,7 +13,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TAB_BAR_HEIGHT, TAB_BAR_ICON_SIZE } from "./constants";
-import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 
 const Tabs = createBottomTabNavigator();
 
@@ -43,14 +42,6 @@ const TabBarNavigationLegacy = () => {
       case "Chat":
         return (
           <MaterialIcons name="chat" size={TAB_BAR_ICON_SIZE} color={color} />
-        );
-      case "Settings":
-        return (
-          <MaterialIcons
-            name="settings"
-            size={TAB_BAR_ICON_SIZE}
-            color={color}
-          />
         );
 
       default:
@@ -109,14 +100,6 @@ const TabBarNavigationLegacy = () => {
           title: t("tabHome"),
           tabBarIcon: ({ focused }) => renderTabBarIcon("Home", focused),
         }}
-      />
-      <Tabs.Screen
-        options={{
-          title: t("tabSettings"),
-          tabBarIcon: ({ focused }) => renderTabBarIcon("Settings", focused),
-        }}
-        name="Settings"
-        component={SettingsScreen}
       />
     </Tabs.Navigator>
   );

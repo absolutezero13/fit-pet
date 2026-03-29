@@ -67,7 +67,7 @@ const RootNavigator = () => {
         component={SettingsScreen}
         options={{
           headerShown: false,
-          presentation: "modal",
+          presentation: "card",
         }}
       />
       <Stack.Screen

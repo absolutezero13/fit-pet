@@ -7,7 +7,6 @@ import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
-import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 
 const Tabs = createNativeBottomTabNavigator();
 
@@ -47,14 +46,6 @@ const TabNavigator = () => {
             sfSymbol: "calendar",
           }),
         }}
-      />
-      <Tabs.Screen
-        options={{
-          title: t("tabSettings"),
-          tabBarIcon: () => ({ sfSymbol: "gearshape" }),
-        }}
-        name="Settings"
-        component={SettingsScreen}
       />
     </Tabs.Navigator>
   );
