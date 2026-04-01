@@ -29,14 +29,7 @@ const TabNavigator = () => {
           tabBarIcon: () => ({ sfSymbol: "list.star" }),
         }}
       /> */}
-      <Tabs.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          title: t("tabChat"),
-          tabBarIcon: () => ({ sfSymbol: "sparkle" }),
-        }}
-      />
+
       <Tabs.Screen
         name="Home"
         component={HomeScreen}
@@ -45,6 +38,14 @@ const TabNavigator = () => {
           tabBarIcon: () => ({
             sfSymbol: "calendar",
           }),
+        }}
+      />
+      <Tabs.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          title: t("tabChat"),
+          tabBarIcon: () => ({ sfSymbol: "sparkle" }),
         }}
       />
     </Tabs.Navigator>
