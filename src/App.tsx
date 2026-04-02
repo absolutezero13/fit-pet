@@ -79,10 +79,31 @@ export function App() {
     Nunito_800ExtraBold_Italic,
     Nunito_900Black_Italic,
   });
+  const [isLanguageReady, setIsLanguageReady] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const bootstrapLanguage = async () => {
+      try {
+        await initializeLanguage();
+      } finally {
+        if (isMounted) {
+          setIsLanguageReady(true);
+        }
+      }
+    };
+
+    bootstrapLanguage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const userStore = useUserStore((state) => state);
   const user = auth().currentUser;
-  if (!fontLoaded) {
+  if (!fontLoaded || !isLanguageReady) {
     return null;
   }
 
@@ -112,7 +133,6 @@ export function App() {
       }
     }
 
-    await initializeLanguage();
     console.log("App ready async");
     setTimeout(async () => {
       SplashScreen.hideAsync();
