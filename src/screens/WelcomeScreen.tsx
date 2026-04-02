@@ -241,6 +241,9 @@ const WelcomeScreen = () => {
   }));
 
   const loginSilent = async () => {
+    try {
+      await getAuth().signOut();
+    } catch (error) {}
     setLoading(true);
 
     let user: undefined | IUser;
