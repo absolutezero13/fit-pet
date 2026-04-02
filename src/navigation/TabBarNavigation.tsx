@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
+import CookScreen from "../screens/CookScreen/CookScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
@@ -21,15 +22,14 @@ const TabNavigator = () => {
         tabBarActiveTintColor: colors["color-success-400"],
       }}
     >
-      {/* <Tabs.Screen
-        name="Meals"
-        component={MealsScreen}
+      <Tabs.Screen
+        name="Cook"
+        component={CookScreen}
         options={{
-          title: t("tabMeals"),
-          tabBarIcon: () => ({ sfSymbol: "list.star" }),
+          title: t("tabCook"),
+          tabBarIcon: () => ({ sfSymbol: "fork.knife.circle" }),
         }}
-      /> */}
-
+      />
       <Tabs.Screen
         name="Home"
         component={HomeScreen}

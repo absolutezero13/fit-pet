@@ -6,7 +6,8 @@ import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
-import { IMeal } from "../services/apiTypes";
+import CookRecipeScreen from "../screens/CookRecipeScreen/CookRecipeScreen";
+import { CookRecipe, IMeal } from "../services/apiTypes";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
 import useUserStore, { INITIAL_USER_STORE } from "../zustand/useUserStore";
@@ -15,6 +16,7 @@ const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
   const userStore = useUserStore((state) => state);
+
   return (
     <Stack.Navigator
       initialRouteName={userStore?.onboardingCompleted ? "HomeTabs" : "Welcome"}
@@ -78,6 +80,15 @@ const RootNavigator = () => {
           presentation: "card",
         }}
       />
+      <Stack.Screen
+        name="CookRecipe"
+        component={CookRecipeScreen}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+          presentation: "card",
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -101,6 +112,9 @@ type RootStackParamList = {
   };
   MealDetail: {
     meal: IMeal;
+  };
+  CookRecipe: {
+    recipe: CookRecipe;
   };
 };
 

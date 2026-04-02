@@ -35,7 +35,7 @@ export const deleteMeal = async (id: string) => {
 
 export const updateMeal = async (meal: IMeal) => {
   try {
-    const res = await api.put(`/meal-analysis/${meal._id}`, meal);
+    const res = await api.put(`/meal-analysis/${meal.id}`, meal);
     return res.data;
   } catch (error) {
     console.log("UPDATE MEAL ERROR", error);
@@ -60,12 +60,12 @@ export const getMealsByDate = async (date: string) => {
 export const uploadMealImageToFireStorage = async (
   image: string,
   mealId: string,
-  uid: string
+  uid: string,
 ) => {
   try {
     const storageRef = ref(
       getStorage(),
-      `analyzed-meals/${uid}/${Date.now()}.jpg`
+      `analyzed-meals/${uid}/${Date.now()}.jpg`,
     );
     await storageRef.putFile(image);
 

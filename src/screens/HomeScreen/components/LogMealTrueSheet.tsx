@@ -41,6 +41,7 @@ import useUserStore from "../../../zustand/useUserStore";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { useTheme } from "../../../theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
+import { getLocalDateKey } from "../../../utils/dateUtils";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -62,7 +63,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const { bottom } = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
   const mealToEdit = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal._id === params.mealId),
+    state.loggedMeals.find((meal) => meal.id === params.mealId),
   );
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -158,7 +159,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
     console.log("ANALYZED MEAL RESPONSE", meal);
 
     if (!mealToEdit) {
-      meal.date = new Date(params.selectedDate).toISOString();
+      meal.date = getLocalDateKey(params.selectedDate);
       meal.image = image?.uri ?? null;
 
       if (!meal.description) {
@@ -166,9 +167,9 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }
       console.log("CREATING MEAL", meal);
       const responseMeal = await createMeal(meal);
-      meal._id = responseMeal._id;
+      meal.id = responseMeal.id;
     } else {
-      meal._id = mealToEdit._id;
+      meal.id = mealToEdit.id;
       meal.date = mealToEdit.date;
       meal.description = mealDescription;
       meal.image = image?.uri ?? mealToEdit.image;
@@ -178,7 +179,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
     if (meal.image) {
       const imageUrl = await uploadMealImageToFireStorage(
         meal.image,
-        meal._id ?? "",
+        meal.id ?? "",
         useUserStore.getState()?.uid ?? "",
       );
       console.log("IMAGE URL", imageUrl);
@@ -187,7 +188,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
 
     if (!meal.errorMessage) {
       const meals = useMealsStore.getState().loggedMeals;
-      const newMeals = meals.filter((m) => m._id !== mealToEdit?._id);
+      const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
       useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
     }
     return meal;
@@ -223,7 +224,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       dismiss();
       setIsAnalyzing(false);
       navigation.navigate("AnalyzedMeal", {
-        mealId: meal._id ?? "",
+        mealId: meal.id ?? "",
       });
     } catch (error) {
       console.error("Error analyzing meal:", error);

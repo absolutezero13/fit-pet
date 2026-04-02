@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
+import CookScreen from "../screens/CookScreen/CookScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
 import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { fontStyles } from "../theme/fontStyles";
@@ -42,6 +43,14 @@ const TabBarNavigationLegacy = () => {
       case "Chat":
         return (
           <MaterialIcons name="chat" size={TAB_BAR_ICON_SIZE} color={color} />
+        );
+      case "Cook":
+        return (
+          <MaterialCommunityIcons
+            name="chef-hat"
+            size={TAB_BAR_ICON_SIZE}
+            color={color}
+          />
         );
 
       default:
@@ -99,6 +108,14 @@ const TabBarNavigationLegacy = () => {
         options={{
           title: t("tabHome"),
           tabBarIcon: ({ focused }) => renderTabBarIcon("Home", focused),
+        }}
+      />
+      <Tabs.Screen
+        name="Cook"
+        component={CookScreen}
+        options={{
+          title: t("tabCook"),
+          tabBarIcon: ({ focused }) => renderTabBarIcon("Cook", focused),
         }}
       />
     </Tabs.Navigator>

@@ -52,6 +52,7 @@ import useUserStore from "../../../zustand/useUserStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import getScoreColor from "../../../utils/getScoreColor";
+import { getLocalDateKey } from "../../../utils/dateUtils";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -193,7 +194,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         response.response.candidates[0].content.parts[0].text,
       );
 
-      meal.date = new Date(props.params.selectedDate).toISOString();
+      meal.date = getLocalDateKey(props.params.selectedDate);
       meal.image = photo?.path ?? null;
 
       console.log("CREATING MEAL", meal);
@@ -206,7 +207,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       }
 
       const responseMeal = await createMeal(meal);
-      meal._id = responseMeal._id;
+      meal.id = responseMeal.id;
 
       if (!meal.errorMessage) {
         const meals = useMealsStore.getState().loggedMeals;
@@ -224,7 +225,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       if (meal.image) {
         const imageUrl = await uploadMealImageToFireStorage(
           meal.image,
-          meal._id ?? "",
+          meal.id ?? "",
           useUserStore.getState()?.uid ?? "",
         );
         console.log("IMAGE URL", imageUrl);
@@ -242,7 +243,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   };
 
   const handleDelete = async () => {
-    if (!analyzedMeal?._id) return;
+    if (!analyzedMeal?.id) return;
 
     Alert.alert(t("deleteConfirmation"), t("deleteItemConfirmationMessage"), [
       {
@@ -256,10 +257,10 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m._id !== analyzedMeal._id,
+                (m) => m.id !== analyzedMeal.id,
               );
-              if (analyzedMeal._id) {
-                deleteMeal(analyzedMeal._id);
+              if (analyzedMeal.id) {
+                deleteMeal(analyzedMeal.id);
               }
               return { loggedMeals: newMeals };
             });

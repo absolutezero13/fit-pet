@@ -12,7 +12,7 @@ interface ThemeStore {
 const useThemeStore = create(
   persist<ThemeStore>(
     (set, get) => ({
-      mode: "light",
+      mode: "dark",
       setMode: (mode: ThemeMode) => set({ mode }),
       toggleMode: () =>
         set({ mode: get().mode === "light" ? "dark" : "light" }),
@@ -20,8 +20,8 @@ const useThemeStore = create(
     {
       name: "theme-storage",
       storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
+    },
+  ),
 );
 
 export default useThemeStore;

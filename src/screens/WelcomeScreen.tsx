@@ -72,11 +72,11 @@ const FloatingOrb = ({
             duration: 2500,
             easing: Easing.inOut(Easing.ease),
           }),
-          withTiming(20, { duration: 2500, easing: Easing.inOut(Easing.ease) })
+          withTiming(20, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
         ),
         -1,
-        true
-      )
+        true,
+      ),
     );
 
     translateX.value = withDelay(
@@ -84,11 +84,14 @@ const FloatingOrb = ({
       withRepeat(
         withSequence(
           withTiming(15, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-          withTiming(-15, { duration: 3000, easing: Easing.inOut(Easing.ease) })
+          withTiming(-15, {
+            duration: 3000,
+            easing: Easing.inOut(Easing.ease),
+          }),
         ),
         -1,
-        true
-      )
+        true,
+      ),
     );
   }, []);
 
@@ -145,11 +148,11 @@ const WelcomeScreen = () => {
     // Mascot entrance animation - clean drop-in with bounce
     mascotScale.value = withDelay(
       200,
-      withSpring(1, { damping: 12, stiffness: 100 })
+      withSpring(1, { damping: 12, stiffness: 100 }),
     );
     mascotTranslateY.value = withDelay(
       200,
-      withSpring(0, { damping: 14, stiffness: 80 })
+      withSpring(0, { damping: 14, stiffness: 80 }),
     );
 
     // Gentle floating idle animation after entrance
@@ -157,10 +160,10 @@ const WelcomeScreen = () => {
       mascotTranslateY.value = withRepeat(
         withSequence(
           withTiming(-8, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(8, { duration: 1800, easing: Easing.inOut(Easing.ease) })
+          withTiming(8, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
         ),
         -1,
-        true
+        true,
       );
     }, 800);
 
@@ -174,17 +177,20 @@ const WelcomeScreen = () => {
             duration: 2000,
             easing: Easing.inOut(Easing.ease),
           }),
-          withTiming(0.9, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+          withTiming(0.9, {
+            duration: 2000,
+            easing: Easing.inOut(Easing.ease),
+          }),
         ),
         -1,
-        true
-      )
+        true,
+      ),
     );
 
     // Card slide up
     cardTranslateY.value = withDelay(
       300,
-      withSpring(0, { damping: 15, stiffness: 90 })
+      withSpring(0, { damping: 15, stiffness: 90 }),
     );
     cardOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
 
@@ -242,9 +248,13 @@ const WelcomeScreen = () => {
 
     if (!getAuth().currentUser) {
       console.log("signing in");
-      const { success, user: loginUser } = await authService.handleLogin(
-        LoginType.Anonymous
-      );
+      const response = await authService.handleLogin(LoginType.Anonymous);
+
+      console.log("response", response);
+      const { success, user: loginUser } = response;
+
+      console.log("loginUser", loginUser);
+      console.log("success", success);
       if (!success || !loginUser) {
         setLoading(false);
         console.error("Google login failed");

@@ -29,8 +29,9 @@ type AnalyzedMealScreenProps = {
 const AnalyzedMealScreen = () => {
   const { mealId } = useRoute().params as AnalyzedMealScreenProps;
   const meal = useMealsStore((state) =>
-    state.loggedMeals.find((meal) => meal._id === mealId),
+    state.loggedMeals.find((meal) => meal.id === mealId),
   );
+  console.log("meal", meal, "id", mealId);
   const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -55,11 +56,11 @@ const AnalyzedMealScreen = () => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m._id !== meal._id,
+                (m) => m.id !== meal.id,
               );
-              if (!meal._id) return state;
+              if (!meal.id) return state;
 
-              deleteMeal(meal._id);
+              deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
             navigation.goBack();
@@ -78,7 +79,7 @@ const AnalyzedMealScreen = () => {
 
   const handleEdit = () => {
     navigation.navigate("LogMeal", {
-      mealId: meal._id,
+      mealId: meal.id,
       selectedDate: meal.date,
     });
   };

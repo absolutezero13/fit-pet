@@ -1,9 +1,39 @@
 import { Part } from "@google/generative-ai";
 import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
-import { ChatCompletion, GeminiResponse, IMeal, schemas } from "./apiTypes";
+import {
+  ChatCompletion,
+  CookCandidate,
+  CookCandidateResponse,
+  CookPromptAnswers,
+  CookRecipeResponse,
+  GeminiResponse,
+  IMeal,
+  schemas,
+} from "./apiTypes";
 import api, { ENDPOINT } from "./api";
 import useUserStore from "../zustand/useUserStore";
+
+const extractGeminiText = (result: { response: GeminiResponse }) => {
+  const text = result.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!text) {
+    throw new Error("Gemini returned no text content");
+  }
+
+  return text;
+};
+
+const parseGeminiJson = <T>(result: { response: GeminiResponse }): T => {
+  const text = extractGeminiText(result);
+
+  try {
+    return JSON.parse(text) as T;
+  } catch (error) {
+    console.log("GEMINI JSON PARSE ERROR", text);
+    throw error;
+  }
+};
 
 export const createChatCompletion = async (
   content: string
@@ -34,20 +64,22 @@ export const createChatCompletion = async (
 export const createGeminiCompletion = async (
   content: string,
   schema: string,
-  images?: { data: string; mimeType: string }[]
+  images?: { data: string; mimeType: string }[],
+  systemPromptOverride?: string
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const res = await api.post("/chat/gemini", {
       prompt: content,
       schema: schemas[schema],
       images,
-      systemPrompt: promptBuilder.createChatPrompt(useUserStore.getState()),
+      systemPrompt:
+        systemPromptOverride ?? promptBuilder.createChatPrompt(useUserStore.getState()),
     });
 
     return res.data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
-    return error as any;
+    throw error;
   }
 };
 
@@ -140,4 +172,25 @@ export const createGeminiImage = async (
     console.log("GEMINI ERROR", error);
     return error as any;
   }
+};
+
+export const createCookCandidates = async (
+  answers: CookPromptAnswers
+): Promise<CookCandidateResponse> => {
+  const user = useUserStore.getState();
+  const prompt = promptBuilder.createCookCandidatesPrompt(user, answers);
+  const result = await createGeminiCompletion(prompt, "cookCandidates");
+
+  return parseGeminiJson<CookCandidateResponse>(result);
+};
+
+export const createCookRecipe = async (
+  answers: CookPromptAnswers,
+  candidate: CookCandidate
+): Promise<CookRecipeResponse> => {
+  const user = useUserStore.getState();
+  const prompt = promptBuilder.createCookRecipePrompt(user, answers, candidate);
+  const result = await createGeminiCompletion(prompt, "cookRecipe");
+
+  return parseGeminiJson<CookRecipeResponse>(result);
 };

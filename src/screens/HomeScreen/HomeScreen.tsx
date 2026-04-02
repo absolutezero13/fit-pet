@@ -25,6 +25,7 @@ import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemeColors } from "../../theme/colors";
+import { getLocalDateKey, shiftDateByDays } from "../../utils/dateUtils";
 
 const MealTypeSection = ({
   title,
@@ -86,7 +87,7 @@ const LoggedMealsScreen = () => {
   const snackMeals = getMealsByType("snack");
 
   const handleMealPress = (meal: IMeal) => {
-    navigation.navigate("AnalyzedMeal", { mealId: meal._id ?? "" });
+    navigation.navigate("AnalyzedMeal", { mealId: meal.id ?? "" });
   };
 
   const navigateLogMeal = (type?: IMealType) => {
@@ -112,7 +113,7 @@ const LoggedMealsScreen = () => {
     const getMeals = async () => {
       try {
         setLoading(true);
-        const fetchedMeals = await getMealsByDate(selectedDate.toISOString());
+        const fetchedMeals = await getMealsByDate(getLocalDateKey(selectedDate));
         useMealsStore.setState({ loggedMeals: fetchedMeals });
       } catch (error) {
         console.error("fetch meal error");
@@ -164,10 +165,8 @@ const LoggedMealsScreen = () => {
           >
             <MaterialCommunityIcons
               onPress={() =>
-                setSelectedDate(
-                  new Date(selectedDate.setDate(selectedDate.getDate() - 1)),
-                )
-              }
+                  setSelectedDate(shiftDateByDays(selectedDate, -1))
+                }
               name="chevron-left"
               size={scale(36)}
               color={colors.text}
@@ -179,10 +178,8 @@ const LoggedMealsScreen = () => {
               disabled={isToday}
               color={isToday ? colors.textTertiary : colors.text}
               onPress={() =>
-                setSelectedDate(
-                  new Date(selectedDate.setDate(selectedDate.getDate() + 1)),
-                )
-              }
+                  setSelectedDate(shiftDateByDays(selectedDate, 1))
+                }
               name="chevron-right"
               size={scale(36)}
             />
@@ -282,13 +279,13 @@ const LoggedMealsScreen = () => {
         </LiquidGlassView>
         <LogMealTrueSheet
           params={{
-            selectedDate: selectedDate.toISOString(),
+            selectedDate: getLocalDateKey(selectedDate),
             mealType: selectedMealType,
           }}
         />
         <ScanMealTrueSheet
           params={{
-            selectedDate: selectedDate.toISOString(),
+            selectedDate: getLocalDateKey(selectedDate),
             mealType: selectedMealType,
           }}
         />

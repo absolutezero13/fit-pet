@@ -27,7 +27,7 @@ import getScoreColor from "../../../utils/getScoreColor";
 const renderRightActions = (
   prog: SharedValue<number>,
   drag: SharedValue<number>,
-  handleDelete: () => void
+  handleDelete: () => void,
 ) => {
   const styleAnimation = useAnimatedStyle(() => {
     return {
@@ -80,11 +80,11 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
           try {
             useMealsStore.setState((state) => {
               const newMeals = state.loggedMeals.filter(
-                (m) => m._id !== meal._id
+                (m) => m.id !== meal.id,
               );
-              if (!meal._id) return state;
+              if (!meal.id) return state;
 
-              deleteMeal(meal._id);
+              deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
           } catch (error) {

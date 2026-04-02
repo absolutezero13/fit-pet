@@ -18,8 +18,113 @@ export interface ChatCompletion {
       };
       finish_reason: string;
       index: number;
-    }
+    },
   ];
+}
+
+export type CookDifficulty = "easy" | "medium" | "hard";
+
+export type CookGoal =
+  | "high_protein"
+  | "balanced"
+  | "low_carb"
+  | "budget_friendly";
+
+export type CookTimeOption = "15" | "30" | "45+";
+
+export type CookServingOption = "1" | "2" | "4+";
+
+export interface CookCandidateNutrition {
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fats?: number;
+}
+
+export interface CookCandidate {
+  id: string;
+  title: string;
+  subtitle: string;
+  summary: string;
+  fitReason: string;
+  prepMinutes: number;
+  cookMinutes: number;
+  difficulty: CookDifficulty;
+  servings: number;
+  nutrition?: CookCandidateNutrition;
+}
+
+export interface CookFollowUpQuestionOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface CookFollowUpQuestion {
+  id: string;
+  title: string;
+  type: "single_select" | "text";
+  options?: CookFollowUpQuestionOption[];
+}
+
+export interface CookFollowUpAnswer {
+  questionId: string;
+  question: string;
+  answer: string;
+}
+
+export interface CookCandidateResponse {
+  phase: "clarify" | "candidates" | "error";
+  message: string;
+  followUpQuestions?: CookFollowUpQuestion[] | null;
+  candidates?: CookCandidate[] | null;
+}
+
+export interface CookRecipeIngredient {
+  id: string;
+  item: string;
+  amount?: string;
+  optional?: boolean;
+}
+
+export interface CookRecipeStep {
+  id: string;
+  title: string;
+  instruction: string;
+  timerSeconds?: number;
+  tips?: string[];
+}
+
+export interface CookRecipe {
+  id: string;
+  title: string;
+  subtitle: string;
+  summary: string;
+  servings: number;
+  prepMinutes: number;
+  cookMinutes: number;
+  difficulty: CookDifficulty;
+  ingredients: CookRecipeIngredient[];
+  steps: CookRecipeStep[];
+  nutrition?: CookCandidateNutrition;
+}
+
+export interface CookRecipeResponse {
+  recipe: CookRecipe;
+}
+
+export interface LatestCookSession {
+  recipe: CookRecipe;
+  seed: string;
+  savedAt: string;
+}
+
+export interface CookPromptAnswers {
+  seed: string;
+  time: CookTimeOption;
+  goal: CookGoal;
+  servings: CookServingOption;
+  followUpAnswers?: CookFollowUpAnswer[];
 }
 
 const recipeSchema: Schema = {
@@ -140,6 +245,274 @@ const macroGoalsSchema: Schema = {
   required: ["proteins", "fats", "carbs"],
 };
 
+const cookCandidateNutritionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  nullable: true,
+  properties: {
+    calories: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+    protein: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+    carbs: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+    fats: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+  },
+};
+
+const cookFollowUpQuestionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  nullable: true,
+  properties: {
+    id: {
+      type: SchemaType.STRING,
+      nullable: false,
+    },
+    title: {
+      type: SchemaType.STRING,
+      nullable: false,
+    },
+    type: {
+      type: SchemaType.STRING,
+      nullable: false,
+      enum: ["single_select", "text"],
+      format: "enum",
+    },
+    options: {
+      type: SchemaType.ARRAY,
+      nullable: true,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          id: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          label: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          value: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+        },
+        required: ["id", "label", "value"],
+      },
+    },
+  },
+  required: ["id", "title", "type"],
+};
+
+const cookFollowUpQuestionsSchema: Schema = {
+  type: SchemaType.ARRAY,
+  nullable: true,
+  items: cookFollowUpQuestionSchema,
+};
+
+const cookCandidatesSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    phase: {
+      type: SchemaType.STRING,
+      nullable: false,
+      enum: ["clarify", "candidates", "error"],
+      format: "enum",
+    },
+    message: {
+      type: SchemaType.STRING,
+      nullable: false,
+    },
+    followUpQuestions: cookFollowUpQuestionsSchema,
+    candidates: {
+      type: SchemaType.ARRAY,
+      nullable: true,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          id: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          title: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          subtitle: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          summary: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          fitReason: {
+            type: SchemaType.STRING,
+            nullable: false,
+          },
+          prepMinutes: {
+            type: SchemaType.NUMBER,
+            nullable: false,
+          },
+          cookMinutes: {
+            type: SchemaType.NUMBER,
+            nullable: false,
+          },
+          difficulty: {
+            type: SchemaType.STRING,
+            nullable: false,
+            enum: ["easy", "medium", "hard"],
+            format: "enum",
+          },
+          servings: {
+            type: SchemaType.NUMBER,
+            nullable: false,
+          },
+          nutrition: cookCandidateNutritionSchema,
+        },
+        required: [
+          "id",
+          "title",
+          "subtitle",
+          "summary",
+          "fitReason",
+          "prepMinutes",
+          "cookMinutes",
+          "difficulty",
+          "servings",
+        ],
+      },
+    },
+  },
+  required: ["phase", "message"],
+};
+
+const cookRecipeSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    recipe: {
+      type: SchemaType.OBJECT,
+      properties: {
+        id: {
+          type: SchemaType.STRING,
+          nullable: false,
+        },
+        title: {
+          type: SchemaType.STRING,
+          nullable: false,
+        },
+        subtitle: {
+          type: SchemaType.STRING,
+          nullable: false,
+        },
+        summary: {
+          type: SchemaType.STRING,
+          nullable: false,
+        },
+        servings: {
+          type: SchemaType.NUMBER,
+          nullable: false,
+        },
+        prepMinutes: {
+          type: SchemaType.NUMBER,
+          nullable: false,
+        },
+        cookMinutes: {
+          type: SchemaType.NUMBER,
+          nullable: false,
+        },
+        difficulty: {
+          type: SchemaType.STRING,
+          nullable: false,
+          enum: ["easy", "medium", "hard"],
+          format: "enum",
+        },
+        ingredients: {
+          type: SchemaType.ARRAY,
+          nullable: false,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              id: {
+                type: SchemaType.STRING,
+                nullable: false,
+              },
+              item: {
+                type: SchemaType.STRING,
+                nullable: false,
+              },
+              amount: {
+                type: SchemaType.STRING,
+                nullable: true,
+              },
+              optional: {
+                type: SchemaType.BOOLEAN,
+                nullable: true,
+              },
+            },
+            required: ["id", "item"],
+          },
+        },
+        steps: {
+          type: SchemaType.ARRAY,
+          nullable: false,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              id: {
+                type: SchemaType.STRING,
+                nullable: false,
+              },
+              title: {
+                type: SchemaType.STRING,
+                nullable: false,
+              },
+              instruction: {
+                type: SchemaType.STRING,
+                nullable: false,
+              },
+              timerSeconds: {
+                type: SchemaType.NUMBER,
+                nullable: true,
+              },
+              tips: {
+                type: SchemaType.ARRAY,
+                nullable: true,
+                items: {
+                  type: SchemaType.STRING,
+                },
+              },
+            },
+            required: ["id", "title", "instruction"],
+          },
+        },
+        nutrition: cookCandidateNutritionSchema,
+      },
+      required: [
+        "id",
+        "title",
+        "subtitle",
+        "summary",
+        "servings",
+        "prepMinutes",
+        "cookMinutes",
+        "difficulty",
+        "ingredients",
+        "steps",
+      ],
+    },
+  },
+  required: ["recipe"],
+};
+
 const analyzedMealSchema: Schema = {
   description: "Analyzed meal",
   type: SchemaType.OBJECT,
@@ -223,6 +596,8 @@ export const schemas: Record<string, Schema> = {
   recipe: recipeSchema,
   analyzedMeal: analyzedMealSchema,
   macroGoals: macroGoalsSchema,
+  cookCandidates: cookCandidatesSchema,
+  cookRecipe: cookRecipeSchema,
 };
 
 export interface GeminiResponse {
@@ -273,7 +648,7 @@ export interface IMeal {
   insights: string[];
   image: string | null;
   score: number;
-  _id?: string;
+  id?: string;
   date: string;
   mealTypeLocalized: string;
   errorMessage?: string;

@@ -1,4 +1,4 @@
-import { IMeal } from "../services/apiTypes";
+import { IMeal, LatestCookSession } from "../services/apiTypes";
 import { OnboardingStore } from "../zustand/useOnboardingStore";
 
 // typedStorage.ts
@@ -15,5 +15,6 @@ export interface StorageItems {
     code: string;
   };
   hasLaunched: boolean;
+  latestCook: LatestCookSession | null;
   // Add other storage keys and their types here
 }

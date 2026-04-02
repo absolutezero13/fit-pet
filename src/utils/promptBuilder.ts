@@ -1,3 +1,4 @@
+import { CookCandidate, CookPromptAnswers } from "../services/apiTypes";
 import i18next from "i18next";
 import { IUser } from "../zustand/useUserStore";
 import usePreferencesStore, { AITone } from "../zustand/usePreferencesStore";
@@ -203,12 +204,87 @@ Framing:
 - Meal fully visible, not cropped
 `;
 
+const createCookCandidatesPrompt = (
+  userInfo: IUser | null,
+  answers: CookPromptAnswers
+) => `
+date: ${getCurrentDate()}
+You are Cook, a practical recipe planning assistant inside a meal tracker app.
+Your job is to turn a rough ingredient or meal idea into two realistic recipe directions.
+
+Flow rules:
+- If the dish is already clear enough, return exactly two recipe candidates.
+- If clarification is needed and followUpAnswers is missing or incomplete, ask at least three short follow-up questions in one response.
+- If followUpAnswers is present, return exactly two recipe candidates.
+
+Rules:
+- Be concise, grounded, and helpful.
+- Prioritize weeknight-friendly cooking unless the user clearly wants something else.
+- Candidates must feel meaningfully different in style, method, or final dish.
+- Do not ask about time, goal, or servings. Those are already known.
+- Follow-up questions should only be used when they materially change the dish.
+- Ask at least three follow-up questions.
+- Follow-up questions should be distinct, fast to answer, and useful for recipe direction.
+- Prefer single_select questions when a few clear options make sense.
+- Use the provided response schema exactly.
+- Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
+- If the user's language is Turkish, every visible string must be in Turkish.
+- Keep candidate subtitle and summary very short.
+
+User profile:
+${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
+
+Planning context:
+${JSON.stringify(answers, null, 2)}
+
+Interpretation guide:
+- time "15" means fast and minimal prep
+- time "30" means moderate effort
+- time "45+" means more flexibility
+- goal "high_protein" means bias toward satiating protein-rich meals
+- goal "balanced" means broadly nutritious and well-rounded
+- goal "low_carb" means reduce carb load without making the meal unrealistic
+- goal "budget_friendly" means accessible ingredients and low-cost technique
+`;
+
+const createCookRecipePrompt = (
+  userInfo: IUser | null,
+  answers: CookPromptAnswers,
+  candidate: CookCandidate
+) => `
+date: ${getCurrentDate()}
+You are Cook, a practical recipe planning assistant inside a meal tracker app.
+Expand the selected recipe direction into one complete, interactive recipe.
+
+Rules:
+- Keep the recipe realistic for a home cook.
+- Match the user's time budget, goal, and servings.
+- Ingredient amounts should be specific.
+- Steps should be short, actionable, and ordered.
+- Only include timerSeconds when a timer genuinely helps the cook.
+- Prefer 4 to 7 steps.
+- Use the provided response schema exactly.
+- Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
+- If the user's language is Turkish, every visible string must be in Turkish.
+
+User profile:
+${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
+
+Planning context:
+${JSON.stringify(answers, null, 2)}
+
+Selected candidate:
+${JSON.stringify(candidate, null, 2)}
+`;
+
 const promptBuilder = {
   createMealPrompt,
   createAnalysisPrompt,
   createChatPrompt,
   createMacroGoalsPrompt,
   createImagePrompt,
+  createCookCandidatesPrompt,
+  createCookRecipePrompt,
 };
 
 export default promptBuilder;
