@@ -7,7 +7,8 @@
     "web": "expo start --web",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "pods": "cd ios && pod install && cd .."
+    "pods": "cd ios && pod install && cd ..",
+    "testflight": "bash scripts/testflight.sh"
   },
   "dependencies": {
     "@amplitude/analytics-react-native": "1.5.32",

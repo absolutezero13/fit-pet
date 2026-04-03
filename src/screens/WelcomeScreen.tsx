@@ -37,9 +37,6 @@ import { TrueSheetNames } from "../navigation/constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
-
-// Floating orb component
 const FloatingOrb = ({
   size,
   color,
