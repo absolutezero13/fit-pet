@@ -1,5 +1,6 @@
 import { Assets as NavigationAssets } from "@react-navigation/elements";
 import { Asset } from "expo-asset";
+import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
 import RootNavigator from "./navigation/RootNavigation";
@@ -33,7 +34,7 @@ import userService from "./services/user";
 import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
-import { ThemeProvider } from "./theme/ThemeContext";
+import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
 import ProgressiveUnlockChecker from "./components/ProgressiveUnlockChecker";
@@ -59,6 +60,22 @@ const initializeLanguage = async () => {
 Asset.loadAsync([...NavigationAssets]);
 
 SplashScreen.preventAutoHideAsync();
+
+const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
+  const { isDark } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} translucent />
+      <KeyboardProvider>
+        <NavigationContainer onReady={onReady}>
+          <RootNavigator />
+          <ProgressiveUnlockChecker />
+        </NavigationContainer>
+      </KeyboardProvider>
+    </>
+  );
+};
 
 export function App() {
   const [fontLoaded] = useFonts({
@@ -142,12 +159,7 @@ export function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <KeyboardProvider>
-          <NavigationContainer onReady={onReady}>
-            <RootNavigator />
-            <ProgressiveUnlockChecker />
-          </NavigationContainer>
-        </KeyboardProvider>
+        <AppShell onReady={onReady} />
       </ThemeProvider>
     </GestureHandlerRootView>
   );

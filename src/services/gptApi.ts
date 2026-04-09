@@ -7,6 +7,7 @@ import {
   CookCandidateResponse,
   CookPromptAnswers,
   CookRecipeResponse,
+  CookRecipe,
   GeminiResponse,
   IMeal,
   schemas,
@@ -193,4 +194,14 @@ export const createCookRecipe = async (
   const result = await createGeminiCompletion(prompt, "cookRecipe");
 
   return parseGeminiJson<CookRecipeResponse>(result);
+};
+
+export const createCookLoggedMeal = async (
+  recipe: CookRecipe
+): Promise<IMeal> => {
+  const user = useUserStore.getState();
+  const prompt = promptBuilder.createCookMealLogPrompt(user, recipe);
+  const result = await createGeminiCompletion(prompt, "analyzedMeal");
+
+  return parseGeminiJson<IMeal>(result);
 };

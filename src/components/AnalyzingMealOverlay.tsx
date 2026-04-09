@@ -14,7 +14,13 @@ import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useTheme } from "../theme/ThemeContext";
 
-const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
+const AnalyzingMealOverlay = ({
+  visible,
+  label,
+}: {
+  visible: boolean;
+  label?: string;
+}) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
@@ -98,8 +104,8 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
               color={colors.textInverse}
             />
           </Animated.View>
-          <Text style={[styles.statusText, { color: colors.text }]}>
-            {t("analyzingMeal")}
+          <Text style={[styles.statusText, { color: colors.text }]}> 
+            {label ?? t("analyzingMeal")}
           </Text>
         </View>
       </View>

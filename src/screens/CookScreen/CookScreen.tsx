@@ -36,6 +36,7 @@ import {
   CookFollowUpAnswer,
   CookFollowUpQuestion,
   CookGoal,
+  CookMaxCaloriesOption,
   LatestCookSession,
   CookPromptAnswers,
   CookServingOption,
@@ -46,6 +47,7 @@ import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
+import useUserStore from "../../zustand/useUserStore";
 import CookCandidateCard from "./components/CookCandidateCard";
 import CookOptionChips, { CookChipOption } from "./components/CookOptionChips";
 import CookPlanSummary from "./components/CookPlanSummary";
@@ -59,7 +61,7 @@ type CookViewState =
   | "recipe_loading"
   | "error";
 
-type HardcodedQuestionKey = "time" | "goal" | "servings";
+type HardcodedQuestionKey = "time" | "goal" | "servings" | "maxCaloriesPerServing";
 
 interface HardcodedQuestion {
   key: HardcodedQuestionKey;
@@ -148,6 +150,7 @@ const CookScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const user = useUserStore();
   const seedInputRef = useRef<TextInput>(null);
 
   const [viewState, setViewState] = useState<CookViewState>("intro");
@@ -227,6 +230,17 @@ const CookScreen = () => {
           { label: t("cookServing4"), value: "4+" },
         ],
       },
+      {
+        key: "maxCaloriesPerServing",
+        title: t("cookQuestionMaxCalories"),
+        options: [
+          { label: t("cookCalories400"), value: "400" },
+          { label: t("cookCalories600"), value: "600" },
+          { label: t("cookCalories800"), value: "800" },
+          { label: t("cookCalories1000"), value: "1000" },
+          { label: t("cookCaloriesAny"), value: "any" },
+        ],
+      },
     ],
     [t],
   );
@@ -236,6 +250,23 @@ const CookScreen = () => {
   const isImmersiveMode = viewState !== "intro";
   const isLoadingState =
     viewState === "candidate_loading" || viewState === "recipe_loading";
+  const recommendedCaloriesValue = useMemo(() => {
+    const dailyCalories = user?.macroGoals?.calories;
+
+    if (!dailyCalories) {
+      return undefined;
+    }
+
+    const estimatedMainMealCalories = dailyCalories * 0.35;
+    const options: CookMaxCaloriesOption[] = ["400", "600", "800", "1000"];
+
+    return options.reduce((closest, option) => {
+      const currentDistance = Math.abs(Number(option) - estimatedMainMealCalories);
+      const closestDistance = Math.abs(Number(closest) - estimatedMainMealCalories);
+
+      return currentDistance < closestDistance ? option : closest;
+    }, options[0]);
+  }, [user?.macroGoals?.calories]);
 
   const planItems = useMemo(() => {
     const items: { label: string; value: string }[] = [];
@@ -261,9 +292,22 @@ const CookScreen = () => {
         value: getServingsLabel(t, answers.servings),
       });
     }
+    if (answers.maxCaloriesPerServing) {
+      items.push({
+        label: t("cookPlanCalories"),
+        value: getCaloriesLabel(t, answers.maxCaloriesPerServing),
+      });
+    }
 
     return items;
-  }, [answers.goal, answers.seed, answers.servings, answers.time, t]);
+  }, [
+    answers.goal,
+    answers.maxCaloriesPerServing,
+    answers.seed,
+    answers.servings,
+    answers.time,
+    t,
+  ]);
 
   const submitSeed = () => {
     const trimmedSeed = seedInput.trim();
@@ -587,6 +631,11 @@ const CookScreen = () => {
           <CookOptionChips
             options={currentQuestion.options}
             selectedValue={selectedAnswerValue ?? undefined}
+            recommendedValue={
+              currentQuestion.key === "maxCaloriesPerServing"
+                ? recommendedCaloriesValue
+                : undefined
+            }
             disabled={isTransitioningQuestion}
             onSelect={handleHardcodedAnswer}
           />
@@ -893,6 +942,21 @@ const getServingsLabel = (t: (key: string) => string, value: string) => {
       return t("cookServing2");
     default:
       return t("cookServing4");
+  }
+};
+
+const getCaloriesLabel = (t: (key: string) => string, value: string) => {
+  switch (value as CookMaxCaloriesOption) {
+    case "400":
+      return t("cookCalories400");
+    case "600":
+      return t("cookCalories600");
+    case "800":
+      return t("cookCalories800");
+    case "1000":
+      return t("cookCalories1000");
+    default:
+      return t("cookCaloriesAny");
   }
 };
 

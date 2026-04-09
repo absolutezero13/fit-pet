@@ -34,6 +34,8 @@ export type CookTimeOption = "15" | "30" | "45+";
 
 export type CookServingOption = "1" | "2" | "4+";
 
+export type CookMaxCaloriesOption = "400" | "600" | "800" | "1000" | "any";
+
 export interface CookCandidateNutrition {
   calories?: number;
   protein?: number;
@@ -124,6 +126,7 @@ export interface CookPromptAnswers {
   time: CookTimeOption;
   goal: CookGoal;
   servings: CookServingOption;
+  maxCaloriesPerServing: CookMaxCaloriesOption;
   followUpAnswers?: CookFollowUpAnswer[];
 }
 

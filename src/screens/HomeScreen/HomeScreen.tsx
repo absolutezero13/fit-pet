@@ -74,6 +74,8 @@ const LoggedMealsScreen = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
   );
+
+  console.log("meals", meals);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -113,7 +115,8 @@ const LoggedMealsScreen = () => {
     const getMeals = async () => {
       try {
         setLoading(true);
-        const fetchedMeals = await getMealsByDate(getLocalDateKey(selectedDate));
+        const fetchedMeals = await getMealsByDate(selectedDate.toISOString());
+        console.log("data?", getLocalDateKey(selectedDate));
         useMealsStore.setState({ loggedMeals: fetchedMeals });
       } catch (error) {
         console.error("fetch meal error");
@@ -164,9 +167,7 @@ const LoggedMealsScreen = () => {
             }}
           >
             <MaterialCommunityIcons
-              onPress={() =>
-                  setSelectedDate(shiftDateByDays(selectedDate, -1))
-                }
+              onPress={() => setSelectedDate(shiftDateByDays(selectedDate, -1))}
               name="chevron-left"
               size={scale(36)}
               color={colors.text}
@@ -177,9 +178,7 @@ const LoggedMealsScreen = () => {
             <MaterialCommunityIcons
               disabled={isToday}
               color={isToday ? colors.textTertiary : colors.text}
-              onPress={() =>
-                  setSelectedDate(shiftDateByDays(selectedDate, 1))
-                }
+              onPress={() => setSelectedDate(shiftDateByDays(selectedDate, 1))}
               name="chevron-right"
               size={scale(36)}
             />
