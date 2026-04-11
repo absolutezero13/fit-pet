@@ -68,7 +68,7 @@ const WeightHeight = () => {
   }, []);
 
   const handleHeightScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -81,7 +81,7 @@ const WeightHeight = () => {
   };
 
   const handleWeightScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -94,8 +94,8 @@ const WeightHeight = () => {
   };
 
   const handleMomentumEnd = (
-    ref: React.RefObject<ScrollView>,
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    ref: React.RefObject<ScrollView | null>,
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -114,9 +114,9 @@ const WeightHeight = () => {
 
   const renderIOSPicker = (
     data: number[],
-    selectedValue: number | null,
+    selectedValue: number | null | undefined,
     onValueChange: (value: number) => void,
-    unit: string
+    unit: string,
   ) => (
     <View style={styles.iosPickerWrapper}>
       <Picker
@@ -135,10 +135,10 @@ const WeightHeight = () => {
 
   const renderAndroidPicker = (
     data: number[],
-    scrollRef: React.RefObject<ScrollView>,
+    scrollRef: React.RefObject<ScrollView | null>,
     selectedIndex: number,
     onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void,
-    unit: string
+    unit: string,
   ) => (
     <View style={styles.androidPickerWrapper}>
       <View style={styles.selectionIndicator} pointerEvents="none" />
@@ -193,14 +193,14 @@ const WeightHeight = () => {
                 heightData,
                 height,
                 (v) => useOnboardingStore.setState({ height: v }),
-                "cm"
+                "cm",
               )
             : renderAndroidPicker(
                 heightData,
                 heightScrollRef,
                 heightIndex,
                 handleHeightScroll,
-                "cm"
+                "cm",
               )}
         </View>
 
@@ -214,14 +214,14 @@ const WeightHeight = () => {
                 weightData,
                 weight,
                 (v) => useOnboardingStore.setState({ weight: v }),
-                "kg"
+                "kg",
               )
             : renderAndroidPicker(
                 weightData,
                 weightScrollRef,
                 weightIndex,
                 handleWeightScroll,
-                "kg"
+                "kg",
               )}
         </View>
       </View>

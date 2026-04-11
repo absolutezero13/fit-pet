@@ -95,7 +95,7 @@ const ChatScreen = () => {
         data: {
           todaysMeals: loggedMeals.filter(
             (meal) =>
-              new Date(meal.date).toDateString() === new Date().toDateString()
+              new Date(meal.date).toDateString() === new Date().toDateString(),
           ),
           macroGoals: userData?.macroGoals,
         },
@@ -169,7 +169,7 @@ const ChatScreen = () => {
             text: message.text,
           },
         ],
-      }))
+      })),
     );
     console.log({ geminiResponse });
 
@@ -211,7 +211,7 @@ const ChatScreen = () => {
         onStreamComplete={handleStreamComplete}
       />
     ),
-    [streamingMessageIdRef.current, messages]
+    [streamingMessageIdRef.current, messages],
   );
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -449,13 +449,6 @@ const styles = StyleSheet.create({
     paddingVertical: scale(10),
     borderRadius: scale(20),
     marginRight: scale(10),
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(4),
-    elevation: 2,
   },
   suggestionBubbleText: {
     ...fontStyles.body2,

@@ -5,6 +5,7 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { scale } from "../../../theme/utils";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../theme/ThemeContext";
+import { LiquidGlassView } from "@callstack/liquid-glass";
 
 type Props = {
   onPress?: () => void;
@@ -41,18 +42,20 @@ const MealTypeEmptyState: React.FC<Props> = ({ onPress }) => {
           {t("tapToAddMeal")}
         </Text>
       </View>
-      <View
-        style={[
-          styles.addButton,
-          { backgroundColor: colors["color-success-50"] },
-        ]}
+      <LiquidGlassView
+        effect="regular"
+        interactive
+        style={[styles.addButton]}
+        tintColor={colors.background}
       >
-        <MaterialCommunityIcons
-          name="plus"
-          size={scale(20)}
-          color={colors["color-success-500"]}
-        />
-      </View>
+        <View style={[styles.addButton]}>
+          <MaterialCommunityIcons
+            name="plus"
+            size={scale(20)}
+            color={colors.text}
+          />
+        </View>
+      </LiquidGlassView>
     </Pressable>
   );
 };
@@ -87,9 +90,9 @@ const styles = StyleSheet.create({
     ...fontStyles.caption,
   },
   addButton: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(12),
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
     justifyContent: "center",
     alignItems: "center",
   },

@@ -1,4 +1,8 @@
 import * as Amplitude from "@amplitude/analytics-react-native";
+import {
+  CookCandidatesGeneratedParams,
+  CookRecipeGeneratedParams,
+} from "./apiTypes";
 
 export enum AnalyticsEvent {
   FirstLaunch = "first_launch",
@@ -27,24 +31,6 @@ export type OnboardingFinishedParams = {
   dietTypes?: string[];
 };
 
-export type CookCandidatesGeneratedParams = {
-  goal: string;
-  time: string;
-  servings: string;
-  maxCaloriesPerServing: string;
-  followUpCount: number;
-  candidateCount: number;
-};
-
-export type CookRecipeGeneratedParams = {
-  recipeId: string;
-  candidateId: string;
-  difficulty: string;
-  servings: number;
-  totalMinutes: number;
-  ingredientCount: number;
-  stepCount: number;
-};
 
 type EventParams = {
   [AnalyticsEvent.FirstLaunch]: undefined;

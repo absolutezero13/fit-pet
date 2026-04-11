@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -24,6 +23,8 @@ import Animated, {
   SlideInRight,
   SlideOutLeft,
 } from "react-native-reanimated";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import useKeyboardVisible from "../ChatScreen/components/useKeyboardVisible";
 import AppButton from "../../components/AppButton";
 import LoadingDots from "../../components/LoadingDots";
 import {
@@ -44,6 +45,9 @@ import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
+
+const AnimatedLiquidGlassView =
+  Animated.createAnimatedComponent(LiquidGlassView);
 import useUserStore from "../../zustand/useUserStore";
 import CookCandidateCard from "./components/CookCandidateCard";
 import CookOptionChips, { CookChipOption } from "./components/CookOptionChips";
@@ -58,7 +62,11 @@ type CookViewState =
   | "recipe_loading"
   | "error";
 
-type HardcodedQuestionKey = "time" | "goal" | "servings" | "maxCaloriesPerServing";
+type HardcodedQuestionKey =
+  | "time"
+  | "goal"
+  | "servings"
+  | "maxCaloriesPerServing";
 
 interface HardcodedQuestion {
   key: HardcodedQuestionKey;
@@ -81,6 +89,7 @@ const CookScreen = () => {
   const isFocused = useIsFocused();
   const user = useUserStore();
   const seedInputRef = useRef<TextInput>(null);
+  const isKeyboardVisible = useKeyboardVisible();
 
   const [viewState, setViewState] = useState<CookViewState>("intro");
   const [seedInput, setSeedInput] = useState("");
@@ -99,9 +108,9 @@ const CookScreen = () => {
   const [pendingFollowUpAnswers, setPendingFollowUpAnswers] = useState<
     CookFollowUpAnswer[]
   >([]);
-  const [suggestedRecipes, setSuggestedRecipes] = useState<SuggestedCookRecipe[]>(
-    [],
-  );
+  const [suggestedRecipes, setSuggestedRecipes] = useState<
+    SuggestedCookRecipe[]
+  >([]);
   const [latestCook, setLatestCook] = useState<LatestCookSession | null>(null);
 
   useEffect(() => {
@@ -190,8 +199,12 @@ const CookScreen = () => {
     const options: CookMaxCaloriesOption[] = ["400", "600", "800", "1000"];
 
     return options.reduce((closest, option) => {
-      const currentDistance = Math.abs(Number(option) - estimatedMainMealCalories);
-      const closestDistance = Math.abs(Number(closest) - estimatedMainMealCalories);
+      const currentDistance = Math.abs(
+        Number(option) - estimatedMainMealCalories,
+      );
+      const closestDistance = Math.abs(
+        Number(closest) - estimatedMainMealCalories,
+      );
 
       return currentDistance < closestDistance ? option : closest;
     }, options[0]);
@@ -814,19 +827,21 @@ const CookScreen = () => {
   const renderCandidates = () => (
     <Animated.View entering={FadeInUp.duration(240)} style={styles.sectionGap}>
       <View style={styles.candidateGrid}>
-        {suggestedRecipes.map(({ candidate, recipe, activeVariation, isRefreshing }, index) => (
-          <CookCandidateCard
-            key={candidate.id}
-            recipe={recipe}
-            index={index}
-            isRefreshing={isRefreshing}
-            activeVariation={activeVariation}
-            onStartCooking={() => startCookingSuggestedRecipe(candidate.id)}
-            onPressVariation={(variation) =>
-              handleVariationPress(candidate.id, variation)
-            }
-          />
-        ))}
+        {suggestedRecipes.map(
+          ({ candidate, recipe, activeVariation, isRefreshing }, index) => (
+            <CookCandidateCard
+              key={candidate.id}
+              recipe={recipe}
+              index={index}
+              isRefreshing={isRefreshing}
+              activeVariation={activeVariation}
+              onStartCooking={() => startCookingSuggestedRecipe(candidate.id)}
+              onPressVariation={(variation) =>
+                handleVariationPress(candidate.id, variation)
+              }
+            />
+          ),
+        )}
       </View>
     </Animated.View>
   );
@@ -856,12 +871,14 @@ const CookScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {!isImmersiveMode ? (
-        <LiquidGlassView
+        <AnimatedLiquidGlassView
           effect="clear"
+          layout={LinearTransition}
           style={[
             styles.header,
             {
               paddingTop: top,
+              paddingBottom: isKeyboardVisible ? scale(8) : scale(22),
               backgroundColor: isLiquidGlassSupported
                 ? undefined
                 : colors.backgroundSecondary,
@@ -870,7 +887,13 @@ const CookScreen = () => {
         >
           <View style={styles.headerRow}>
             <View style={styles.headerCopy}>
-              <Text style={[styles.headerTitle, { color: colors.text }]}>
+              <Text
+                style={[
+                  isKeyboardVisible
+                    ? { ...fontStyles.headline2, color: colors.text }
+                    : { ...fontStyles.headline1, color: colors.text },
+                ]}
+              >
                 {t("tabCook")}
               </Text>
             </View>
@@ -884,7 +907,7 @@ const CookScreen = () => {
               </Pressable>
             )}
           </View>
-        </LiquidGlassView>
+        </AnimatedLiquidGlassView>
       ) : null}
 
       {isImmersiveMode ? (
@@ -927,11 +950,11 @@ const CookScreen = () => {
         </View>
       ) : null}
 
-      <ScrollView
+      <KeyboardAwareScrollView
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: isImmersiveMode ? top + scale(72) : top + scale(112),
+            paddingTop: isImmersiveMode ? top + scale(64) : top + scale(100),
             paddingBottom: isImmersiveMode ? scale(120) : scale(144),
             justifyContent: isLoadingState ? "center" : "flex-start",
             flexGrow: 1,
@@ -940,6 +963,7 @@ const CookScreen = () => {
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!isLoadingState}
         showsVerticalScrollIndicator={false}
+        bounces={false}
       >
         {viewState === "intro" && renderIntro()}
         {viewState === "questions" && renderQuestion()}
@@ -950,7 +974,7 @@ const CookScreen = () => {
         {viewState === "recipe_loading" &&
           renderLoading(t("cookBuildingRecipe"))}
         {viewState === "error" && renderError()}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
@@ -1011,7 +1035,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: scale(24),
-    paddingBottom: scale(22),
     borderBottomLeftRadius: scale(30),
     borderBottomRightRadius: scale(30),
     position: "absolute",
@@ -1026,9 +1049,6 @@ const styles = StyleSheet.create({
   },
   headerCopy: {
     flex: 1,
-  },
-  headerTitle: {
-    ...fontStyles.headline1,
   },
   headerAction: {
     width: scale(42),

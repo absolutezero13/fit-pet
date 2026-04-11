@@ -131,6 +131,25 @@ export interface CookPromptAnswers {
   followUpAnswers?: CookFollowUpAnswer[];
 }
 
+export type CookCandidatesGeneratedParams = {
+  goal: string;
+  time: string;
+  servings: string;
+  maxCaloriesPerServing: string;
+  followUpCount: number;
+  candidateCount: number;
+};
+
+export type CookRecipeGeneratedParams = {
+  recipeId: string;
+  candidateId: string;
+  difficulty: string;
+  servings: number;
+  totalMinutes: number;
+  ingredientCount: number;
+  stepCount: number;
+};
+
 const recipeSchema: Schema = {
   description: "List of recipes",
   type: SchemaType.ARRAY,
