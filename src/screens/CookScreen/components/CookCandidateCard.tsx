@@ -1,34 +1,107 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeInUp } from "react-native-reanimated";
-import { CookCandidate } from "../../../services/apiTypes";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+import { CookRecipe } from "../../../services/apiTypes";
 import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
 import { scale } from "../../../theme/utils";
 
 interface CookCandidateCardProps {
-  candidate: CookCandidate;
+  recipe: CookRecipe;
   index?: number;
-  onPress: () => void;
+  isRefreshing: boolean;
+  activeVariation: string | null;
+  onStartCooking: () => void | Promise<void>;
+  onPressVariation: (variation: string) => void | Promise<void>;
 }
 
-const CookCandidateCard = ({ candidate, index = 0, onPress }: CookCandidateCardProps) => {
+const CookCandidateCard = ({
+  recipe,
+  index = 0,
+  isRefreshing,
+  activeVariation,
+  onStartCooking,
+  onPressVariation,
+}: CookCandidateCardProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const totalMinutes = candidate.prepMinutes + candidate.cookMinutes;
   const accentColor =
     index % 2 === 0 ? colors["color-success-400"] : colors["color-info-400"];
   const accentColorSoft = `${accentColor}18`;
-  const accentColorMuted = `${accentColor}10`;
   const accentIcon = index % 2 === 0 ? "chef-hat" : "silverware-fork-knife";
+  const shimmerProgress = useSharedValue(0);
+  const shimmerStartX = -scale(180);
+  const shimmerTravelX = scale(460);
+  const metaItems = [
+    {
+      key: "calories",
+      label: t("calories"),
+      value: formatNutritionValue(recipe.nutrition?.calories, " kcal"),
+    },
+    {
+      key: "protein",
+      label: t("proteins"),
+      value: formatNutritionValue(recipe.nutrition?.protein, "g"),
+    },
+    {
+      key: "prep",
+      label: t("cookMetaPrep"),
+      value: `${recipe.prepMinutes} min`,
+    },
+    {
+      key: "difficulty",
+      label: t("cookMetaLevel"),
+      value: getDifficultyLabel(t, recipe.difficulty),
+    },
+  ];
+
+  useEffect(() => {
+    if (isRefreshing) {
+      shimmerProgress.value = 0;
+      shimmerProgress.value = withRepeat(
+        withTiming(1, {
+          duration: 1100,
+          easing: Easing.linear,
+        }),
+        -1,
+        false,
+      );
+
+      return () => {
+        cancelAnimation(shimmerProgress);
+      };
+    }
+
+    cancelAnimation(shimmerProgress);
+    shimmerProgress.value = 0;
+
+    return undefined;
+  }, [isRefreshing, shimmerProgress]);
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: shimmerStartX + shimmerProgress.value * shimmerTravelX },
+      { rotate: "14deg" },
+    ],
+  }));
 
   return (
-    <Animated.View entering={FadeInUp.delay(index * 80).duration(320)} style={styles.wrapper}>
-      <Pressable
-        onPress={onPress}
+    <Animated.View
+      entering={FadeInUp.delay(index * 80).duration(320)}
+      style={styles.wrapper}
+    >
+      <View
         style={[
           styles.card,
           {
@@ -38,72 +111,216 @@ const CookCandidateCard = ({ candidate, index = 0, onPress }: CookCandidateCardP
           },
         ]}
       >
-        <LinearGradient
-          colors={[accentColorSoft, colors.surface]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBlock}
-        >
-          <View style={[styles.iconWrap, { backgroundColor: accentColorSoft }]}> 
-            <MaterialCommunityIcons
-              name={accentIcon}
-              size={scale(18)}
-              color={accentColor}
-            />
-          </View>
-
-          <View style={styles.titleWrap}>
-            <Text style={[styles.title, { color: colors.text }]}>{candidate.title}</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}> 
-              {candidate.subtitle}
-            </Text>
-            <Text style={[styles.summary, { color: colors.textSecondary }]}> 
-              {candidate.summary}
-            </Text>
-            <View style={[styles.cookButton, { backgroundColor: accentColor }]}> 
-              <Text style={[styles.cookButtonLabel, { color: colors.textInverse }]}> 
-                {t("cookStartCooking")}
-              </Text>
+        <View style={[styles.cardContent, isRefreshing ? styles.cardContentRefreshing : null]}>
+          <LinearGradient
+            colors={[accentColorSoft, colors.surface]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroBlock}
+          >
+            <View style={[styles.iconWrap, { backgroundColor: accentColorSoft }]}> 
               <MaterialCommunityIcons
-                name="arrow-right"
-                size={scale(15)}
-                color={colors.textInverse}
+                name={accentIcon}
+                size={scale(18)}
+                color={accentColor}
               />
             </View>
-          </View>
-        </LinearGradient>
 
-        <View style={styles.metaRow}>
-          <View style={[styles.metaCard, { backgroundColor: colors.backgroundSecondary }]}> 
-            <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
-              {t("cookMetaTime")}
-            </Text>
-            <Text style={[styles.metaValue, { color: colors.text }]}>{totalMinutes} min</Text>
+            <View style={styles.titleWrap}>
+              <Text style={[styles.title, { color: colors.text }]}>{recipe.title}</Text>
+              <Text style={[styles.summary, { color: colors.textSecondary }]}> 
+                {recipe.summary}
+              </Text>
+            </View>
+          </LinearGradient>
+
+          <View style={styles.metaGrid}>
+            {metaItems.map((item) => (
+              <View
+                key={item.key}
+                style={[
+                  styles.metaCard,
+                  { backgroundColor: colors.backgroundSecondary },
+                ]}
+              >
+                <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
+                  {item.label}
+                </Text>
+                <Text style={[styles.metaValue, { color: colors.text }]}>
+                  {item.value}
+                </Text>
+              </View>
+            ))}
           </View>
-          <View style={[styles.metaCard, { backgroundColor: colors.backgroundSecondary }]}> 
-            <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
-              {t("cookMetaServings")}
-            </Text>
-            <Text style={[styles.metaValue, { color: colors.text }]}>{candidate.servings}</Text>
+
+          <View
+            style={[
+              styles.variationBlock,
+              { backgroundColor: colors.backgroundSecondary },
+            ]}
+          >
+            <View style={styles.variationHeader}>
+              <View
+                style={[
+                  styles.variationHeaderIcon,
+                  { backgroundColor: `${accentColor}18` },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="creation"
+                  size={scale(16)}
+                  color={accentColor}
+                />
+              </View>
+              <View style={styles.variationHeaderCopy}>
+                <Text style={[styles.variationTitle, { color: colors.text }]}>
+                  {t("cookVariationTitle")}
+                </Text>
+                <Text
+                  style={[
+                    styles.variationSubtitle,
+                    { color: colors.textSecondary },
+                  ]}
+                >
+                  {t("cookVariationSubtitle")}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.variationList}>
+              {recipe.variations.map((variation) => {
+                const isActiveVariation =
+                  isRefreshing && activeVariation === variation;
+
+                return (
+                  <Pressable
+                    key={variation}
+                    disabled={isRefreshing}
+                    onPress={() => onPressVariation(variation)}
+                    style={[
+                      styles.variationChip,
+                      {
+                        backgroundColor: isActiveVariation
+                          ? accentColor
+                          : colors.surface,
+                        borderColor: isActiveVariation ? accentColor : colors.border,
+                        opacity: isRefreshing && !isActiveVariation ? 0.5 : 1,
+                      },
+                    ]}
+                  >
+                    <View style={styles.variationChipMain}>
+                      <View
+                        style={[
+                          styles.variationChipIcon,
+                          {
+                            backgroundColor: isActiveVariation
+                              ? `${colors.textInverse}22`
+                              : `${accentColor}18`,
+                          },
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          name={
+                            isActiveVariation ? "progress-clock" : "auto-fix"
+                          }
+                          size={scale(16)}
+                          color={isActiveVariation ? colors.textInverse : accentColor}
+                        />
+                      </View>
+                      <View style={styles.variationChipCopy}>
+                        <Text
+                          style={[
+                            styles.variationChipHint,
+                            {
+                              color: isActiveVariation
+                                ? `${colors.textInverse}CC`
+                                : colors.textSecondary,
+                            },
+                          ]}
+                        >
+                          {isActiveVariation
+                            ? t("cookVariationRefreshing")
+                            : t("cookVariationHint")}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.variationChipText,
+                            {
+                              color: isActiveVariation
+                                ? colors.textInverse
+                                : colors.text,
+                            },
+                          ]}
+                        >
+                          {variation}
+                        </Text>
+                      </View>
+                    </View>
+                    <MaterialCommunityIcons
+                      name="chevron-right"
+                      size={scale(18)}
+                      color={
+                        isActiveVariation ? colors.textInverse : colors.textSecondary
+                      }
+                    />
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
-          <View style={[styles.metaCard, { backgroundColor: colors.backgroundSecondary }]}> 
-            <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
-              {t("cookMetaLevel")}
+
+          <Pressable
+            disabled={isRefreshing}
+            onPress={onStartCooking}
+            style={[
+              styles.cookButton,
+              {
+                backgroundColor: accentColor,
+                opacity: isRefreshing ? 0.6 : 1,
+              },
+            ]}
+          >
+            <Text style={[styles.cookButtonLabel, { color: colors.textInverse }]}> 
+              {t("cookStartCooking")}
             </Text>
-            <Text style={[styles.metaValue, { color: colors.text }]}>
-              {getDifficultyLabel(t, candidate.difficulty)}
-            </Text>
-          </View>
+            <MaterialCommunityIcons
+              name="arrow-right"
+              size={scale(15)}
+              color={colors.textInverse}
+            />
+          </Pressable>
         </View>
 
-        <View style={[styles.fitBlock, { backgroundColor: accentColorMuted }]}> 
-          <Text style={[styles.fitLabel, { color: accentColor }]}>{t("cookFitLabel")}</Text>
-          <Text style={[styles.fitReason, { color: colors.text }]}>{candidate.fitReason}</Text>
-        </View>
-
-      </Pressable>
+        {isRefreshing ? (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.shimmerOverlay,
+              { backgroundColor: `${colors.backgroundSecondary}99` },
+            ]}
+          >
+            <Animated.View style={[styles.shimmerBand, shimmerStyle]}>
+              <LinearGradient
+                colors={["transparent", `${colors.white}00`, `${colors.white}88`, "transparent"]}
+                locations={[0, 0.2, 0.55, 1]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.shimmerGradient}
+              />
+            </Animated.View>
+          </View>
+        ) : null}
+      </View>
     </Animated.View>
   );
+};
+
+const formatNutritionValue = (value?: number, suffix = "") => {
+  if (value == null) {
+    return "--";
+  }
+
+  return `${Math.round(value)}${suffix}`;
 };
 
 const getDifficultyLabel = (t: (key: string) => string, difficulty: string) => {
@@ -125,12 +342,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: scale(28),
     padding: scale(18),
-    gap: scale(14),
     shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.08,
     shadowRadius: scale(16),
     elevation: 4,
     overflow: "hidden",
+  },
+  cardContent: {
+    gap: scale(14),
+  },
+  cardContentRefreshing: {
+    opacity: 0.72,
   },
   heroBlock: {
     borderRadius: scale(22),
@@ -151,18 +373,16 @@ const styles = StyleSheet.create({
   title: {
     ...fontStyles.headline2,
   },
-  subtitle: {
-    ...fontStyles.headline4,
-  },
   summary: {
     ...fontStyles.body1,
   },
-  metaRow: {
+  metaGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: scale(10),
   },
   metaCard: {
-    flex: 1,
+    width: "48%",
     borderRadius: scale(18),
     paddingHorizontal: scale(12),
     paddingVertical: scale(10),
@@ -174,17 +394,80 @@ const styles = StyleSheet.create({
   metaValue: {
     ...fontStyles.body1Bold,
   },
-  fitBlock: {
-    borderRadius: scale(18),
+  variationBlock: {
+    borderRadius: scale(20),
     padding: scale(14),
-    gap: scale(4),
+    gap: scale(12),
   },
-  fitLabel: {
-    ...fontStyles.caption,
-    textTransform: "uppercase",
+  variationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(10),
   },
-  fitReason: {
+  variationHeaderIcon: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  variationHeaderCopy: {
+    flex: 1,
+    gap: scale(2),
+  },
+  variationTitle: {
     ...fontStyles.body1Bold,
+  },
+  variationSubtitle: {
+    ...fontStyles.caption,
+  },
+  variationList: {
+    gap: scale(10),
+  },
+  variationChip: {
+    minHeight: scale(62),
+    borderRadius: scale(18),
+    borderWidth: 1,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(10),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: scale(12),
+  },
+  variationChipMain: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(10),
+  },
+  variationChipIcon: {
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  variationChipCopy: {
+    flex: 1,
+    gap: scale(2),
+  },
+  variationChipHint: {
+    ...fontStyles.caption,
+  },
+  variationChipText: {
+    ...fontStyles.body1Bold,
+  },
+  shimmerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+  },
+  shimmerBand: {
+    width: scale(180),
+    height: "145%",
+  },
+  shimmerGradient: {
+    flex: 1,
   },
   cookButton: {
     flexDirection: "row",

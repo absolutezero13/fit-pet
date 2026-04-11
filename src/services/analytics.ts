@@ -9,6 +9,8 @@ export enum AnalyticsEvent {
   DeleteUser = "delete_user",
   MealLogged = "meal_logged",
   MealLogError = "meal_log_error",
+  CookCandidatesGenerated = "cook_candidates_generated",
+  CookRecipeGenerated = "cook_recipe_generated",
 }
 
 export type MealLoggedParams = {
@@ -25,6 +27,25 @@ export type OnboardingFinishedParams = {
   dietTypes?: string[];
 };
 
+export type CookCandidatesGeneratedParams = {
+  goal: string;
+  time: string;
+  servings: string;
+  maxCaloriesPerServing: string;
+  followUpCount: number;
+  candidateCount: number;
+};
+
+export type CookRecipeGeneratedParams = {
+  recipeId: string;
+  candidateId: string;
+  difficulty: string;
+  servings: number;
+  totalMinutes: number;
+  ingredientCount: number;
+  stepCount: number;
+};
+
 type EventParams = {
   [AnalyticsEvent.FirstLaunch]: undefined;
   [AnalyticsEvent.StartOnboarding]: undefined;
@@ -34,6 +55,8 @@ type EventParams = {
   [AnalyticsEvent.DeleteUser]: undefined;
   [AnalyticsEvent.MealLogged]: MealLoggedParams;
   [AnalyticsEvent.MealLogError]: undefined;
+  [AnalyticsEvent.CookCandidatesGenerated]: CookCandidatesGeneratedParams;
+  [AnalyticsEvent.CookRecipeGenerated]: CookRecipeGeneratedParams;
 };
 
 interface IAnalyticsProvider {

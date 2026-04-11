@@ -1,4 +1,5 @@
 import { Part } from "@google/generative-ai";
+import { getAuth } from "@react-native-firebase/auth";
 import promptBuilder from "../utils/promptBuilder";
 import useOnboardingStore from "../zustand/useOnboardingStore";
 import {
@@ -107,12 +108,36 @@ export const createGeminiVisionCompletion = async (
       formData.append("schema", JSON.stringify(schemas[schema]));
     }
 
-    const res = await api.post("/vision", formData, {});
+    const token = await getAuth().currentUser?.getIdToken();
+    const response = await fetch(`${ENDPOINT}/vision`, {
+      method: "POST",
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : undefined,
+      body: formData,
+    });
 
-    return res.data;
+    const responseText = await response.text();
+    const data = responseText ? JSON.parse(responseText) : null;
+
+    if (!response.ok) {
+      if (response.status === 413) {
+        throw new Error("Captured photo is too large to upload. Please retake it.");
+      }
+
+      throw new Error(
+        typeof data?.error === "string"
+          ? data.error
+          : `Vision request failed (${response.status})`,
+      );
+    }
+
+    return data;
   } catch (error) {
     console.log("GEMINI ERROR", error);
-    return error as any;
+    throw error;
   }
 };
 
@@ -187,10 +212,19 @@ export const createCookCandidates = async (
 
 export const createCookRecipe = async (
   answers: CookPromptAnswers,
-  candidate: CookCandidate
+  candidate: CookCandidate,
+  options?: {
+    variation?: string;
+    currentRecipe?: CookRecipe;
+  }
 ): Promise<CookRecipeResponse> => {
   const user = useUserStore.getState();
-  const prompt = promptBuilder.createCookRecipePrompt(user, answers, candidate);
+  const prompt = promptBuilder.createCookRecipePrompt(
+    user,
+    answers,
+    candidate,
+    options,
+  );
   const result = await createGeminiCompletion(prompt, "cookRecipe");
 
   return parseGeminiJson<CookRecipeResponse>(result);

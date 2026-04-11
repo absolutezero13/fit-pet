@@ -109,6 +109,7 @@ export interface CookRecipe {
   ingredients: CookRecipeIngredient[];
   steps: CookRecipeStep[];
   nutrition?: CookCandidateNutrition;
+  variations: string[];
 }
 
 export interface CookRecipeResponse {
@@ -268,6 +269,38 @@ const cookCandidateNutritionSchema: Schema = {
       type: SchemaType.NUMBER,
       nullable: true,
     },
+  },
+};
+
+const cookRecipeNutritionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  nullable: false,
+  properties: {
+    calories: {
+      type: SchemaType.NUMBER,
+      nullable: false,
+    },
+    protein: {
+      type: SchemaType.NUMBER,
+      nullable: false,
+    },
+    carbs: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+    fats: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+  },
+  required: ["calories", "protein"],
+};
+
+const cookRecipeVariationsSchema: Schema = {
+  type: SchemaType.ARRAY,
+  nullable: false,
+  items: {
+    type: SchemaType.STRING,
   },
 };
 
@@ -497,7 +530,8 @@ const cookRecipeSchema: Schema = {
             required: ["id", "title", "instruction"],
           },
         },
-        nutrition: cookCandidateNutritionSchema,
+        nutrition: cookRecipeNutritionSchema,
+        variations: cookRecipeVariationsSchema,
       },
       required: [
         "id",
@@ -510,6 +544,8 @@ const cookRecipeSchema: Schema = {
         "difficulty",
         "ingredients",
         "steps",
+        "nutrition",
+        "variations",
       ],
     },
   },

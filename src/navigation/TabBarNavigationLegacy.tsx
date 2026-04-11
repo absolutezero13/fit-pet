@@ -79,6 +79,7 @@ const TabBarNavigationLegacy = () => {
   };
   return (
     <Tabs.Navigator
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,

@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, {
   FadeInUp,
-  FadeOut,
   Easing,
   LinearTransition,
   SlideInDown,
@@ -25,13 +24,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import AppButton from "../../components/AppButton";
+import LoadingDots from "../../components/LoadingDots";
 import { CookRecipe } from "../../services/apiTypes";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
 import CookRecipePreview from "../CookScreen/components/CookRecipePreview";
 import CookStepTimer from "../CookScreen/components/CookStepTimer";
-import AnalyzingMealOverlay from "../../components/AnalyzingMealOverlay";
 import { createCookLoggedMeal } from "../../services/gptApi";
 import { createMeal } from "../../services/mealAnalysis";
 import useMealsStore from "../../zustand/useMealsStore";
@@ -199,10 +198,18 @@ const CookRecipeScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}> 
-      <AnalyzingMealOverlay
-        visible={isLoggingMeal}
-        label={t("cookLoggingMeal")}
-      />
+      {isLoggingMeal ? (
+        <View style={styles.loggingOverlay}>
+          <View
+            style={[styles.loggingCard, { backgroundColor: colors.surface }]}
+          >
+            <LoadingDots />
+            <Text style={[styles.loggingText, { color: colors.text }]}>
+              {t("cookLoggingMeal")}
+            </Text>
+          </View>
+        </View>
+      ) : null}
 
       <LiquidGlassView
         effect="clear"
@@ -473,6 +480,25 @@ const CookRecipeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loggingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.24)",
+    zIndex: 20,
+  },
+  loggingCard: {
+    minWidth: scale(220),
+    borderRadius: scale(24),
+    paddingHorizontal: scale(28),
+    paddingVertical: scale(24),
+    alignItems: "center",
+    gap: scale(16),
+  },
+  loggingText: {
+    ...fontStyles.headline3,
+    textAlign: "center",
   },
   header: {
     paddingHorizontal: scale(24),

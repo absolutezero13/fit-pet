@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Alert, View, Text, StyleSheet, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Camera } from "react-native-vision-camera";
 import { scale } from "../../theme/utils";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
@@ -96,6 +97,21 @@ const LoggedMealsScreen = () => {
     console.log("navigating to log meal", type);
     setSelectedMealType(type ?? "breakfast");
     TrueSheet.present(TrueSheetNames.LOG_MEAL);
+  };
+
+  const handleScanMealPress = async () => {
+    const currentStatus = Camera.getCameraPermissionStatus();
+
+    if (currentStatus !== "granted") {
+      const nextStatus = await Camera.requestCameraPermission();
+
+      if (nextStatus !== "granted") {
+        Alert.alert(t("camera"), t("cameraPermissionRequired"));
+        return;
+      }
+    }
+
+    TrueSheet.present(TrueSheetNames.SCAN_MEAL);
   };
 
   const isToday =
@@ -239,7 +255,7 @@ const LoggedMealsScreen = () => {
                   : colors["color-success-400"],
               },
             ]}
-            onPress={() => TrueSheet.present(TrueSheetNames.SCAN_MEAL)}
+            onPress={handleScanMealPress}
           >
             <MaterialCommunityIcons
               name="camera"

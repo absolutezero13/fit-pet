@@ -251,7 +251,11 @@ Interpretation guide:
 const createCookRecipePrompt = (
   userInfo: IUser | null,
   answers: CookPromptAnswers,
-  candidate: CookCandidate
+  candidate: CookCandidate,
+  options?: {
+    variation?: string;
+    currentRecipe?: CookRecipe;
+  }
 ) => `
 date: ${getCurrentDate()}
 You are Cook, a practical recipe planning assistant inside a meal tracker app.
@@ -262,12 +266,32 @@ Rules:
 - Match the user's time budget, goal, and servings.
 - Respect maxCaloriesPerServing as a hard cap per serving unless it is "any".
 - Ingredient amounts should be specific.
+- Use metric units by default for measurable ingredients, such as g, kg, ml, and l.
+- Use kitchen-friendly units like tablespoon, teaspoon, clove, slice, or piece when they are more natural than exact metric values.
+- Never use cups, ounces, pounds, or Fahrenheit.
+- If a cooking temperature is needed, use Celsius.
 - Steps should be short, actionable, and ordered.
 - Only include timerSeconds when a timer genuinely helps the cook.
 - Prefer 4 to 7 steps.
+- Always include approximate nutrition per serving with at least calories and protein.
+- Return 3 or 4 short variation labels for this exact recipe.
+- Variation labels must be specific, tappable, and meaningfully different from each other.
 - Use the provided response schema exactly.
 - Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 - If the user's language is Turkish, every visible string must be in Turkish.
+
+${
+  options?.variation
+    ? `Variation request:
+- Regenerate the recipe by applying this variation: ${JSON.stringify(
+        options.variation
+      )}.
+- Keep the recipe recognizably related to the current version while updating title, summary, nutrition, ingredients, timings, and steps as needed.
+- Refresh the variation labels so they fit the new recipe.
+- Do not repeat the applied variation in the refreshed variation labels.
+`
+    : ""
+}
 
 User profile:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
@@ -277,6 +301,14 @@ ${JSON.stringify(answers, null, 2)}
 
 Selected candidate:
 ${JSON.stringify(candidate, null, 2)}
+
+${
+  options?.currentRecipe
+    ? `Current recipe to adapt:
+${JSON.stringify(options.currentRecipe, null, 2)}
+`
+    : ""
+}
 `;
 
 const createCookMealLogPrompt = (

@@ -18,31 +18,28 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, {
-  Easing,
   FadeInUp,
   FadeOut,
   LinearTransition,
   SlideInRight,
   SlideOutLeft,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withTiming,
 } from "react-native-reanimated";
 import AppButton from "../../components/AppButton";
+import LoadingDots from "../../components/LoadingDots";
 import {
   CookCandidate,
   CookFollowUpAnswer,
   CookFollowUpQuestion,
   CookGoal,
   CookMaxCaloriesOption,
+  CookRecipe,
   LatestCookSession,
   CookPromptAnswers,
   CookServingOption,
   CookTimeOption,
 } from "../../services/apiTypes";
 import { createCookCandidates, createCookRecipe } from "../../services/gptApi";
+import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
@@ -69,79 +66,11 @@ interface HardcodedQuestion {
   options: CookChipOption[];
 }
 
-const LoadingDots = () => {
-  const { colors } = useTheme();
-  const first = useSharedValue(0);
-  const second = useSharedValue(0);
-  const third = useSharedValue(0);
-
-  useEffect(() => {
-    const animate = (value: typeof first, delay: number) => {
-      value.value = withDelay(
-        delay,
-        withRepeat(
-          withTiming(1, {
-            duration: 420,
-            easing: Easing.inOut(Easing.ease),
-          }),
-          -1,
-          true,
-        ),
-      );
-    };
-
-    animate(first, 0);
-    animate(second, 120);
-    animate(third, 240);
-  }, [first, second, third]);
-
-  const firstDotStyle = useAnimatedStyle(() => ({
-    opacity: 0.35 + first.value * 0.65,
-    transform: [
-      { translateY: -4 * first.value },
-      { scale: 0.96 + first.value * 0.08 },
-    ],
-  }));
-  const secondDotStyle = useAnimatedStyle(() => ({
-    opacity: 0.35 + second.value * 0.65,
-    transform: [
-      { translateY: -4 * second.value },
-      { scale: 0.96 + second.value * 0.08 },
-    ],
-  }));
-  const thirdDotStyle = useAnimatedStyle(() => ({
-    opacity: 0.35 + third.value * 0.65,
-    transform: [
-      { translateY: -4 * third.value },
-      { scale: 0.96 + third.value * 0.08 },
-    ],
-  }));
-
-  return (
-    <View style={styles.loadingDotsRow}>
-      <Animated.View
-        style={[
-          styles.loadingDot,
-          { backgroundColor: colors["color-success-400"] },
-          firstDotStyle,
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.loadingDot,
-          { backgroundColor: colors["color-success-400"] },
-          secondDotStyle,
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.loadingDot,
-          { backgroundColor: colors["color-success-400"] },
-          thirdDotStyle,
-        ]}
-      />
-    </View>
-  );
+type SuggestedCookRecipe = {
+  candidate: CookCandidate;
+  recipe: CookRecipe;
+  activeVariation: string | null;
+  isRefreshing: boolean;
 };
 
 const CookScreen = () => {
@@ -170,9 +99,9 @@ const CookScreen = () => {
   const [pendingFollowUpAnswers, setPendingFollowUpAnswers] = useState<
     CookFollowUpAnswer[]
   >([]);
-  const [candidates, setCandidates] = useState<CookCandidate[]>([]);
-  const [selectedCandidate, setSelectedCandidate] =
-    useState<CookCandidate | null>(null);
+  const [suggestedRecipes, setSuggestedRecipes] = useState<SuggestedCookRecipe[]>(
+    [],
+  );
   const [latestCook, setLatestCook] = useState<LatestCookSession | null>(null);
 
   useEffect(() => {
@@ -325,6 +254,41 @@ const CookScreen = () => {
     setFollowUpQuestions([]);
     setFollowUpQuestionIndex(0);
     setPendingFollowUpAnswers([]);
+    setSuggestedRecipes([]);
+  };
+
+  const logCookRecipeGenerated = (candidateId: string, recipe: CookRecipe) => {
+    analyticsService.logEvent(AnalyticsEvent.CookRecipeGenerated, {
+      recipeId: recipe.id,
+      candidateId,
+      difficulty: recipe.difficulty,
+      servings: recipe.servings,
+      totalMinutes: recipe.prepMinutes + recipe.cookMinutes,
+      ingredientCount: recipe.ingredients.length,
+      stepCount: recipe.steps.length,
+    });
+  };
+
+  const buildSuggestedRecipes = async (
+    nextAnswers: CookPromptAnswers,
+    nextCandidates: CookCandidate[],
+  ) => {
+    const nextSuggestedRecipes = await Promise.all(
+      nextCandidates.map(async (candidate) => {
+        const response = await createCookRecipe(nextAnswers, candidate);
+
+        logCookRecipeGenerated(candidate.id, response.recipe);
+
+        return {
+          candidate,
+          recipe: response.recipe,
+          activeVariation: null,
+          isRefreshing: false,
+        };
+      }),
+    );
+
+    return nextSuggestedRecipes;
   };
 
   const requestCandidates = async (nextAnswers: CookPromptAnswers) => {
@@ -337,6 +301,7 @@ const CookScreen = () => {
         setFollowUpQuestions(response.followUpQuestions);
         setFollowUpQuestionIndex(0);
         setPendingFollowUpAnswers([]);
+        setSuggestedRecipes([]);
         setSelectedAnswerValue(null);
         setIsTransitioningQuestion(false);
         setFollowUpInput("");
@@ -345,12 +310,28 @@ const CookScreen = () => {
       }
 
       if (response.phase === "candidates" && response.candidates?.length) {
+        const nextCandidates = response.candidates.slice(0, 2);
+
+        analyticsService.logEvent(AnalyticsEvent.CookCandidatesGenerated, {
+          goal: nextAnswers.goal,
+          time: nextAnswers.time,
+          servings: nextAnswers.servings,
+          maxCaloriesPerServing: nextAnswers.maxCaloriesPerServing,
+          followUpCount: nextAnswers.followUpAnswers?.length ?? 0,
+          candidateCount: nextCandidates.length,
+        });
+
+        const nextSuggestedRecipes = await buildSuggestedRecipes(
+          nextAnswers,
+          nextCandidates,
+        );
+
         setFollowUpQuestions([]);
         setFollowUpQuestionIndex(0);
         setPendingFollowUpAnswers([]);
         setSelectedAnswerValue(null);
         setIsTransitioningQuestion(false);
-        setCandidates(response.candidates.slice(0, 2));
+        setSuggestedRecipes(nextSuggestedRecipes);
         setViewState("candidate_selection");
         return;
       }
@@ -448,29 +429,88 @@ const CookScreen = () => {
     await requestCandidates(nextAnswers);
   };
 
-  const chooseCandidate = async (candidate: CookCandidate) => {
+  const startCookingSuggestedRecipe = async (candidateId: string) => {
+    const selectedRecipe = suggestedRecipes.find(
+      (item) => item.candidate.id === candidateId,
+    );
+
+    if (!selectedRecipe || selectedRecipe.isRefreshing) {
+      return;
+    }
+
+    const latestSession: LatestCookSession = {
+      recipe: selectedRecipe.recipe,
+      seed: (answers.seed as string) ?? "",
+      savedAt: new Date().toISOString(),
+    };
+
+    await storageService.setItem("latestCook", latestSession);
+    setLatestCook(latestSession);
+    navigation.navigate("CookRecipe", { recipe: selectedRecipe.recipe });
+  };
+
+  const handleVariationPress = async (
+    candidateId: string,
+    variation: string,
+  ) => {
+    const selectedRecipe = suggestedRecipes.find(
+      (item) => item.candidate.id === candidateId,
+    );
+
+    if (!selectedRecipe || selectedRecipe.isRefreshing) {
+      return;
+    }
+
+    setSuggestedRecipes((current) =>
+      current.map((item) =>
+        item.candidate.id === candidateId
+          ? {
+              ...item,
+              activeVariation: variation,
+              isRefreshing: true,
+            }
+          : item,
+      ),
+    );
+
     try {
-      setSelectedCandidate(candidate);
-      setViewState("recipe_loading");
       const response = await createCookRecipe(
         answers as CookPromptAnswers,
-        candidate,
+        selectedRecipe.candidate,
+        {
+          variation,
+          currentRecipe: selectedRecipe.recipe,
+        },
       );
 
-      const latestSession: LatestCookSession = {
-        recipe: response.recipe,
-        seed: (answers.seed as string) ?? "",
-        savedAt: new Date().toISOString(),
-      };
+      logCookRecipeGenerated(selectedRecipe.candidate.id, response.recipe);
 
-      await storageService.setItem("latestCook", latestSession);
-      setLatestCook(latestSession);
-      setViewState("candidate_selection");
-      navigation.navigate("CookRecipe", { recipe: response.recipe });
+      setSuggestedRecipes((current) =>
+        current.map((item) =>
+          item.candidate.id === candidateId
+            ? {
+                ...item,
+                recipe: response.recipe,
+                activeVariation: null,
+                isRefreshing: false,
+              }
+            : item,
+        ),
+      );
     } catch (error) {
-      console.log("COOK RECIPE ERROR", error);
-      setErrorMessage(t("cookErrorBody"));
-      setViewState("error");
+      console.log("COOK RECIPE VARIATION ERROR", error);
+      setSuggestedRecipes((current) =>
+        current.map((item) =>
+          item.candidate.id === candidateId
+            ? {
+                ...item,
+                activeVariation: null,
+                isRefreshing: false,
+              }
+            : item,
+        ),
+      );
+      Alert.alert(t("cookErrorTitle"), t("cookErrorBody"));
     }
   };
 
@@ -486,8 +526,7 @@ const CookScreen = () => {
     setFollowUpQuestions([]);
     setFollowUpQuestionIndex(0);
     setPendingFollowUpAnswers([]);
-    setCandidates([]);
-    setSelectedCandidate(null);
+    setSuggestedRecipes([]);
   };
 
   const confirmResetCookFlow = () => {
@@ -775,12 +814,17 @@ const CookScreen = () => {
   const renderCandidates = () => (
     <Animated.View entering={FadeInUp.duration(240)} style={styles.sectionGap}>
       <View style={styles.candidateGrid}>
-        {candidates.map((candidate, index) => (
+        {suggestedRecipes.map(({ candidate, recipe, activeVariation, isRefreshing }, index) => (
           <CookCandidateCard
             key={candidate.id}
-            candidate={candidate}
+            recipe={recipe}
             index={index}
-            onPress={() => chooseCandidate(candidate)}
+            isRefreshing={isRefreshing}
+            activeVariation={activeVariation}
+            onStartCooking={() => startCookingSuggestedRecipe(candidate.id)}
+            onPressVariation={(variation) =>
+              handleVariationPress(candidate.id, variation)
+            }
           />
         ))}
       </View>
@@ -830,7 +874,7 @@ const CookScreen = () => {
                 {t("tabCook")}
               </Text>
             </View>
-            {(viewState !== "intro" || selectedCandidate) && (
+            {viewState !== "intro" && (
               <Pressable onPress={resetCookFlow} style={styles.headerAction}>
                 <MaterialCommunityIcons
                   name="refresh"
@@ -893,6 +937,7 @@ const CookScreen = () => {
             flexGrow: 1,
           },
         ]}
+        keyboardShouldPersistTaps="handled"
         scrollEnabled={!isLoadingState}
         showsVerticalScrollIndicator={false}
       >
@@ -1084,16 +1129,6 @@ const styles = StyleSheet.create({
   loadingText: {
     ...fontStyles.headline3,
     textAlign: "center",
-  },
-  loadingDotsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: scale(8),
-  },
-  loadingDot: {
-    width: scale(10),
-    height: scale(10),
-    borderRadius: scale(5),
   },
   cardLabel: {
     ...fontStyles.caption,

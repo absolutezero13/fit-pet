@@ -138,7 +138,7 @@ const AnalyzedMealScreen = () => {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: bottom + scale(40), paddingTop: top + scale(70) },
+          { paddingBottom: bottom + scale(96), paddingTop: top + scale(70) },
         ]}
         showsVerticalScrollIndicator={false}
       >

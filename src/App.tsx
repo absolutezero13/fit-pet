@@ -4,7 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
 import RootNavigator from "./navigation/RootNavigation";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+  NavigationContainer,
+} from "@react-navigation/native";
 import {
   useFonts,
   Nunito_200ExtraLight,
@@ -62,13 +66,25 @@ Asset.loadAsync([...NavigationAssets]);
 SplashScreen.preventAutoHideAsync();
 
 const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
+  const navigationTheme = {
+    ...(isDark ? NavigationDarkTheme : NavigationDefaultTheme),
+    colors: {
+      ...(isDark ? NavigationDarkTheme.colors : NavigationDefaultTheme.colors),
+      primary: colors["color-success-400"],
+      background: colors.background,
+      card: colors.background,
+      text: colors.text,
+      border: colors.border,
+      notification: colors["color-danger-500"],
+    },
+  };
 
   return (
     <>
       <StatusBar style={isDark ? "light" : "dark"} translucent />
       <KeyboardProvider>
-        <NavigationContainer onReady={onReady}>
+        <NavigationContainer onReady={onReady} theme={navigationTheme}>
           <RootNavigator />
           <ProgressiveUnlockChecker />
         </NavigationContainer>

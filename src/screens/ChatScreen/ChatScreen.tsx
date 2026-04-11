@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Pressable,
+  Platform,
 } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -42,13 +43,15 @@ const AnimatedLiquidGlassView =
 const ChatScreen = () => {
   const { height } = useReanimatedKeyboardAnimation();
   const isFocused = useIsFocused();
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { colors } = useTheme();
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
   const navigation = useNavigation();
+  const composerBottomOffset =
+    TAB_BAR_HEIGHT + scale(12) + (Platform.OS === "android" ? bottom : 0);
 
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -323,7 +326,7 @@ const ChatScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               width: "100%",
-              marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + scale(12),
+              marginBottom: isKeyboardVisible ? 0 : composerBottomOffset,
               position: isKeyboardVisible ? "absolute" : undefined,
             },
             {

@@ -11,15 +11,22 @@ import { CookRecipe, IMeal } from "../services/apiTypes";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
 import useUserStore, { INITIAL_USER_STORE } from "../zustand/useUserStore";
+import { useTheme } from "../theme/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
   const userStore = useUserStore((state) => state);
+  const { colors } = useTheme();
 
   return (
     <Stack.Navigator
       initialRouteName={userStore?.onboardingCompleted ? "HomeTabs" : "Welcome"}
+      screenOptions={{
+        contentStyle: {
+          backgroundColor: colors.background,
+        },
+      }}
     >
       <Stack.Screen
         options={{
