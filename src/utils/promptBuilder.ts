@@ -230,6 +230,14 @@ Rules:
 - Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 - If the user's language is Turkish, every visible string must be in Turkish.
 - Keep candidate subtitle and summary very short.
+${(() => {
+  const allergens = userInfo?.onboarding?.allergens;
+  const dietTypes = userInfo?.onboarding?.dietTypes;
+  const lines: string[] = [];
+  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
+  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
+})()}
 
 User profile:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
@@ -279,6 +287,14 @@ Rules:
 - Use the provided response schema exactly.
 - Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 - If the user's language is Turkish, every visible string must be in Turkish.
+${(() => {
+  const allergens = userInfo?.onboarding?.allergens;
+  const dietTypes = userInfo?.onboarding?.dietTypes;
+  const lines: string[] = [];
+  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
+  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
+})()}
 
 ${
   options?.variation

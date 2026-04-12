@@ -37,6 +37,7 @@ export interface OnboardingStore {
   weight?: number | null;
   height?: number | null;
   dietTypes?: DietTypeEnum[];
+  allergens?: string[];
 }
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {

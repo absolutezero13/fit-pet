@@ -78,7 +78,7 @@ const LoginTrueSheet = ({ onLoginSuccess }: LoginTrueSheetProps) => {
     const { success, user } = await authService.handleLogin(
       LoginType.Email,
       email,
-      password
+      password,
     );
     setLoading(false);
 
@@ -141,9 +141,10 @@ const LoginTrueSheet = ({ onLoginSuccess }: LoginTrueSheetProps) => {
       name={TrueSheetNames.LOGIN}
       detents={["auto", 1]}
       insetAdjustment="never"
-      blurTint="dark"
+      blurTint={"system-thick-material-dark"}
       style={styles.container}
       dismissible={!loading}
+      backgroundColor={colors.background}
     >
       {loading && (
         <View style={styles.loadingContainer}>

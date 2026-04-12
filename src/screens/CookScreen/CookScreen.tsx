@@ -45,15 +45,18 @@ import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
-
-const AnimatedLiquidGlassView =
-  Animated.createAnimatedComponent(LiquidGlassView);
 import useUserStore from "../../zustand/useUserStore";
+import userService from "../../services/user";
 import CookCandidateCard from "./components/CookCandidateCard";
 import CookOptionChips, { CookChipOption } from "./components/CookOptionChips";
 import CookPlanSummary from "./components/CookPlanSummary";
 
+const AnimatedLiquidGlassView =
+  Animated.createAnimatedComponent(LiquidGlassView);
+
 type CookViewState =
+  | "cook_intro"
+  | "allergen"
   | "intro"
   | "questions"
   | "follow_up"
@@ -91,7 +94,12 @@ const CookScreen = () => {
   const seedInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
 
-  const [viewState, setViewState] = useState<CookViewState>("intro");
+  const [viewState, setViewState] = useState<CookViewState>(
+    user?.onboarding?.allergens === undefined ? "cook_intro" : "intro",
+  );
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
+    user?.onboarding?.allergens ?? [],
+  );
   const [seedInput, setSeedInput] = useState("");
   const [followUpInput, setFollowUpInput] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -120,7 +128,7 @@ const CookScreen = () => {
 
     const timer = setTimeout(() => {
       seedInputRef.current?.focus();
-    }, 250);
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [viewState]);
@@ -137,6 +145,41 @@ const CookScreen = () => {
 
     loadLatestCook();
   }, [isFocused]);
+
+  const ALLERGEN_OPTIONS = useMemo(
+    () => [
+      { label: t("cookAllergenGluten"), value: "gluten" },
+      { label: t("cookAllergenDairy"), value: "dairy" },
+      { label: t("cookAllergenEggs"), value: "eggs" },
+      { label: t("cookAllergenNuts"), value: "tree nuts" },
+      { label: t("cookAllergenPeanuts"), value: "peanuts" },
+      { label: t("cookAllergenShellfish"), value: "shellfish" },
+      { label: t("cookAllergenFish"), value: "fish" },
+      { label: t("cookAllergenSoy"), value: "soy" },
+      { label: t("cookAllergenSesame"), value: "sesame" },
+    ],
+    [t],
+  );
+
+  const toggleAllergen = (value: string) => {
+    setSelectedAllergens((prev) =>
+      prev.includes(value) ? prev.filter((a) => a !== value) : [...prev, value],
+    );
+  };
+
+  const submitAllergens = async () => {
+    const prev = useUserStore.getState();
+    const updated = prev
+      ? { ...prev, onboarding: { ...prev.onboarding, allergens: selectedAllergens } }
+      : prev;
+    useUserStore.setState(updated);
+    setViewState("intro");
+    try {
+      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, allergens: selectedAllergens } });
+    } catch (error) {
+      console.log("SAVE ALLERGENS ERROR", error);
+    }
+  };
 
   const hardcodedQuestions = useMemo<HardcodedQuestion[]>(
     () => [
@@ -185,7 +228,10 @@ const CookScreen = () => {
 
   const currentQuestion = hardcodedQuestions[questionIndex];
   const currentFollowUpQuestion = followUpQuestions[followUpQuestionIndex];
-  const isImmersiveMode = viewState !== "intro";
+  const isImmersiveMode =
+    viewState !== "intro" &&
+    viewState !== "allergen" &&
+    viewState !== "cook_intro";
   const isLoadingState =
     viewState === "candidate_loading" || viewState === "recipe_loading";
   const recommendedCaloriesValue = useMemo(() => {
@@ -555,6 +601,107 @@ const CookScreen = () => {
       },
     ]);
   };
+
+  const renderCookIntro = () => (
+    <Animated.View entering={FadeInUp.duration(220)} style={styles.sectionGap}>
+      <View style={styles.heroBlock}>
+        <Text style={[styles.heroTitle, { color: colors.text }]}>
+          {t("cookOnboardingTitle")}
+        </Text>
+        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
+          {t("cookOnboardingBody")}
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.messageCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
+        <View
+          style={[
+            styles.cookIntroIconWrap,
+            { backgroundColor: colors.backgroundSecondary },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="chef-hat"
+            size={scale(36)}
+            color={colors["color-success-500"]}
+          />
+        </View>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>
+          {t("cookOnboardingCardTitle")}
+        </Text>
+        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
+          {t("cookOnboardingCardBody")}
+        </Text>
+        <AppButton
+          title={t("cookOnboardingCta")}
+          onPress={() => setViewState("allergen")}
+          backgroundColor={colors["color-success-400"]}
+        />
+      </View>
+    </Animated.View>
+  );
+
+  const renderAllergen = () => (
+    <Animated.View entering={FadeInUp.duration(220)} style={styles.sectionGap}>
+      <View style={styles.heroBlock}>
+        <Text style={[styles.heroTitle, { color: colors.text }]}>
+          {t("cookAllergenTitle")}
+        </Text>
+        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
+          {t("cookAllergenBody")}
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.messageCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
+        <View style={styles.allergenGrid}>
+          {ALLERGEN_OPTIONS.map((option) => {
+            const isSelected = selectedAllergens.includes(option.value);
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => toggleAllergen(option.value)}
+                style={[
+                  styles.allergenChip,
+                  {
+                    backgroundColor: isSelected
+                      ? colors["color-success-400"]
+                      : colors.backgroundSecondary,
+                    borderColor: isSelected
+                      ? colors["color-success-400"]
+                      : colors.border,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.allergenLabel,
+                    {
+                      color: isSelected ? colors.textInverse : colors.text,
+                    },
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <AppButton
+          title={t("cookAllergenContinue")}
+          onPress={submitAllergens}
+          backgroundColor={colors["color-success-400"]}
+        />
+      </View>
+    </Animated.View>
+  );
 
   const renderIntro = () => (
     <Animated.View entering={FadeInUp.duration(220)} style={styles.sectionGap}>
@@ -965,6 +1112,8 @@ const CookScreen = () => {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
+        {viewState === "cook_intro" && renderCookIntro()}
+        {viewState === "allergen" && renderAllergen()}
         {viewState === "intro" && renderIntro()}
         {viewState === "questions" && renderQuestion()}
         {viewState === "follow_up" && renderFollowUp()}
@@ -1124,6 +1273,28 @@ const styles = StyleSheet.create({
   },
   candidateGrid: {
     gap: scale(14),
+  },
+  cookIntroIconWrap: {
+    width: scale(72),
+    height: scale(72),
+    borderRadius: scale(36),
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
+  },
+  allergenGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: scale(8),
+  },
+  allergenChip: {
+    borderWidth: 1,
+    borderRadius: scale(20),
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(9),
+  },
+  allergenLabel: {
+    ...fontStyles.body1Bold,
   },
   messageCard: {
     borderWidth: 1,
