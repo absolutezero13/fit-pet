@@ -38,6 +38,7 @@ export interface OnboardingStore {
   height?: number | null;
   dietTypes?: DietTypeEnum[];
   allergens?: string[];
+  kitchenEquipment?: string[];
 }
 
 export const INITIAL_ONBOARDING_STATE: OnboardingStore = {

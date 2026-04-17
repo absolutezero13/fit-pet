@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ import { scale } from "../../../theme/utils";
 
 interface CookCandidateCardProps {
   recipe: CookRecipe;
+  imageUrl?: string | null;
   index?: number;
   isRefreshing: boolean;
   activeVariation: string | null;
@@ -28,6 +29,7 @@ interface CookCandidateCardProps {
 
 const CookCandidateCard = ({
   recipe,
+  imageUrl,
   index = 0,
   isRefreshing,
   activeVariation,
@@ -41,8 +43,8 @@ const CookCandidateCard = ({
   const accentColorSoft = `${accentColor}18`;
   const accentIcon = index % 2 === 0 ? "chef-hat" : "silverware-fork-knife";
   const shimmerProgress = useSharedValue(0);
-  const shimmerStartX = -scale(180);
-  const shimmerTravelX = scale(460);
+  const shimmerStartX = -scale(140);
+  const shimmerTravelX = scale(580);
   const metaItems = [
     {
       key: "calories",
@@ -71,8 +73,8 @@ const CookCandidateCard = ({
       shimmerProgress.value = 0;
       shimmerProgress.value = withRepeat(
         withTiming(1, {
-          duration: 1100,
-          easing: Easing.linear,
+          duration: 1800,
+          easing: Easing.inOut(Easing.quad),
         }),
         -1,
         false,
@@ -92,7 +94,7 @@ const CookCandidateCard = ({
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: shimmerStartX + shimmerProgress.value * shimmerTravelX },
-      { rotate: "14deg" },
+      { rotate: "20deg" },
     ],
   }));
 
@@ -133,6 +135,35 @@ const CookCandidateCard = ({
               </Text>
             </View>
           </LinearGradient>
+
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.recipeImage}
+              resizeMode="cover"
+            />
+          ) : null}
+
+          <Pressable
+            disabled={isRefreshing}
+            onPress={onStartCooking}
+            style={[
+              styles.cookButton,
+              {
+                backgroundColor: accentColor,
+                opacity: isRefreshing ? 0.6 : 1,
+              },
+            ]}
+          >
+            <Text style={[styles.cookButtonLabel, { color: colors.textInverse }]}>
+              {t("cookStartCooking")}
+            </Text>
+            <MaterialCommunityIcons
+              name="arrow-right"
+              size={scale(15)}
+              color={colors.textInverse}
+            />
+          </Pressable>
 
           <View style={styles.metaGrid}>
             {metaItems.map((item) => (
@@ -269,40 +300,17 @@ const CookCandidateCard = ({
             </View>
           </View>
 
-          <Pressable
-            disabled={isRefreshing}
-            onPress={onStartCooking}
-            style={[
-              styles.cookButton,
-              {
-                backgroundColor: accentColor,
-                opacity: isRefreshing ? 0.6 : 1,
-              },
-            ]}
-          >
-            <Text style={[styles.cookButtonLabel, { color: colors.textInverse }]}> 
-              {t("cookStartCooking")}
-            </Text>
-            <MaterialCommunityIcons
-              name="arrow-right"
-              size={scale(15)}
-              color={colors.textInverse}
-            />
-          </Pressable>
         </View>
 
         {isRefreshing ? (
           <View
             pointerEvents="none"
-            style={[
-              styles.shimmerOverlay,
-              { backgroundColor: `${colors.backgroundSecondary}99` },
-            ]}
+            style={styles.shimmerOverlay}
           >
             <Animated.View style={[styles.shimmerBand, shimmerStyle]}>
               <LinearGradient
-                colors={["transparent", `${colors.white}00`, `${colors.white}88`, "transparent"]}
-                locations={[0, 0.2, 0.55, 1]}
+                colors={["transparent", `${colors.white}28`, `${colors.white}50`, `${colors.white}28`, "transparent"]}
+                locations={[0, 0.3, 0.5, 0.7, 1]}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
                 style={styles.shimmerGradient}
@@ -461,13 +469,20 @@ const styles = StyleSheet.create({
   shimmerOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
+    overflow: "hidden",
   },
   shimmerBand: {
-    width: scale(180),
-    height: "145%",
+    width: scale(120),
+    height: "150%",
   },
   shimmerGradient: {
     flex: 1,
+  },
+  recipeImage: {
+    width: "100%",
+    height: scale(200),
+    borderRadius: scale(18),
+    overflow: "hidden",
   },
   cookButton: {
     flexDirection: "row",
@@ -479,7 +494,6 @@ const styles = StyleSheet.create({
     paddingVertical: scale(10),
     alignSelf: "flex-start",
     minHeight: scale(36),
-    marginTop: scale(8),
   },
   cookButtonLabel: {
     ...fontStyles.body1Bold,

@@ -31,15 +31,13 @@ import {
   CookCandidate,
   CookFollowUpAnswer,
   CookFollowUpQuestion,
-  CookGoal,
   CookMaxCaloriesOption,
   CookRecipe,
   LatestCookSession,
   CookPromptAnswers,
-  CookServingOption,
-  CookTimeOption,
+
 } from "../../services/apiTypes";
-import { createCookCandidates, createCookRecipe } from "../../services/gptApi";
+import { createCookCandidates, createCookRecipe, createGeminiImage } from "../../services/gptApi";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
@@ -50,6 +48,12 @@ import userService from "../../services/user";
 import CookCandidateCard from "./components/CookCandidateCard";
 import CookOptionChips, { CookChipOption } from "./components/CookOptionChips";
 import CookPlanSummary from "./components/CookPlanSummary";
+import {
+  getCaloriesLabel,
+  getGoalLabel,
+  getServingsLabel,
+  getTimeLabel,
+} from "./cookUtils";
 
 const AnimatedLiquidGlassView =
   Animated.createAnimatedComponent(LiquidGlassView);
@@ -57,6 +61,7 @@ const AnimatedLiquidGlassView =
 type CookViewState =
   | "cook_intro"
   | "allergen"
+  | "kitchen"
   | "intro"
   | "questions"
   | "follow_up"
@@ -80,6 +85,7 @@ interface HardcodedQuestion {
 type SuggestedCookRecipe = {
   candidate: CookCandidate;
   recipe: CookRecipe;
+  imageUrl: string | null;
   activeVariation: string | null;
   isRefreshing: boolean;
 };
@@ -94,11 +100,16 @@ const CookScreen = () => {
   const seedInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
 
-  const [viewState, setViewState] = useState<CookViewState>(
-    user?.onboarding?.allergens === undefined ? "cook_intro" : "intro",
-  );
+  const [viewState, setViewState] = useState<CookViewState>(() => {
+    if (user?.onboarding?.allergens === undefined) return "cook_intro";
+    if (user?.onboarding?.kitchenEquipment === undefined) return "kitchen";
+    return "intro";
+  });
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     user?.onboarding?.allergens ?? [],
+  );
+  const [selectedKitchenEquipment, setSelectedKitchenEquipment] = useState<string[]>(
+    user?.onboarding?.kitchenEquipment ?? [],
   );
   const [seedInput, setSeedInput] = useState("");
   const [followUpInput, setFollowUpInput] = useState("");
@@ -173,11 +184,31 @@ const CookScreen = () => {
       ? { ...prev, onboarding: { ...prev.onboarding, allergens: selectedAllergens } }
       : prev;
     useUserStore.setState(updated);
-    setViewState("intro");
+    setViewState("kitchen");
     try {
       await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, allergens: selectedAllergens } });
     } catch (error) {
       console.log("SAVE ALLERGENS ERROR", error);
+    }
+  };
+
+  const toggleKitchenEquipment = (value: string) => {
+    setSelectedKitchenEquipment((prev) =>
+      prev.includes(value) ? prev.filter((e) => e !== value) : [...prev, value],
+    );
+  };
+
+  const submitKitchenEquipment = async () => {
+    const prev = useUserStore.getState();
+    const updated = prev
+      ? { ...prev, onboarding: { ...prev.onboarding, kitchenEquipment: selectedKitchenEquipment } }
+      : prev;
+    useUserStore.setState(updated);
+    setViewState("intro");
+    try {
+      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, kitchenEquipment: selectedKitchenEquipment } });
+    } catch (error) {
+      console.log("SAVE KITCHEN EQUIPMENT ERROR", error);
     }
   };
 
@@ -231,6 +262,7 @@ const CookScreen = () => {
   const isImmersiveMode =
     viewState !== "intro" &&
     viewState !== "allergen" &&
+    viewState !== "kitchen" &&
     viewState !== "cook_intro";
   const isLoadingState =
     viewState === "candidate_loading" || viewState === "recipe_loading";
@@ -334,13 +366,19 @@ const CookScreen = () => {
   ) => {
     const nextSuggestedRecipes = await Promise.all(
       nextCandidates.map(async (candidate) => {
-        const response = await createCookRecipe(nextAnswers, candidate);
+        const [recipeResponse, imageResponse] = await Promise.all([
+          createCookRecipe(nextAnswers, candidate),
+          createGeminiImage(
+            `Appetizing food photo of ${candidate.title}. ${candidate.summary}. Top-down shot, natural lighting, restaurant quality.`,
+          ),
+        ]);
 
-        logCookRecipeGenerated(candidate.id, response.recipe);
+        logCookRecipeGenerated(candidate.id, recipeResponse.recipe);
 
         return {
           candidate,
-          recipe: response.recipe,
+          recipe: recipeResponse.recipe,
+          imageUrl: imageResponse?.data ?? null,
           activeVariation: null,
           isRefreshing: false,
         };
@@ -369,7 +407,7 @@ const CookScreen = () => {
       }
 
       if (response.phase === "candidates" && response.candidates?.length) {
-        const nextCandidates = response.candidates.slice(0, 2);
+        const nextCandidates = response.candidates.slice(0, 1);
 
         analyticsService.logEvent(AnalyticsEvent.CookCandidatesGenerated, {
           goal: nextAnswers.goal,
@@ -380,6 +418,7 @@ const CookScreen = () => {
           candidateCount: nextCandidates.length,
         });
 
+        setViewState("recipe_loading");
         const nextSuggestedRecipes = await buildSuggestedRecipes(
           nextAnswers,
           nextCandidates,
@@ -533,14 +572,16 @@ const CookScreen = () => {
     );
 
     try {
-      const response = await createCookRecipe(
-        answers as CookPromptAnswers,
-        selectedRecipe.candidate,
-        {
-          variation,
-          currentRecipe: selectedRecipe.recipe,
-        },
-      );
+      const [response, imageResponse] = await Promise.all([
+        createCookRecipe(
+          answers as CookPromptAnswers,
+          selectedRecipe.candidate,
+          { variation, currentRecipe: selectedRecipe.recipe },
+        ),
+        createGeminiImage(
+          `Appetizing food photo of ${selectedRecipe.candidate.title} - ${variation} variation. Top-down shot, natural lighting, restaurant quality.`,
+        ),
+      ]);
 
       logCookRecipeGenerated(selectedRecipe.candidate.id, response.recipe);
 
@@ -550,6 +591,7 @@ const CookScreen = () => {
             ? {
                 ...item,
                 recipe: response.recipe,
+                imageUrl: imageResponse?.data ?? item.imageUrl,
                 activeVariation: null,
                 isRefreshing: false,
               }
@@ -697,6 +739,73 @@ const CookScreen = () => {
         <AppButton
           title={t("cookAllergenContinue")}
           onPress={submitAllergens}
+          backgroundColor={colors["color-success-400"]}
+        />
+      </View>
+    </Animated.View>
+  );
+
+  const KITCHEN_OPTIONS = [
+    { label: t("cookKitchenOven"), value: "oven" },
+    { label: t("cookKitchenAirFryer"), value: "air_fryer" },
+    { label: t("cookKitchenStovetop"), value: "stovetop" },
+    { label: t("cookKitchenMicrowave"), value: "microwave" },
+    { label: t("cookKitchenBlender"), value: "blender" },
+    { label: t("cookKitchenGrill"), value: "grill" },
+    { label: t("cookKitchenSlowCooker"), value: "slow_cooker" },
+    { label: t("cookKitchenInstantPot"), value: "instant_pot" },
+  ];
+
+  const renderKitchen = () => (
+    <Animated.View entering={FadeInUp.duration(220)} style={styles.sectionGap}>
+      <View style={styles.heroBlock}>
+        <Text style={[styles.heroTitle, { color: colors.text }]}>
+          {t("cookKitchenTitle")}
+        </Text>
+        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
+          {t("cookKitchenBody")}
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.messageCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
+        <View style={styles.allergenGrid}>
+          {KITCHEN_OPTIONS.map((option) => {
+            const isSelected = selectedKitchenEquipment.includes(option.value);
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => toggleKitchenEquipment(option.value)}
+                style={[
+                  styles.allergenChip,
+                  {
+                    backgroundColor: isSelected
+                      ? colors["color-success-400"]
+                      : colors.backgroundSecondary,
+                    borderColor: isSelected
+                      ? colors["color-success-400"]
+                      : colors.border,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.allergenLabel,
+                    { color: isSelected ? colors.textInverse : colors.text },
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <AppButton
+          title={t("cookKitchenContinue")}
+          onPress={submitKitchenEquipment}
           backgroundColor={colors["color-success-400"]}
         />
       </View>
@@ -975,10 +1084,11 @@ const CookScreen = () => {
     <Animated.View entering={FadeInUp.duration(240)} style={styles.sectionGap}>
       <View style={styles.candidateGrid}>
         {suggestedRecipes.map(
-          ({ candidate, recipe, activeVariation, isRefreshing }, index) => (
+          ({ candidate, recipe, imageUrl, activeVariation, isRefreshing }, index) => (
             <CookCandidateCard
               key={candidate.id}
               recipe={recipe}
+              imageUrl={imageUrl}
               index={index}
               isRefreshing={isRefreshing}
               activeVariation={activeVariation}
@@ -1044,7 +1154,7 @@ const CookScreen = () => {
                 {t("tabCook")}
               </Text>
             </View>
-            {viewState !== "intro" && (
+            {viewState !== "intro" && viewState !== "cook_intro" && viewState !== "allergen" && viewState !== "kitchen" && (
               <Pressable onPress={resetCookFlow} style={styles.headerAction}>
                 <MaterialCommunityIcons
                   name="refresh"
@@ -1114,6 +1224,7 @@ const CookScreen = () => {
       >
         {viewState === "cook_intro" && renderCookIntro()}
         {viewState === "allergen" && renderAllergen()}
+        {viewState === "kitchen" && renderKitchen()}
         {viewState === "intro" && renderIntro()}
         {viewState === "questions" && renderQuestion()}
         {viewState === "follow_up" && renderFollowUp()}
@@ -1128,55 +1239,6 @@ const CookScreen = () => {
   );
 };
 
-const getTimeLabel = (t: (key: string) => string, value: string) => {
-  switch (value as CookTimeOption) {
-    case "15":
-      return t("cookTime15");
-    case "30":
-      return t("cookTime30");
-    default:
-      return t("cookTime45");
-  }
-};
-
-const getGoalLabel = (t: (key: string) => string, value: string) => {
-  switch (value as CookGoal) {
-    case "high_protein":
-      return t("cookGoalHighProtein");
-    case "low_carb":
-      return t("cookGoalLowCarb");
-    case "budget_friendly":
-      return t("cookGoalBudgetFriendly");
-    default:
-      return t("cookGoalBalanced");
-  }
-};
-
-const getServingsLabel = (t: (key: string) => string, value: string) => {
-  switch (value as CookServingOption) {
-    case "1":
-      return t("cookServing1");
-    case "2":
-      return t("cookServing2");
-    default:
-      return t("cookServing4");
-  }
-};
-
-const getCaloriesLabel = (t: (key: string) => string, value: string) => {
-  switch (value as CookMaxCaloriesOption) {
-    case "400":
-      return t("cookCalories400");
-    case "600":
-      return t("cookCalories600");
-    case "800":
-      return t("cookCalories800");
-    case "1000":
-      return t("cookCalories1000");
-    default:
-      return t("cookCaloriesAny");
-  }
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -1301,6 +1363,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(24),
     padding: scale(18),
     gap: scale(14),
+    overflow: "hidden",
   },
   questionStage: {
     gap: scale(14),
