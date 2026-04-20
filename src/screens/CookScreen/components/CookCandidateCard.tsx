@@ -222,6 +222,9 @@ const CookCandidateCard = ({
               {recipe.variations.map((variation) => {
                 const isActiveVariation =
                   isRefreshing && activeVariation === variation;
+                const variationStatusLabel = isActiveVariation
+                  ? t("cookVariationRefreshing")
+                  : null;
 
                 return (
                   <Pressable
@@ -259,20 +262,18 @@ const CookCandidateCard = ({
                         />
                       </View>
                       <View style={styles.variationChipCopy}>
-                        <Text
-                          style={[
-                            styles.variationChipHint,
-                            {
-                              color: isActiveVariation
-                                ? `${colors.textInverse}CC`
-                                : colors.textSecondary,
-                            },
-                          ]}
-                        >
-                          {isActiveVariation
-                            ? t("cookVariationRefreshing")
-                            : t("cookVariationHint")}
-                        </Text>
+                        {variationStatusLabel ? (
+                          <Text
+                            style={[
+                              styles.variationChipHint,
+                              {
+                                color: `${colors.textInverse}CC`,
+                              },
+                            ]}
+                          >
+                            {variationStatusLabel}
+                          </Text>
+                        ) : null}
                         <Text
                           style={[
                             styles.variationChipText,

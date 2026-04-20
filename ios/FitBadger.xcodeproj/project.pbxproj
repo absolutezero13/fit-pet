@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,10 +12,39 @@
 		2DAD5C70BB1C43E1A1AB7E62 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4514FEE3497E4D2BB5EC3251 /* GoogleService-Info.plist */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		98862503C9DBBFD7AB855016 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7554E9326E8981D761B9A5 /* ExpoModulesProvider.swift */; };
+		B6D3483F2F92D857002E636C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6D3483E2F92D856002E636C /* WidgetKit.framework */; };
+		B6D348412F92D857002E636C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6D348402F92D857002E636C /* SwiftUI.framework */; };
+		B6D348502F92D859002E636C /* FitBadgerLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6D3483D2F92D856002E636C /* FitBadgerLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6D3486C2F9389E4002E636C /* MealLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D3486B2F9389E4002E636C /* MealLiveActivity.swift */; };
+		B6D3486D2F9389E4002E636C /* MealLiveActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = B6D3486A2F9389E4002E636C /* MealLiveActivity.m */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		CE30994B8F2836EA118B120E /* Pods_FitBadger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 278193AE737286C92D538377 /* Pods_FitBadger.framework */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B6D3484E2F92D859002E636C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6D3483C2F92D856002E636C;
+			remoteInfo = FitBadgerLiveActivityExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B6D348512F92D859002E636C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B6D348502F92D859002E636C /* FitBadgerLiveActivityExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* FitBadger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitBadger.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -28,11 +57,49 @@
 		9F7554E9326E8981D761B9A5 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-FitBadger/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = FitBadger/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B4459C2087F4A7DC3455CF9A /* Pods-FitBadger.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FitBadger.debug.xcconfig"; path = "Target Support Files/Pods-FitBadger/Pods-FitBadger.debug.xcconfig"; sourceTree = "<group>"; };
+		B6D3483D2F92D856002E636C /* FitBadgerLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FitBadgerLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6D3483E2F92D856002E636C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B6D348402F92D857002E636C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B6D3486A2F9389E4002E636C /* MealLiveActivity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MealLiveActivity.m; sourceTree = "<group>"; };
+		B6D3486B2F9389E4002E636C /* MealLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLiveActivity.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FitBadger/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* FitBadger-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "FitBadger-Bridging-Header.h"; path = "FitBadger/FitBadger-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B6D348542F92D859002E636C /* Exceptions for "FitBadgerLiveActivity" folder in "FitBadgerLiveActivityExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B6D3483C2F92D856002E636C /* FitBadgerLiveActivityExtension */;
+		};
+		B6D3485F2F92D8DC002E636C /* Exceptions for "FitBadgerLiveActivity" folder in "FitBadger" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FitBadgerMealAttributes.swift,
+			);
+			target = 13B07F861A680F5B00A75B9A /* FitBadger */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B6D348422F92D857002E636C /* FitBadgerLiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B6D3485F2F92D8DC002E636C /* Exceptions for "FitBadgerLiveActivity" folder in "FitBadger" target */,
+				B6D348542F92D859002E636C /* Exceptions for "FitBadgerLiveActivity" folder in "FitBadgerLiveActivityExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = FitBadgerLiveActivity;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
@@ -40,6 +107,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE30994B8F2836EA118B120E /* Pods_FitBadger.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6D3483A2F92D856002E636C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6D348412F92D857002E636C /* SwiftUI.framework in Frameworks */,
+				B6D3483F2F92D857002E636C /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +150,8 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				278193AE737286C92D538377 /* Pods_FitBadger.framework */,
+				B6D3483E2F92D856002E636C /* WidgetKit.framework */,
+				B6D348402F92D857002E636C /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -88,8 +166,11 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B6D3486A2F9389E4002E636C /* MealLiveActivity.m */,
+				B6D3486B2F9389E4002E636C /* MealLiveActivity.swift */,
 				13B07FAE1A68108700A75B9A /* FitBadger */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				B6D348422F92D857002E636C /* FitBadgerLiveActivity */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E54F15500021C703B5D6E026 /* Pods */,
@@ -104,6 +185,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* FitBadger.app */,
+				B6D3483D2F92D856002E636C /* FitBadgerLiveActivityExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,17 +231,39 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				11E78967059DA765AD5A3402 /* [CP] Embed Pods Frameworks */,
+				B6D348512F92D859002E636C /* Embed Foundation Extensions */,
 				1AD94D50578C0766CD3EF9FD /* [CP-User] [RNFB] Core Configuration */,
 				D69B3E8E71804FD84E9D27B5 /* [CP-User] [RNFB] Crashlytics Configuration */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B6D3484F2F92D859002E636C /* PBXTargetDependency */,
 			);
 			name = FitBadger;
 			productName = FitBadger;
 			productReference = 13B07F961A680F5B00A75B9A /* FitBadger.app */;
 			productType = "com.apple.product-type.application";
+		};
+		B6D3483C2F92D856002E636C /* FitBadgerLiveActivityExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6D348552F92D859002E636C /* Build configuration list for PBXNativeTarget "FitBadgerLiveActivityExtension" */;
+			buildPhases = (
+				B6D348392F92D856002E636C /* Sources */,
+				B6D3483A2F92D856002E636C /* Frameworks */,
+				B6D3483B2F92D856002E636C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B6D348422F92D857002E636C /* FitBadgerLiveActivity */,
+			);
+			name = FitBadgerLiveActivityExtension;
+			productName = FitBadgerLiveActivityExtension;
+			productReference = B6D3483D2F92D856002E636C /* FitBadgerLiveActivityExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -167,10 +271,14 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
+					};
+					B6D3483C2F92D856002E636C = {
+						CreatedOnToolsVersion = 26.3;
 					};
 				};
 			};
@@ -188,6 +296,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* FitBadger */,
+				B6D3483C2F92D856002E636C /* FitBadgerLiveActivityExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -202,6 +311,13 @@
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				2DAD5C70BB1C43E1A1AB7E62 /* GoogleService-Info.plist in Resources */,
 				0A38DA5ED05025F0ADC60C4E /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6D3483B2F92D856002E636C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,11 +510,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
+				B6D3486C2F9389E4002E636C /* MealLiveActivity.swift in Sources */,
+				B6D3486D2F9389E4002E636C /* MealLiveActivity.m in Sources */,
 				98862503C9DBBFD7AB855016 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B6D348392F92D856002E636C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B6D3484F2F92D859002E636C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6D3483C2F92D856002E636C /* FitBadgerLiveActivityExtension */;
+			targetProxy = B6D3484E2F92D859002E636C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -429,7 +562,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet;
-				PRODUCT_NAME = FitBadger;
+				PRODUCT_NAME = "FitBadger";
 				SWIFT_OBJC_BRIDGING_HEADER = "FitBadger/FitBadger-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -461,7 +594,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet;
-				PRODUCT_NAME = FitBadger;
+				PRODUCT_NAME = "FitBadger";
 				SWIFT_OBJC_BRIDGING_HEADER = "FitBadger/FitBadger-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -613,6 +746,101 @@
 			};
 			name = Release;
 		};
+		B6D348522F92D859002E636C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W53HFNRZHA;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FitBadgerLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FitBadgerLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet.FitBadgerLiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B6D348532F92D859002E636C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W53HFNRZHA;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FitBadgerLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FitBadgerLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ilks.fitpet.FitBadgerLiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -630,6 +858,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6D348552F92D859002E636C /* Build configuration list for PBXNativeTarget "FitBadgerLiveActivityExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6D348522F92D859002E636C /* Debug */,
+				B6D348532F92D859002E636C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

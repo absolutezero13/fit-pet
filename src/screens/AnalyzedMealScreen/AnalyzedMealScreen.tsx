@@ -16,6 +16,7 @@ import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import usePreferencesStore from "../../zustand/usePreferencesStore";
 import { deleteMeal } from "../../services/mealAnalysis";
+import { syncMealLiveActivity } from "../../services/mealLiveActivitySync";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
@@ -63,6 +64,7 @@ const AnalyzedMealScreen = () => {
               deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
+            if (meal.date) syncMealLiveActivity(meal.date);
             navigation.goBack();
           } catch (error) {
             console.error("Error deleting meal:", error);

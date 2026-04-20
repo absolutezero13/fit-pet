@@ -42,6 +42,7 @@ import { TrueSheetNames } from "../../../navigation/constants";
 import { useTheme } from "../../../theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import { getLocalDateKey } from "../../../utils/dateUtils";
+import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -190,6 +191,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       const meals = useMealsStore.getState().loggedMeals;
       const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
       useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
+      syncMealLiveActivity(meal.date);
     }
     return meal;
   };

@@ -34,6 +34,7 @@ import CookStepTimer from "../CookScreen/components/CookStepTimer";
 import { createCookLoggedMeal } from "../../services/gptApi";
 import { createMeal } from "../../services/mealAnalysis";
 import useMealsStore from "../../zustand/useMealsStore";
+import { syncMealLiveActivity } from "../../services/mealLiveActivitySync";
 import { getLocalDateKey } from "../../utils/dateUtils";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 
@@ -176,6 +177,7 @@ const CookRecipeScreen = () => {
       useMealsStore.setState((state) => ({
         loggedMeals: [...state.loggedMeals, createdMeal],
       }));
+      if (createdMeal.date) syncMealLiveActivity(createdMeal.date);
 
       analyticsService.logEvent(AnalyticsEvent.MealLogged, {
         type: "text",

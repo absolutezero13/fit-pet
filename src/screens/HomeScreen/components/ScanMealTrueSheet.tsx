@@ -44,6 +44,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
+import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useUserStore from "../../../zustand/useUserStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
@@ -178,6 +179,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       if (!meal.errorMessage) {
         const meals = useMealsStore.getState().loggedMeals;
         useMealsStore.setState({ loggedMeals: [...meals, meal] });
+        if (meal.date) syncMealLiveActivity(meal.date);
       }
 
       analyticsService.logEvent(AnalyticsEvent.MealLogged, {
@@ -233,6 +235,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               }
               return { loggedMeals: newMeals };
             });
+            if (analyzedMeal.date) syncMealLiveActivity(analyzedMeal.date);
             dismiss();
             setTimeout(resetState, ANIMATION_DISMISS_DELAY);
           } catch (error) {
