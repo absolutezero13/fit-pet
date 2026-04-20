@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Alert, View, Text, StyleSheet, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Camera } from "react-native-vision-camera";
 import { scale } from "../../theme/utils";
 import { fontStyles } from "../../theme/fontStyles";
 import { useNavigation } from "@react-navigation/native";
@@ -74,6 +75,8 @@ const LoggedMealsScreen = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
   );
+
+  console.log("meals", meals);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -96,6 +99,21 @@ const LoggedMealsScreen = () => {
     TrueSheet.present(TrueSheetNames.LOG_MEAL);
   };
 
+  const handleScanMealPress = async () => {
+    const currentStatus = Camera.getCameraPermissionStatus();
+
+    if (currentStatus !== "granted") {
+      const nextStatus = await Camera.requestCameraPermission();
+
+      if (nextStatus !== "granted") {
+        Alert.alert(t("camera"), t("cameraPermissionRequired"));
+        return;
+      }
+    }
+
+    TrueSheet.present(TrueSheetNames.SCAN_MEAL);
+  };
+
   const isToday =
     selectedDate.toLocaleDateString() === new Date().toLocaleDateString();
 
@@ -113,7 +131,8 @@ const LoggedMealsScreen = () => {
     const getMeals = async () => {
       try {
         setLoading(true);
-        const fetchedMeals = await getMealsByDate(getLocalDateKey(selectedDate));
+        const fetchedMeals = await getMealsByDate(selectedDate.toISOString());
+        console.log("data?", getLocalDateKey(selectedDate));
         useMealsStore.setState({ loggedMeals: fetchedMeals });
       } catch (error) {
         console.error("fetch meal error");
@@ -164,9 +183,7 @@ const LoggedMealsScreen = () => {
             }}
           >
             <MaterialCommunityIcons
-              onPress={() =>
-                  setSelectedDate(shiftDateByDays(selectedDate, -1))
-                }
+              onPress={() => setSelectedDate(shiftDateByDays(selectedDate, -1))}
               name="chevron-left"
               size={scale(36)}
               color={colors.text}
@@ -177,9 +194,7 @@ const LoggedMealsScreen = () => {
             <MaterialCommunityIcons
               disabled={isToday}
               color={isToday ? colors.textTertiary : colors.text}
-              onPress={() =>
-                  setSelectedDate(shiftDateByDays(selectedDate, 1))
-                }
+              onPress={() => setSelectedDate(shiftDateByDays(selectedDate, 1))}
               name="chevron-right"
               size={scale(36)}
             />
@@ -240,7 +255,7 @@ const LoggedMealsScreen = () => {
                   : colors["color-success-400"],
               },
             ]}
-            onPress={() => TrueSheet.present(TrueSheetNames.SCAN_MEAL)}
+            onPress={handleScanMealPress}
           >
             <MaterialCommunityIcons
               name="camera"

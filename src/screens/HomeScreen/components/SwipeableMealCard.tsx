@@ -16,6 +16,7 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
 import { useTranslation } from "react-i18next";
 import { deleteMeal } from "../../../services/mealAnalysis";
+import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useMealsStore from "../../../zustand/useMealsStore";
 import Animated, {
   SharedValue,
@@ -87,6 +88,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
               deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
+            if (meal.date) syncMealLiveActivity(meal.date);
           } catch (error) {
             console.error("Error deleting meal:", error);
             Alert.alert(t("error"), t("deleteFailed"));

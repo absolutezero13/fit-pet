@@ -10,11 +10,20 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import LoadingDots from "./LoadingDots";
 import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useTheme } from "../theme/ThemeContext";
 
-const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
+const AnalyzingMealOverlay = ({
+  visible,
+  label,
+  variant = "magnify",
+}: {
+  visible: boolean;
+  label?: string;
+  variant?: "magnify" | "dots";
+}) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
@@ -22,7 +31,7 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
   const pulse = useSharedValue(1);
 
   useEffect(() => {
-    if (!visible) {
+    if (!visible || variant === "dots") {
       return;
     }
 
@@ -38,7 +47,7 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
       ),
       -1
     );
-  }, [visible]);
+  }, [variant, visible]);
 
   const rotationStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -53,53 +62,71 @@ const AnalyzingMealOverlay = ({ visible }: { visible: boolean }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.container}>
-        <View style={[styles.content, { backgroundColor: colors.surface }]}>
-          <Animated.View
+        <View
+          style={[
+            styles.content,
+            variant === "dots" ? styles.dotsContent : null,
+            variant === "dots" ? null : { backgroundColor: colors.surface },
+          ]}
+        >
+          {variant === "dots" ? (
+            <LoadingDots />
+          ) : (
+            <>
+              <Animated.View
+                style={[
+                  styles.iconOuterRing,
+                  { borderColor: colors["color-success-500"] + "30" },
+                  rotationStyle,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.ringDot,
+                    { backgroundColor: colors["color-success-500"] },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.ringDot,
+                    styles.ringDot2,
+                    { backgroundColor: colors["color-success-500"] },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.ringDot,
+                    styles.ringDot3,
+                    { backgroundColor: colors["color-success-500"] },
+                  ]}
+                />
+              </Animated.View>
+              <Animated.View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor: colors["color-success-500"],
+                    shadowColor: colors["color-success-500"],
+                  },
+                  pulseStyle,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="magnify"
+                  size={scale(36)}
+                  color={colors.textInverse}
+                />
+              </Animated.View>
+            </>
+          )}
+          <Text
             style={[
-              styles.iconOuterRing,
-              { borderColor: colors["color-success-500"] + "30" },
-              rotationStyle,
+              styles.statusText,
+              variant === "dots" ? styles.dotsStatusText : null,
+              { color: colors.text },
             ]}
           >
-            <View
-              style={[
-                styles.ringDot,
-                { backgroundColor: colors["color-success-500"] },
-              ]}
-            />
-            <View
-              style={[
-                styles.ringDot,
-                styles.ringDot2,
-                { backgroundColor: colors["color-success-500"] },
-              ]}
-            />
-            <View
-              style={[
-                styles.ringDot,
-                styles.ringDot3,
-                { backgroundColor: colors["color-success-500"] },
-              ]}
-            />
-          </Animated.View>
-          <Animated.View
-            style={[
-              styles.iconContainer,
-              {
-                backgroundColor: colors["color-success-500"],
-                shadowColor: colors["color-success-500"],
-              },
-              pulseStyle,
-            ]}
-          >
-            <MaterialCommunityIcons
-              name="magnify"
-              size={scale(36)}
-              color={colors.textInverse}
-            />
-          </Animated.View>
-          <Text style={[styles.statusText, { color: colors.text }]}>
-            {t("analyzingMeal")}
+            {label ?? t("analyzingMeal")}
           </Text>
         </View>
       </View>
@@ -125,6 +152,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 20,
     elevation: 10,
+  },
+  dotsContent: {
+    width: "auto",
+    padding: 0,
+    borderRadius: 0,
+    backgroundColor: "transparent",
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+    gap: scale(10),
   },
   iconOuterRing: {
     position: "absolute",
@@ -169,6 +206,9 @@ const styles = StyleSheet.create({
   statusText: {
     ...fontStyles.headline3,
     textAlign: "center",
+  },
+  dotsStatusText: {
+    ...fontStyles.body2,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useTranslation } from "react-i18next";
@@ -48,14 +48,6 @@ const CookStepTimer = ({ initialSeconds }: CookStepTimerProps) => {
     return () => clearInterval(interval);
   }, [isRunning, remainingSeconds]);
 
-  const statusLabel = useMemo(() => {
-    if (remainingSeconds === 0) {
-      return t("cookTimerDone");
-    }
-
-    return isRunning ? t("cookTimerRunning") : t("cookTimerReady");
-  }, [isRunning, remainingSeconds, t]);
-
   return (
     <View
       style={[
@@ -64,14 +56,11 @@ const CookStepTimer = ({ initialSeconds }: CookStepTimerProps) => {
       ]}
     >
       <View>
-        <Text style={[styles.label, { color: colors.textSecondary }]}>
+        <Text style={[styles.label, { color: colors.textSecondary }]}> 
           {t("cookTimerLabel")}
         </Text>
         <Text style={[styles.time, { color: colors.text }]}>
           {formatTime(remainingSeconds)}
-        </Text>
-        <Text style={[styles.status, { color: colors.textSecondary }]}>
-          {statusLabel}
         </Text>
       </View>
 
@@ -123,9 +112,6 @@ const styles = StyleSheet.create({
   },
   time: {
     ...fontStyles.headline2,
-  },
-  status: {
-    ...fontStyles.body2,
   },
   actions: {
     flexDirection: "row",

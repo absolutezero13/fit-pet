@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -18,6 +19,7 @@ export interface CookChipOption {
 interface CookOptionChipsProps {
   options: CookChipOption[];
   selectedValue?: string;
+  recommendedValue?: string;
   disabled?: boolean;
   onSelect: (value: string) => void;
 }
@@ -25,6 +27,7 @@ interface CookOptionChipsProps {
 interface CookChipItemProps {
   option: CookChipOption;
   selectedValue?: string;
+  recommendedValue?: string;
   disabled?: boolean;
   onSelect: (value: string) => void;
 }
@@ -32,11 +35,14 @@ interface CookChipItemProps {
 const CookChipItem = ({
   option,
   selectedValue,
+  recommendedValue,
   disabled = false,
   onSelect,
 }: CookChipItemProps) => {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const isSelected = option.value === selectedValue;
+  const isRecommended = option.value === recommendedValue;
   const progress = useSharedValue(isSelected ? 1 : 0);
 
   useEffect(() => {
@@ -72,7 +78,30 @@ const CookChipItem = ({
       onPress={() => onSelect(option.value)}
     >
       <Animated.View style={[styles.chip, chipStyle, disabled ? styles.disabled : null]}>
-        <Animated.Text style={[styles.label, labelStyle]}>{option.label}</Animated.Text>
+        <View style={styles.row}>
+          <Animated.Text style={[styles.label, labelStyle]}>{option.label}</Animated.Text>
+          {isRecommended ? (
+            <View
+              style={[
+                styles.recommendedBadge,
+                {
+                  backgroundColor: isSelected
+                    ? `${colors.textInverse}22`
+                    : colors.backgroundSecondary,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.recommendedText,
+                  { color: isSelected ? colors.textInverse : colors["color-success-500"] },
+                ]}
+              >
+                {t("cookRecommended")}
+              </Text>
+            </View>
+          ) : null}
+        </View>
       </Animated.View>
     </Pressable>
   );
@@ -81,6 +110,7 @@ const CookChipItem = ({
 const CookOptionChips = ({
   options,
   selectedValue,
+  recommendedValue,
   disabled = false,
   onSelect,
 }: CookOptionChipsProps) => {
@@ -89,11 +119,12 @@ const CookOptionChips = ({
       {options.map((option) => (
         <CookChipItem
           key={option.value}
-          option={option}
-          selectedValue={selectedValue}
-          disabled={disabled}
-          onSelect={onSelect}
-        />
+            option={option}
+            selectedValue={selectedValue}
+            recommendedValue={recommendedValue}
+            disabled={disabled}
+            onSelect={onSelect}
+          />
       ))}
     </View>
   );
@@ -111,11 +142,26 @@ const styles = StyleSheet.create({
     paddingVertical: scale(10),
     width: "100%",
   },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: scale(10),
+  },
   disabled: {
     opacity: 0.9,
   },
   label: {
     ...fontStyles.body1Bold,
+    flex: 1,
+  },
+  recommendedBadge: {
+    borderRadius: scale(999),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
+  },
+  recommendedText: {
+    ...fontStyles.caption,
   },
 });
 

@@ -1,4 +1,8 @@
 import * as Amplitude from "@amplitude/analytics-react-native";
+import {
+  CookCandidatesGeneratedParams,
+  CookRecipeGeneratedParams,
+} from "./apiTypes";
 
 export enum AnalyticsEvent {
   FirstLaunch = "first_launch",
@@ -9,6 +13,8 @@ export enum AnalyticsEvent {
   DeleteUser = "delete_user",
   MealLogged = "meal_logged",
   MealLogError = "meal_log_error",
+  CookCandidatesGenerated = "cook_candidates_generated",
+  CookRecipeGenerated = "cook_recipe_generated",
 }
 
 export type MealLoggedParams = {
@@ -25,6 +31,7 @@ export type OnboardingFinishedParams = {
   dietTypes?: string[];
 };
 
+
 type EventParams = {
   [AnalyticsEvent.FirstLaunch]: undefined;
   [AnalyticsEvent.StartOnboarding]: undefined;
@@ -34,6 +41,8 @@ type EventParams = {
   [AnalyticsEvent.DeleteUser]: undefined;
   [AnalyticsEvent.MealLogged]: MealLoggedParams;
   [AnalyticsEvent.MealLogError]: undefined;
+  [AnalyticsEvent.CookCandidatesGenerated]: CookCandidatesGeneratedParams;
+  [AnalyticsEvent.CookRecipeGenerated]: CookRecipeGeneratedParams;
 };
 
 interface IAnalyticsProvider {

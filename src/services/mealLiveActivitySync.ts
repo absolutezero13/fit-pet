@@ -1,0 +1,106 @@
+import { Platform } from "react-native";
+import useMealsStore from "../zustand/useMealsStore";
+import useUserStore from "../zustand/useUserStore";
+import { getLocalDateKey } from "../utils/dateUtils";
+import { getGramGoal } from "../screens/HomeScreen/components/utils";
+import {
+  endMealLiveActivity,
+  isLiveActivitySupported,
+  startMealLiveActivity,
+  updateMealLiveActivity,
+  LiveActivityPayload,
+} from "./mealLiveActivity";
+
+let activityRunning = false;
+let activityDateKey: string | null = null;
+
+const DEFAULT_GOALS = {
+  calories: 2000,
+  proteins: 30,
+  carbs: 40,
+  fats: 30,
+};
+
+const toInt = (v: string | number | undefined): number => {
+  const n = typeof v === "string" ? parseFloat(v) : v ?? 0;
+  return Number.isFinite(n) ? Math.round(n as number) : 0;
+};
+
+export const syncMealLiveActivity = async (dateKey: string) => {
+  if (Platform.OS !== "ios" || !isLiveActivitySupported()) return;
+
+  const todayKey = getLocalDateKey(new Date());
+  if (dateKey !== todayKey) return;
+
+  const goals = useUserStore.getState()?.macroGoals ?? DEFAULT_GOALS;
+  const meals = useMealsStore
+    .getState()
+    .loggedMeals.filter((m) => m.date === todayKey);
+
+  if (meals.length === 0) {
+    if (activityRunning) {
+      await endMealLiveActivity();
+      activityRunning = false;
+      activityDateKey = null;
+    }
+    return;
+  }
+
+  const totals = meals.reduce(
+    (acc, m) => ({
+      calories: acc.calories + toInt(m.calories),
+      proteins: acc.proteins + toInt(m.proteins),
+      carbs: acc.carbs + toInt(m.carbs),
+      fats: acc.fats + toInt(m.fats),
+    }),
+    { calories: 0, proteins: 0, carbs: 0, fats: 0 }
+  );
+
+  const last = meals[meals.length - 1];
+
+  const payload: LiveActivityPayload = {
+    caloriesConsumed: totals.calories,
+    caloriesGoal: Math.round(goals.calories),
+    proteinsGrams: totals.proteins,
+    proteinsGoal: Math.round(
+      getGramGoal({
+        calorieGoal: goals.calories,
+        kcalCoefficent: 4,
+        percentage: goals.proteins,
+      })
+    ),
+    carbsGrams: totals.carbs,
+    carbsGoal: Math.round(
+      getGramGoal({
+        calorieGoal: goals.calories,
+        kcalCoefficent: 4,
+        percentage: goals.carbs,
+      })
+    ),
+    fatsGrams: totals.fats,
+    fatsGoal: Math.round(
+      getGramGoal({
+        calorieGoal: goals.calories,
+        kcalCoefficent: 9,
+        percentage: goals.fats,
+      })
+    ),
+    lastMealTitle: last.title ?? "",
+    lastMealEmoji: last.emoji ?? "🍽",
+    mealCount: meals.length,
+  };
+
+  if (!activityRunning || activityDateKey !== todayKey) {
+    await startMealLiveActivity(payload);
+    activityRunning = true;
+    activityDateKey = todayKey;
+  } else {
+    await updateMealLiveActivity(payload);
+  }
+};
+
+export const resetMealLiveActivity = async () => {
+  await endMealLiveActivity();
+  activityRunning = false;
+  activityDateKey = null;
+};

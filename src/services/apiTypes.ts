@@ -34,6 +34,8 @@ export type CookTimeOption = "15" | "30" | "45+";
 
 export type CookServingOption = "1" | "2" | "4+";
 
+export type CookMaxCaloriesOption = "400" | "600" | "800" | "1000" | "any";
+
 export interface CookCandidateNutrition {
   calories?: number;
   protein?: number;
@@ -107,6 +109,7 @@ export interface CookRecipe {
   ingredients: CookRecipeIngredient[];
   steps: CookRecipeStep[];
   nutrition?: CookCandidateNutrition;
+  variations: string[];
 }
 
 export interface CookRecipeResponse {
@@ -124,8 +127,28 @@ export interface CookPromptAnswers {
   time: CookTimeOption;
   goal: CookGoal;
   servings: CookServingOption;
+  maxCaloriesPerServing: CookMaxCaloriesOption;
   followUpAnswers?: CookFollowUpAnswer[];
 }
+
+export type CookCandidatesGeneratedParams = {
+  goal: string;
+  time: string;
+  servings: string;
+  maxCaloriesPerServing: string;
+  followUpCount: number;
+  candidateCount: number;
+};
+
+export type CookRecipeGeneratedParams = {
+  recipeId: string;
+  candidateId: string;
+  difficulty: string;
+  servings: number;
+  totalMinutes: number;
+  ingredientCount: number;
+  stepCount: number;
+};
 
 const recipeSchema: Schema = {
   description: "List of recipes",
@@ -265,6 +288,38 @@ const cookCandidateNutritionSchema: Schema = {
       type: SchemaType.NUMBER,
       nullable: true,
     },
+  },
+};
+
+const cookRecipeNutritionSchema: Schema = {
+  type: SchemaType.OBJECT,
+  nullable: false,
+  properties: {
+    calories: {
+      type: SchemaType.NUMBER,
+      nullable: false,
+    },
+    protein: {
+      type: SchemaType.NUMBER,
+      nullable: false,
+    },
+    carbs: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+    fats: {
+      type: SchemaType.NUMBER,
+      nullable: true,
+    },
+  },
+  required: ["calories", "protein"],
+};
+
+const cookRecipeVariationsSchema: Schema = {
+  type: SchemaType.ARRAY,
+  nullable: false,
+  items: {
+    type: SchemaType.STRING,
   },
 };
 
@@ -494,7 +549,8 @@ const cookRecipeSchema: Schema = {
             required: ["id", "title", "instruction"],
           },
         },
-        nutrition: cookCandidateNutritionSchema,
+        nutrition: cookRecipeNutritionSchema,
+        variations: cookRecipeVariationsSchema,
       },
       required: [
         "id",
@@ -507,6 +563,8 @@ const cookRecipeSchema: Schema = {
         "difficulty",
         "ingredients",
         "steps",
+        "nutrition",
+        "variations",
       ],
     },
   },

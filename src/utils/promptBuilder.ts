@@ -1,4 +1,4 @@
-import { CookCandidate, CookPromptAnswers } from "../services/apiTypes";
+import { CookCandidate, CookPromptAnswers, CookRecipe } from "../services/apiTypes";
 import i18next from "i18next";
 import { IUser } from "../zustand/useUserStore";
 import usePreferencesStore, { AITone } from "../zustand/usePreferencesStore";
@@ -230,6 +230,14 @@ Rules:
 - Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 - If the user's language is Turkish, every visible string must be in Turkish.
 - Keep candidate subtitle and summary very short.
+${(() => {
+  const allergens = userInfo?.onboarding?.allergens;
+  const dietTypes = userInfo?.onboarding?.dietTypes;
+  const lines: string[] = [];
+  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
+  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
+})()}
 
 User profile:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
@@ -245,12 +253,17 @@ Interpretation guide:
 - goal "balanced" means broadly nutritious and well-rounded
 - goal "low_carb" means reduce carb load without making the meal unrealistic
 - goal "budget_friendly" means accessible ingredients and low-cost technique
+- maxCaloriesPerServing sets a hard upper limit per serving unless it is "any"
 `;
 
 const createCookRecipePrompt = (
   userInfo: IUser | null,
   answers: CookPromptAnswers,
-  candidate: CookCandidate
+  candidate: CookCandidate,
+  options?: {
+    variation?: string;
+    currentRecipe?: CookRecipe;
+  }
 ) => `
 date: ${getCurrentDate()}
 You are Cook, a practical recipe planning assistant inside a meal tracker app.
@@ -259,13 +272,42 @@ Expand the selected recipe direction into one complete, interactive recipe.
 Rules:
 - Keep the recipe realistic for a home cook.
 - Match the user's time budget, goal, and servings.
+- Respect maxCaloriesPerServing as a hard cap per serving unless it is "any".
 - Ingredient amounts should be specific.
+- Use metric units by default for measurable ingredients, such as g, kg, ml, and l.
+- Use kitchen-friendly units like tablespoon, teaspoon, clove, slice, or piece when they are more natural than exact metric values.
+- Never use cups, ounces, pounds, or Fahrenheit.
+- If a cooking temperature is needed, use Celsius.
 - Steps should be short, actionable, and ordered.
 - Only include timerSeconds when a timer genuinely helps the cook.
 - Prefer 4 to 7 steps.
+- Always include approximate nutrition per serving with at least calories and protein.
+- Return 3 or 4 short variation labels for this exact recipe.
+- Variation labels must be specific, tappable, and meaningfully different from each other.
 - Use the provided response schema exactly.
 - Answer in user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
 - If the user's language is Turkish, every visible string must be in Turkish.
+${(() => {
+  const allergens = userInfo?.onboarding?.allergens;
+  const dietTypes = userInfo?.onboarding?.dietTypes;
+  const lines: string[] = [];
+  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
+  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
+})()}
+
+${
+  options?.variation
+    ? `Variation request:
+- Regenerate the recipe by applying this variation: ${JSON.stringify(
+        options.variation
+      )}.
+- Keep the recipe recognizably related to the current version while updating title, summary, nutrition, ingredients, timings, and steps as needed.
+- Refresh the variation labels so they fit the new recipe.
+- Do not repeat the applied variation in the refreshed variation labels.
+`
+    : ""
+}
 
 User profile:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
@@ -275,7 +317,48 @@ ${JSON.stringify(answers, null, 2)}
 
 Selected candidate:
 ${JSON.stringify(candidate, null, 2)}
+
+${
+  options?.currentRecipe
+    ? `Current recipe to adapt:
+${JSON.stringify(options.currentRecipe, null, 2)}
+`
+    : ""
+}
 `;
+
+const createCookMealLogPrompt = (
+  userInfo: IUser | null,
+  recipe: CookRecipe
+) => {
+  const tone = toneInstructions[getSelectedTone()];
+
+  return `${tone.analysis}
+${analysisBaseInstructions}
+The user just finished cooking this recipe and wants to log it as a meal.
+Transform the cooked recipe into one analyzed meal object using the provided analyzedMeal schema.
+
+Rules:
+- Treat this as one serving unless the recipe clearly states otherwise in a way that should change the logged serving.
+- If recipe nutrition exists, use it as the strongest source for calories and macros.
+- If recipe nutrition is missing, estimate nutrition from the ingredients and cooking method.
+- Set mealType to the most likely choice among breakfast, lunch, dinner, or snack.
+- mealTypeLocalized must match the user's language.
+- description should be one short sentence describing the finished dish.
+- insights should focus on the nutritional quality of this cooked meal and how it fits the user's goals.
+- Include one to three emojis that match the dish.
+- errorMessage should be null unless the recipe is unusable.
+- Respond in the user’s language: ${
+    languageMapping[getLanguage()] ?? getLanguage()
+  }.
+
+User info:
+${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
+
+Cooked recipe:
+${JSON.stringify(recipe, null, 2)}
+`;
+};
 
 const promptBuilder = {
   createMealPrompt,
@@ -285,6 +368,7 @@ const promptBuilder = {
   createImagePrompt,
   createCookCandidatesPrompt,
   createCookRecipePrompt,
+  createCookMealLogPrompt,
 };
 
 export default promptBuilder;

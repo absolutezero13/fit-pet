@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -37,7 +37,11 @@ const CookPlanSummary = ({ items }: CookPlanSummaryProps) => {
       <Text style={[styles.title, { color: colors.text }]}>
         {t("cookPlanSummaryTitle")}
       </Text>
-      <View style={styles.chips}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.chips}
+      >
         {items.map((item) => (
           <View
             key={item.label}
@@ -51,7 +55,7 @@ const CookPlanSummary = ({ items }: CookPlanSummaryProps) => {
             </Text>
           </View>
         ))}
-      </View>
+      </ScrollView>
     </Animated.View>
   );
 };
@@ -68,7 +72,6 @@ const styles = StyleSheet.create({
   },
   chips: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: scale(8),
   },
   chip: {

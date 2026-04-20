@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Pressable,
+  Platform,
 } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -42,13 +43,15 @@ const AnimatedLiquidGlassView =
 const ChatScreen = () => {
   const { height } = useReanimatedKeyboardAnimation();
   const isFocused = useIsFocused();
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { colors } = useTheme();
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
   const navigation = useNavigation();
+  const composerBottomOffset =
+    TAB_BAR_HEIGHT + scale(12) + (Platform.OS === "android" ? bottom : 0);
 
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -92,7 +95,7 @@ const ChatScreen = () => {
         data: {
           todaysMeals: loggedMeals.filter(
             (meal) =>
-              new Date(meal.date).toDateString() === new Date().toDateString()
+              new Date(meal.date).toDateString() === new Date().toDateString(),
           ),
           macroGoals: userData?.macroGoals,
         },
@@ -166,7 +169,7 @@ const ChatScreen = () => {
             text: message.text,
           },
         ],
-      }))
+      })),
     );
     console.log({ geminiResponse });
 
@@ -208,7 +211,7 @@ const ChatScreen = () => {
         onStreamComplete={handleStreamComplete}
       />
     ),
-    [streamingMessageIdRef.current, messages]
+    [streamingMessageIdRef.current, messages],
   );
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -323,7 +326,7 @@ const ChatScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               width: "100%",
-              marginBottom: isKeyboardVisible ? 0 : TAB_BAR_HEIGHT + scale(12),
+              marginBottom: isKeyboardVisible ? 0 : composerBottomOffset,
               position: isKeyboardVisible ? "absolute" : undefined,
             },
             {
@@ -446,13 +449,6 @@ const styles = StyleSheet.create({
     paddingVertical: scale(10),
     borderRadius: scale(20),
     marginRight: scale(10),
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: scale(4),
-    elevation: 2,
   },
   suggestionBubbleText: {
     ...fontStyles.body2,

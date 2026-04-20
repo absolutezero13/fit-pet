@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import AppButton from "../../../components/AppButton";
+import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
@@ -35,13 +36,13 @@ import {
   updateMeal,
   uploadMealImageToFireStorage,
 } from "../../../services/mealAnalysis";
-import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import MealTypes from "./MealTypes";
 import useUserStore from "../../../zustand/useUserStore";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { useTheme } from "../../../theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import { getLocalDateKey } from "../../../utils/dateUtils";
+import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -61,7 +62,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const params = props.params;
   const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const mealToEdit = useMealsStore((state) =>
     state.loggedMeals.find((meal) => meal.id === params.mealId),
   );
@@ -190,6 +191,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       const meals = useMealsStore.getState().loggedMeals;
       const newMeals = meals.filter((m) => m.id !== mealToEdit?.id);
       useMealsStore.setState({ loggedMeals: [...newMeals, meal] });
+      syncMealLiveActivity(meal.date);
     }
     return meal;
   };
@@ -202,7 +204,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       const meal = await handleAddMeal(mealDescription, selectedMealType);
       console.log("analyzed meal:", meal);
       if (meal.errorMessage) {
-        setIsAnalyzing(false);
         analyticsService.logEvent(AnalyticsEvent.MealLogError);
         Alert.alert(
           t("globalError"),
@@ -222,7 +223,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }
 
       dismiss();
-      setIsAnalyzing(false);
       navigation.navigate("AnalyzedMeal", {
         mealId: meal.id ?? "",
       });
@@ -230,15 +230,17 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       console.error("Error analyzing meal:", error);
       analyticsService.logEvent(AnalyticsEvent.MealLogError);
       Alert.alert(t("globalError"), t("globalErrorMessage"));
-      setIsAnalyzing(false);
     } finally {
+      setIsAnalyzing(false);
     }
   };
 
   const contentExists = !!(mealDescription.trim() || image);
   return (
     <TrueSheet
+      dismissible={!isAnalyzing}
       onDidDismiss={() => {
+        setIsAnalyzing(false);
         setMealDescription("");
         setImage(null);
         setSelectedMealType(t("breakfast"));
@@ -351,14 +353,13 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
             }}
           >
             <AppButton
-              loading={isAnalyzing}
               title={t("analyzeMeal")}
               onPress={handleSaveMeal}
               disabled={isAnalyzing || !contentExists}
             />
           </View>
         </View>
-        <AnalyzingMealOverlay visible={isAnalyzing} />
+        <AnalyzingMealOverlay visible={isAnalyzing} variant="dots" />
       </KeyboardGestureArea>
     </TrueSheet>
   );

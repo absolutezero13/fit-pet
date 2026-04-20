@@ -1,9 +1,14 @@
 import { Assets as NavigationAssets } from "@react-navigation/elements";
 import { Asset } from "expo-asset";
+import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
 import RootNavigator from "./navigation/RootNavigation";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+  NavigationContainer,
+} from "@react-navigation/native";
 import {
   useFonts,
   Nunito_200ExtraLight,
@@ -33,7 +38,7 @@ import userService from "./services/user";
 import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import useUserStore from "./zustand/useUserStore";
-import { ThemeProvider } from "./theme/ThemeContext";
+import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
 import ProgressiveUnlockChecker from "./components/ProgressiveUnlockChecker";
@@ -59,6 +64,34 @@ const initializeLanguage = async () => {
 Asset.loadAsync([...NavigationAssets]);
 
 SplashScreen.preventAutoHideAsync();
+
+const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
+  const { colors, isDark } = useTheme();
+  const navigationTheme = {
+    ...(isDark ? NavigationDarkTheme : NavigationDefaultTheme),
+    colors: {
+      ...(isDark ? NavigationDarkTheme.colors : NavigationDefaultTheme.colors),
+      primary: colors["color-success-400"],
+      background: colors.background,
+      card: colors.background,
+      text: colors.text,
+      border: colors.border,
+      notification: colors["color-danger-500"],
+    },
+  };
+
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} translucent />
+      <KeyboardProvider>
+        <NavigationContainer onReady={onReady} theme={navigationTheme}>
+          <RootNavigator />
+          <ProgressiveUnlockChecker />
+        </NavigationContainer>
+      </KeyboardProvider>
+    </>
+  );
+};
 
 export function App() {
   const [fontLoaded] = useFonts({
@@ -142,12 +175,7 @@ export function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <KeyboardProvider>
-          <NavigationContainer onReady={onReady}>
-            <RootNavigator />
-            <ProgressiveUnlockChecker />
-          </NavigationContainer>
-        </KeyboardProvider>
+        <AppShell onReady={onReady} />
       </ThemeProvider>
     </GestureHandlerRootView>
   );

@@ -40,14 +40,11 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withRepeat,
-  withTiming,
-  withSequence,
-  Easing,
   FadeInUp,
 } from "react-native-reanimated";
 import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
+import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useUserStore from "../../../zustand/useUserStore";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
@@ -61,15 +58,22 @@ type ScanMealTrueSheetProps = {
   };
 };
 
-type ScreenState = "camera" | "captured" | "analyzing" | "analyzed";
+type ScreenState = "camera" | "captured" | "analyzed";
 
 // Animation timing constants
 const ANIMATION_DISMISS_DELAY = 200;
 
+const getPhotoUri = (path: string) =>
+  path.startsWith("file://") ? path : `file://${path}`;
+
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const { colors, isDark } = useTheme();
   const device = useCameraDevice("back");
-  const format = useCameraFormat(device, [{ photoAspectRatio: 1 }]);
+  const format = useCameraFormat(device, [
+    // Keep the capture smaller so Android uploads stay under Vercel's body limit.
+    { photoResolution: { width: 1280, height: 1280 } },
+    { photoAspectRatio: 1 },
+  ]);
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -79,15 +83,12 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   );
   const [screenState, setScreenState] = useState<ScreenState>("camera");
   const [analyzedMeal, setAnalyzedMeal] = useState<IMeal | null>(null);
+  const photoUri = photo ? getPhotoUri(photo.path) : null;
 
   // Animation values
   const imageWidth = useSharedValue(100);
   const imageHeight = useSharedValue(scale(500));
   const imageMarginRight = useSharedValue(0);
-
-  // Analyzing loader animations
-  const loaderRotation = useSharedValue(0);
-  const loaderPulse = useSharedValue(1);
 
   // Animated styles
   const animatedImageStyle = useAnimatedStyle(() => ({
@@ -115,39 +116,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     }
   }, [screenState, analyzedMeal]);
 
-  // Trigger loader animations when analyzing
-  useEffect(() => {
-    if (screenState === "analyzing") {
-      loaderRotation.value = withRepeat(
-        withTiming(360, { duration: 2000, easing: Easing.linear }),
-        -1,
-      );
-      loaderPulse.value = withRepeat(
-        withSequence(
-          withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0.95, {
-            duration: 800,
-            easing: Easing.inOut(Easing.ease),
-          }),
-          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        ),
-        -1,
-      );
-    } else {
-      loaderRotation.value = 0;
-      loaderPulse.value = 1;
-    }
-  }, [screenState]);
-
-  // Animated styles for loader
-  const loaderRotationStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${loaderRotation.value}deg` }],
-  }));
-
-  const loaderPulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: loaderPulse.value }],
-  }));
-
   const dismiss = async () => {
     await TrueSheet.dismiss(TrueSheetNames.SCAN_MEAL);
   };
@@ -174,7 +142,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const savePhoto = async () => {
     try {
       setLoading(true);
-      setScreenState("analyzing");
       const prompt = promptBuilder.createAnalysisPrompt(
         useOnboardingStore.getState(),
         "",
@@ -183,7 +150,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       );
       const response = await createGeminiVisionCompletion(
         {
-          uri: photo?.path ?? "",
+          uri: photoUri ?? "",
           mimeType: "image/jpeg",
         },
         prompt,
@@ -212,6 +179,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       if (!meal.errorMessage) {
         const meals = useMealsStore.getState().loggedMeals;
         useMealsStore.setState({ loggedMeals: [...meals, meal] });
+        if (meal.date) syncMealLiveActivity(meal.date);
       }
 
       analyticsService.logEvent(AnalyticsEvent.MealLogged, {
@@ -235,7 +203,10 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     } catch (error) {
       console.log("ERROR SAVING PHOTO", error);
       analyticsService.logEvent(AnalyticsEvent.MealLogError);
-      Alert.alert("Error", "Failed to analyze meal");
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to analyze meal",
+      );
       resetState();
     } finally {
       setLoading(false);
@@ -264,6 +235,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               }
               return { loggedMeals: newMeals };
             });
+            if (analyzedMeal.date) syncMealLiveActivity(analyzedMeal.date);
             dismiss();
             setTimeout(resetState, ANIMATION_DISMISS_DELAY);
           } catch (error) {
@@ -318,7 +290,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   return (
     <TrueSheet
       backgroundColor={colors.background}
-      dismissible={screenState !== "analyzing"}
+      dismissible={!loading}
       scrollable
       onDidDismiss={() => {
         setTimeout(() => {
@@ -333,7 +305,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       }}
     >
       {screenState === "camera" && device && (
-        <>
+        <View style={styles.cameraContainer}>
           <Camera
             photo={true}
             ref={cameraRef}
@@ -347,20 +319,24 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             onPress={takePhoto}
             style={styles.takePhotoButton}
           ></Pressable>
-        </>
+        </View>
       )}
 
       {screenState === "captured" && photo && (
         <View style={styles.capturedContainer}>
           <View style={styles.capturedImageWrapper}>
-            <Image source={{ uri: photo.path }} style={styles.capturedPhoto} />
+            <Image source={{ uri: photoUri ?? "" }} style={styles.capturedPhoto} />
             <LinearGradient
               colors={["transparent", colors.background]}
               style={styles.capturedGradientOverlay}
             />
             <Pressable
+              disabled={loading}
               onPress={handleNewScan}
-              style={[styles.retakeButton, { backgroundColor: colors.surface }]}
+              style={[
+                styles.retakeButton,
+                { backgroundColor: colors.surface, opacity: loading ? 0.5 : 1 },
+              ]}
             >
               <MaterialCommunityIcons
                 name="camera-retake"
@@ -390,34 +366,9 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             <AppButton
               title={t("analyzeMeal")}
               onPress={savePhoto}
+              disabled={loading}
               margin={{ marginTop: scale(16) }}
             />
-          </View>
-        </View>
-      )}
-
-      {screenState === "analyzing" && photo && (
-        <View style={styles.analyzingContainer}>
-          <Image source={{ uri: photo.path }} style={styles.photo} />
-          <View style={styles.analyzingOverlay}>
-            <Animated.View
-              style={[styles.loaderOuterRing, loaderRotationStyle]}
-            >
-              <Text style={styles.loaderEmoji}>🍕</Text>
-              <Text style={[styles.loaderEmoji, styles.loaderEmoji2]}>🥗</Text>
-              <Text style={[styles.loaderEmoji, styles.loaderEmoji3]}>🍎</Text>
-              <Text style={[styles.loaderEmoji, styles.loaderEmoji4]}>🥑</Text>
-            </Animated.View>
-            <Animated.View
-              style={[styles.loaderIconContainer, loaderPulseStyle]}
-            >
-              <MaterialCommunityIcons
-                name="magnify"
-                size={scale(32)}
-                color={colors["color-primary-50"]}
-              />
-            </Animated.View>
-            <Text style={styles.analyzingText}>{t("analyzingMeal")}</Text>
           </View>
         </View>
       )}
@@ -436,7 +387,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             style={[styles.topSection, { backgroundColor: colors.surface }]}
           >
             <Animated.Image
-              source={{ uri: photo.path }}
+              source={{ uri: photoUri ?? "" }}
               style={[styles.analyzedImage, animatedImageStyle]}
             />
             <Animated.View
@@ -648,14 +599,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   );
 };
 
-const ACCENT_GREEN = "#4CAF50";
-
 const styles = StyleSheet.create({
-  photo: {
-    height: scale(500),
-    width: "100%",
-    borderRadius: scale(24),
-  },
   // Captured state styles
   capturedContainer: {
     flex: 1,
@@ -710,70 +654,12 @@ const styles = StyleSheet.create({
   capturedMealTypeContainer: {
     marginBottom: scale(8),
   },
-  // Analyzing overlay styles
-  analyzingContainer: {
-    position: "relative",
-  },
-  analyzingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: scale(24),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loaderOuterRing: {
-    position: "absolute",
-    width: scale(90),
-    height: scale(90),
-    borderRadius: scale(45),
-    borderWidth: 2,
-    borderColor: ACCENT_GREEN + "40",
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loaderEmoji: {
-    position: "absolute",
-    fontSize: scale(20),
-    top: -scale(10),
-  },
-  loaderEmoji2: {
-    top: "auto",
-    bottom: -scale(10),
-    right: scale(10),
-  },
-  loaderEmoji3: {
-    top: "auto",
-    left: -scale(10),
-    bottom: scale(20),
-  },
-  loaderEmoji4: {
-    top: scale(20),
-    right: -scale(10),
-  },
-  loaderIconContainer: {
-    width: scale(70),
-    height: scale(70),
-    borderRadius: scale(35),
-    backgroundColor: ACCENT_GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: scale(16),
-    shadowColor: ACCENT_GREEN,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  analyzingText: {
-    ...fontStyles.headline3,
-    color: "white",
-    textAlign: "center",
-    marginTop: scale(8),
-  },
   camera: {
     height: scale(500),
     width: "100%",
+  },
+  cameraContainer: {
+    position: "relative",
   },
   takePhotoButton: {
     position: "absolute",
