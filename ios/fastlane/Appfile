@@ -1,4 +1,4 @@
-app_identifier("com.ilks.fitpet") # The bundle identifier of your app
+app_identifier("com.ilks.fitpet", "com.ilks.fitpet.FitBadgerLiveActivity") # The bundle identifier of your app
 apple_id("ilker897@gmail.com") # Your Apple Developer Portal username
 
 itc_team_id("128327319") # App Store Connect Team ID
