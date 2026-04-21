@@ -4,10 +4,9 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import PaywallScreen from "../screens/PaywallScreen";
 import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
-import MealDetailScreen from "../screens/MealDetailScreen/MealDetailScreen";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import CookRecipeScreen from "../screens/CookRecipeScreen/CookRecipeScreen";
-import { CookRecipe, IMeal } from "../services/apiTypes";
+import { CookRecipe } from "../services/apiTypes";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
 import useUserStore, { INITIAL_USER_STORE } from "../zustand/useUserStore";
@@ -64,14 +63,6 @@ const RootNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="MealDetail"
-        component={MealDetailScreen}
-        options={{
-          headerShown: false,
-          presentation: "modal",
-        }}
-      />
-      <Stack.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
@@ -116,9 +107,6 @@ type RootStackParamList = {
   LogMeal: {
     selectedDate: string;
     mealId?: string;
-  };
-  MealDetail: {
-    meal: IMeal;
   };
   CookRecipe: {
     recipe: CookRecipe;

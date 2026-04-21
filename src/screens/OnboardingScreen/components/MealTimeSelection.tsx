@@ -92,7 +92,6 @@ interface MealTimeSelectionProps {
 
 const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
   const { t } = useTranslation();
-  const { colors } = useTheme();
   const notificationStore = useNotificationStore();
 
   const [breakfastTime, setBreakfastTime] = useState(
@@ -125,12 +124,16 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
 
     if (granted) {
       notificationStore.setNotificationsEnabled(true);
+      notificationStore.setBreakfastEnabled(true);
+      notificationStore.setLunchEnabled(true);
+      notificationStore.setDinnerEnabled(true);
 
-      // Schedule dinner reminder (progressive: only dinner at start)
-      await notificationService.scheduleMealReminder(
-        "dinner",
-        dinnerTime,
-        t("dinnerReminder"),
+      await notificationService.rescheduleAllNotifications(
+        {
+          breakfast: t("breakfastReminder"),
+          lunch: t("lunchReminder"),
+          dinner: t("dinnerReminder"),
+        },
         t("mealReminderBody"),
       );
     } else {
@@ -169,17 +172,6 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
           onChangeTime={handleDinnerTimeChange}
           icon="silverware-fork-knife"
         />
-      </View>
-
-      <View style={[styles.infoCard, { backgroundColor: colors.surface }]}>
-        <MaterialCommunityIcons
-          name="bell-ring-outline"
-          size={scale(20)}
-          color={colors["color-primary-500"]}
-        />
-        <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-          {t("dinnerReminderInfo")}
-        </Text>
       </View>
     </View>
   );
@@ -244,18 +236,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontVariant: ["tabular-nums"],
     alignSelf: "center",
-  },
-  infoCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: scale(12),
-    marginTop: scale(16),
-    padding: scale(16),
-    borderRadius: scale(12),
-  },
-  infoText: {
-    ...fontStyles.body2,
-    flex: 1,
   },
 });
 

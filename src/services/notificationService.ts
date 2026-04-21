@@ -1,4 +1,4 @@
-import { Platform, PermissionsAndroid, Alert } from "react-native";
+import { Platform, PermissionsAndroid } from "react-native";
 import useNotificationStore, {
   MealType,
   MealTime,
@@ -175,7 +175,6 @@ class NotificationService {
       return;
     }
 
-    // Handle dinner (always available)
     if (store.dinnerEnabled) {
       await this.scheduleMealReminder(
         "dinner",
@@ -187,8 +186,7 @@ class NotificationService {
       await this.cancelMealReminder("dinner");
     }
 
-    // Handle breakfast (progressive)
-    if (store.breakfastEnabled && store.progressiveUnlockOffered) {
+    if (store.breakfastEnabled) {
       await this.scheduleMealReminder(
         "breakfast",
         store.breakfastTime,
@@ -199,8 +197,7 @@ class NotificationService {
       await this.cancelMealReminder("breakfast");
     }
 
-    // Handle lunch (progressive)
-    if (store.lunchEnabled && store.progressiveUnlockOffered) {
+    if (store.lunchEnabled) {
       await this.scheduleMealReminder(
         "lunch",
         store.lunchTime,
@@ -210,22 +207,6 @@ class NotificationService {
     } else {
       await this.cancelMealReminder("lunch");
     }
-  }
-
-  trackMealLog(): void {
-    const store = useNotificationStore.getState();
-    const today = new Date().toISOString().split("T")[0];
-    store.addMealLogDate(today);
-  }
-
-  shouldOfferProgressiveUnlock(): boolean {
-    const store = useNotificationStore.getState();
-    return store.shouldUnlockAllMeals();
-  }
-
-  markProgressiveUnlockOffered(): void {
-    const store = useNotificationStore.getState();
-    store.setProgressiveUnlockOffered(true);
   }
 
   async getScheduledNotifications(): Promise<string[]> {

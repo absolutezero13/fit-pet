@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import CookScreen from "../screens/CookScreen/CookScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { colors } from "../theme/colors";
 import { createNativeBottomTabNavigator } from "@bottom-tabs/react-navigation";
 

@@ -41,7 +41,6 @@ import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
-import ProgressiveUnlockChecker from "./components/ProgressiveUnlockChecker";
 
 const AMPLITUDE_API_KEY = "6fe402b8cb00cc133cbd85e986b37342";
 
@@ -86,7 +85,6 @@ const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
       <KeyboardProvider>
         <NavigationContainer onReady={onReady} theme={navigationTheme}>
           <RootNavigator />
-          <ProgressiveUnlockChecker />
         </NavigationContainer>
       </KeyboardProvider>
     </>

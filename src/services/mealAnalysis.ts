@@ -5,16 +5,12 @@ import {
   getStorage,
   ref,
 } from "@react-native-firebase/storage";
-import notificationService from "./notificationService";
 
 export const createMeal = async (meal: IMeal): Promise<IMeal> => {
   try {
     console.log("CREATE MEAL", meal);
     const res = await api.post("/meal-analysis", meal);
     console.log("CREATE MEAL RESPONSE", res.data);
-
-    // Track meal log for progressive notification unlock
-    notificationService.trackMealLog();
 
     return res.data;
   } catch (error) {

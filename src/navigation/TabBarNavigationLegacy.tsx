@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatScreen from "../screens/ChatScreen/ChatScreen";
 import CookScreen from "../screens/CookScreen/CookScreen";
 import HomeScreen from "../screens/HomeScreen/HomeScreen";
-import MealsScreen from "../screens/MealsScreen/MealsScreen";
 import { fontStyles } from "../theme/fontStyles";
 import { useTheme } from "../theme/ThemeContext";
 import { scale } from "../theme/utils";
@@ -28,14 +27,6 @@ const TabBarNavigationLegacy = () => {
       : colors["color-primary-400"];
 
     switch (screenName) {
-      case "Meals":
-        return (
-          <MaterialCommunityIcons
-            name="food-apple"
-            size={TAB_BAR_ICON_SIZE}
-            color={color}
-          />
-        );
       case "Home":
         return (
           <FontAwesome5 name="burn" size={TAB_BAR_ICON_SIZE} color={color} />

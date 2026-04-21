@@ -9,12 +9,16 @@ import {
 } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import FastImage from "react-native-fast-image";
-import { lightColors, macroColors } from "../../../theme/colors";
+import { lightColors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fontStyles } from "../../../theme/fontStyles";
 import { IMeal } from "../../../services/apiTypes";
 import { useTranslation } from "react-i18next";
+import getMacroConfig, {
+  MacroType,
+  withMacroAlpha,
+} from "../../../utils/getMacroConfig";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useMealsStore from "../../../zustand/useMealsStore";
@@ -50,6 +54,28 @@ const renderRightActions = (
         />
       </TouchableOpacity>
     </Animated.View>
+  );
+};
+
+const MacroBadge: FC<{
+  type: MacroType;
+  value: string;
+}> = ({ type, value }) => {
+  const config = getMacroConfig(type);
+  return (
+    <View
+      style={[
+        styles.macroBadge,
+        { backgroundColor: withMacroAlpha(type, "10") },
+      ]}
+    >
+      <MaterialCommunityIcons
+        name={config.icon}
+        size={scale(12)}
+        color={config.color}
+      />
+      <Text style={[styles.macroText, { color: config.color }]}>{value}</Text>
+    </View>
   );
 };
 
@@ -131,24 +157,8 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
             {meal.description}
           </Text>
           <View style={styles.macrosRow}>
-            <View style={styles.macroBadge}>
-              <MaterialCommunityIcons
-                name="fire"
-                size={scale(12)}
-                color={macroColors.calories}
-              />
-              <Text style={styles.macroText}>{meal.calories}</Text>
-            </View>
-            <View style={[styles.macroBadge, styles.proteinBadge]}>
-              <MaterialCommunityIcons
-                name="lightning-bolt"
-                size={scale(12)}
-                color={macroColors.protein}
-              />
-              <Text style={[styles.macroText, styles.proteinText]}>
-                {meal.proteins}g
-              </Text>
-            </View>
+            <MacroBadge type="calories" value={`${meal.calories}`} />
+            <MacroBadge type="protein" value={`${meal.proteins}g`} />
           </View>
         </View>
         <View style={styles.rightSection}>
@@ -189,14 +199,12 @@ const styles = StyleSheet.create({
     padding: scale(14),
     flexDirection: "row",
     alignItems: "center",
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: scale(8),
-    elevation: 3,
     marginHorizontal: scale(24),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: scale(4) },
+    shadowOpacity: 0.12,
+    shadowRadius: scale(14),
+    elevation: 6,
   },
   emojiContainer: {
     width: scale(44),
@@ -232,22 +240,14 @@ const styles = StyleSheet.create({
   macroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: macroColors.calories + "10",
     paddingHorizontal: scale(8),
     paddingVertical: scale(3),
     borderRadius: scale(8),
     gap: scale(3),
   },
-  proteinBadge: {
-    backgroundColor: macroColors.protein + "10",
-  },
   macroText: {
     ...fontStyles.caption,
     fontWeight: "600",
-    color: macroColors.calories,
-  },
-  proteinText: {
-    color: macroColors.protein,
   },
   rightSection: {
     flexDirection: "row",

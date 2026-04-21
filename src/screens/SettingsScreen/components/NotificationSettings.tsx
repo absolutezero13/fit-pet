@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -29,8 +29,6 @@ interface MealReminderRowProps {
   onToggle: (enabled: boolean) => void;
   onChangeTime: (time: MealTime) => void;
   icon: string;
-  locked?: boolean;
-  lockedMessage?: string;
 }
 
 const MealReminderRow: React.FC<MealReminderRowProps> = ({
@@ -40,8 +38,6 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
   onToggle,
   onChangeTime,
   icon,
-  locked = false,
-  lockedMessage,
 }) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -51,17 +47,6 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
     onChangeTime(adjustMealTime(time, increment));
   };
 
-  const handleToggle = (value: boolean) => {
-    if (locked && value) {
-      Alert.alert(
-        t("featureLocked"),
-        lockedMessage || t("featureLockedMessage"),
-      );
-      return;
-    }
-    onToggle(value);
-  };
-
   return (
     <View style={[styles.mealRow, { borderBottomColor: colors.border }]}>
       <View style={styles.rowTop}>
@@ -69,35 +54,20 @@ const MealReminderRow: React.FC<MealReminderRowProps> = ({
           <MaterialCommunityIcons
             name={icon as keyof typeof MaterialCommunityIcons.glyphMap}
             size={scale(20)}
-            color={locked ? colors.textTertiary : colors.text}
+            color={colors.text}
           />
-          <Text
-            style={[
-              styles.label,
-              { color: locked ? colors.textTertiary : colors.text },
-            ]}
-          >
-            {label}
-          </Text>
-          {locked && (
-            <MaterialCommunityIcons
-              name="lock"
-              size={scale(14)}
-              color={colors.textTertiary}
-            />
-          )}
+          <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
         </View>
         <Switch
-          value={enabled && !locked}
-          onValueChange={handleToggle}
+          value={enabled}
+          onValueChange={onToggle}
           trackColor={{
             false: colors.border,
             true: colors["color-success-400"],
           }}
-          disabled={locked}
         />
       </View>
-      {enabled && !locked && (
+      {enabled && (
         <View style={styles.timeRow}>
           <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>
             {t("reminderTime")}:
@@ -149,9 +119,6 @@ const NotificationSettings: React.FC = () => {
   const [breakfastTime, setBreakfastTime] = useState(store.breakfastTime);
   const [lunchTime, setLunchTime] = useState(store.lunchTime);
   const [dinnerTime, setDinnerTime] = useState(store.dinnerTime);
-
-  const unlocked = store.progressiveUnlockOffered;
-  const uniqueDays = store.getUniqueMealLogDays();
 
   const rescheduleNotifications = async () => {
     await notificationService.rescheduleAllNotifications(
@@ -260,10 +227,6 @@ const NotificationSettings: React.FC = () => {
               onToggle={handleBreakfastToggle}
               onChangeTime={handleBreakfastTimeChange}
               icon="food-croissant"
-              locked={!unlocked}
-              lockedMessage={t("unlockBreakfastLunch", {
-                days: 2 - uniqueDays,
-              })}
             />
             <MealReminderRow
               label={t("lunch")}
@@ -272,10 +235,6 @@ const NotificationSettings: React.FC = () => {
               onToggle={handleLunchToggle}
               onChangeTime={handleLunchTimeChange}
               icon="food"
-              locked={!unlocked}
-              lockedMessage={t("unlockBreakfastLunch", {
-                days: 2 - uniqueDays,
-              })}
             />
             <MealReminderRow
               label={t("dinner")}
@@ -288,19 +247,6 @@ const NotificationSettings: React.FC = () => {
           </>
         )}
       </View>
-
-      {!unlocked && globalEnabled && (
-        <View style={[styles.infoCard, { backgroundColor: colors.surface }]}>
-          <MaterialCommunityIcons
-            name="information-outline"
-            size={scale(18)}
-            color={colors["color-primary-500"]}
-          />
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            {t("progressiveUnlockInfo", { days: 2 - uniqueDays })}
-          </Text>
-        </View>
-      )}
     </View>
   );
 };
@@ -373,18 +319,6 @@ const styles = StyleSheet.create({
     ...fontStyles.headline4,
     minWidth: scale(50),
     textAlign: "center",
-  },
-  infoCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: scale(10),
-    marginTop: scale(12),
-    padding: scale(14),
-    borderRadius: scale(12),
-  },
-  infoText: {
-    ...fontStyles.body2,
-    flex: 1,
   },
 });
 
