@@ -178,18 +178,26 @@ const CookScreen = () => {
     );
   };
 
-  const submitAllergens = async () => {
+  const submitAllergens = async (overrideAllergens?: string[]) => {
+    const allergensToSave = overrideAllergens ?? selectedAllergens;
+    if (overrideAllergens) {
+      setSelectedAllergens(overrideAllergens);
+    }
     const prev = useUserStore.getState();
     const updated = prev
-      ? { ...prev, onboarding: { ...prev.onboarding, allergens: selectedAllergens } }
+      ? { ...prev, onboarding: { ...prev.onboarding, allergens: allergensToSave } }
       : prev;
     useUserStore.setState(updated);
     setViewState("kitchen");
     try {
-      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, allergens: selectedAllergens } });
+      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, allergens: allergensToSave } });
     } catch (error) {
       console.log("SAVE ALLERGENS ERROR", error);
     }
+  };
+
+  const submitNoAllergens = () => {
+    submitAllergens([]);
   };
 
   const toggleKitchenEquipment = (value: string) => {
@@ -273,7 +281,9 @@ const CookScreen = () => {
       return undefined;
     }
 
-    const estimatedMainMealCalories = dailyCalories * 0.35;
+    const MAIN_MEAL_CALORIE_FRACTION = 0.35;
+    const estimatedMainMealCalories =
+      dailyCalories * MAIN_MEAL_CALORIE_FRACTION;
     const options: CookMaxCaloriesOption[] = ["400", "600", "800", "1000"];
 
     return options.reduce((closest, option) => {
@@ -366,19 +376,13 @@ const CookScreen = () => {
   ) => {
     const nextSuggestedRecipes = await Promise.all(
       nextCandidates.map(async (candidate) => {
-        const [recipeResponse, imageResponse] = await Promise.all([
-          createCookRecipe(nextAnswers, candidate),
-          createGeminiImage(
-            `Appetizing food photo of ${candidate.title}. ${candidate.summary}. Top-down shot, natural lighting, restaurant quality.`,
-          ),
-        ]);
-
+        const recipeResponse = await createCookRecipe(nextAnswers, candidate);
         logCookRecipeGenerated(candidate.id, recipeResponse.recipe);
 
         return {
           candidate,
           recipe: recipeResponse.recipe,
-          imageUrl: imageResponse?.data ?? null,
+          imageUrl: null as string | null,
           activeVariation: null,
           isRefreshing: false,
         };
@@ -386,6 +390,40 @@ const CookScreen = () => {
     );
 
     return nextSuggestedRecipes;
+  };
+
+  const fetchCandidateImagesInBackground = (
+    cards: SuggestedCookRecipe[],
+  ) => {
+    cards.forEach((card) => {
+      const keyIngredients = card.recipe.ingredients
+        .slice(0, 5)
+        .map((ing) => ing.item)
+        .join(", ");
+      createGeminiImage(
+        `Appetizing food photo of ${card.recipe.title}. ${card.recipe.summary}. Key ingredients: ${keyIngredients}. Top-down shot, natural lighting, restaurant quality.`,
+      )
+        .then((imageResponse) => {
+          const url = imageResponse?.data ?? null;
+          if (!url) return;
+          setSuggestedRecipes((current) =>
+            current.map((item) =>
+              item.candidate.id === card.candidate.id
+                ? { ...item, imageUrl: url }
+                : item,
+            ),
+          );
+        })
+        .catch((error) => {
+          console.log("COOK CANDIDATE IMAGE ERROR", error);
+          analyticsService.logEvent(AnalyticsEvent.CookImageGenerationFailed, {
+            context: "initial",
+            candidateId: card.candidate.id,
+            recipeId: card.recipe.id,
+            errorMessage: error instanceof Error ? error.message : String(error),
+          });
+        });
+    });
   };
 
   const requestCandidates = async (nextAnswers: CookPromptAnswers) => {
@@ -407,7 +445,7 @@ const CookScreen = () => {
       }
 
       if (response.phase === "candidates" && response.candidates?.length) {
-        const nextCandidates = response.candidates.slice(0, 1);
+        const nextCandidates = response.candidates;
 
         analyticsService.logEvent(AnalyticsEvent.CookCandidatesGenerated, {
           goal: nextAnswers.goal,
@@ -431,6 +469,18 @@ const CookScreen = () => {
         setIsTransitioningQuestion(false);
         setSuggestedRecipes(nextSuggestedRecipes);
         setViewState("candidate_selection");
+        fetchCandidateImagesInBackground(nextSuggestedRecipes);
+
+        const firstCard = nextSuggestedRecipes[0];
+        if (firstCard) {
+          const latestSession: LatestCookSession = {
+            recipe: firstCard.recipe,
+            seed: (nextAnswers.seed as string) ?? "",
+            savedAt: new Date().toISOString(),
+          };
+          await storageService.setItem("latestCook", latestSession);
+          setLatestCook(latestSession);
+        }
         return;
       }
 
@@ -572,16 +622,31 @@ const CookScreen = () => {
     );
 
     try {
-      const [response, imageResponse] = await Promise.all([
-        createCookRecipe(
-          answers as CookPromptAnswers,
-          selectedRecipe.candidate,
-          { variation, currentRecipe: selectedRecipe.recipe },
-        ),
-        createGeminiImage(
-          `Appetizing food photo of ${selectedRecipe.candidate.title} - ${variation} variation. Top-down shot, natural lighting, restaurant quality.`,
-        ),
-      ]);
+      const response = await createCookRecipe(
+        answers as CookPromptAnswers,
+        selectedRecipe.candidate,
+        { variation, currentRecipe: selectedRecipe.recipe },
+      );
+
+      const keyIngredients = response.recipe.ingredients
+        .slice(0, 5)
+        .map((ing) => ing.item)
+        .join(", ");
+
+      let imageResponse: { data: string | null } | null = null;
+      try {
+        imageResponse = await createGeminiImage(
+          `Appetizing food photo of ${response.recipe.title}. ${response.recipe.summary}. Key ingredients: ${keyIngredients}. Top-down shot, natural lighting, restaurant quality.`,
+        );
+      } catch (imageError) {
+        console.log("COOK VARIATION IMAGE ERROR", imageError);
+        analyticsService.logEvent(AnalyticsEvent.CookImageGenerationFailed, {
+          context: "variation",
+          candidateId: selectedRecipe.candidate.id,
+          recipeId: response.recipe.id,
+          errorMessage: imageError instanceof Error ? imageError.message : String(imageError),
+        });
+      }
 
       logCookRecipeGenerated(selectedRecipe.candidate.id, response.recipe);
 
@@ -703,6 +768,25 @@ const CookScreen = () => {
           { backgroundColor: colors.surface, borderColor: colors.border },
         ]}
       >
+        <Pressable
+          onPress={submitNoAllergens}
+          style={[
+            styles.allergenNoneChip,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.backgroundSecondary,
+            },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="check-circle-outline"
+            size={scale(18)}
+            color={colors["color-success-500"]}
+          />
+          <Text style={[styles.allergenNoneLabel, { color: colors.text }]}>
+            {t("cookAllergenNone")}
+          </Text>
+        </Pressable>
         <View style={styles.allergenGrid}>
           {ALLERGEN_OPTIONS.map((option) => {
             const isSelected = selectedAllergens.includes(option.value);
@@ -738,7 +822,7 @@ const CookScreen = () => {
         </View>
         <AppButton
           title={t("cookAllergenContinue")}
-          onPress={submitAllergens}
+          onPress={() => submitAllergens()}
           backgroundColor={colors["color-success-400"]}
         />
       </View>
@@ -1119,7 +1203,13 @@ const CookScreen = () => {
       </Text>
       <AppButton
         title={t("cookTryAgain")}
-        onPress={resetCookFlow}
+        onPress={() => {
+          if (answers.seed && answers.time && answers.goal && answers.servings && answers.maxCaloriesPerServing) {
+            requestCandidates(answers as CookPromptAnswers);
+          } else {
+            resetCookFlow();
+          }
+        }}
         backgroundColor={colors["color-success-400"]}
       />
     </Animated.View>
@@ -1356,6 +1446,20 @@ const styles = StyleSheet.create({
     paddingVertical: scale(9),
   },
   allergenLabel: {
+    ...fontStyles.body1Bold,
+  },
+  allergenNoneChip: {
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderRadius: scale(18),
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(14),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(8),
+  },
+  allergenNoneLabel: {
     ...fontStyles.body1Bold,
   },
   messageCard: {
