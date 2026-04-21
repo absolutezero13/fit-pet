@@ -18,17 +18,28 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
-    raise "Versiion is required: fastlane beta version:1.1.2 build:42" unless options[:version]
-    raise "Build is required: fastlane beta version:1.1.2 build:42" unless options[:build]
-  
-    increment_version_number(
-      version_number: options[:version],
-      xcodeproj: "FitBadger.xcodeproj"
+    if options[:version]
+      increment_version_number(
+        version_number: options[:version],
+        xcodeproj: "FitBadger.xcodeproj"
+      )
+    end
+
+    current_version = get_version_number(
+      xcodeproj: "FitBadger.xcodeproj",
+      target: "FitBadger"
     )
+
+    latest_build = latest_testflight_build_number(
+      version: current_version,
+      app_identifier: "com.ilks.fitpet"
+    )
+
     increment_build_number(
-      build_number: options[:build],
+      build_number: (latest_build + 1).to_s,
       xcodeproj: "FitBadger.xcodeproj"
     )
+
     build_app(
       workspace: "FitBadger.xcworkspace",
       scheme: "FitBadger",
