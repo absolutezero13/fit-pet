@@ -73,9 +73,11 @@ export const resources = {
       cookPlanSummaryTitle: "Plan oluşuyor",
       cookAssistantLabel: "Cook ajanı",
       cookOnboardingTitle: "Cook ile tanış",
-      cookOnboardingBody: "Malzeme veya fikir yaz, sana iki güçlü tarif yönü hazırlayalım.",
+      cookOnboardingBody:
+        "Malzeme veya fikir yaz, sana iki güçlü tarif yönü hazırlayalım.",
       cookOnboardingCardTitle: "Sana özel tarifler",
-      cookOnboardingCardBody: "Cook, diyet tipini, kalori hedeflerini ve alerjilerini bilerek çalışır. Her öneri senin için tasarlanmıştır.",
+      cookOnboardingCardBody:
+        "Cook, diyet tipini, kalori hedeflerini ve alerjilerini bilerek çalışır. Her öneri senin için tasarlanmıştır.",
       cookOnboardingCta: "Başlayalım",
       cookAllergenTitle: "Herhangi bir alerjin var mı?",
       cookAllergenBody: "Tarifler buna göre uyarlanacak.",
@@ -381,7 +383,7 @@ export const resources = {
       notifications: "Bildirimler",
       enableNotifications: "Bildirimleri Etkinleştir",
       mealReminders: "Öğün Hatırlatıcıları",
-      mealTimeTitle: "Öğün Saatlerini Ayarla",
+      mealTimeTitle: "Öğün Saatleri",
       mealTimeDescription:
         "Öğün hatırlatıcıları almak için yaklaşık öğün saatlerinizi ayarlayın.",
       reminderTime: "Hatırlatma saati",
@@ -483,9 +485,11 @@ export const resources = {
       cookPlanSummaryTitle: "Building your plan",
       cookAssistantLabel: "Cook agent",
       cookOnboardingTitle: "Meet Cook",
-      cookOnboardingBody: "Drop an ingredient or rough idea and get two strong recipe directions built around your goals.",
+      cookOnboardingBody:
+        "Drop an ingredient or rough idea and get two strong recipe directions built around your goals.",
       cookOnboardingCardTitle: "Recipes built for you",
-      cookOnboardingCardBody: "Cook knows your diet type, calorie targets, and allergens. Every suggestion is tailored to you.",
+      cookOnboardingCardBody:
+        "Cook knows your diet type, calorie targets, and allergens. Every suggestion is tailored to you.",
       cookOnboardingCta: "Get Started",
       cookAllergenTitle: "Any allergens?",
       cookAllergenBody: "Recipes will be adapted accordingly.",

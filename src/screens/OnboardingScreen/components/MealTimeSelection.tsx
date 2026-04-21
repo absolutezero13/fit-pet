@@ -14,6 +14,7 @@ import {
   adjustMealTime,
   TIME_ADJUSTMENT_INCREMENT,
 } from "../../../utils/mealTimeUtils";
+import GlassView from "../../../components/SafeGlassView";
 
 interface MealTimeRowProps {
   label: string;
@@ -35,39 +36,51 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
   };
 
   return (
-    <View style={[styles.mealTimeRow]}>
-      <View style={styles.mealLabelContainer}>
+    <View style={styles.mealTimeRow}>
+      <View style={styles.mealHeader}>
         <MaterialCommunityIcons
           name={icon as keyof typeof MaterialCommunityIcons.glyphMap}
-          size={scale(24)}
+          size={scale(22)}
           color={colors.text}
         />
         <Text style={[styles.mealLabel, { color: colors.text }]}>{label}</Text>
       </View>
       <View style={styles.timePickerContainer}>
-        <TouchableOpacity
-          onPress={() => handleAdjustTime(-TIME_ADJUSTMENT_INCREMENT)}
-          style={styles.timeButton}
+        <GlassView
+          effect="clear"
+          interactive
+          style={[styles.glassButton, { backgroundColor: colors.background }]}
         >
-          <MaterialCommunityIcons
-            name="minus"
-            size={scale(20)}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleAdjustTime(-TIME_ADJUSTMENT_INCREMENT)}
+            style={styles.glassButtonInner}
+          >
+            <MaterialCommunityIcons
+              name="minus"
+              size={scale(24)}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+        </GlassView>
         <Text style={[styles.timeText, { color: colors.text }]}>
           {formatMealTime(time)}
         </Text>
-        <TouchableOpacity
-          onPress={() => handleAdjustTime(TIME_ADJUSTMENT_INCREMENT)}
-          style={styles.timeButton}
+        <GlassView
+          effect="clear"
+          interactive
+          style={[styles.glassButton, { backgroundColor: colors.background }]}
         >
-          <MaterialCommunityIcons
-            name="plus"
-            size={scale(20)}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleAdjustTime(TIME_ADJUSTMENT_INCREMENT)}
+            style={styles.glassButtonInner}
+          >
+            <MaterialCommunityIcons
+              name="plus"
+              size={scale(24)}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+        </GlassView>
       </View>
     </View>
   );
@@ -137,11 +150,7 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
-        {t("mealTimeDescription")}
-      </Text>
-
-      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <View style={[styles.card, {}]}>
         <MealTimeRow
           label={t("breakfast")}
           time={breakfastTime}
@@ -180,15 +189,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: scale(24),
-    paddingTop: scale(24),
+    paddingTop: scale(16),
   },
   description: {
     ...fontStyles.body1,
-    marginBottom: scale(24),
   },
   card: {
     borderRadius: scale(16),
-    padding: scale(16),
     shadowOffset: {
       width: 0,
       height: scale(2),
@@ -198,35 +205,45 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   mealTimeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: scale(16),
+    paddingVertical: scale(20),
   },
-  mealLabelContainer: {
+  mealHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: scale(12),
+    justifyContent: "center",
+    gap: scale(10),
+    marginBottom: scale(16),
   },
   mealLabel: {
-    ...fontStyles.headline4,
+    ...fontStyles.headline3,
+    alignSelf: "center",
   },
   timePickerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: scale(12),
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: scale(8),
   },
-  timeButton: {
-    width: scale(32),
-    height: scale(32),
-    borderRadius: scale(16),
+  glassButton: {
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
+  },
+  glassButtonInner: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   timeText: {
-    ...fontStyles.headline3,
-    minWidth: scale(60),
+    ...fontStyles.headline1,
+    fontSize: scale(40),
+    lineHeight: scale(52),
+    flex: 1,
     textAlign: "center",
+    fontVariant: ["tabular-nums"],
+    alignSelf: "center",
   },
   infoCard: {
     flexDirection: "row",
