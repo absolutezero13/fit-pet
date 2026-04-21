@@ -147,6 +147,7 @@ const LoggedMealsScreen = () => {
     <>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <LiquidGlassView
+          effect={"clear"}
           style={[
             styles.header,
             {
@@ -238,6 +239,7 @@ const LoggedMealsScreen = () => {
         </Animated.ScrollView>
 
         <LiquidGlassView
+          effect={"clear"}
           interactive
           style={{
             position: "absolute",
