@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { Modal, StyleSheet, View, Text } from "react-native";
 import Animated, {
   useSharedValue,
@@ -15,14 +15,16 @@ import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useTheme } from "../theme/ThemeContext";
 
-const AnalyzingMealOverlay = ({
+interface Props {
+  visible: boolean;
+  label?: string;
+  variant: "magnify" | "dots";
+}
+
+const AnalyzingMealOverlay: FC<Props> = ({
   visible,
   label,
   variant = "magnify",
-}: {
-  visible: boolean;
-  label?: string;
-  variant?: "magnify" | "dots";
 }) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -37,15 +39,15 @@ const AnalyzingMealOverlay = ({
 
     rotation.value = withRepeat(
       withTiming(360, { duration: 2000, easing: Easing.linear }),
-      -1
+      -1,
     );
 
     pulse.value = withRepeat(
       withSequence(
         withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) })
+        withTiming(0.95, { duration: 800, easing: Easing.inOut(Easing.ease) }),
       ),
-      -1
+      -1,
     );
   }, [variant, visible]);
 

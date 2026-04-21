@@ -21,6 +21,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../../theme/ThemeContext";
 import { lightColors } from "../../../theme/colors";
 import AppButton from "../../../components/AppButton";
+import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import { t } from "i18next";
 import { LinearGradient } from "expo-linear-gradient";
 import { createGeminiVisionCompletion } from "../../../services/gptApi";
@@ -595,6 +596,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           <View style={{ height: scale(40) }} />
         </ScrollView>
       )}
+      <AnalyzingMealOverlay visible={loading} variant="dots" />
     </TrueSheet>
   );
 };
