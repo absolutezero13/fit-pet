@@ -25,6 +25,14 @@ platform :ios do
       )
     end
 
+    match(
+    type: "appstore",
+    app_identifier: [
+      "com.ilks.fitpet",
+      "com.ilks.fitpet.FitBadgerLiveActivity"
+    ]
+    )
+
     current_version = get_version_number(
       xcodeproj: "FitBadger.xcodeproj",
       target: "FitBadger"
