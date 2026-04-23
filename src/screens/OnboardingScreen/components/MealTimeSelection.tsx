@@ -188,13 +188,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: scale(16),
-    shadowOffset: {
-      width: 0,
-      height: scale(2),
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
   },
   mealTimeRow: {
     alignItems: "center",

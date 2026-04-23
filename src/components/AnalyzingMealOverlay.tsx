@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     height: SCREEN_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   content: {
     alignItems: "center",

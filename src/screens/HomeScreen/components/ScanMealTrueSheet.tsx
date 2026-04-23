@@ -6,7 +6,7 @@ import {
   useCameraDevice,
   useCameraFormat,
 } from "react-native-vision-camera";
-import { scale } from "../../../theme/utils";
+import { scale, SCREEN_HEIGHT } from "../../../theme/utils";
 import {
   Alert,
   Image,
@@ -16,6 +16,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../../theme/ThemeContext";
@@ -51,6 +52,7 @@ import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import getScoreColor from "../../../utils/getScoreColor";
 import { getLocalDateKey } from "../../../utils/dateUtils";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -68,7 +70,7 @@ const getPhotoUri = (path: string) =>
   path.startsWith("file://") ? path : `file://${path}`;
 
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const device = useCameraDevice("back");
   const format = useCameraFormat(device, [
     // Keep the capture smaller so Android uploads stay under Vercel's body limit.
@@ -85,7 +87,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const [screenState, setScreenState] = useState<ScreenState>("camera");
   const [analyzedMeal, setAnalyzedMeal] = useState<IMeal | null>(null);
   const photoUri = photo ? getPhotoUri(photo.path) : null;
-
+  const insets = useSafeAreaInsets();
   // Animation values
   const imageWidth = useSharedValue(100);
   const imageHeight = useSharedValue(scale(500));
@@ -288,6 +290,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     }
   };
 
+  const cameraHeightAndroid = SCREEN_HEIGHT - insets.top;
   return (
     <TrueSheet
       backgroundColor={colors.background}
@@ -313,7 +316,15 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             device={device}
             format={format}
             isActive={true}
-            style={styles.camera}
+            style={[
+              styles.camera,
+              {
+                height: Platform.select({
+                  default: scale(500),
+                  android: cameraHeightAndroid,
+                }),
+              },
+            ]}
             photoQualityBalance="speed"
           />
           <Pressable
@@ -326,7 +337,10 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       {screenState === "captured" && photo && (
         <View style={styles.capturedContainer}>
           <View style={styles.capturedImageWrapper}>
-            <Image source={{ uri: photoUri ?? "" }} style={styles.capturedPhoto} />
+            <Image
+              source={{ uri: photoUri ?? "" }}
+              style={styles.capturedPhoto}
+            />
             <LinearGradient
               colors={["transparent", colors.background]}
               style={styles.capturedGradientOverlay}
@@ -610,7 +624,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   capturedPhoto: {
-    height: scale(380),
+    height: Platform.select({ default: scale(380), android: scale(500) }),
     width: "100%",
     borderRadius: scale(24),
   },
