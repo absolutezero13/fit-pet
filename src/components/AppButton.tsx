@@ -19,6 +19,7 @@ import {
   LiquidGlassView,
 } from "@callstack/liquid-glass";
 import { useTheme } from "../theme/ThemeContext";
+import GlassView from "./SafeGlassView";
 
 interface Props {
   title: string;
@@ -67,8 +68,7 @@ const AppButton: FC<Props> = ({
     transform: [{ scale: bounceScale.value }],
   }));
 
-  const androidBounceable =
-    Platform.OS === "android" && !disableAnimation;
+  const androidBounceable = Platform.OS === "android" && !disableAnimation;
 
   const onPressIn = () => {
     if (!androidBounceable || disabled || loading) return;
@@ -115,30 +115,29 @@ const AppButton: FC<Props> = ({
     </TouchableOpacity>
   );
 
-  const core =
-    androidBounceable ? (
-      <Animated.View
-        style={[
-          bounceStyle,
-          {
-            borderRadius: scale(32),
-            overflow: "hidden",
-            flex: flex ? 1 : undefined,
-            alignSelf: flex ? undefined : "stretch",
-          },
-        ]}
-      >
-        {touchable}
-      </Animated.View>
-    ) : (
-      touchable
-    );
+  const core = androidBounceable ? (
+    <Animated.View
+      style={[
+        bounceStyle,
+        {
+          borderRadius: scale(32),
+          overflow: "hidden",
+          flex: flex ? 1 : undefined,
+          alignSelf: flex ? undefined : "stretch",
+        },
+      ]}
+    >
+      {touchable}
+    </Animated.View>
+  ) : (
+    touchable
+  );
 
   const renderButton = () =>
     isLiquidGlassSupported ? (
-      <LiquidGlassView effect="clear" interactive style={outerStyle}>
+      <GlassView effect="clear" interactive style={outerStyle}>
         {core}
-      </LiquidGlassView>
+      </GlassView>
     ) : (
       <View style={outerStyle}>{core}</View>
     );
