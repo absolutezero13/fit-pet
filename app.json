@@ -23,10 +23,10 @@
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#050817"
       },
 
-      "package": "com.ilks.fitpet",
+      "package": "com.ilks.fitbadger",
       "permissions": ["android.permission.INTERNET"]
     },
     "web": {

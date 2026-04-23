@@ -1,4 +1,4 @@
-package com.ilks.fitpet
+package com.ilks.fitbadger
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -184,6 +184,7 @@ User info:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
 `;
 
+
 const createImagePrompt = (description: string) => `
 Create a high-quality, photorealistic image of the following meal:
 ${description}

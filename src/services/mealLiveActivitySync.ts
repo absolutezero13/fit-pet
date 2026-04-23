@@ -32,7 +32,9 @@ export const syncMealLiveActivity = async (dateKey: string) => {
   const todayKey = getLocalDateKey(new Date());
   if (dateKey !== todayKey) return;
 
-  const goals = useUserStore.getState()?.macroGoals ?? DEFAULT_GOALS;
+  const user = useUserStore.getState();
+  const goals = user?.macroGoals ?? DEFAULT_GOALS;
+
   const meals = useMealsStore
     .getState()
     .loggedMeals.filter((m) => m.date === todayKey);
