@@ -15,6 +15,7 @@ import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import usePreferencesStore from "../../zustand/usePreferencesStore";
+import useUserStore from "../../zustand/useUserStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../services/mealLiveActivitySync";
 import { LiquidGlassView } from "@callstack/liquid-glass";
@@ -22,6 +23,8 @@ import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
 import { getScoreTranslationKey } from "../../utils/scoreExplanations";
 import getScoreColor from "../../utils/getScoreColor";
+import MacroCard from "../../components/MacroCard";
+import { getGramGoal } from "../HomeScreen/components/utils";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -37,8 +40,17 @@ const AnalyzedMealScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
   const { colors } = useTheme();
-  // Subscribe to aiTone to trigger re-render when it changes
   const aiTone = usePreferencesStore((state) => state.aiTone);
+  const macroGoals = useUserStore((s) => s?.macroGoals);
+  const proteinGoal = macroGoals
+    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 4, percentage: macroGoals.proteins })
+    : 0;
+  const carbsGoal = macroGoals
+    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 4, percentage: macroGoals.carbs })
+    : 0;
+  const fatsGoal = macroGoals
+    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 9, percentage: macroGoals.fats })
+    : 0;
 
   if (!meal) {
     return null;
@@ -86,38 +98,8 @@ const AnalyzedMealScreen = () => {
     });
   };
 
-  const renderMacroIcon = (type: string) => {
-    switch (type) {
-      case "protein":
-        return (
-          <MaterialCommunityIcons
-            name="food-steak"
-            size={scale(20)}
-            color={colors.text}
-          />
-        );
-      case "carbs":
-        return (
-          <MaterialCommunityIcons
-            name="bread-slice"
-            size={scale(20)}
-            color={colors["color-info-500"]}
-          />
-        );
-      case "fats":
-        return (
-          <MaterialCommunityIcons
-            name="oil"
-            size={scale(20)}
-            color={colors["color-warning-500"]}
-          />
-        );
-      default:
-        return null;
-    }
-  };
 
-  return (
+return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
         effect="clear"
@@ -210,36 +192,10 @@ const AnalyzedMealScreen = () => {
         <Text style={[styles.sectionHeading, { color: colors.text }]}>
           {t("macronutrients")}
         </Text>
-        <View
-          style={[styles.macrosContainer, { backgroundColor: colors.surface }]}
-        >
-          <View style={styles.macroItem}>
-            {renderMacroIcon("protein")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>
-              {meal.proteins}g
-            </Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
-              {t("proteins")}
-            </Text>
-          </View>
-          <View style={styles.macroItem}>
-            {renderMacroIcon("carbs")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>
-              {meal.carbs}g
-            </Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
-              {t("carbs")}
-            </Text>
-          </View>
-          <View style={styles.macroItem}>
-            {renderMacroIcon("fats")}
-            <Text style={[styles.macroValue, { color: colors.text }]}>
-              {meal.fats}g
-            </Text>
-            <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
-              {t("fats")}
-            </Text>
-          </View>
+        <View style={styles.macrosContainer}>
+          <MacroCard type="protein" current={meal.proteins ?? 0} goal={proteinGoal} />
+          <MacroCard type="carbs" current={meal.carbs ?? 0} goal={carbsGoal} />
+          <MacroCard type="fats" current={meal.fats ?? 0} goal={fatsGoal} />
         </View>
         {meal.insights && meal.insights.length > 0 && (
           <>

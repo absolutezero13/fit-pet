@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from "react";
 import useThemeStore from "../zustand/useThemeStore";
-import { lightColors, darkColors, ThemeColors, ThemeMode } from "./colors";
+import { lightColors, darkGrayColors, ThemeColors, ThemeMode } from "./colors";
 
 interface ThemeContextValue {
   colors: ThemeColors;
@@ -19,7 +19,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const value = useMemo<ThemeContextValue>(
     () => ({
-      colors: mode === "dark" ? darkColors : lightColors,
+      colors: mode === "dark" ? darkGrayColors : lightColors,
       mode,
       isDark: mode === "dark",
       toggleTheme: toggleMode,

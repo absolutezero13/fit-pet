@@ -693,10 +693,10 @@ interface UsageMetadata {
 export type IMealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export interface IMeal {
-  calories: string;
-  proteins: string;
-  carbs: string;
-  fats: string;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  fats: number;
   description: string;
   title: string;
   preparationTime: string;

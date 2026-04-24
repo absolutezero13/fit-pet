@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
+import { useTheme } from "../theme/ThemeContext";
+import { ThemeColors } from "../theme/colors";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -29,17 +31,86 @@ import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { TrueSheetNames } from "../navigation/constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const BG = "#080F1E";
-const SURFACE = "#0E1A2E";
-const GREEN = "#3FB75C";
-const GREEN_DIM = "#11873A";
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    hero: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    image: {
+      width: scale(260),
+      height: scale(260),
+    },
+    bottom: {
+      paddingHorizontal: scale(28),
+      paddingTop: scale(8),
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: scale(36),
+      borderTopRightRadius: scale(36),
+    },
+    divider: {
+      width: scale(36),
+      height: scale(4),
+      borderRadius: scale(2),
+      backgroundColor: colors.border,
+      alignSelf: "center",
+      marginBottom: scale(28),
+    },
+    label: {
+      ...fontStyles.caption,
+      color: colors["color-success-400"],
+      letterSpacing: 2.5,
+      textAlign: "center",
+      marginBottom: scale(8),
+    },
+    appName: {
+      ...fontStyles.hero,
+      color: colors.text,
+      textAlign: "center",
+      marginBottom: scale(10),
+    },
+    description: {
+      ...fontStyles.body1,
+      color: colors.textSecondary,
+      textAlign: "center",
+      lineHeight: scale(22),
+      marginBottom: scale(32),
+      paddingHorizontal: scale(8),
+    },
+    buttonWrap: {
+      marginBottom: scale(16),
+    },
+    loginRow: {
+      flexDirection: "row",
+      alignSelf: "center",
+      alignItems: "center",
+      gap: scale(6),
+      marginBottom: scale(8),
+    },
+    loginText: {
+      ...fontStyles.body2,
+      color: colors.textTertiary,
+    },
+    loginLink: {
+      ...fontStyles.body2,
+      color: colors["color-success-500"],
+      fontWeight: "700",
+    },
+  });
 
-const WelcomeScreen = () => {
+const WelcomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const authService = useAuthService();
   const [loading, setLoading] = React.useState(false);
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
 
   const mascotOpacity = useSharedValue(0);
   const mascotY = useSharedValue(32);
@@ -101,21 +172,17 @@ const WelcomeScreen = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Background */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: BG }]} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]} />
 
-      {/* Hero */}
       <View style={[styles.hero, { paddingTop: insets.top + scale(48) }]}>
         <Animated.View style={mascotStyle}>
           <Image source={badger} style={styles.image} resizeMode="contain" />
         </Animated.View>
       </View>
 
-      {/* Bottom content */}
       <Animated.View
         style={[styles.bottom, { paddingBottom: insets.bottom + scale(24) }, bottomStyle]}
       >
-        {/* Divider line */}
         <View style={styles.divider} />
 
         <Text style={styles.label}>{t("welcome").toUpperCase()}</Text>
@@ -127,7 +194,7 @@ const WelcomeScreen = () => {
             title={t("getStarted")}
             loading={loading}
             onPress={loginSilent}
-            backgroundColor={GREEN}
+            backgroundColor={colors["color-success-400"]}
           />
         </View>
 
@@ -143,76 +210,5 @@ const WelcomeScreen = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BG,
-  },
-  hero: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  image: {
-    width: scale(260),
-    height: scale(260),
-  },
-  bottom: {
-    paddingHorizontal: scale(28),
-    paddingTop: scale(8),
-    backgroundColor: SURFACE,
-    borderTopLeftRadius: scale(36),
-    borderTopRightRadius: scale(36),
-  },
-  divider: {
-    width: scale(36),
-    height: scale(4),
-    borderRadius: scale(2),
-    backgroundColor: "rgba(255,255,255,0.12)",
-    alignSelf: "center",
-    marginBottom: scale(28),
-  },
-  label: {
-    ...fontStyles.caption,
-    color: GREEN,
-    letterSpacing: 2.5,
-    textAlign: "center",
-    marginBottom: scale(8),
-  },
-  appName: {
-    ...fontStyles.hero,
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginBottom: scale(10),
-  },
-  description: {
-    ...fontStyles.body1,
-    color: "rgba(255,255,255,0.45)",
-    textAlign: "center",
-    lineHeight: scale(22),
-    marginBottom: scale(32),
-    paddingHorizontal: scale(8),
-  },
-  buttonWrap: {
-    marginBottom: scale(16),
-  },
-  loginRow: {
-    flexDirection: "row",
-    alignSelf: "center",
-    alignItems: "center",
-    gap: scale(6),
-    marginBottom: scale(8),
-  },
-  loginText: {
-    ...fontStyles.body2,
-    color: "rgba(255,255,255,0.35)",
-  },
-  loginLink: {
-    ...fontStyles.body2,
-    color: GREEN_DIM,
-    fontWeight: "700",
-  },
-});
 
 export default WelcomeScreen;

@@ -251,6 +251,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
+        intensity: 100,
       }}
     >
       <KeyboardGestureArea
@@ -272,7 +273,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   styles.textInput,
                   {
                     paddingRight: image ? scale(140) : scale(24),
-                    borderColor: colors["color-primary-900"],
+                    borderColor: colors.border,
                     color: colors.text,
                     backgroundColor: colors.surface,
                   },
@@ -288,7 +289,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                 <TouchableOpacity
                   style={[
                     styles.imagePickerButton,
-                    { backgroundColor: colors.background },
+                    { backgroundColor: colors.backgroundSecondary },
                   ]}
                   onPress={() => {
                     Alert.alert(t("addImage"), t("chooseImageSource"), [

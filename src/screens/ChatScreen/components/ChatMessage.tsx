@@ -91,7 +91,7 @@ const ChatMessage = ({
         isUser
           ? [
               styles.userMessageContainer,
-              { backgroundColor: colors["color-success-400"] },
+              { backgroundColor: colors.white },
             ]
           : [styles.botMessageContainer, { backgroundColor: colors.surface }],
       ]}
@@ -110,7 +110,7 @@ const ChatMessage = ({
                 frameDelay={20}
               />
             ) : (
-              <MarkdownWrapper textColor={isUser ? colors.white : colors.text}>
+              <MarkdownWrapper textColor={isUser ? colors.textInverse : colors.text}>
                 {message?.text}
               </MarkdownWrapper>
             )}
@@ -119,7 +119,7 @@ const ChatMessage = ({
             style={[
               styles.messageTime,
               isUser
-                ? [styles.userMessageTime, { color: colors.white }]
+                ? [styles.userMessageTime, { color: colors.textInverse }]
                 : [styles.botMessageTime, { color: colors.textSecondary }],
             ]}
           >

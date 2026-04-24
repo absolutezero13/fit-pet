@@ -96,11 +96,65 @@ export const darkColors = {
   white: "#FFFFFF",
 };
 
+// Dark gray theme — black
+export const darkGrayColors = {
+  ...baseColors,
+  "color-primary-50": "#000000",
+  "color-primary-100": "#0A0A0A",
+  "color-primary-200": "#111111",
+  "color-primary-300": "#1A1A1A",
+  "color-primary-400": "#888888",
+  "color-primary-500": "#F0F0F0",
+  "color-primary-600": "#F5F5F5",
+  "color-primary-700": "#FAFAFA",
+  "color-primary-800": "#FFFFFF",
+  "color-primary-900": "#FFFFFF",
+  // Success — brighter green on dark, dark tint for backgrounds
+  "color-success-100": "#0D2E18",
+  "color-success-200": "#134D24",
+  "color-success-300": "#1A6B30",
+  "color-success-400": "#4CAF70",
+  "color-success-500": "#4CAF70",
+  "color-success-600": "#3DBE6E",
+  // Info — brighter teal on dark
+  "color-info-100": "#072A33",
+  "color-info-200": "#0C3F4D",
+  "color-info-300": "#105566",
+  "color-info-400": "#36B9CF",
+  "color-info-500": "#36B9CF",
+  "color-info-600": "#2AABCF",
+  // Warning — brighter yellow on dark
+  "color-warning-100": "#2A2200",
+  "color-warning-200": "#3D3200",
+  "color-warning-300": "#514200",
+  "color-warning-400": "#D4A800",
+  "color-warning-500": "#D4A800",
+  "color-warning-600": "#C49B00",
+  // Danger — brighter red on dark
+  "color-danger-100": "#2A0D0A",
+  "color-danger-200": "#3D1210",
+  "color-danger-300": "#5C1A17",
+  "color-danger-400": "#E05A4A",
+  "color-danger-500": "#E05A4A",
+  "color-danger-600": "#CC4A3A",
+  background: "#000000",
+  backgroundSecondary: "#0A0A0A",
+  surface: "#242424",
+  text: "#F0F0F0",
+  textSecondary: "#888888",
+  textTertiary: "#555555",
+  textInverse: "#000000",
+  border: "#383838",
+  shadow: "#000000",
+  skeleton: "#1A1A1A",
+  white: "#FFFFFF",
+};
+
 export type ThemeColors = typeof lightColors;
 export type ThemeMode = "light" | "dark";
 
 // Default export for backward compatibility
-export const colors = lightColors;
+export const colors = darkGrayColors;
 
 export const macroColors = {
   calories: "#F5A623",

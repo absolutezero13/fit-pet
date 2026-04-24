@@ -8,14 +8,12 @@ import Animated, {
 } from "react-native-reanimated";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";
 import { scale, SCREEN_WIDTH } from "../../../theme/utils";
 import { GoalEnum } from "../../../zustand/useOnboardingStore";
-import {
-  isLiquidGlassSupported,
-  LiquidGlassView,
-} from "@callstack/liquid-glass";
+import { isLiquidGlassSupported } from "@callstack/liquid-glass";
+import GlassView from "../../../components/SafeGlassView";
 
 export type GoalItem = {
   titleKey: string;
@@ -30,12 +28,12 @@ type Props = {
   onSelect: () => void;
 };
 
-const AnimatedLiquidGlassView =
-  Animated.createAnimatedComponent(LiquidGlassView);
+const AnimatedLiquidGlassView = Animated.createAnimatedComponent(GlassView);
 
 const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
   const Icon = item.iconComponent;
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const opacity = useSharedValue(0.1);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -50,7 +48,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
       delay,
       withTiming(1, {
         duration: 500,
-      })
+      }),
     );
   }, []);
 
@@ -72,8 +70,8 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
           backgroundColor: isLiquidGlassSupported
             ? undefined
             : isSelected
-            ? colors["color-success-600"]
-            : colors["color-primary-50"],
+              ? colors["color-success-600"]
+              : colors["color-primary-300"],
         },
         animatedStyles,
       ]}

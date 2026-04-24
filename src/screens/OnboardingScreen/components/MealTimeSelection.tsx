@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Platform,
+} from "react-native";
+import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -29,14 +37,32 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
   onChangeTime,
   icon,
 }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const isAndroidGlassFallback =
+    Platform.OS === "android" && !isLiquidGlassSupported;
 
   const handleAdjustTime = (increment: number) => {
     onChangeTime(adjustMealTime(time, increment));
   };
 
+  const glassButtonShell = [
+    styles.glassButton,
+    isAndroidGlassFallback
+      ? {
+          backgroundColor: isDark ? `${colors.white}14` : `${colors.white}B8`,
+          borderWidth: 1,
+          borderColor: isDark ? `${colors.white}22` : `${colors.text}0F`,
+          elevation: 3,
+          shadowColor: colors.shadow,
+          shadowOffset: { width: 0, height: scale(2) },
+          shadowOpacity: 0.1,
+          shadowRadius: scale(6),
+        }
+      : { backgroundColor: colors.background },
+  ];
+
   return (
-    <View style={styles.mealTimeRow}>
+    <View style={[styles.mealTimeRow]}>
       <View style={styles.mealHeader}>
         <MaterialCommunityIcons
           name={icon as keyof typeof MaterialCommunityIcons.glyphMap}
@@ -46,11 +72,7 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
         <Text style={[styles.mealLabel, { color: colors.text }]}>{label}</Text>
       </View>
       <View style={styles.timePickerContainer}>
-        <GlassView
-          effect="clear"
-          interactive
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
-        >
+        <GlassView effect="clear" interactive style={glassButtonShell}>
           <TouchableOpacity
             onPress={() => handleAdjustTime(-TIME_ADJUSTMENT_INCREMENT)}
             style={styles.glassButtonInner}
@@ -65,11 +87,7 @@ const MealTimeRow: React.FC<MealTimeRowProps> = ({
         <Text style={[styles.timeText, { color: colors.text }]}>
           {formatMealTime(time)}
         </Text>
-        <GlassView
-          effect="clear"
-          interactive
-          style={[styles.glassButton, { backgroundColor: colors.background }]}
-        >
+        <GlassView effect="clear" interactive style={glassButtonShell}>
           <TouchableOpacity
             onPress={() => handleAdjustTime(TIME_ADJUSTMENT_INCREMENT)}
             style={styles.glassButtonInner}
@@ -153,26 +171,24 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.card, {}]}>
-        <MealTimeRow
-          label={t("breakfast")}
-          time={breakfastTime}
-          onChangeTime={handleBreakfastTimeChange}
-          icon="food-croissant"
-        />
-        <MealTimeRow
-          label={t("lunch")}
-          time={lunchTime}
-          onChangeTime={handleLunchTimeChange}
-          icon="food"
-        />
-        <MealTimeRow
-          label={t("dinner")}
-          time={dinnerTime}
-          onChangeTime={handleDinnerTimeChange}
-          icon="silverware-fork-knife"
-        />
-      </View>
+      <MealTimeRow
+        label={t("breakfast")}
+        time={breakfastTime}
+        onChangeTime={handleBreakfastTimeChange}
+        icon="food-croissant"
+      />
+      <MealTimeRow
+        label={t("lunch")}
+        time={lunchTime}
+        onChangeTime={handleLunchTimeChange}
+        icon="food"
+      />
+      <MealTimeRow
+        label={t("dinner")}
+        time={dinnerTime}
+        onChangeTime={handleDinnerTimeChange}
+        icon="silverware-fork-knife"
+      />
     </View>
   );
 };
@@ -182,12 +198,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: scale(24),
     paddingTop: scale(16),
+    justifyContent: "center",
   },
   description: {
     ...fontStyles.body1,
-  },
-  card: {
-    borderRadius: scale(16),
   },
   mealTimeRow: {
     alignItems: "center",

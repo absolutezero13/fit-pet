@@ -48,6 +48,8 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useUserStore from "../../../zustand/useUserStore";
+import MacroCard from "../../../components/MacroCard";
+import { getGramGoal } from "./utils";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import getScoreColor from "../../../utils/getScoreColor";
@@ -71,6 +73,28 @@ const getPhotoUri = (path: string) =>
 
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const { colors } = useTheme();
+  const macroGoals = useUserStore((s) => s?.macroGoals);
+  const proteinGoal = macroGoals
+    ? getGramGoal({
+        calorieGoal: macroGoals.calories,
+        kcalCoefficent: 4,
+        percentage: macroGoals.proteins,
+      })
+    : 0;
+  const carbsGoal = macroGoals
+    ? getGramGoal({
+        calorieGoal: macroGoals.calories,
+        kcalCoefficent: 4,
+        percentage: macroGoals.carbs,
+      })
+    : 0;
+  const fatsGoal = macroGoals
+    ? getGramGoal({
+        calorieGoal: macroGoals.calories,
+        kcalCoefficent: 9,
+        percentage: macroGoals.fats,
+      })
+    : 0;
   const device = useCameraDevice("back");
   const format = useCameraFormat(device, [
     // Keep the capture smaller so Android uploads stay under Vercel's body limit.
@@ -259,37 +283,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     return t("score" + roundedScore);
   };
 
-  const renderMacroIcon = (type: string) => {
-    switch (type) {
-      case "protein":
-        return (
-          <MaterialCommunityIcons
-            name="food-steak"
-            size={scale(20)}
-            color={colors["color-primary-500"]}
-          />
-        );
-      case "carbs":
-        return (
-          <MaterialCommunityIcons
-            name="bread-slice"
-            size={scale(20)}
-            color={colors["color-info-500"]}
-          />
-        );
-      case "fats":
-        return (
-          <MaterialCommunityIcons
-            name="oil"
-            size={scale(20)}
-            color={colors["color-warning-500"]}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   const cameraHeightAndroid = SCREEN_HEIGHT - insets.top;
   return (
     <TrueSheet
@@ -363,12 +356,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
 
           <View style={styles.capturedContentSection}>
             <Text style={[styles.capturedTitle, { color: colors.text }]}>
-              {t("readyToAnalyze")}
-            </Text>
-            <Text
-              style={[styles.capturedSubtitle, { color: colors.textSecondary }]}
-            >
-              {t("selectMealTypeAndAnalyze")}
+              {t("mealType")}
             </Text>
 
             <View style={styles.capturedMealTypeContainer}>
@@ -477,45 +465,22 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
             <Text style={[styles.sectionHeading, { color: colors.text }]}>
               {t("macronutrients")}
             </Text>
-            <View
-              style={[
-                styles.macrosContainer,
-                { backgroundColor: colors.surface },
-              ]}
-            >
-              <View style={styles.macroItem}>
-                {renderMacroIcon("protein")}
-                <Text style={[styles.macroValue, { color: colors.text }]}>
-                  {analyzedMeal.proteins}g
-                </Text>
-                <Text
-                  style={[styles.macroLabel, { color: colors.textSecondary }]}
-                >
-                  {t("proteins")}
-                </Text>
-              </View>
-              <View style={styles.macroItem}>
-                {renderMacroIcon("carbs")}
-                <Text style={[styles.macroValue, { color: colors.text }]}>
-                  {analyzedMeal.carbs}g
-                </Text>
-                <Text
-                  style={[styles.macroLabel, { color: colors.textSecondary }]}
-                >
-                  {t("carbs")}
-                </Text>
-              </View>
-              <View style={styles.macroItem}>
-                {renderMacroIcon("fats")}
-                <Text style={[styles.macroValue, { color: colors.text }]}>
-                  {analyzedMeal.fats}g
-                </Text>
-                <Text
-                  style={[styles.macroLabel, { color: colors.textSecondary }]}
-                >
-                  {t("fats")}
-                </Text>
-              </View>
+            <View style={styles.macrosContainer}>
+              <MacroCard
+                type="protein"
+                current={analyzedMeal.proteins ?? 0}
+                goal={proteinGoal}
+              />
+              <MacroCard
+                type="carbs"
+                current={analyzedMeal.carbs ?? 0}
+                goal={carbsGoal}
+              />
+              <MacroCard
+                type="fats"
+                current={analyzedMeal.fats ?? 0}
+                goal={fatsGoal}
+              />
             </View>
           </Animated.View>
 
@@ -654,12 +619,13 @@ const styles = StyleSheet.create({
   },
   capturedContentSection: {
     paddingHorizontal: scale(24),
-    paddingTop: scale(8),
+    paddingTop: scale(16),
     paddingBottom: scale(32),
+    justifyContent: "flex-end",
+    flex: 1,
   },
   capturedTitle: {
     ...fontStyles.headline2,
-    textAlign: "center",
     marginBottom: scale(6),
   },
   capturedSubtitle: {
@@ -791,30 +757,8 @@ const styles = StyleSheet.create({
   },
   macrosContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     marginBottom: scale(28),
-    gap: scale(12),
-    borderRadius: scale(20),
-  },
-  macroItem: {
-    flex: 1,
-    alignItems: "center",
-    padding: scale(16),
-    borderRadius: scale(20),
-    minHeight: scale(120),
-    justifyContent: "center",
-  },
-  macroValue: {
-    ...fontStyles.headline2,
-    marginTop: scale(10),
-    marginBottom: scale(4),
-    fontWeight: "700",
-  },
-  macroLabel: {
-    ...fontStyles.body2,
-    letterSpacing: 0.5,
-    textAlign: "center",
-    fontWeight: "500",
+    gap: scale(10),
   },
   insightsList: {
     borderRadius: scale(20),

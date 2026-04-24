@@ -24,6 +24,7 @@ import GlassView from "./SafeGlassView";
 interface Props {
   title: string;
   onPress: () => void;
+  variant?: "solid" | "text";
   backgroundColor?: string;
   margin?: {
     marginVertical?: number;
@@ -48,6 +49,7 @@ const BOUNCE_OUT = { damping: 14, stiffness: 380, mass: 0.45 };
 const AppButton: FC<Props> = ({
   title,
   onPress,
+  variant = "solid",
   backgroundColor,
   margin,
   position,
@@ -60,9 +62,15 @@ const AppButton: FC<Props> = ({
   const { bottom } = useSafeAreaInsets();
   const { colors } = useTheme();
   const bounceScale = useSharedValue(1);
+  const isText = variant === "text";
+  const radius = isText ? scale(8) : scale(32);
 
-  const buttonBackgroundColor = backgroundColor ?? colors["color-primary-500"];
-  const buttonTextColor = color ?? colors.textInverse;
+  const buttonBackgroundColor = isText
+    ? (backgroundColor ?? "transparent")
+    : (backgroundColor ?? colors["color-primary-500"]);
+  const buttonTextColor = isText
+    ? (color ?? colors["color-primary-500"])
+    : (color ?? colors.textInverse);
 
   const bounceStyle = useAnimatedStyle(() => ({
     transform: [{ scale: bounceScale.value }],
@@ -81,7 +89,7 @@ const AppButton: FC<Props> = ({
   };
 
   const outerStyle = [
-    { borderRadius: scale(32) },
+    { borderRadius: radius },
     ...(margin ? [margin] : []),
     { flex: flex ? 1 : undefined },
   ];
@@ -95,12 +103,20 @@ const AppButton: FC<Props> = ({
       style={[
         {
           backgroundColor: buttonBackgroundColor,
-          padding: scale(16),
-          borderRadius: scale(32),
+          borderRadius: radius,
           alignItems: "center",
           justifyContent: "center",
           opacity: disabled ? 0.5 : 1,
-          height: scale(56),
+          ...(isText
+            ? {
+                paddingVertical: scale(10),
+                paddingHorizontal: scale(12),
+                minHeight: scale(44),
+              }
+            : {
+                padding: scale(16),
+                height: scale(56),
+              }),
         },
       ]}
       onPress={onPress}
@@ -120,7 +136,7 @@ const AppButton: FC<Props> = ({
       style={[
         bounceStyle,
         {
-          borderRadius: scale(32),
+          borderRadius: radius,
           overflow: "hidden",
           flex: flex ? 1 : undefined,
           alignSelf: flex ? undefined : "stretch",
@@ -134,7 +150,7 @@ const AppButton: FC<Props> = ({
   );
 
   const renderButton = () =>
-    isLiquidGlassSupported ? (
+    isLiquidGlassSupported && !isText ? (
       <GlassView effect="clear" interactive style={outerStyle}>
         {core}
       </GlassView>

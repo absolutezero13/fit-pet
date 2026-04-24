@@ -61,16 +61,16 @@ const GlassTabBar: React.FC<BottomTabBarProps> = ({
   });
 
   const glassBackground = isDark
-    ? "rgba(22, 42, 70, 0.82)"
+    ? `${colors.surface}D4`
     : "rgba(255, 255, 255, 0.72)";
   const glassBorder = isDark
-    ? "rgba(255, 255, 255, 0.10)"
+    ? `${colors.border}99`
     : "rgba(255, 255, 255, 0.85)";
   const activePillBg = isDark
-    ? "rgba(255, 255, 255, 0.14)"
+    ? "rgba(255, 255, 255, 0.12)"
     : "rgba(255, 255, 255, 0.90)";
   const activePillBorder = isDark
-    ? "rgba(255, 255, 255, 0.18)"
+    ? "rgba(255, 255, 255, 0.20)"
     : "rgba(255, 255, 255, 1)";
 
   return (
@@ -104,11 +104,7 @@ const GlassTabBar: React.FC<BottomTabBarProps> = ({
           const { options } = descriptors[route.key];
           const label = (options.title ?? route.name) as string;
           const focused = index === activeIndex;
-          const color = focused
-            ? colors["color-success-400"]
-            : isDark
-              ? "rgba(150, 164, 193, 0.8)"
-              : "rgba(95, 106, 131, 0.7)";
+          const color = focused ? colors.text : colors.textSecondary;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -174,7 +170,7 @@ const styles = StyleSheet.create({
   },
   activePill: {
     position: "absolute",
-    height: PILL_HEIGHT - scale(6),
+    height: PILL_HEIGHT - scale(8),
     borderRadius: scale(24),
     borderWidth: 1,
     zIndex: 0,
