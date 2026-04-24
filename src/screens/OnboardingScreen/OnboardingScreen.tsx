@@ -101,7 +101,6 @@ const OnboardingScreen = () => {
             flexDirection: "row",
             alignItems: "center",
             marginHorizontal: scale(24),
-            marginTop: scale(24),
             paddingTop: insets.top,
           }}
         >

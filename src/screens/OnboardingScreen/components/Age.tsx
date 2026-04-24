@@ -35,7 +35,7 @@ const Age = () => {
   };
 
   const handleMomentumScrollEnd = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     bottom: scale(96),
     borderWidth: 1,
     marginHorizontal: scale(24),
-    borderRadius: scale(16),
-    padding: scale(12),
+    borderRadius: scale(24),
+    padding: scale(16),
     ...shadowStyle,
   },
   infoCardDescription: {

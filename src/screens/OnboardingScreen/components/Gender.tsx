@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { LayoutAnimation, Pressable, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,8 @@ import { scale } from "../../../theme/utils";
 import useOnboardingStore, {
   GenderEnum,
 } from "../../../zustand/useOnboardingStore";
+import { isLiquidGlassSupported } from "@callstack/liquid-glass";
+import GlassView from "../../../components/SafeGlassView";
 
 type GenderItem = {
   titleKey: string;
@@ -36,73 +38,83 @@ const genders: GenderItem[] = [
 const Gender = () => {
   const gender = useOnboardingStore((state) => state.gender);
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const renderItem = ({ item }: { item: GenderItem }) => {
+    const isSelected = item.key === gender;
+
+    const onSelect = () => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      useOnboardingStore.setState({ gender: item.key });
+    };
+
     return (
-      <Pressable
-        onPress={() => useOnboardingStore.setState({ gender: item.key })}
+      <GlassView
+        interactive
+        effect="regular"
+        tintColor={
+          isSelected ? colors["color-success-800"] : colors["color-primary-100"]
+        }
         style={{
-          backgroundColor:
-            item.key === gender
-              ? isDark
-                ? colors["color-success-600"]
-                : colors["color-primary-200"]
-              : colors["color-primary-500"],
-          flexDirection: "row",
           borderRadius: scale(16),
-          alignItems: "center",
+          backgroundColor: isLiquidGlassSupported
+            ? undefined
+            : isSelected
+              ? colors["color-success-600"]
+              : colors["color-primary-300"],
         }}
       >
-        <View
+        <Pressable
+          onPress={onSelect}
           style={{
-            width: scale(100),
-            height: scale(100),
+            flexDirection: "row",
             borderRadius: scale(16),
-            marginRight: scale(32),
-            justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <FontAwesome6
-            name={item.icon}
-            size={scale(48)}
-            color={
-              item.key === gender
-                ? colors["color-primary-500"]
-                : colors["color-primary-100"]
-            }
-          />
-        </View>
-        <Text
-          style={[
-            fontStyles.headline2,
-            {
-              textAlign: "center",
-              marginTop: scale(8),
-              color:
-                item.key === gender
-                  ? colors["color-primary-500"]
-                  : colors["color-primary-100"],
-            },
-          ]}
-        >
-          {t(item.titleKey)}
-        </Text>
-
-        {item.key === gender && (
-          <FontAwesome6
-            name="circle-check"
-            size={scale(24)}
-            color={colors["color-primary-500"]}
+          <View
             style={{
-              position: "absolute",
-              top: scale(16),
-              right: scale(16),
+              width: scale(100),
+              height: scale(100),
+              borderRadius: scale(16),
+              marginRight: scale(32),
+              justifyContent: "center",
+              alignItems: "center",
             }}
-          />
-        )}
-      </Pressable>
+          >
+            <FontAwesome6
+              name={item.icon}
+              size={scale(48)}
+              color={isSelected ? colors.white : colors["color-primary-500"]}
+            />
+          </View>
+          <Text
+            style={[
+              fontStyles.headline2,
+              {
+                textAlign: "center",
+                marginTop: scale(8),
+                color: isSelected ? colors.white : colors["color-primary-500"],
+              },
+            ]}
+          >
+            {t(item.titleKey)}
+          </Text>
+
+          {isSelected && (
+            <FontAwesome6
+              name="circle-check"
+              size={scale(24)}
+              color={colors.white}
+              style={{
+                position: "absolute",
+                top: scale(16),
+                right: scale(16),
+              }}
+            />
+          )}
+        </Pressable>
+      </GlassView>
     );
   };
 
@@ -110,14 +122,16 @@ const Gender = () => {
     <View
       style={{
         flex: 1,
-        paddingHorizontal: scale(24),
-        marginTop: scale(48),
         justifyContent: "center",
       }}
     >
       <FlatList
         data={genders}
         renderItem={renderItem}
+        contentContainerStyle={{
+          paddingTop: scale(48),
+          paddingHorizontal: scale(24),
+        }}
         keyExtractor={(item) => item.titleKey}
         bounces={false}
         ItemSeparatorComponent={() => <View style={{ height: scale(16) }} />}

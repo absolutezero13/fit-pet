@@ -80,7 +80,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
         <FontAwesome6
           name="check"
           size={scale(24)}
-          color={colors["color-primary-100"]}
+          color={colors.white}
           style={{
             position: "absolute",
             top: scale(16),
@@ -103,7 +103,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
           <Icon
             color={
               isSelected
-                ? colors["color-primary-100"]
+                ? colors.white
                 : colors["color-primary-500"]
             }
           />
@@ -116,7 +116,7 @@ const GoalListItem: FC<Props> = ({ item, index, isSelected, onSelect }) => {
                 textAlign: "center",
                 marginTop: scale(8),
                 color: isSelected
-                  ? colors["color-primary-100"]
+                  ? colors.white
                   : colors["color-primary-500"],
               },
             ]}

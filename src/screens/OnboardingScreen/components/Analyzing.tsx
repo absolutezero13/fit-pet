@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -16,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { storageService } from "../../../storage/AsyncStorageService";
 import { fontStyles } from "../../../theme/fontStyles";
-import { colors } from "../../../theme/colors";
+import { useTheme } from "../../../theme/ThemeContext";
 import { scale, SCREEN_WIDTH } from "../../../theme/utils";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { MacroGoals } from "../../../zustand/useUserStore";
@@ -37,43 +38,19 @@ const DEFAULT_MACRO_GOALS: MacroGoals = {
 
 // Carousel slide duration in milliseconds (2.5 seconds)
 const SLIDE_DURATION = 2500;
-const TOTAL_SLIDES = 4;
+const TOTAL_SLIDES = 3;
 
-// Gradient colors for each slide - using theme colors
-const SLIDE_GRADIENTS: [string, string, string][] = [
-  [
-    colors["color-primary-500"],
-    colors["color-primary-400"],
-    colors["color-primary-300"],
-  ], // Blue-Cyan
-  [
-    colors["color-success-500"],
-    colors["color-success-400"],
-    colors["color-success-300"],
-  ], // Green
-  [
-    colors["color-warning-500"],
-    colors["color-warning-400"],
-    colors["color-warning-300"],
-  ], // Orange-Yellow
-  [
-    colors["color-primary-500"],
-    colors["color-success-500"],
-    colors["color-primary-400"],
-  ], // Blue-Green
-];
-
-// Placeholder images for each slide (from Unsplash - free to use)
-const SLIDE_IMAGES = [
-  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=300&fit=crop",
-];
 
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { colors } = useTheme();
+
+  const slideGradients: [string, string, string][] = [
+    [colors["color-info-100"], colors["color-info-200"], colors["color-info-300"]],
+    [colors["color-success-100"], colors["color-success-200"], colors["color-success-300"]],
+    [colors["color-warning-100"], colors["color-warning-200"], colors["color-warning-300"]],
+  ];
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const updateUserCalled = useRef(false);
@@ -89,30 +66,20 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const slides = [
     {
       message: t("carouselMessage1", { age: userAge }),
-      image: SLIDE_IMAGES[0],
-      gradient: SLIDE_GRADIENTS[0],
-      icon: "🚀",
+      gradient: slideGradients[0],
+      icon: "magnifying-glass" as const,
       title: t("analyzing"),
     },
     {
       message: t("carouselMessage2", { height: userHeight }),
-      image: SLIDE_IMAGES[1],
-      gradient: SLIDE_GRADIENTS[1],
-      icon: "💪",
+      gradient: slideGradients[1],
+      icon: "dumbbell" as const,
       title: t("calculating"),
     },
-    // {
-    //   message: t("carouselMessage3"),
-    //   image: SLIDE_IMAGES[2],
-    //   gradient: SLIDE_GRADIENTS[2],
-    //   icon: "🎯",
-    //   title: t("finding"),
-    // },
     {
       message: t("carouselMessage4"),
-      image: SLIDE_IMAGES[3],
-      gradient: SLIDE_GRADIENTS[3],
-      icon: "✨",
+      gradient: slideGradients[2],
+      icon: "bolt" as const,
       title: t("optimizing"),
     },
   ];
@@ -359,9 +326,13 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
           {/* Animated Icon with Loading Text */}
           <View style={styles.loadingSection}>
             <Animated.View style={[styles.iconContainer, pulseStyle]}>
-              <Animated.Text style={[styles.iconText, iconStyle]}>
-                {currentSlideData.icon}
-              </Animated.Text>
+              <Animated.View style={iconStyle}>
+                <FontAwesome6
+                  name={currentSlideData.icon}
+                  size={scale(36)}
+                  color="white"
+                />
+              </Animated.View>
             </Animated.View>
 
             {/* Loading text with animated dots */}
@@ -400,7 +371,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    overflow: "hidden",
   },
   gradientBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -416,7 +386,6 @@ const styles = StyleSheet.create({
     height: scale(4),
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: scale(2),
-    overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
