@@ -1,50 +1,36 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:ios)
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
-    if options[:version]
-      increment_version_number(
-        version_number: options[:version],
-        xcodeproj: "FitBadger.xcodeproj"
-      )
-    end
-
     match(
-    type: "appstore",
-    app_identifier: [
-      "com.ilks.fitpet",
-      "com.ilks.fitpet.FitBadgerLiveActivity"
-    ]
+      type: "appstore",
+      app_identifier: [
+        "com.ilks.fitpet",
+        "com.ilks.fitpet.FitBadgerLiveActivity"
+      ]
     )
 
-    current_version = get_version_number(
-      xcodeproj: "FitBadger.xcodeproj",
-      target: "FitBadger"
-    )
+    app_identifier = "com.ilks.fitpet"
 
-    latest_build = latest_testflight_build_number(
-      version: current_version,
-      app_identifier: "com.ilks.fitpet"
+    UI.user_error!("Please provide a version: fastlane beta version:1.0.1") unless options[:version]
+    target_version = options[:version]
+
+    UI.message("Target version: #{target_version}")
+
+    target_build = latest_testflight_build_number(
+      version: target_version,
+      app_identifier: app_identifier,
+      initial_build_number: 0
+    ) + 1
+
+    increment_version_number(
+      version_number: target_version,
+      xcodeproj: "FitBadger.xcodeproj"
     )
 
     increment_build_number(
-      build_number: (latest_build + 1).to_s,
+      build_number: target_build.to_s,
       xcodeproj: "FitBadger.xcodeproj"
     )
 
@@ -53,6 +39,7 @@ platform :ios do
       scheme: "FitBadger",
       export_method: "app-store"
     )
+
     upload_to_testflight(
       skip_waiting_for_build_processing: true,
       uses_non_exempt_encryption: false
