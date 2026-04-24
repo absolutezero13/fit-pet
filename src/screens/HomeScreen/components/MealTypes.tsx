@@ -36,12 +36,22 @@ const MealTypes = ({
             key={type}
             style={[
               styles.mealTypeButton,
-              { backgroundColor: colors.surface },
-              selectedMealType === type && { backgroundColor: colors["color-primary-600"] },
+              { backgroundColor: colors.background },
+              selectedMealType === type && {
+                backgroundColor: colors["color-primary-600"],
+              },
             ]}
             onPress={() => setSelectedMealType(type)}
           >
-            <Text style={[styles.mealTypeText, { color: colors.text }, selectedMealType === type && { color: colors.textInverse }]}>{type}</Text>
+            <Text
+              style={[
+                styles.mealTypeText,
+                { color: colors.text },
+                selectedMealType === type && { color: colors.textInverse },
+              ]}
+            >
+              {type}
+            </Text>
           </TouchableOpacity>
         </Wrapper>
       ))}

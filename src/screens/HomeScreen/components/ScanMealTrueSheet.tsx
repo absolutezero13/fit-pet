@@ -286,7 +286,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const cameraHeightAndroid = SCREEN_HEIGHT - insets.top;
   return (
     <TrueSheet
-      backgroundColor={colors.background}
+      backgroundColor={colors.surface}
       dismissible={!loading}
       scrollable
       onDidDismiss={() => {

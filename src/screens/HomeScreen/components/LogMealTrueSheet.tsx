@@ -247,7 +247,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       }}
       name={TrueSheetNames.LOG_MEAL}
       detents={["auto"]}
-      backgroundColor={colors.background}
+      backgroundColor={colors.surface}
       insetAdjustment="never"
       blurOptions={{
         interaction: false,
@@ -258,7 +258,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         interpolator="ios"
         offset={scale(50)}
         textInputNativeID="composer"
-        style={{}}
       >
         <View style={[styles.container, {}]}>
           <View style={styles.inputContainer}>
@@ -275,7 +274,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                     paddingRight: image ? scale(140) : scale(24),
                     borderColor: colors.border,
                     color: colors.text,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.background,
                   },
                 ]}
                 placeholder={t("exampleMeal")}
@@ -289,7 +288,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                 <TouchableOpacity
                   style={[
                     styles.imagePickerButton,
-                    { backgroundColor: colors.backgroundSecondary },
+                    { backgroundColor: colors.surface },
                   ]}
                   onPress={() => {
                     Alert.alert(t("addImage"), t("chooseImageSource"), [

@@ -139,7 +139,7 @@ const createAnalysisPrompt = (
 
   return `${tone.analysis}
 ${analysisBaseInstructions}
-Rate the meal from 1 to 10 based on nutritional quality. ${tone.rating}
+Rate the meal on a scale of 1 to 10 (integer only, minimum 1, maximum 10) based on nutritional quality. ${tone.rating}
 Use the errorMessage field only when:
 The meal is vague or not a meal.
 The input is outrageously unrealistic (e.g., 50 eggs, 10kg rice) → return localized: "Something went wrong, check your input".
