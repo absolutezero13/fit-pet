@@ -35,9 +35,12 @@ import {
   CookRecipe,
   LatestCookSession,
   CookPromptAnswers,
-
 } from "../../services/apiTypes";
-import { createCookCandidates, createCookRecipe, createGeminiImage } from "../../services/gptApi";
+import {
+  createCookCandidates,
+  createCookRecipe,
+  createGeminiImage,
+} from "../../services/gptApi";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
@@ -108,9 +111,9 @@ const CookScreen = () => {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     user?.onboarding?.allergens ?? [],
   );
-  const [selectedKitchenEquipment, setSelectedKitchenEquipment] = useState<string[]>(
-    user?.onboarding?.kitchenEquipment ?? [],
-  );
+  const [selectedKitchenEquipment, setSelectedKitchenEquipment] = useState<
+    string[]
+  >(user?.onboarding?.kitchenEquipment ?? []);
   const [seedInput, setSeedInput] = useState("");
   const [followUpInput, setFollowUpInput] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -185,12 +188,17 @@ const CookScreen = () => {
     }
     const prev = useUserStore.getState();
     const updated = prev
-      ? { ...prev, onboarding: { ...prev.onboarding, allergens: allergensToSave } }
+      ? {
+          ...prev,
+          onboarding: { ...prev.onboarding, allergens: allergensToSave },
+        }
       : prev;
     useUserStore.setState(updated);
     setViewState("kitchen");
     try {
-      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, allergens: allergensToSave } });
+      await userService.createOrUpdateUser({
+        onboarding: { ...prev?.onboarding, allergens: allergensToSave },
+      });
     } catch (error) {
       console.log("SAVE ALLERGENS ERROR", error);
     }
@@ -209,12 +217,23 @@ const CookScreen = () => {
   const submitKitchenEquipment = async () => {
     const prev = useUserStore.getState();
     const updated = prev
-      ? { ...prev, onboarding: { ...prev.onboarding, kitchenEquipment: selectedKitchenEquipment } }
+      ? {
+          ...prev,
+          onboarding: {
+            ...prev.onboarding,
+            kitchenEquipment: selectedKitchenEquipment,
+          },
+        }
       : prev;
     useUserStore.setState(updated);
     setViewState("intro");
     try {
-      await userService.createOrUpdateUser({ onboarding: { ...prev?.onboarding, kitchenEquipment: selectedKitchenEquipment } });
+      await userService.createOrUpdateUser({
+        onboarding: {
+          ...prev?.onboarding,
+          kitchenEquipment: selectedKitchenEquipment,
+        },
+      });
     } catch (error) {
       console.log("SAVE KITCHEN EQUIPMENT ERROR", error);
     }
@@ -392,9 +411,7 @@ const CookScreen = () => {
     return nextSuggestedRecipes;
   };
 
-  const fetchCandidateImagesInBackground = (
-    cards: SuggestedCookRecipe[],
-  ) => {
+  const fetchCandidateImagesInBackground = (cards: SuggestedCookRecipe[]) => {
     cards.forEach((card) => {
       const keyIngredients = card.recipe.ingredients
         .slice(0, 5)
@@ -420,7 +437,8 @@ const CookScreen = () => {
             context: "initial",
             candidateId: card.candidate.id,
             recipeId: card.recipe.id,
-            errorMessage: error instanceof Error ? error.message : String(error),
+            errorMessage:
+              error instanceof Error ? error.message : String(error),
           });
         });
     });
@@ -644,7 +662,10 @@ const CookScreen = () => {
           context: "variation",
           candidateId: selectedRecipe.candidate.id,
           recipeId: response.recipe.id,
-          errorMessage: imageError instanceof Error ? imageError.message : String(imageError),
+          errorMessage:
+            imageError instanceof Error
+              ? imageError.message
+              : String(imageError),
         });
       }
 
@@ -710,45 +731,33 @@ const CookScreen = () => {
   };
 
   const renderCookIntro = () => (
-    <Animated.View entering={FadeInUp.duration(220)} style={styles.sectionGap}>
-      <View style={styles.heroBlock}>
-        <Text style={[styles.heroTitle, { color: colors.text }]}>
+    <Animated.View
+      entering={FadeInUp.duration(220)}
+      style={[styles.sectionGap, { alignSelf: "stretch" }]}
+    >
+      <View style={[styles.heroBlock, { alignItems: "center" }]}>
+        <Text
+          style={[
+            styles.heroTitle,
+            { color: colors.text, textAlign: "center" },
+          ]}
+        >
           {t("cookOnboardingTitle")}
         </Text>
-        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
+        <Text
+          style={[
+            styles.heroBody,
+            { color: colors.textSecondary, textAlign: "center" },
+          ]}
+        >
           {t("cookOnboardingBody")}
         </Text>
       </View>
-      <View
-        style={[
-          styles.messageCard,
-          { backgroundColor: colors.surface, borderColor: colors.border },
-        ]}
-      >
-        <View
-          style={[
-            styles.cookIntroIconWrap,
-            { backgroundColor: colors.backgroundSecondary },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name="chef-hat"
-            size={scale(36)}
-            color={colors["color-success-500"]}
-          />
-        </View>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>
-          {t("cookOnboardingCardTitle")}
-        </Text>
-        <Text style={[styles.heroBody, { color: colors.textSecondary }]}>
-          {t("cookOnboardingCardBody")}
-        </Text>
-        <AppButton
-          title={t("cookOnboardingCta")}
-          onPress={() => setViewState("allergen")}
-          backgroundColor={colors["color-success-400"]}
-        />
-      </View>
+      <AppButton
+        title={t("cookOnboardingCta")}
+        onPress={() => setViewState("allergen")}
+        backgroundColor={colors["color-success-400"]}
+      />
     </Animated.View>
   );
 
@@ -904,32 +913,25 @@ const CookScreen = () => {
         </Text>
       </View>
 
-      <View
+      <TextInput
+        ref={seedInputRef}
+        value={seedInput}
+        onChangeText={setSeedInput}
+        multiline
+        numberOfLines={4}
+        placeholder={t("cookInputPlaceholder")}
+        placeholderTextColor={colors.textTertiary}
         style={[
-          styles.messageCard,
-          { backgroundColor: colors.surface, borderColor: colors.border },
+          styles.seedInput,
+          { borderColor: colors.border, color: colors.text },
         ]}
-      >
-        <TextInput
-          ref={seedInputRef}
-          value={seedInput}
-          onChangeText={setSeedInput}
-          multiline
-          numberOfLines={4}
-          placeholder={t("cookInputPlaceholder")}
-          placeholderTextColor={colors.textTertiary}
-          style={[
-            styles.seedInput,
-            { borderColor: colors.border, color: colors.text },
-          ]}
-          textAlignVertical="top"
-        />
-        <AppButton
-          title={t("cookStartPlanning")}
-          onPress={submitSeed}
-          backgroundColor={colors["color-success-400"]}
-        />
-      </View>
+        textAlignVertical="top"
+      />
+      <AppButton
+        title={t("cookStartPlanning")}
+        onPress={submitSeed}
+        backgroundColor={colors["color-success-400"]}
+      />
 
       {latestCook ? (
         <Animated.View entering={FadeInUp.duration(260)}>
@@ -1168,7 +1170,10 @@ const CookScreen = () => {
     <Animated.View entering={FadeInUp.duration(240)} style={styles.sectionGap}>
       <View style={styles.candidateGrid}>
         {suggestedRecipes.map(
-          ({ candidate, recipe, imageUrl, activeVariation, isRefreshing }, index) => (
+          (
+            { candidate, recipe, imageUrl, activeVariation, isRefreshing },
+            index,
+          ) => (
             <CookCandidateCard
               key={candidate.id}
               recipe={recipe}
@@ -1204,7 +1209,13 @@ const CookScreen = () => {
       <AppButton
         title={t("cookTryAgain")}
         onPress={() => {
-          if (answers.seed && answers.time && answers.goal && answers.servings && answers.maxCaloriesPerServing) {
+          if (
+            answers.seed &&
+            answers.time &&
+            answers.goal &&
+            answers.servings &&
+            answers.maxCaloriesPerServing
+          ) {
             requestCandidates(answers as CookPromptAnswers);
           } else {
             resetCookFlow();
@@ -1244,15 +1255,18 @@ const CookScreen = () => {
                 {t("tabCook")}
               </Text>
             </View>
-            {viewState !== "intro" && viewState !== "cook_intro" && viewState !== "allergen" && viewState !== "kitchen" && (
-              <Pressable onPress={resetCookFlow} style={styles.headerAction}>
-                <MaterialCommunityIcons
-                  name="refresh"
-                  size={scale(22)}
-                  color={colors.text}
-                />
-              </Pressable>
-            )}
+            {viewState !== "intro" &&
+              viewState !== "cook_intro" &&
+              viewState !== "allergen" &&
+              viewState !== "kitchen" && (
+                <Pressable onPress={resetCookFlow} style={styles.headerAction}>
+                  <MaterialCommunityIcons
+                    name="refresh"
+                    size={scale(22)}
+                    color={colors.text}
+                  />
+                </Pressable>
+              )}
           </View>
         </AnimatedLiquidGlassView>
       ) : null}
@@ -1303,7 +1317,10 @@ const CookScreen = () => {
           {
             paddingTop: isImmersiveMode ? top + scale(64) : top + scale(100),
             paddingBottom: isImmersiveMode ? scale(120) : scale(144),
-            justifyContent: isLoadingState ? "center" : "flex-start",
+            justifyContent:
+              isLoadingState || viewState === "cook_intro"
+                ? "center"
+                : "flex-start",
             flexGrow: 1,
           },
         ]}
@@ -1328,7 +1345,6 @@ const CookScreen = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -43,6 +44,7 @@ import { useTheme } from "../../../theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import { getLocalDateKey } from "../../../utils/dateUtils";
 import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
+import GlassView from "../../../components/SafeGlassView";
 
 type LogMealTrueSheetProps = {
   params: {
@@ -134,7 +136,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       useOnboardingStore.getState(),
       mealDescription,
       mealType,
-      new Date(params.selectedDate).toLocaleDateString("en-US"),
     );
 
     let response: { response: GeminiResponse };
@@ -285,34 +286,36 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                 numberOfLines={3}
               />
               {!image && (
-                <TouchableOpacity
-                  style={[
-                    styles.imagePickerButton,
-                    { backgroundColor: colors.surface },
-                  ]}
-                  onPress={() => {
-                    Alert.alert(t("addImage"), t("chooseImageSource"), [
-                      {
-                        text: t("camera"),
-                        onPress: () => pickImage("camera"),
-                      },
-                      {
-                        text: t("gallery"),
-                        onPress: () => pickImage("gallery"),
-                      },
-                      {
-                        text: t("cancel"),
-                        style: "cancel",
-                      },
-                    ]);
-                  }}
+                <GlassView
+                  effect="clear"
+                  interactive
+                  style={[styles.imagePickerButton]}
                 >
-                  <FontAwesome5
-                    name="image"
-                    size={scale(24)}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
+                  <Pressable
+                    onPress={() => {
+                      Alert.alert(t("addImage"), t("chooseImageSource"), [
+                        {
+                          text: t("camera"),
+                          onPress: () => pickImage("camera"),
+                        },
+                        {
+                          text: t("gallery"),
+                          onPress: () => pickImage("gallery"),
+                        },
+                        {
+                          text: t("cancel"),
+                          style: "cancel",
+                        },
+                      ]);
+                    }}
+                  >
+                    <FontAwesome5
+                      name="image"
+                      size={scale(24)}
+                      color={colors.text}
+                    />
+                  </Pressable>
+                </GlassView>
               )}
               {image && (
                 <View style={styles.imageWrapper}>
@@ -410,8 +413,8 @@ const styles = StyleSheet.create({
     bottom: scale(8),
     right: scale(8),
     borderRadius: scale(20),
-    width: scale(36),
-    height: scale(36),
+    width: scale(44),
+    height: scale(44),
     justifyContent: "center",
     alignItems: "center",
   },

@@ -87,7 +87,6 @@ interface Props {
 const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swipeableRef = useRef<any>(null);
   const scoreColor = getScoreColor(meal.score || 0, colors);
 

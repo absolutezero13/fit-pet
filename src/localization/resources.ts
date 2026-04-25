@@ -44,7 +44,7 @@ export const resources = {
         "Bir malzeme ya da fikir yaz. Önce planı üç hızlı soruyla netleştireyim, gerekirse birkaç akıllı detay daha sorup sana iki güçlü tarif yönü hazırlayayım.",
       cookInputPrompt: "Temel fikrini yaz",
       cookInputPlaceholder: "Örn. tavuk, köfte, fasulye",
-      cookStartPlanning: "Planı Başlat",
+      cookStartPlanning: "Pişir",
       cookLatestLabel: "Son tarif",
       cookQuestionTime: "Ne kadar vaktin var?",
       cookQuestionGoal: "Bugünkü hedefin ne?",
@@ -72,13 +72,10 @@ export const resources = {
       cookPlanCalories: "Kalori sınırı",
       cookPlanSummaryTitle: "Plan oluşuyor",
       cookAssistantLabel: "Cook ajanı",
-      cookOnboardingTitle: "Cook ile tanış",
+      cookOnboardingTitle: "Elinde ne var?",
       cookOnboardingBody:
-        "Malzeme veya fikir yaz, sana iki güçlü tarif yönü hazırlayalım.",
-      cookOnboardingCardTitle: "Sana özel tarifler",
-      cookOnboardingCardBody:
-        "Cook, diyet tipini, kalori hedeflerini ve alerjilerini bilerek çalışır. Her öneri senin için tasarlanmıştır.",
-      cookOnboardingCta: "Başlayalım",
+        "Bir malzeme ya da fikir yaz. Hedeflerine göre tarif oluşturayım.",
+      cookOnboardingCta: "Haydi pişirelim",
       cookAllergenTitle: "Herhangi bir alerjin var mı?",
       cookAllergenBody: "Tarifler buna göre uyarlanacak.",
       cookAllergenNone: "Yok",
@@ -377,11 +374,9 @@ export const resources = {
       carouselMessage2:
         "{{height}} cm boyunuzla vücudunuzun gerçek kalori ve makro ihtiyaçları hesaplanıyor.",
       carouselTitle3: "Hedefler Belirlendi!",
-      carouselMessage3:
-        "Kişiselleştirilmiş planınız hazırlanıyor.",
+      carouselMessage3: "Kişiselleştirilmiş planınız hazırlanıyor.",
       carouselTitle4: "Bahane Bitti",
-      carouselMessage4:
-        "Planınız hazır. Sadece uygulayın.",
+      carouselMessage4: "Planınız hazır. Sadece uygulayın.",
       success: "Başarılı",
       successMessage: "Değişiklikleriniz kaydedildi",
       validationError: "Hata",
@@ -451,7 +446,7 @@ export const resources = {
         "Start with an ingredient or rough idea. I will tighten it up with three quick questions, then ask for a few smart details if needed before giving you two strong directions.",
       cookInputPrompt: "Start with the core idea",
       cookInputPlaceholder: "Ex. chicken, quick pasta, lentils",
-      cookStartPlanning: "Start Planning",
+      cookStartPlanning: "Cook",
       cookLatestLabel: "Latest",
       cookQuestionTime: "How much time do you have?",
       cookQuestionGoal: "What's your goal today?",
@@ -479,13 +474,10 @@ export const resources = {
       cookPlanCalories: "Calorie cap",
       cookPlanSummaryTitle: "Building your plan",
       cookAssistantLabel: "Cook agent",
-      cookOnboardingTitle: "Meet Cook",
+      cookOnboardingTitle: "What are you working with?",
       cookOnboardingBody:
-        "Drop an ingredient or rough idea and get two strong recipe directions built around your goals.",
-      cookOnboardingCardTitle: "Recipes built for you",
-      cookOnboardingCardBody:
-        "Cook knows your diet type, calorie targets, and allergens. Every suggestion is tailored to you.",
-      cookOnboardingCta: "Get Started",
+        "Tell me an ingredient or an idea. I'll build a recipe around your goals.",
+      cookOnboardingCta: "Let's cook",
       cookAllergenTitle: "Any allergens?",
       cookAllergenBody: "Recipes will be adapted accordingly.",
       cookAllergenNone: "None",
@@ -781,11 +773,9 @@ export const resources = {
       carouselMessage2:
         "{{height}} cm. Calculating exactly what your body needs. No fluff, no rounding up.",
       carouselTitle3: "Goals Set!",
-      carouselMessage3:
-        "Your personalized plan is being prepared.",
+      carouselMessage3: "Your personalized plan is being prepared.",
       carouselTitle4: "No More Excuses",
-      carouselMessage4:
-        "Your plan is ready. Just follow it.",
+      carouselMessage4: "Your plan is ready. Just follow it.",
       success: "Success",
       successMessage: "Changes saved successfully",
       validationError: "Error",
