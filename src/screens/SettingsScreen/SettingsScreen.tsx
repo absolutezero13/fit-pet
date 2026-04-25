@@ -1,31 +1,28 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
   Alert,
+  ScrollView,
+  StyleSheet,
   Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import { scale } from "../../theme/utils";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { GoalEnum } from "../../zustand/useOnboardingStore";
 import { useTranslation } from "react-i18next";
-import { fontStyles } from "../../theme/fontStyles";
-import useAuthService from "../../services/auth";
-import { goalItems } from "../OnboardingScreen/components/Goal";
-import useUserStore from "../../zustand/useUserStore";
-import AppButton from "../../components/AppButton";
-import LanguageSelection from "./components/LanguageSelection";
-import userService from "../../services/user";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   isLiquidGlassSupported,
   LiquidGlassView,
 } from "@callstack/liquid-glass";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scale } from "../../theme/utils";
+import { fontStyles } from "../../theme/fontStyles";
+import useAuthService from "../../services/auth";
+import useUserStore from "../../zustand/useUserStore";
+import LanguageSelection from "./components/LanguageSelection";
+import userService from "../../services/user";
 import SignUpBanner from "./components/SignUpBanner";
 import SignUpTrueSheet from "./components/SignUpTrueSheet";
 import { TrueSheetNames } from "../../navigation/constants";
@@ -34,10 +31,17 @@ import { useTheme } from "../../theme/ThemeContext";
 import FullPageSpinner from "../../components/FullPageSpinner";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import WeightHeightPicker from "./components/WeightHeightPicker";
-import { getAuth } from "@react-native-firebase/auth";
-import NotificationSettings from "./components/NotificationSettings";
+import ToneSettingsSheet from "./components/ToneSettingsSheet";
+import GoalsSettingsSheet from "./components/GoalsSettingsSheet";
+import NotificationSettingsSheet from "./components/NotificationSettingsSheet";
+import SettingsActionRow from "./components/SettingsActionRow";
 
 type LanguageOption = { code: string; name: string; localName: string };
+
+const languageOptions: LanguageOption[] = [
+  { code: "en", name: "English", localName: "English" },
+  { code: "tr", name: "Turkish", localName: "Türkçe" },
+];
 
 const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
@@ -45,27 +49,13 @@ const SettingsScreen = () => {
   const authService = useAuthService();
   const { top, bottom } = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
-  const [loading, setLoading] = useState(false);
   const user = useUserStore();
   const aiTone = usePreferencesStore((state) => state.aiTone);
   const setAiTone = usePreferencesStore((state) => state.setAiTone);
-  const [deleting, setDeleting] = useState(false);
-  const [localWeight, setLocalWeight] = useState(
-    user?.onboarding?.weight ?? 70
-  );
-  const [localHeight, setLocalHeight] = useState(
-    user?.onboarding?.height ?? 170
-  );
-  const [selectedGoals, setSelectedGoals] = useState<GoalEnum[]>(
-    user?.onboarding?.goals || []
-  );
 
-  // Language options - easily expandable for future languages
-  const languageOptions: LanguageOption[] = [
-    { code: "en", name: "English", localName: "English" },
-    { code: "tr", name: "Turkish", localName: "Türkçe" },
-    // Add more languages here in the future
-  ];
+  const [deleting, setDeleting] = useState(false);
+  const currentWeight = user?.onboarding?.weight ?? 70;
+  const currentHeight = user?.onboarding?.height ?? 170;
 
   const toneOptions: { key: AITone; label: string }[] = [
     { key: AITone.Harsh, label: t("toneHarsh") },
@@ -75,40 +65,96 @@ const SettingsScreen = () => {
     { key: AITone.Supportive, label: t("toneSupportive") },
   ];
 
-  const toggleGoal = (key: GoalEnum) => {
-    if (selectedGoals.includes(key)) {
-      setSelectedGoals(selectedGoals.filter((g) => g !== key));
-    } else {
-      setSelectedGoals([...selectedGoals, key]);
-    }
-  };
-
-  const saveChanges = async () => {
-    setLoading(true);
-
-    await userService.createOrUpdateUser({
-      onboarding: {
-        goals: selectedGoals,
-        height: localHeight,
-        weight: localWeight,
-      },
-    });
-
-    setLoading(false);
-    Alert.alert(t("success"), t("successMessage"));
-  };
-
   const currentLanguage =
-    languageOptions.find((lang) => lang.code === i18n.language) ||
+    languageOptions.find((language) => language.code === i18n.language) ||
     languageOptions[0];
 
   const userName = user?.displayName || user?.name;
   const firstName = userName?.split(" ")[0];
 
+  const selectedToneLabel =
+    toneOptions.find((option) => option.key === aiTone)?.label ||
+    toneOptions[0].label;
+
+  const surfaceCardStyle = {
+    backgroundColor: colors.surface,
+    shadowColor: colors.shadow,
+    shadowOpacity: isDark ? 0.28 : 0.12,
+  };
+
+  const deleteCardBackgroundColor = isDark
+    ? colors["color-danger-100"]
+    : `${colors["color-danger-100"]}DD`;
+  const bodyMetricsLabel = `${currentHeight} cm • ${currentWeight} kg`;
+
+  const handleBackPress = () => {
+    navigation.goBack();
+  };
+
+  const handleItemPress = (sheetName: string) => {
+    TrueSheet.present(sheetName);
+  };
+
+  const handleThemeToggle = () => {
+    toggleTheme();
+  };
+
+  const handleSaveTone = (tone: AITone) => {
+    setAiTone(tone);
+  };
+
+  const handleLogout = () => {
+    authService.logout(navigation);
+  };
+
+  const handleLogoutPress = () => {
+    Alert.alert(t("logoutConfirmation"), t("logoutConfirmationMessage"), [
+      {
+        text: t("cancel"),
+        style: "cancel",
+      },
+      {
+        text: t("logoutConfirmation"),
+        style: "destructive",
+        onPress: handleLogout,
+      },
+    ]);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleting(true);
+      await userService.deletUser();
+      analyticsService.logEvent(AnalyticsEvent.DeleteUser);
+    } finally {
+      setDeleting(false);
+    }
+
+    authService.logout(navigation);
+  };
+
+  const handleDeleteAccountPress = () => {
+    Alert.alert(
+      t("deleteAccountConfirmation"),
+      t("deleteAccountConfirmationMessage"),
+      [
+        {
+          text: t("cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("deleteAccountConfirmation"),
+          style: "destructive",
+          onPress: handleDeleteAccount,
+        },
+      ],
+    );
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
-        effect={"clear"}
+        effect="clear"
         style={[
           styles.header,
           {
@@ -120,23 +166,32 @@ const SettingsScreen = () => {
         ]}
       >
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-          hitSlop={12}
           accessibilityRole="button"
+          activeOpacity={0.8}
+          hitSlop={12}
+          onPress={handleBackPress}
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: isLiquidGlassSupported
+                ? undefined
+                : colors.backgroundSecondary,
+            },
+          ]}
         >
           <MaterialCommunityIcons
             name="chevron-left"
-            size={scale(28)}
+            size={scale(26)}
             color={colors.text}
           />
         </TouchableOpacity>
+
         <View style={styles.headerTitles}>
-          {firstName && (
+          {firstName ? (
             <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-              {t("hi")}, {firstName}! 👋
+              {t("hi")}, {firstName}
             </Text>
-          )}
+          ) : null}
           <Text style={[styles.title, { color: colors.text }]}>
             {t("settingsTitle")}
           </Text>
@@ -144,292 +199,151 @@ const SettingsScreen = () => {
       </LiquidGlassView>
 
       <ScrollView
+        showsVerticalScrollIndicator={false}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingTop: top + scale(88),
-            paddingBottom: bottom + scale(96),
+            paddingTop: top + scale(92),
+            paddingBottom: bottom,
           },
         ]}
       >
-        {!user?.email && <SignUpBanner />}
+        {!user?.email ? <SignUpBanner /> : null}
 
-        {/* Notifications Section */}
-        <NotificationSettings />
+        <View
+          style={[styles.sectionCard, styles.settingsCard, surfaceCardStyle]}
+        >
+          <SettingsActionRow
+            icon="bell-outline"
+            title={t("notifications")}
+            onPress={() =>
+              handleItemPress(TrueSheetNames.SETTINGS_NOTIFICATIONS)
+            }
+            colors={colors}
+          />
+          <SettingsActionRow
+            icon="human-male-height"
+            title={`${t("height")} & ${t("weight")}`}
+            value={bodyMetricsLabel}
+            onPress={() => handleItemPress(TrueSheetNames.WEIGHT_HEIGHT_PICKER)}
+            colors={colors}
+          />
 
-        {/* Theme Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("appearance")}
-          </Text>
-          <View style={[styles.card, { backgroundColor: colors.surface }]}>
-            <View style={styles.settingRow}>
-              <View style={styles.settingLabelContainer}>
-                <MaterialCommunityIcons
-                  name={isDark ? "weather-night" : "weather-sunny"}
-                  size={scale(20)}
-                  color={colors.text}
-                  style={styles.icon}
-                />
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
-                  {t("darkMode")}
-                </Text>
-              </View>
+          <SettingsActionRow
+            icon="message-text-outline"
+            title={t("aiTone")}
+            value={selectedToneLabel}
+            onPress={() => handleItemPress(TrueSheetNames.SETTINGS_AI_TONE)}
+            colors={colors}
+          />
+          {/* <SettingsActionRow
+            icon="flag-outline"
+            title={t("goals")}
+            value={goalsSummary}
+            onPress={() => handleItemPress(TrueSheetNames.SETTINGS_GOALS)}
+            colors={colors}
+          /> */}
+          <SettingsActionRow
+            icon={isDark ? "weather-night" : "weather-sunny"}
+            title={t("darkMode")}
+            colors={colors}
+            trailing={
               <Switch
-                value={isDark}
-                onValueChange={toggleTheme}
+                onValueChange={handleThemeToggle}
                 trackColor={{
                   false: colors.border,
                   true: colors["color-success-400"],
                 }}
+                value={isDark}
+                style={styles.switch}
               />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("language")}
-          </Text>
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.surface }]}
-            onPress={() => TrueSheet.present(TrueSheetNames.LANGUAGE_SELECTION)}
-          >
-            <View style={styles.settingRow}>
-              <View style={styles.settingLabelContainer}>
-                <MaterialCommunityIcons
-                  name="translate"
-                  size={scale(20)}
-                  color={colors.text}
-                  style={styles.icon}
-                />
-                <Text style={[styles.settingLabel, { color: colors.text }]}>
-                  {currentLanguage.localName}
-                </Text>
-              </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={scale(24)}
-                color={colors.textSecondary}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("aiTone")}
-          </Text>
-          <View style={[styles.card, { backgroundColor: colors.surface }]}>
-            {toneOptions.map((option) => (
-              <TouchableOpacity
-                key={option.key}
-                style={[styles.goalRow, { borderBottomColor: colors.border }]}
-                onPress={() => setAiTone(option.key)}
-              >
-                <Text style={[styles.goalText, { color: colors.text }]}>
-                  {option.label}
-                </Text>
-                <View style={styles.checkboxContainer}>
-                  <View
-                    style={[styles.radioButton, { borderColor: colors.border }]}
-                  >
-                    {aiTone === option.key && (
-                      <View
-                        style={[
-                          styles.radioButtonSelectedInner,
-                          { backgroundColor: colors["color-primary-500"] },
-                        ]}
-                      />
-                    )}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("profile")}
-          </Text>
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.surface }]}
-            onPress={() =>
-              TrueSheet.present(TrueSheetNames.WEIGHT_HEIGHT_PICKER)
             }
-          >
-            <View style={styles.profileContent}>
-              <View style={styles.profileRows}>
-                <View style={styles.profileRow}>
-                  <View style={styles.settingLabelContainer}>
-                    <MaterialCommunityIcons
-                      name="scale-bathroom"
-                      size={scale(20)}
-                      color={colors.text}
-                      style={styles.icon}
-                    />
-                    <Text style={[styles.settingLabel, { color: colors.text }]}>
-                      {t("weight")}: {localWeight} kg
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.profileRow}>
-                  <View style={styles.settingLabelContainer}>
-                    <MaterialCommunityIcons
-                      name="human-male-height"
-                      size={scale(20)}
-                      color={colors.text}
-                      style={styles.icon}
-                    />
-                    <Text style={[styles.settingLabel, { color: colors.text }]}>
-                      {t("height")}: {localHeight} cm
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <MaterialCommunityIcons
-                name="pencil"
-                size={scale(20)}
-                color={colors.textSecondary}
+          />
+          <SettingsActionRow
+            icon="translate"
+            title={t("language")}
+            value={currentLanguage.localName}
+            onPress={() => handleItemPress(TrueSheetNames.LANGUAGE_SELECTION)}
+            colors={colors}
+            isLast
+          />
+        </View>
+
+        <View style={styles.actionStack}>
+          {user?.email ? (
+            <View style={[styles.sectionCard, surfaceCardStyle]}>
+              <SettingsActionRow
+                icon="logout"
+                title={t("logout")}
+                onPress={handleLogoutPress}
+                colors={colors}
+                isLast
               />
             </View>
-          </TouchableOpacity>
-        </View>
+          ) : null}
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t("goals")}
-          </Text>
-          <View style={[styles.card, { backgroundColor: colors.surface }]}>
-            {goalItems.map((goal) => (
-              <TouchableOpacity
-                key={goal.key}
-                style={[styles.goalRow, { borderBottomColor: colors.border }]}
-                onPress={() => toggleGoal(goal.key)}
-              >
-                <Text style={[styles.goalText, { color: colors.text }]}>
-                  {t(goal.titleKey)}
-                </Text>
-                <View style={styles.checkboxContainer}>
-                  <View
-                    style={[
-                      styles.checkbox,
-                      { borderColor: colors.border },
-                      selectedGoals.some((g) => g === goal.key) && {
-                        backgroundColor: colors["color-primary-500"],
-                        borderColor: colors["color-primary-500"],
-                      },
-                    ]}
-                  >
-                    {selectedGoals.some((g) => g === goal.key) && (
-                      <Ionicons
-                        name="checkmark"
-                        size={scale(16)}
-                        color={colors.textInverse}
-                      />
-                    )}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {user?.email && (
-          <View style={styles.section}>
-            <TouchableOpacity
-              onPress={() => {
-                Alert.alert(
-                  t("logoutConfirmation"),
-                  t("logoutConfirmationMessage"),
-                  [
-                    {
-                      text: t("cancel"),
-                      style: "cancel",
-                    },
-                    {
-                      text: t("logoutConfirmation"),
-                      style: "destructive",
-                      onPress: () => {
-                        authService.logout(navigation);
-                      },
-                    },
-                  ]
-                );
-              }}
-              style={[styles.card, { backgroundColor: colors.surface }]}
-            >
-              <Text style={[fontStyles.headline4, { color: colors.text }]}>
-                {t("logoutConfirmation")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        <View style={styles.section}>
           <TouchableOpacity
-            onPress={async () => {
-              Alert.alert(
-                t("deleteAccountConfirmation"),
-                t("deleteAccountConfirmationMessage"),
-                [
-                  {
-                    text: t("cancel"),
-                    style: "cancel",
-                  },
-                  {
-                    text: t("deleteAccountConfirmation"),
-                    style: "destructive",
-                    onPress: async () => {
-                      setDeleting(true);
-                      await userService.deletUser();
-                      analyticsService.logEvent(AnalyticsEvent.DeleteUser);
-                      setDeleting(false);
-                      authService.logout(navigation);
-                    },
-                  },
-                ]
-              );
-            }}
-            style={[styles.card, { alignItems: "center" }]}
+            activeOpacity={0.85}
+            onPress={handleDeleteAccountPress}
+            style={[
+              styles.deleteCard,
+              {
+                backgroundColor: deleteCardBackgroundColor,
+                shadowColor: colors.shadow,
+                shadowOpacity: isDark ? 0.24 : 0.1,
+              },
+            ]}
           >
-            <Text
-              style={[
-                fontStyles.headline4,
-                {
-                  color: colors["color-danger-500"],
-                  textAlign: "center",
-                  textDecorationLine: "underline",
-                },
-              ]}
-            >
-              {t("deleteAccountConfirmation")}
-            </Text>
+            <View style={styles.deleteRowInfo}>
+              <View
+                style={[
+                  styles.deleteIconWrap,
+                  {
+                    backgroundColor: isDark
+                      ? `${colors.background}B8`
+                      : `${colors.white}CC`,
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="trash-can-outline"
+                  size={scale(18)}
+                  color={colors["color-danger-500"]}
+                />
+              </View>
+
+              <View style={styles.deleteRowCopy}>
+                <Text
+                  style={[
+                    styles.deleteRowTitle,
+                    { color: colors["color-danger-500"] },
+                  ]}
+                >
+                  {t("deleteAccountConfirmation")}
+                </Text>
+              </View>
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={scale(20)}
+              color={colors["color-danger-500"]}
+            />
           </TouchableOpacity>
         </View>
       </ScrollView>
 
+      <NotificationSettingsSheet />
+      <ToneSettingsSheet
+        toneOptions={toneOptions}
+        selectedTone={aiTone}
+        onSaveTone={handleSaveTone}
+      />
+      <GoalsSettingsSheet />
       <LanguageSelection languageOptions={languageOptions} />
+      <WeightHeightPicker />
 
-      <WeightHeightPicker
-        weight={localWeight}
-        height={localHeight}
-        onWeightChange={setLocalWeight}
-        onHeightChange={setLocalHeight}
-        isDark={isDark}
-      />
-
-      <AppButton
-        title={t("saveChanges")}
-        onPress={saveChanges}
-        position="bottom"
-        margin={{
-          marginHorizontal: scale(24),
-          marginBottom: scale(16),
-        }}
-        loading={loading || deleting}
-      />
       <SignUpTrueSheet />
       <FullPageSpinner visible={deleting} />
     </View>
@@ -441,129 +355,154 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: scale(24),
-    paddingVertical: scale(16),
+    alignItems: "center",
     borderRadius: scale(32),
     flexDirection: "row",
-    alignItems: "center",
-    gap: scale(4),
+    gap: scale(12),
+    paddingBottom: scale(14),
+    paddingHorizontal: scale(24),
     position: "absolute",
     width: "100%",
     zIndex: 1,
   },
-  title: {
-    ...fontStyles.headline1,
+  backButton: {
+    alignItems: "center",
+    borderRadius: scale(20),
+    height: scale(40),
+    justifyContent: "center",
+    width: scale(40),
+  },
+  headerTitles: {
+    flex: 1,
   },
   greeting: {
     ...fontStyles.body2,
     marginBottom: scale(2),
   },
+  title: {
+    ...fontStyles.headline1,
+    lineHeight: scale(32),
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: scale(24),
-  },
-  backButton: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(8),
-  },
-  headerTitles: {
-    flex: 1,
-  },
-  section: {
-    marginBottom: scale(24),
-  },
-  sectionTitle: {
-    ...fontStyles.headline2,
-    marginBottom: scale(12),
-  },
-  card: {
-    borderRadius: scale(32),
-    padding: scale(16),
     paddingHorizontal: scale(24),
+  },
+  heroCard: {
+    borderRadius: scale(32),
+    elevation: 8,
+    marginBottom: scale(24),
+    overflow: "hidden",
+    padding: scale(22),
     shadowOffset: {
       width: 0,
-      height: scale(2),
+      height: scale(8),
     },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 3,
+    shadowRadius: scale(20),
   },
-  settingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: scale(8),
-  },
-  settingLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  icon: {
-    marginRight: scale(8),
-  },
-  settingLabel: {
-    ...fontStyles.headline4,
-  },
-  profileContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  profileRows: {
-    flex: 1,
-  },
-  profileRow: {
-    paddingVertical: scale(12),
-  },
-  goalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: scale(12),
-  },
-  goalText: {
-    ...fontStyles.headline4,
-  },
-  checkboxContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkbox: {
-    width: scale(24),
-    height: scale(24),
-    borderRadius: scale(4),
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButton: {
-    padding: scale(16),
-    borderRadius: scale(12),
-    alignItems: "center",
-    marginHorizontal: scale(24),
+  heroGlow: {
+    borderRadius: scale(64),
+    height: scale(128),
     position: "absolute",
-    bottom: scale(16),
-    left: 0,
-    right: 0,
+    right: scale(-10),
+    top: scale(-20),
+    width: scale(128),
   },
-  radioButton: {
-    width: scale(24),
-    height: scale(24),
-    borderRadius: scale(12),
-    borderWidth: 2,
+  heroGlowSecondary: {
+    borderRadius: scale(54),
+    bottom: scale(-28),
+    height: scale(108),
+    left: scale(-8),
+    position: "absolute",
+    width: scale(108),
+  },
+  heroTopRow: {
     alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "row",
   },
-  radioButtonSelectedInner: {
-    width: scale(14),
-    height: scale(14),
-    borderRadius: scale(7),
+  avatarWrap: {
+    alignItems: "center",
+    borderRadius: scale(24),
+    height: scale(64),
+    justifyContent: "center",
+    marginRight: scale(14),
+    width: scale(64),
+  },
+  avatarLabel: {
+    ...fontStyles.headline2,
+    color: "white",
+    lineHeight: scale(24),
+  },
+  heroCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  heroTitle: {
+    fontFamily: "Nunito_900Black",
+    fontSize: scale(22),
+    lineHeight: scale(28),
+  },
+  heroSubtitle: {
+    ...fontStyles.body1,
+    marginTop: scale(4),
+  },
+  sectionCard: {
+    borderRadius: scale(28),
+    elevation: 6,
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(4),
+    shadowOffset: {
+      width: 0,
+      height: scale(6),
+    },
+    shadowRadius: scale(18),
+  },
+  settingsCard: {
+    marginBottom: scale(24),
+  },
+  actionStack: {
+    gap: scale(12),
+    marginBottom: scale(16),
+  },
+  deleteCard: {
+    alignItems: "center",
+    borderRadius: scale(24),
+    elevation: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    minHeight: scale(48),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(10),
+    shadowOffset: {
+      width: 0,
+      height: scale(4),
+    },
+    shadowRadius: scale(14),
+  },
+  deleteRowInfo: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    minWidth: 0,
+  },
+  deleteIconWrap: {
+    alignItems: "center",
+    borderRadius: scale(12),
+    height: scale(36),
+    justifyContent: "center",
+    marginRight: scale(10),
+    width: scale(36),
+  },
+  deleteRowCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  deleteRowTitle: {
+    ...fontStyles.body1Bold,
+  },
+  switch: {
+    alignSelf: "center",
   },
 });
 

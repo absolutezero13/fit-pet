@@ -23,10 +23,10 @@ export const resources = {
       whyWeAskDescription:
         "Yaş, günlük kalori ve makro ihtiyaçlarınızı daha doğru hesaplamamıza yardımcı olur, bu da metabolizmanıza ve hedeflerinize uygun kişiselleştirilmiş beslenme önerileri sağlar.",
       getPhysical: "Fiziksel Özellikler",
-      analyzing: "Profiliniz analiz ediliyor",
-      calculating: "Optimal kalori alımı hesaplanıyor",
+      analyzing: "Profiliniz inceleniyor",
+      calculating: "Kalori ihtiyacınız hesaplanıyor",
       finding: "Yemek planları aranıyor",
-      optimizing: "Makro oranları optimize ediliyor",
+      optimizing: "Makro hedefleriniz belirleniyor",
       almostThere: "Neredeyse hazır",
       age: "Yaş",
       height: "Boy",
@@ -370,18 +370,18 @@ export const resources = {
       evaluatingScore: "Puan değerlendiriliyor",
       almostReady: "Neredeyse hazır",
       // Carousel motivational messages
-      carouselTitle1: "Harika Bir Başlangıç!",
+      carouselTitle1: "Gerçeklerle Yüzleş",
       carouselMessage1:
-        "{{age}} yaşında sağlıklı bir yaşam yolculuğuna çıkıyorsunuz. Her adım önemli!",
-      carouselTitle2: "Mükemmel Fizik!",
+        "{{age}} yaşındasınız. Gençleşmiyorsunuz. Alışkanlıklarınızı değiştirme zamanı daralıyor.",
+      carouselTitle2: "Sayılar Yalan Söylemez",
       carouselMessage2:
-        "{{height}} cm boyunuzla ideal kilonuza ulaşmak artık çok kolay olacak.",
+        "{{height}} cm boyunuzla vücudunuzun gerçek kalori ve makro ihtiyaçları hesaplanıyor.",
       carouselTitle3: "Hedefler Belirlendi!",
       carouselMessage3:
-        "Kişiselleştirilmiş planınız hazırlanıyor. Başarı sizin için kaçınılmaz!",
-      carouselTitle4: "Her Şey Hazır!",
+        "Kişiselleştirilmiş planınız hazırlanıyor.",
+      carouselTitle4: "Bahane Bitti",
       carouselMessage4:
-        "Sağlıklı yaşam yolculuğunuz başlamak üzere. Hazır mısınız?",
+        "Planınız hazır. Sadece uygulayın.",
       success: "Başarılı",
       successMessage: "Değişiklikleriniz kaydedildi",
       validationError: "Hata",
@@ -430,10 +430,10 @@ export const resources = {
       whyWeAskDescription:
         "Age helps us calculate your daily calorie and macro needs more accurately, so recommendations actually fit your metabolism and goals.",
       getPhysical: "Physical Details",
-      analyzing: "Analyzing your profile",
-      calculating: "Calculating optimal calorie intake",
+      analyzing: "Scanning your data",
+      calculating: "Crunching your numbers",
       finding: "Finding suitable meal plans",
-      optimizing: "Optimizing macro ratios",
+      optimizing: "Locking in your macros",
       almostThere: "Almost there",
       age: "Age",
       height: "Height",
@@ -774,18 +774,18 @@ export const resources = {
       evaluatingScore: "Evaluating score",
       almostReady: "Almost ready",
       // Carousel motivational messages
-      carouselTitle1: "Great Start!",
+      carouselTitle1: "Face the Facts",
       carouselMessage1:
-        "At {{age}} years old, you're embarking on a healthy lifestyle journey. Every step counts!",
-      carouselTitle2: "Perfect Physique!",
+        "You're {{age}}. Not getting younger. The window to fix bad habits is closing.",
+      carouselTitle2: "Numbers Don't Lie",
       carouselMessage2:
-        "With your {{height}} cm height, reaching your ideal weight will be easier than ever.",
+        "{{height}} cm. Calculating exactly what your body needs. No fluff, no rounding up.",
       carouselTitle3: "Goals Set!",
       carouselMessage3:
-        "Your personalized plan is being prepared. Success is inevitable for you!",
-      carouselTitle4: "All Ready!",
+        "Your personalized plan is being prepared.",
+      carouselTitle4: "No More Excuses",
       carouselMessage4:
-        "Your healthy lifestyle journey is about to begin. Are you ready?",
+        "Your plan is ready. Just follow it.",
       success: "Success",
       successMessage: "Changes saved successfully",
       validationError: "Error",

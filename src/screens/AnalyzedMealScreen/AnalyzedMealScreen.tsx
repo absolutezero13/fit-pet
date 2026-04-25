@@ -15,7 +15,6 @@ import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import usePreferencesStore from "../../zustand/usePreferencesStore";
-import useUserStore from "../../zustand/useUserStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../services/mealLiveActivitySync";
 import { LiquidGlassView } from "@callstack/liquid-glass";
@@ -24,7 +23,6 @@ import { useTheme } from "../../theme/ThemeContext";
 import { getScoreTranslationKey } from "../../utils/scoreExplanations";
 import getScoreColor from "../../utils/getScoreColor";
 import MacroCard from "../../components/MacroCard";
-import { getGramGoal } from "../HomeScreen/components/utils";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -41,16 +39,6 @@ const AnalyzedMealScreen = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const aiTone = usePreferencesStore((state) => state.aiTone);
-  const macroGoals = useUserStore((s) => s?.macroGoals);
-  const proteinGoal = macroGoals
-    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 4, percentage: macroGoals.proteins })
-    : 0;
-  const carbsGoal = macroGoals
-    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 4, percentage: macroGoals.carbs })
-    : 0;
-  const fatsGoal = macroGoals
-    ? getGramGoal({ calorieGoal: macroGoals.calories, kcalCoefficent: 9, percentage: macroGoals.fats })
-    : 0;
 
   if (!meal) {
     return null;
@@ -193,9 +181,9 @@ return (
           {t("macronutrients")}
         </Text>
         <View style={styles.macrosContainer}>
-          <MacroCard type="protein" current={meal.proteins ?? 0} goal={proteinGoal} />
-          <MacroCard type="carbs" current={meal.carbs ?? 0} goal={carbsGoal} />
-          <MacroCard type="fats" current={meal.fats ?? 0} goal={fatsGoal} />
+          <MacroCard type="protein" current={meal.proteins ?? 0} goal={0} variant="content" />
+          <MacroCard type="carbs" current={meal.carbs ?? 0} goal={0} variant="content" />
+          <MacroCard type="fats" current={meal.fats ?? 0} goal={0} variant="content" />
         </View>
         {meal.insights && meal.insights.length > 0 && (
           <>

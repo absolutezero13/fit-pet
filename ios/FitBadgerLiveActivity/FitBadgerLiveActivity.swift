@@ -75,16 +75,9 @@ private struct LockScreenView: View {
     VStack(alignment: .leading, spacing: 10) {
       HStack {
         VStack(alignment: .leading, spacing: 2) {
-          HStack(spacing: 6) {
-            Image("BadgerIcon")
-              .resizable()
-              .renderingMode(.original)
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 22, height: 22)
-            Text("Fit Badger")
-              .font(.system(size: 12, weight: .semibold))
-              .foregroundColor(.white.opacity(0.8))
-          }
+          Text("Fit Badger")
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundColor(.white.opacity(0.8))
           HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text("\(state.caloriesConsumed)")
               .font(.system(size: 28, weight: .bold))

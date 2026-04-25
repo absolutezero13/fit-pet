@@ -1,94 +1,105 @@
-import React, { FC, useRef, useEffect } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   ScrollView,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { Picker } from "@react-native-picker/picker";
 import * as Haptics from "expo-haptics";
-import { colors } from "../../../theme/colors";
-import { scale } from "../../../theme/utils";
-import { fontStyles } from "../../../theme/fontStyles";
 import { useTranslation } from "react-i18next";
 import { TrueSheetNames } from "../../../navigation/constants";
+import AppButton from "../../../components/AppButton";
+import userService from "../../../services/user";
+import { colors } from "../../../theme/colors";
+import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
+import { scale } from "../../../theme/utils";
+import useUserStore from "../../../zustand/useUserStore";
 
 const ITEM_HEIGHT = scale(50);
 
 const heightData = Array.from({ length: 120 }, (_, i) => i + 130);
 const weightData = Array.from({ length: 160 }, (_, i) => i + 40);
 
-type Props = {
-  weight: number;
-  height: number;
-  onWeightChange: (weight: number) => void;
-  onHeightChange: (height: number) => void;
-  isDark: boolean;
-};
-
-const WeightHeightPicker: FC<Props> = ({
-  weight,
-  height,
-  onWeightChange,
-  onHeightChange,
-  isDark,
-}) => {
+const WeightHeightPicker: FC = () => {
   const { t } = useTranslation();
-  const { colors: themeColors } = useTheme();
+  const { colors: themeColors, isDark } = useTheme();
+  const user = useUserStore();
+  const currentHeight = user?.onboarding?.height ?? 170;
+  const currentWeight = user?.onboarding?.weight ?? 70;
+  const currentGoals = user?.onboarding?.goals || [];
+
+  const [draftHeight, setDraftHeight] = useState(currentHeight);
+  const [draftWeight, setDraftWeight] = useState(currentWeight);
+  const [saving, setSaving] = useState(false);
   const heightScrollRef = useRef<ScrollView>(null);
   const weightScrollRef = useRef<ScrollView>(null);
 
-  const heightIndex = Math.max(0, heightData.indexOf(height ?? 170));
-  const weightIndex = Math.max(0, weightData.indexOf(weight ?? 70));
+  const syncScrollPositions = (nextHeight: number, nextWeight: number) => {
+    const nextHeightIndex = Math.max(0, heightData.indexOf(nextHeight));
+    const nextWeightIndex = Math.max(0, weightData.indexOf(nextWeight));
 
-  useEffect(() => {
-    // Initialize scroll positions
     setTimeout(() => {
       heightScrollRef.current?.scrollTo({
-        y: heightIndex * ITEM_HEIGHT,
+        y: nextHeightIndex * ITEM_HEIGHT,
         animated: false,
       });
       weightScrollRef.current?.scrollTo({
-        y: weightIndex * ITEM_HEIGHT,
+        y: nextWeightIndex * ITEM_HEIGHT,
         animated: false,
       });
     }, 100);
+  };
+
+  useEffect(() => {
+    syncScrollPositions(currentHeight, currentWeight);
   }, []);
 
+  const heightIndex = Math.max(0, heightData.indexOf(draftHeight ?? 170));
+  const weightIndex = Math.max(0, weightData.indexOf(draftWeight ?? 70));
+
+  const handleWillPresent = () => {
+    setDraftHeight(currentHeight);
+    setDraftWeight(currentWeight);
+    syncScrollPositions(currentHeight, currentWeight);
+  };
+
   const handleHeightScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     const newHeight =
       heightData[Math.max(0, Math.min(index, heightData.length - 1))];
-    if (newHeight !== height) {
+
+    if (newHeight !== draftHeight) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      onHeightChange(newHeight);
+      setDraftHeight(newHeight);
     }
   };
 
   const handleWeightScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     const newWeight =
       weightData[Math.max(0, Math.min(index, weightData.length - 1))];
-    if (newWeight !== weight) {
+
+    if (newWeight !== draftWeight) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      onWeightChange(newWeight);
+      setDraftWeight(newWeight);
     }
   };
 
   const handleMomentumEnd = (
     ref: React.RefObject<ScrollView | null>,
-    event: NativeSyntheticEvent<NativeScrollEvent>
+    event: NativeSyntheticEvent<NativeScrollEvent>,
   ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -97,21 +108,23 @@ const WeightHeightPicker: FC<Props> = ({
 
   const getItemOpacity = (index: number, selectedIndex: number) => {
     const distance = Math.abs(index - selectedIndex);
+
     if (distance === 0) return 1;
     if (distance === 1) return 0.5;
     if (distance === 2) return 0.25;
+
     return 0.1;
   };
 
   const renderIOSPicker = (
     data: number[],
-    selectedValue: number | null,
+    selectedValue: number,
     onValueChange: (value: number) => void,
-    unit: string
+    unit: string,
   ) => (
     <View style={styles.iosPickerWrapper}>
       <Picker
-        selectedValue={selectedValue ?? data[0]}
+        selectedValue={selectedValue}
         onValueChange={onValueChange}
         style={styles.iosPicker}
         itemStyle={[styles.iosPickerItem, { color: themeColors.text }]}
@@ -129,7 +142,7 @@ const WeightHeightPicker: FC<Props> = ({
     scrollRef: React.RefObject<ScrollView | null>,
     selectedIndex: number,
     onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void,
-    unit: string
+    unit: string,
   ) => (
     <View style={styles.androidPickerWrapper}>
       <View style={styles.selectionIndicator} pointerEvents="none" />
@@ -139,7 +152,7 @@ const WeightHeightPicker: FC<Props> = ({
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
         onScroll={onScroll}
-        onMomentumScrollEnd={(e) => handleMomentumEnd(scrollRef, e)}
+        onMomentumScrollEnd={(event) => handleMomentumEnd(scrollRef, event)}
         scrollEventThrottle={16}
       >
         <View style={{ height: ITEM_HEIGHT * 2 }} />
@@ -164,12 +177,31 @@ const WeightHeightPicker: FC<Props> = ({
     </View>
   );
 
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await userService.createOrUpdateUser({
+        onboarding: {
+          goals: currentGoals,
+          height: draftHeight,
+          weight: draftWeight,
+        },
+      });
+      await TrueSheet.dismiss(TrueSheetNames.WEIGHT_HEIGHT_PICKER);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <TrueSheet
       name={TrueSheetNames.WEIGHT_HEIGHT_PICKER}
       detents={["auto"]}
-      blurTint={isDark ? "system-thick-material-dark" : "system-thick-material-light"}
+      blurTint={
+        isDark ? "system-thick-material-dark" : "system-thick-material-light"
+      }
       insetAdjustment="never"
+      onWillPresent={handleWillPresent}
       blurOptions={{
         interaction: false,
       }}
@@ -185,13 +217,13 @@ const WeightHeightPicker: FC<Props> = ({
               {t("height")}
             </Text>
             {Platform.OS === "ios"
-              ? renderIOSPicker(heightData, height, onHeightChange, "cm")
+              ? renderIOSPicker(heightData, draftHeight, setDraftHeight, "cm")
               : renderAndroidPicker(
                   heightData,
                   heightScrollRef,
                   heightIndex,
                   handleHeightScroll,
-                  "cm"
+                  "cm",
                 )}
           </View>
 
@@ -200,16 +232,24 @@ const WeightHeightPicker: FC<Props> = ({
               {t("weight")}
             </Text>
             {Platform.OS === "ios"
-              ? renderIOSPicker(weightData, weight, onWeightChange, "kg")
+              ? renderIOSPicker(weightData, draftWeight, setDraftWeight, "kg")
               : renderAndroidPicker(
                   weightData,
                   weightScrollRef,
                   weightIndex,
                   handleWeightScroll,
-                  "kg"
+                  "kg",
                 )}
           </View>
         </View>
+
+        <AppButton
+          title={t("save")}
+          onPress={handleSave}
+          loading={saving}
+          disabled={saving}
+          margin={{ marginTop: scale(20), marginHorizontal: scale(24) }}
+        />
       </View>
     </TrueSheet>
   );

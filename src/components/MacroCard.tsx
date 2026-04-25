@@ -148,9 +148,10 @@ interface MacroCardProps {
   type: Exclude<MacroType, "calories">;
   current: number;
   goal: number;
+  variant?: "remaining" | "content";
 }
 
-const MacroCard: FC<MacroCardProps> = ({ type, current, goal }) => {
+const MacroCard: FC<MacroCardProps> = ({ type, current, goal, variant = "remaining" }) => {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const config = getMacroConfig(type);
@@ -175,6 +176,34 @@ const MacroCard: FC<MacroCardProps> = ({ type, current, goal }) => {
   )[type];
 
   const [labelMain, labelSuffix] = t(labelKey).split(" ");
+
+  if (variant === "content") {
+    return (
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={styles.textBlock}>
+          <Text style={[styles.value, { color: colors.text }]}>
+            {Math.round(current)}g
+          </Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
+            {t(config.labelKey)}
+          </Text>
+        </View>
+        <View style={styles.ringWrapper}>
+          <RingWithIcon
+            progress={0}
+            color={config.color}
+            trackColor={trackColor}
+            iconBgColor={iconBg}
+            iconColor={config.color}
+            icon={config.icon}
+            size={scale(64)}
+            strokeWidth={scale(5)}
+            iconSize={scale(20)}
+          />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.card, { backgroundColor: colors.surface }]}>

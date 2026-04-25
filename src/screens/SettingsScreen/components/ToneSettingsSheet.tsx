@@ -1,42 +1,43 @@
-import React, { FC, useState } from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { changeLanguage } from "i18next";
-import { storageService } from "../../../storage/AsyncStorageService";
 import { TrueSheetNames } from "../../../navigation/constants";
-import { scale } from "../../../theme/utils";
-import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
+import { fontStyles } from "../../../theme/fontStyles";
+import { scale } from "../../../theme/utils";
 import AppButton from "../../../components/AppButton";
+import { AITone } from "../../../zustand/usePreferencesStore";
 import SettingsSheet from "./SettingsSheet";
 
-type LanguageOption = {
-  code: string;
-  localName: string;
-  name: string;
+type ToneOption = {
+  key: AITone;
+  label: string;
+};
+
+type ToneOptionCardProps = {
+  option: ToneOption;
+  selectedTone: AITone;
+  onToneSelect: (tone: AITone) => void;
 };
 
 type Props = {
-  languageOptions: LanguageOption[];
+  toneOptions: ToneOption[];
+  selectedTone: AITone;
+  onSaveTone: (tone: AITone) => void;
 };
 
-type LanguageOptionRowProps = {
-  item: LanguageOption;
-  isSelected: boolean;
-  onPress: (languageCode: string) => void;
-};
-
-const LanguageOptionRow = ({
-  item,
-  isSelected,
-  onPress,
-}: LanguageOptionRowProps) => {
+const ToneOptionCard = ({
+  option,
+  selectedTone,
+  onToneSelect,
+}: ToneOptionCardProps) => {
   const { colors } = useTheme();
+  const isSelected = selectedTone === option.key;
 
   const handlePress = () => {
-    onPress(item.code);
+    onToneSelect(option.key);
   };
 
   return (
@@ -44,7 +45,7 @@ const LanguageOptionRow = ({
       activeOpacity={0.85}
       onPress={handlePress}
       style={[
-        styles.languageOption,
+        styles.toneChip,
         {
           backgroundColor: isSelected
             ? colors["color-success-100"]
@@ -53,16 +54,15 @@ const LanguageOptionRow = ({
         },
       ]}
     >
-      <View style={styles.languageOptionContent}>
-        <Text style={[styles.languageText, { color: colors.text }]}>
-          {item.localName}
-        </Text>
-        <Text
-          style={[styles.languageMetaText, { color: colors.textSecondary }]}
-        >
-          {item.name}
-        </Text>
-      </View>
+      <Text
+        numberOfLines={2}
+        style={[
+          styles.toneChipLabel,
+          { color: isSelected ? colors.text : colors.textSecondary },
+        ]}
+      >
+        {option.label}
+      </Text>
 
       {isSelected ? (
         <View
@@ -82,11 +82,14 @@ const LanguageOptionRow = ({
   );
 };
 
-const LanguageSelection: FC<Props> = ({ languageOptions }) => {
-  const { t, i18n } = useTranslation();
+const ToneSettingsSheet = ({
+  toneOptions,
+  selectedTone,
+  onSaveTone,
+}: Props) => {
+  const { t } = useTranslation();
   const { colors, isDark } = useTheme();
-  const [draftLanguage, setDraftLanguage] = useState(i18n.language);
-  const [saving, setSaving] = useState(false);
+  const [draftTone, setDraftTone] = useState(selectedTone);
 
   const surfaceCardStyle = {
     backgroundColor: colors.surface,
@@ -95,54 +98,35 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
   };
 
   const handleWillPresent = () => {
-    setDraftLanguage(i18n.language);
-  };
-
-  const handleLanguageSelect = (languageCode: string) => {
-    setDraftLanguage(languageCode);
+    setDraftTone(selectedTone);
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
-
-      if (draftLanguage !== i18n.language) {
-        await changeLanguage(draftLanguage);
-        await storageService.setItem("language", { code: draftLanguage });
-      }
-
-      await TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
-    } catch (error) {
-      console.error("Error changing language:", error);
-      await TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
-    } finally {
-      setSaving(false);
-    }
+    onSaveTone(draftTone);
+    await TrueSheet.dismiss(TrueSheetNames.SETTINGS_AI_TONE);
   };
 
   return (
     <SettingsSheet
-      name={TrueSheetNames.LANGUAGE_SELECTION}
-      title={t("selectLanguage")}
+      name={TrueSheetNames.SETTINGS_AI_TONE}
+      title={t("aiTone")}
       onWillPresent={handleWillPresent}
       footer={
         <AppButton
           title={t("save")}
           onPress={handleSave}
-          loading={saving}
-          disabled={saving}
           margin={{ marginHorizontal: scale(24) }}
         />
       }
     >
       <View style={[styles.card, surfaceCardStyle]}>
-        <View style={styles.languageList}>
-          {languageOptions.map((item) => (
-            <LanguageOptionRow
-              key={item.code}
-              item={item}
-              isSelected={item.code === draftLanguage}
-              onPress={handleLanguageSelect}
+        <View style={styles.toneGrid}>
+          {toneOptions.map((option) => (
+            <ToneOptionCard
+              key={option.key}
+              option={option}
+              selectedTone={draftTone}
+              onToneSelect={setDraftTone}
             />
           ))}
         </View>
@@ -150,8 +134,6 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
     </SettingsSheet>
   );
 };
-
-export default LanguageSelection;
 
 const styles = StyleSheet.create({
   card: {
@@ -163,31 +145,25 @@ const styles = StyleSheet.create({
       height: scale(6),
     },
     shadowRadius: scale(18),
-    width: "100%",
   },
-  languageList: {
+  toneGrid: {
     gap: scale(10),
   },
-  languageOption: {
+  toneChip: {
     alignItems: "center",
     borderRadius: scale(20),
     borderWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    minHeight: scale(68),
+    minHeight: scale(58),
     paddingHorizontal: scale(16),
     paddingVertical: scale(14),
+    width: "100%",
   },
-  languageOptionContent: {
-    flex: 1,
-    minWidth: 0,
-  },
-  languageText: {
+  toneChipLabel: {
     ...fontStyles.body1Bold,
-  },
-  languageMetaText: {
-    ...fontStyles.body2,
-    marginTop: scale(2),
+    flex: 1,
+    marginRight: scale(12),
   },
   selectionCheck: {
     alignItems: "center",
@@ -197,3 +173,5 @@ const styles = StyleSheet.create({
     width: scale(22),
   },
 });
+
+export default ToneSettingsSheet;

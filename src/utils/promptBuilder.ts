@@ -1,4 +1,8 @@
-import { CookCandidate, CookPromptAnswers, CookRecipe } from "../services/apiTypes";
+import {
+  CookCandidate,
+  CookPromptAnswers,
+  CookRecipe,
+} from "../services/apiTypes";
 import i18next from "i18next";
 import { IUser } from "../zustand/useUserStore";
 import usePreferencesStore, { AITone } from "../zustand/usePreferencesStore";
@@ -98,14 +102,14 @@ CRITICAL REQUIREMENTS:
 
      return `
    - Protein: ${protein}% = ${Math.round(
-       (calories ?? 0 * protein) / 100 / 4
-     )}g (4 cal/g)
+     (calories ?? 0 * protein) / 100 / 4,
+   )}g (4 cal/g)
    - Carbs: ${carbs}% = ${Math.round(
-       (calories ?? 0 * carbs) / 100 / 4
-     )}g (4 cal/g)
+     (calories ?? 0 * carbs) / 100 / 4,
+   )}g (4 cal/g)
    - Fats: ${fats}% = ${Math.round(
-       (calories ?? 0 * fats) / 100 / 9
-     )}g (9 cal/g)`;
+     (calories ?? 0 * fats) / 100 / 9,
+   )}g (9 cal/g)`;
    })()}
 
 3. DIETARY PREFERENCES:
@@ -133,7 +137,6 @@ const createAnalysisPrompt = (
   userInfo: {},
   meal: string,
   mealType: string,
-  selectedDate: string
 ): string => {
   const tone = toneInstructions[getSelectedTone()];
 
@@ -148,10 +151,7 @@ Respond in the user’s language: ${
     languageMapping[getLanguage() ?? getLanguage()]
   }
 mealType must be one of: breakfast, lunch, dinner, or snack—language doesn’t matter.
-Include one to three emojis based on what’s in the meal.
-Repetition? Stack it. (e.g., 5 eggs → 🍳🍳🍳)
-Multiple items? Show them. (e.g., chicken & rice → 🍗🍚)
-Max limit: 3 emojis total.
+Include one emoji based on what’s in the meal.
 Insights should be about the quality of the food and how it fits into the user's goals.
 There should be about 2 to 4 insights,
 User info: ${stringifyUserInfo(parseGeminiUserInfo(userInfo))}
@@ -184,7 +184,6 @@ User info:
 ${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
 `;
 
-
 const createImagePrompt = (description: string) => `
 Create a high-quality, photorealistic image of the following meal:
 ${description}
@@ -207,7 +206,7 @@ Framing:
 
 const createCookCandidatesPrompt = (
   userInfo: IUser | null,
-  answers: CookPromptAnswers
+  answers: CookPromptAnswers,
 ) => `
 date: ${getCurrentDate()}
 You are Cook, a practical recipe planning assistant inside a meal tracker app.
@@ -234,8 +233,12 @@ ${(() => {
   const allergens = userInfo?.onboarding?.allergens;
   const dietTypes = userInfo?.onboarding?.dietTypes;
   const lines: string[] = [];
-  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
-  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  if (allergens?.length)
+    lines.push(
+      `- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`,
+    );
+  if (dietTypes?.length)
+    lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
   return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
 })()}
 
@@ -263,7 +266,7 @@ const createCookRecipePrompt = (
   options?: {
     variation?: string;
     currentRecipe?: CookRecipe;
-  }
+  },
 ) => `
 date: ${getCurrentDate()}
 You are Cook, a practical recipe planning assistant inside a meal tracker app.
@@ -291,8 +294,12 @@ ${(() => {
   const allergens = userInfo?.onboarding?.allergens;
   const dietTypes = userInfo?.onboarding?.dietTypes;
   const lines: string[] = [];
-  if (allergens?.length) lines.push(`- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`);
-  if (dietTypes?.length) lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
+  if (allergens?.length)
+    lines.push(
+      `- STRICT allergen restrictions — never include: ${allergens.join(", ")}.`,
+    );
+  if (dietTypes?.length)
+    lines.push(`- Diet type: ${dietTypes.join(", ")} — respect fully.`);
   return lines.length ? "\nDietary constraints:\n" + lines.join("\n") : "";
 })()}
 
@@ -300,7 +307,7 @@ ${
   options?.variation
     ? `Variation request:
 - Regenerate the recipe by applying this variation: ${JSON.stringify(
-        options.variation
+        options.variation,
       )}.
 - Keep the recipe recognizably related to the current version while updating title, summary, nutrition, ingredients, timings, and steps as needed.
 - Refresh the variation labels so they fit the new recipe.
@@ -329,7 +336,7 @@ ${JSON.stringify(options.currentRecipe, null, 2)}
 
 const createCookMealLogPrompt = (
   userInfo: IUser | null,
-  recipe: CookRecipe
+  recipe: CookRecipe,
 ) => {
   const tone = toneInstructions[getSelectedTone()];
 
@@ -346,7 +353,6 @@ Rules:
 - mealTypeLocalized must match the user's language.
 - description should be one short sentence describing the finished dish.
 - insights should focus on the nutritional quality of this cooked meal and how it fits the user's goals.
-- Include one to three emojis that match the dish.
 - errorMessage should be null unless the recipe is unusable.
 - Respond in the user’s language: ${
     languageMapping[getLanguage()] ?? getLanguage()

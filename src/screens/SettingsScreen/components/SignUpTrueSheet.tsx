@@ -2,7 +2,6 @@ import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../../theme/utils";
-import { colors } from "../../../theme/colors";
 import {
   Alert,
   Platform,
@@ -28,7 +27,7 @@ export const isValidEmail = (email: string): boolean => {
 const SignUpTrueSheet = () => {
   const { t } = useTranslation();
   const authService = useAuthService();
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,6 +36,7 @@ const SignUpTrueSheet = () => {
     !email || !password || !confirmPassword || password.length < 6;
   const emailInputRef = useRef<TextInput>(null);
   const [loading, setLoading] = useState(false);
+  const styles = makeStyles(colors);
 
   useEffect(() => {
     if (showEmailForm && emailInputRef.current) {
@@ -128,7 +128,7 @@ const SignUpTrueSheet = () => {
             <MaterialCommunityIcons
               name="arrow-left"
               size={scale(24)}
-              color={colors["color-primary-50"]}
+              color={colors.text}
             />
           </Pressable>
         )}
@@ -178,7 +178,7 @@ const SignUpTrueSheet = () => {
               value={email}
               onChangeText={setEmail}
               placeholder={t("enterEmail")}
-              placeholderTextColor={colors["color-primary-300"]}
+              placeholderTextColor={colors.textTertiary}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -192,7 +192,7 @@ const SignUpTrueSheet = () => {
               value={password}
               onChangeText={setPassword}
               placeholder={t("enterPassword")}
-              placeholderTextColor={colors["color-primary-300"]}
+              placeholderTextColor={colors.textTertiary}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
@@ -206,7 +206,7 @@ const SignUpTrueSheet = () => {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               placeholder={t("confirmYourPassword")}
-              placeholderTextColor={colors["color-primary-300"]}
+              placeholderTextColor={colors.textTertiary}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
@@ -241,131 +241,106 @@ const SignUpTrueSheet = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: scale(24),
-    paddingHorizontal: scale(24),
-    paddingBottom: scale(24),
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: scale(32),
-    position: "relative",
-  },
-  backButton: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    padding: scale(4),
-    zIndex: 1,
-  },
-  title: {
-    ...fontStyles.headline1,
-    marginBottom: scale(12),
-    textAlign: "center",
-    color: colors["color-primary-50"],
-  },
-  subtitle: {
-    ...fontStyles.body1,
-    textAlign: "center",
-    color: colors["color-primary-50"],
-  },
-  buttonsContainer: {
-    gap: scale(16),
-    marginBottom: scale(24),
-  },
-  googleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: scale(12),
-    padding: scale(16),
-    borderRadius: scale(12),
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    overflow: "hidden",
-  },
-  googleButtonText: {
-    ...fontStyles.headline4,
-    fontSize: scale(16),
-    color: "#1F2937",
-  },
-  appleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: scale(12),
-    padding: scale(16),
-    borderRadius: scale(12),
-    backgroundColor: colors["color-primary-50"],
-  },
-  appleButtonText: {
-    ...fontStyles.headline4,
-    fontSize: scale(16),
-    fontWeight: "600",
-  },
-  emailButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: scale(12),
-    padding: scale(16),
-    borderRadius: scale(12),
-    backgroundColor: colors["color-primary-100"],
-    borderWidth: 1,
-    borderColor: colors["color-primary-200"],
-  },
-  emailButtonText: {
-    ...fontStyles.headline4,
-    color: colors["color-primary-500"],
-  },
-  footer: {
-    alignItems: "center",
-    gap: scale(12),
-  },
-  footerText: {
-    ...fontStyles.body2,
-    fontSize: scale(14),
-    textAlign: "center",
-    color: colors["color-primary-50"],
-  },
-  loginLink: {
-    color: colors["color-primary-50"],
-    fontWeight: "600",
-  },
-  termsText: {
-    ...fontStyles.caption,
-    fontSize: scale(12),
-    color: colors["color-primary-50"],
-    textAlign: "center",
-    lineHeight: scale(18),
-  },
-  termsLink: {
-    textDecorationLine: "underline",
-  },
-  emailFormContainer: {
-    gap: scale(16),
-    marginBottom: scale(24),
-  },
-  inputContainer: {
-    gap: scale(4),
-  },
-  inputLabel: {
-    ...fontStyles.headline4,
-    fontSize: scale(14),
-    fontWeight: "600",
-    color: colors["color-primary-50"],
-  },
-  input: {
-    ...fontStyles.body1,
-    fontSize: scale(16),
-    backgroundColor: colors["color-primary-100"],
-    borderWidth: 1,
-    borderColor: colors["color-primary-200"],
-    borderRadius: scale(12),
-    padding: scale(16),
-    color: colors["color-primary-500"],
-  },
-});
+const makeStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
+  StyleSheet.create({
+    container: {
+      paddingTop: scale(24),
+      paddingHorizontal: scale(24),
+      paddingBottom: scale(24),
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: scale(32),
+      position: "relative",
+    },
+    backButton: {
+      position: "absolute",
+      left: 0,
+      top: scale(4),
+      padding: scale(4),
+      zIndex: 1,
+    },
+    title: {
+      ...fontStyles.headline1,
+      marginBottom: scale(12),
+      textAlign: "center",
+      color: colors.text,
+    },
+    subtitle: {
+      ...fontStyles.body1,
+      textAlign: "center",
+      color: colors.textSecondary,
+    },
+    buttonsContainer: {
+      gap: scale(16),
+      marginBottom: scale(24),
+    },
+    googleButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: scale(12),
+      padding: scale(16),
+      borderRadius: scale(12),
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: "hidden",
+    },
+    googleButtonText: {
+      ...fontStyles.headline4,
+      fontSize: scale(16),
+      color: colors.text,
+    },
+    footer: {
+      alignItems: "center",
+      gap: scale(12),
+    },
+    footerText: {
+      ...fontStyles.body2,
+      fontSize: scale(14),
+      textAlign: "center",
+      color: colors.textSecondary,
+    },
+    loginLink: {
+      color: colors.text,
+      fontWeight: "600",
+      textDecorationLine: "underline",
+    },
+    termsText: {
+      ...fontStyles.caption,
+      fontSize: scale(12),
+      color: colors.textSecondary,
+      textAlign: "center",
+      lineHeight: scale(18),
+    },
+    termsLink: {
+      color: colors.text,
+      textDecorationLine: "underline",
+    },
+    emailFormContainer: {
+      gap: scale(16),
+      marginBottom: scale(24),
+    },
+    inputContainer: {
+      gap: scale(4),
+    },
+    inputLabel: {
+      ...fontStyles.headline4,
+      fontSize: scale(14),
+      fontWeight: "600",
+      color: colors.text,
+    },
+    input: {
+      ...fontStyles.body1,
+      fontSize: scale(16),
+      backgroundColor: colors["color-primary-100"],
+      borderWidth: 1,
+      borderColor: colors["color-primary-200"],
+      borderRadius: scale(12),
+      padding: scale(16),
+      color: colors["color-primary-500"],
+    },
+  });
+
 export default SignUpTrueSheet;

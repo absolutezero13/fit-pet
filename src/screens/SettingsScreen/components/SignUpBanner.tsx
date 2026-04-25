@@ -6,19 +6,29 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { t } from "i18next";
+import { useTheme } from "../../../theme/ThemeContext";
 
 const SignUpBanner = () => {
+  const { colors } = useTheme();
   const handleSignUp = () => {
     TrueSheet.present(TrueSheetNames.SIGN_UP);
   };
 
   return (
-    <Pressable onPress={handleSignUp} style={styles.container}>
+    <Pressable
+      onPress={handleSignUp}
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.surface,
+        },
+      ]}
+    >
       <Text style={styles.title}>{t("signUpBanner")}</Text>
       <MaterialCommunityIcons
         name="account-plus"
         size={scale(48)}
-        color={colors["color-primary-50"]}
+        color={colors.text}
       />
     </Pressable>
   );
@@ -26,10 +36,9 @@ const SignUpBanner = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors["color-info-500"],
     borderRadius: scale(24),
     padding: scale(24),
-    marginVertical: scale(16),
+    marginBottom: scale(16),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
