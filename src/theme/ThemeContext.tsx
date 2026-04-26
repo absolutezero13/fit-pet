@@ -1,13 +1,17 @@
 import React, { createContext, useContext, useMemo } from "react";
 import useThemeStore from "../zustand/useThemeStore";
-import { lightColors, darkGrayColors, ThemeColors, ThemeMode } from "./colors";
+import {
+  DEFAULT_THEME_ID,
+  ThemeColors,
+  ThemeId,
+  themes,
+} from "./colors";
 
 interface ThemeContextValue {
   colors: ThemeColors;
-  mode: ThemeMode;
+  theme: ThemeId;
   isDark: boolean;
-  toggleTheme: () => void;
-  setTheme: (mode: ThemeMode) => void;
+  setTheme: (theme: ThemeId) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -15,18 +19,17 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { mode, toggleMode, setMode } = useThemeStore();
+  const { theme, setTheme } = useThemeStore();
 
-  const value = useMemo<ThemeContextValue>(
-    () => ({
-      colors: mode === "dark" ? darkGrayColors : lightColors,
-      mode,
-      isDark: mode === "dark",
-      toggleTheme: toggleMode,
-      setTheme: setMode,
-    }),
-    [mode, toggleMode, setMode]
-  );
+  const value = useMemo<ThemeContextValue>(() => {
+    const definition = themes[theme] ?? themes[DEFAULT_THEME_ID];
+    return {
+      colors: definition.colors,
+      theme: definition.id,
+      isDark: definition.isDark,
+      setTheme,
+    };
+  }, [theme, setTheme]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
@@ -36,12 +39,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    // Emergency fallback for components not wrapped in ThemeProvider (development/testing only)
+    const fallback = themes[DEFAULT_THEME_ID];
     return {
-      colors: lightColors,
-      mode: "light",
-      isDark: false,
-      toggleTheme: () => {},
+      colors: fallback.colors,
+      theme: fallback.id,
+      isDark: fallback.isDark,
       setTheme: () => {},
     };
   }

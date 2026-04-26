@@ -29,7 +29,7 @@ const CookRecipePreview = ({
     backgroundColor: isLiquidGlassSupported ? undefined : colors.surface,
     borderColor: colors.border,
     borderWidth: isLiquidGlassSupported ? 0 : 1,
-  } as const;
+  };
 
   return (
     <View style={styles.container}>
@@ -96,7 +96,7 @@ const CookRecipePreview = ({
       <AppButton
         title={ctaLabel}
         onPress={onStartCooking}
-        backgroundColor={colors["color-success-400"]}
+        backgroundColor={colors.accent}
       />
 
       <LiquidGlassView
@@ -125,7 +125,7 @@ const CookRecipePreview = ({
               <MaterialCommunityIcons
                 name="checkbox-blank-circle-outline"
                 size={scale(16)}
-                color={colors["color-success-400"]}
+                color={colors.accent}
               />
               <Text style={[styles.rowText, { color: colors.textSecondary }]}>
                 {ingredient.amount ? `${ingredient.amount} - ` : ""}
@@ -197,9 +197,7 @@ const CookRecipePreview = ({
                     </View>
                   ) : null}
                 </View>
-                <Text
-                  style={[styles.rowText, { color: colors.textSecondary }]}
-                >
+                <Text style={[styles.rowText, { color: colors.textSecondary }]}>
                   {step.instruction}
                 </Text>
               </View>

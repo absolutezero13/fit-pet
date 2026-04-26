@@ -103,11 +103,15 @@ const MealReminderCard = ({
             <MaterialCommunityIcons
               name={icon}
               size={scale(18)}
-              color={globalEnabled && enabled ? colors.textInverse : colors.text}
+              color={
+                globalEnabled && enabled ? colors.textInverse : colors.text
+              }
             />
           </View>
 
-          <Text style={[styles.mealLabel, { color: colors.text }]}>{label}</Text>
+          <Text style={[styles.mealLabel, { color: colors.text }]}>
+            {label}
+          </Text>
         </View>
 
         <Switch
@@ -126,9 +130,7 @@ const MealReminderCard = ({
           {t("reminderTime")}
         </Text>
 
-        <View
-          style={[styles.timeControl, { backgroundColor: colors.surface }]}
-        >
+        <View style={[styles.timeControl, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             activeOpacity={0.8}
             disabled={!isInteractive}
@@ -189,8 +191,12 @@ const NotificationSettings: React.FC<Props> = ({
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const store = useNotificationStore();
-  const [globalEnabled, setGlobalEnabled] = useState(store.notificationsEnabled);
-  const [breakfastEnabled, setBreakfastEnabled] = useState(store.breakfastEnabled);
+  const [globalEnabled, setGlobalEnabled] = useState(
+    store.notificationsEnabled,
+  );
+  const [breakfastEnabled, setBreakfastEnabled] = useState(
+    store.breakfastEnabled,
+  );
   const [lunchEnabled, setLunchEnabled] = useState(store.lunchEnabled);
   const [dinnerEnabled, setDinnerEnabled] = useState(store.dinnerEnabled);
   const [breakfastTime, setBreakfastTime] = useState(store.breakfastTime);
@@ -218,7 +224,6 @@ const NotificationSettings: React.FC<Props> = ({
   ]);
 
   const surfaceCardStyle = {
-    backgroundColor: colors.surface,
     shadowColor: colors.shadow,
     shadowOpacity: isDark ? 0.28 : 0.12,
   };
@@ -279,7 +284,9 @@ const NotificationSettings: React.FC<Props> = ({
   }, [submitSignal]);
 
   return (
-    <View style={[styles.container, !showSectionTitle && styles.containerEmbedded]}>
+    <View
+      style={[styles.container, !showSectionTitle && styles.containerEmbedded]}
+    >
       {showSectionTitle ? (
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
           {t("notifications")}
@@ -314,7 +321,9 @@ const NotificationSettings: React.FC<Props> = ({
               <Text style={[styles.headerTitle, { color: colors.text }]}>
                 {t("enableNotifications")}
               </Text>
-              <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+              <Text
+                style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+              >
                 {t("mealTimeDescription")}
               </Text>
             </View>
@@ -324,7 +333,7 @@ const NotificationSettings: React.FC<Props> = ({
             onValueChange={setGlobalEnabled}
             trackColor={{
               false: colors.border,
-              true: colors["color-success-400"],
+              true: colors.accent,
             }}
             value={globalEnabled}
           />
@@ -336,7 +345,7 @@ const NotificationSettings: React.FC<Props> = ({
           </Text>
 
           <MealReminderCard
-            accentColor={colors["color-success-400"]}
+            accentColor={colors.accent}
             enabled={breakfastEnabled}
             globalEnabled={globalEnabled}
             icon="food-croissant"
@@ -347,7 +356,7 @@ const NotificationSettings: React.FC<Props> = ({
           />
 
           <MealReminderCard
-            accentColor={colors["color-success-400"]}
+            accentColor={colors.accent}
             enabled={lunchEnabled}
             globalEnabled={globalEnabled}
             icon="food"
@@ -358,7 +367,7 @@ const NotificationSettings: React.FC<Props> = ({
           />
 
           <MealReminderCard
-            accentColor={colors["color-success-400"]}
+            accentColor={colors.accent}
             enabled={dinnerEnabled}
             globalEnabled={globalEnabled}
             icon="silverware-fork-knife"
@@ -369,7 +378,6 @@ const NotificationSettings: React.FC<Props> = ({
           />
         </View>
       </View>
-
     </View>
   );
 };

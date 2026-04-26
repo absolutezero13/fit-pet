@@ -18,7 +18,7 @@ const TabNavigator = () => {
       hapticFeedbackEnabled
       initialRouteName="Home"
       screenOptions={{
-        tabBarActiveTintColor: colors["color-success-400"],
+        tabBarActiveTintColor: colors.accent,
       }}
     >
       <Tabs.Screen

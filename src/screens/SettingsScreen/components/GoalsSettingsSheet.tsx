@@ -42,9 +42,9 @@ const GoalOptionCard = ({
         styles.goalCard,
         {
           backgroundColor: isSelected
-            ? colors["color-success-100"]
+            ? colors.accentSoft
             : colors.backgroundSecondary,
-          borderColor: isSelected ? colors["color-success-400"] : "transparent",
+          borderColor: isSelected ? colors.accent : "transparent",
         },
       ]}
     >
@@ -54,7 +54,7 @@ const GoalOptionCard = ({
             styles.goalIconWrap,
             {
               backgroundColor: isSelected
-                ? colors["color-success-400"]
+                ? colors.accent
                 : colors.surface,
             },
           ]}
@@ -77,7 +77,7 @@ const GoalOptionCard = ({
         <View
           style={[
             styles.selectionCheck,
-            { backgroundColor: colors["color-success-400"] },
+            { backgroundColor: colors.accent },
           ]}
         >
           <Ionicons

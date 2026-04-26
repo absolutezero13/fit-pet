@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  Image,
   Text,
   TouchableOpacity,
   StatusBar,
@@ -21,7 +20,7 @@ import Animated, {
 import { useNavigation } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import { useTranslation } from "react-i18next";
-import badger from "./assets/badger-welcome.png";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useAuthService, { LoginType } from "../services/auth";
 import userService from "../services/user";
 import { getAuth } from "@react-native-firebase/auth";
@@ -31,6 +30,10 @@ import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { TrueSheetNames } from "../navigation/constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const RING_CORE = scale(76);
+const RING_MID = scale(132);
+const RING_OUTER = scale(196);
+
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
@@ -39,58 +42,92 @@ const makeStyles = (colors: ThemeColors) =>
     },
     hero: {
       flex: 1,
-      justifyContent: "center",
       alignItems: "center",
+      justifyContent: "center",
     },
-    image: {
-      width: scale(260),
-      height: scale(260),
+    ringsWrap: {
+      width: RING_OUTER,
+      height: RING_OUTER,
+      alignItems: "center",
+      justifyContent: "center",
     },
-    bottom: {
-      paddingHorizontal: scale(28),
-      paddingTop: scale(8),
-      backgroundColor: colors.surface,
-      borderTopLeftRadius: scale(36),
-      borderTopRightRadius: scale(36),
+    ring: {
+      position: "absolute",
+      borderRadius: 9999,
+      borderWidth: StyleSheet.hairlineWidth,
     },
-    divider: {
-      width: scale(36),
-      height: scale(4),
-      borderRadius: scale(2),
-      backgroundColor: colors.border,
-      alignSelf: "center",
-      marginBottom: scale(28),
+    ringOuter: {
+      width: RING_OUTER,
+      height: RING_OUTER,
+      borderColor: colors.accent + "26",
+    },
+    ringMid: {
+      width: RING_MID,
+      height: RING_MID,
+      borderColor: colors.accent + "40",
+    },
+    coreCircle: {
+      width: RING_CORE,
+      height: RING_CORE,
+      borderRadius: RING_CORE / 2,
+      backgroundColor: colors.accent + "1F",
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.accent + "66",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    content: {
+      paddingHorizontal: scale(24),
     },
     label: {
       ...fontStyles.caption,
-      color: colors["color-success-400"],
+      color: colors.accent,
       letterSpacing: 2.5,
-      textAlign: "center",
-      marginBottom: scale(8),
+      marginBottom: scale(12),
     },
-    appName: {
+    heading: {
       ...fontStyles.hero,
+      fontSize: scale(40),
+      lineHeight: scale(46),
       color: colors.text,
-      textAlign: "center",
-      marginBottom: scale(10),
+      marginBottom: scale(14),
+    },
+    headingAccent: {
+      color: colors.accent,
     },
     description: {
       ...fontStyles.body1,
-      color: colors.textSecondary,
-      textAlign: "center",
+      fontSize: scale(15),
       lineHeight: scale(22),
-      marginBottom: scale(32),
-      paddingHorizontal: scale(8),
+      color: colors.textSecondary,
+      marginBottom: scale(24),
+    },
+    pillRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: scale(8),
+      marginBottom: scale(28),
+    },
+    pill: {
+      paddingHorizontal: scale(14),
+      paddingVertical: scale(8),
+      borderRadius: scale(999),
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface + "66",
+    },
+    pillText: {
+      ...fontStyles.body2,
+      color: colors.textSecondary,
     },
     buttonWrap: {
-      marginBottom: scale(16),
+      marginBottom: scale(14),
     },
     loginRow: {
       flexDirection: "row",
-      alignSelf: "center",
       alignItems: "center",
+      justifyContent: "center",
       gap: scale(6),
-      marginBottom: scale(8),
     },
     loginText: {
       ...fontStyles.body2,
@@ -98,12 +135,12 @@ const makeStyles = (colors: ThemeColors) =>
     },
     loginLink: {
       ...fontStyles.body2,
-      color: colors["color-success-500"],
+      color: colors.accent,
       fontWeight: "700",
     },
   });
 
-const WelcomeScreen: React.FC = () => {
+const WelcomeScreen: FC = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const authService = useAuthService();
@@ -112,27 +149,29 @@ const WelcomeScreen: React.FC = () => {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
 
-  const mascotOpacity = useSharedValue(0);
-  const mascotY = useSharedValue(32);
-  const bottomOpacity = useSharedValue(0);
-  const bottomY = useSharedValue(40);
+  const heroOpacity = useSharedValue(0);
+  const heroY = useSharedValue(32);
+  const contentOpacity = useSharedValue(0);
+  const contentY = useSharedValue(40);
 
   useEffect(() => {
-    mascotOpacity.value = withDelay(120, withTiming(1, { duration: 700 }));
-    mascotY.value = withDelay(120, withSpring(0, { damping: 20, stiffness: 80 }));
-
-    bottomOpacity.value = withDelay(400, withTiming(1, { duration: 600 }));
-    bottomY.value = withDelay(400, withSpring(0, { damping: 20, stiffness: 90 }));
+    heroOpacity.value = withDelay(120, withTiming(1, { duration: 700 }));
+    heroY.value = withDelay(120, withSpring(0, { damping: 20, stiffness: 80 }));
+    contentOpacity.value = withDelay(400, withTiming(1, { duration: 600 }));
+    contentY.value = withDelay(
+      400,
+      withSpring(0, { damping: 20, stiffness: 90 }),
+    );
   }, []);
 
-  const mascotStyle = useAnimatedStyle(() => ({
-    opacity: mascotOpacity.value,
-    transform: [{ translateY: mascotY.value }],
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroOpacity.value,
+    transform: [{ translateY: heroY.value }],
   }));
 
-  const bottomStyle = useAnimatedStyle(() => ({
-    opacity: bottomOpacity.value,
-    transform: [{ translateY: bottomY.value }],
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentY.value }],
   }));
 
   const loginSilent = async () => {
@@ -172,29 +211,57 @@ const WelcomeScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]} />
-
-      <View style={[styles.hero, { paddingTop: insets.top + scale(48) }]}>
-        <Animated.View style={mascotStyle}>
-          <Image source={badger} style={styles.image} resizeMode="contain" />
-        </Animated.View>
-      </View>
+      <Animated.View
+        style={[styles.hero, { paddingTop: insets.top }, heroStyle]}
+      >
+        <View style={styles.ringsWrap}>
+          <View style={[styles.ring, styles.ringOuter]} />
+          <View style={[styles.ring, styles.ringMid]} />
+          <View style={styles.coreCircle}>
+            <MaterialCommunityIcons
+              name="paw"
+              size={scale(36)}
+              color={colors.accent}
+            />
+          </View>
+        </View>
+      </Animated.View>
 
       <Animated.View
-        style={[styles.bottom, { paddingBottom: insets.bottom + scale(24) }, bottomStyle]}
+        style={[
+          styles.content,
+          { paddingBottom: insets.bottom + scale(16) },
+          contentStyle,
+        ]}
       >
-        <View style={styles.divider} />
-
-        <Text style={styles.label}>{t("welcome").toUpperCase()}</Text>
-        <Text style={styles.appName}>{t("appName")}</Text>
+        <Text style={styles.heading}>
+          {t("welcomeHeadline1Pre")}{" "}
+          <Text style={styles.headingAccent}>
+            {t("welcomeHeadline1Accent")}
+          </Text>
+          {"\n"}
+          {t("welcomeHeadline2")}
+        </Text>
         <Text style={styles.description}>{t("welcomeExplanation")}</Text>
+
+        <View style={styles.pillRow}>
+          <View style={[styles.pill]}>
+            <Text style={[styles.pillText]}>{t("featureCalorieTracking")}</Text>
+          </View>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>{t("featureAiSuggestions")}</Text>
+          </View>
+          <View style={styles.pill}>
+            <Text style={styles.pillText}>{t("featureRecipeGenerator")}</Text>
+          </View>
+        </View>
 
         <View style={styles.buttonWrap}>
           <AppButton
             title={t("getStarted")}
             loading={loading}
             onPress={loginSilent}
-            backgroundColor={colors["color-success-400"]}
+            backgroundColor={colors.accent}
           />
         </View>
 

@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
   LiquidGlassView,
@@ -199,7 +206,7 @@ const CookRecipeScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}> 
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {isLoggingMeal ? (
         <View style={styles.loggingOverlay}>
           <View
@@ -255,13 +262,11 @@ const CookRecipeScreen = () => {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View entering={FadeInUp.duration(240)}>
-            <CookRecipePreview
-              recipe={recipe}
-              ctaLabel={t("cookStartCooking")}
-              onStartCooking={() => setMode("cook")}
-            />
-          </Animated.View>
+          <CookRecipePreview
+            recipe={recipe}
+            ctaLabel={t("cookStartCooking")}
+            onStartCooking={() => setMode("cook")}
+          />
         </ScrollView>
       ) : (
         <View
@@ -275,7 +280,6 @@ const CookRecipeScreen = () => {
               entering={FadeInUp.duration(240)}
               style={styles.cookContent}
             >
-              <View style={styles.cookContentSpacer} />
               <View style={styles.topCluster}>
                 <View style={styles.stepVisualizerRow}>
                   {recipe.steps.map((step, index) => {
@@ -290,7 +294,7 @@ const CookRecipeScreen = () => {
                           {
                             backgroundColor:
                               isDone || isActive
-                                ? colors["color-success-400"]
+                                ? colors.accent
                                 : colors.border,
                             opacity: isActive ? 1 : isDone ? 0.8 : 0.45,
                             flex: isActive ? 1.4 : 1,
@@ -315,6 +319,7 @@ const CookRecipeScreen = () => {
                 </Text>
               </View>
 
+              <View style={styles.bottomContentWrap}>
               <View style={styles.bottomContentBlock}>
                 <Animated.View
                   key={`body-${currentStep.id}`}
@@ -350,7 +355,7 @@ const CookRecipeScreen = () => {
                             ? undefined
                             : "transparent",
                           borderColor: isFinishingCurrentStep
-                            ? colors["color-success-400"]
+                            ? colors.accent
                             : colors.border,
                           borderWidth: isLiquidGlassSupported
                             ? isFinishingCurrentStep
@@ -375,7 +380,7 @@ const CookRecipeScreen = () => {
                           entering={ZoomIn.duration(160)}
                           style={[
                             styles.completedBadge,
-                            { backgroundColor: colors["color-success-400"] },
+                            { backgroundColor: colors.accent },
                           ]}
                         >
                           <MaterialCommunityIcons
@@ -431,6 +436,7 @@ const CookRecipeScreen = () => {
                   {completedCountLabel}
                 </Text>
               </View>
+              </View>
             </Animated.View>
 
             <View
@@ -465,7 +471,7 @@ const CookRecipeScreen = () => {
                   <AppButton
                     title={isLastStep ? t("cookFinish") : t("cookNextStep")}
                     onPress={handleAdvanceStep}
-                    backgroundColor={colors["color-success-400"]}
+                    backgroundColor={colors.accent}
                     disabled={!!finishingStepId}
                     flex
                   />
@@ -544,7 +550,7 @@ const styles = StyleSheet.create({
     gap: scale(18),
   },
   topCluster: {
-    gap: scale(14),
+    gap: scale(8),
   },
   stepVisualizerRow: {
     flexDirection: "row",
@@ -554,8 +560,10 @@ const styles = StyleSheet.create({
     height: scale(6),
     borderRadius: scale(999),
   },
-  cookContentSpacer: {
-    flex: 0.55,
+  bottomContentWrap: {
+    flex: 1,
+    justifyContent: "center",
+    paddingBottom: scale(80),
   },
   bottomContentBlock: {
     gap: scale(14),
@@ -566,7 +574,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   progressLabel: {
-    textAlign: "center",
+    textAlign: "right",
   },
   heroBody: {
     ...fontStyles.body1,
@@ -577,17 +585,17 @@ const styles = StyleSheet.create({
     gap: scale(16),
   },
   instructionCircleWrap: {
-    width: scale(286),
-    height: scale(286),
-    borderRadius: scale(143),
+    width: scale(330),
+    height: scale(330),
+    borderRadius: scale(165),
     overflow: "hidden",
   },
   instructionCircle: {
     width: "100%",
     height: "100%",
-    borderRadius: scale(143),
+    borderRadius: scale(165),
     borderWidth: 2,
-    padding: scale(28),
+    padding: scale(32),
     alignItems: "center",
     justifyContent: "center",
     position: "relative",

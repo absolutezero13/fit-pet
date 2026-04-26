@@ -53,12 +53,12 @@ const CookChipItem = ({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.surface, colors["color-success-400"]]
+      [colors.surface, colors.accent]
     ),
     borderColor: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.border, colors["color-success-400"]]
+      [colors.border, colors.accent]
     ),
     transform: [{ scale: 1 - progress.value * 0.02 }],
   }));

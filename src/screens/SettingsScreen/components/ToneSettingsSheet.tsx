@@ -48,9 +48,9 @@ const ToneOptionCard = ({
         styles.toneChip,
         {
           backgroundColor: isSelected
-            ? colors["color-success-100"]
+            ? colors.accentSoft
             : colors.backgroundSecondary,
-          borderColor: isSelected ? colors["color-success-400"] : "transparent",
+          borderColor: isSelected ? colors.accent : "transparent",
         },
       ]}
     >
@@ -66,10 +66,7 @@ const ToneOptionCard = ({
 
       {isSelected ? (
         <View
-          style={[
-            styles.selectionCheck,
-            { backgroundColor: colors["color-success-400"] },
-          ]}
+          style={[styles.selectionCheck, { backgroundColor: colors.accent }]}
         >
           <Ionicons
             name="checkmark"
@@ -91,11 +88,7 @@ const ToneSettingsSheet = ({
   const { colors, isDark } = useTheme();
   const [draftTone, setDraftTone] = useState(selectedTone);
 
-  const surfaceCardStyle = {
-    backgroundColor: colors.surface,
-    shadowColor: colors.shadow,
-    shadowOpacity: isDark ? 0.28 : 0.12,
-  };
+  const surfaceCardStyle = {};
 
   const handleWillPresent = () => {
     setDraftTone(selectedTone);

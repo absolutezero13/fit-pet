@@ -17,7 +17,7 @@ type LoadingDotsProps = {
 
 const LoadingDots = ({ color }: LoadingDotsProps) => {
   const { colors } = useTheme();
-  const dotColor = color ?? colors["color-success-400"];
+  const dotColor = color ?? colors.accent;
   const first = useSharedValue(0);
   const second = useSharedValue(0);
   const third = useSharedValue(0);

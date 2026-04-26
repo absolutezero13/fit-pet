@@ -69,7 +69,7 @@ const CookStepTimer = ({ initialSeconds }: CookStepTimerProps) => {
           onPress={() => setIsRunning((current) => !current)}
           style={[
             styles.action,
-            { backgroundColor: colors["color-success-400"] },
+            { backgroundColor: colors.accent },
           ]}
         >
           <MaterialCommunityIcons

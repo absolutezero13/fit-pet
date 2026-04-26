@@ -3,48 +3,37 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { changeLanguage } from "i18next";
-import { storageService } from "../../../storage/AsyncStorageService";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
+import { ThemeId, themes } from "../../../theme/colors";
 import AppButton from "../../../components/AppButton";
 import SettingsSheet from "./SettingsSheet";
 
-type LanguageOption = {
-  code: string;
-  localName: string;
-  name: string;
-};
-
-type Props = {
-  languageOptions: LanguageOption[];
-};
-
-type LanguageOptionRowProps = {
-  item: LanguageOption;
+type ThemeOptionRowProps = {
+  id: ThemeId;
   isSelected: boolean;
-  onPress: (languageCode: string) => void;
+  onPress: (id: ThemeId) => void;
 };
 
-const LanguageOptionRow = ({
-  item,
+const ThemeOptionRow: FC<ThemeOptionRowProps> = ({
+  id,
   isSelected,
   onPress,
-}: LanguageOptionRowProps) => {
+}) => {
+  const { t } = useTranslation();
   const { colors } = useTheme();
+  const definition = themes[id];
 
-  const handlePress = () => {
-    onPress(item.code);
-  };
+  const handlePress = () => onPress(id);
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={handlePress}
       style={[
-        styles.languageOption,
+        styles.row,
         {
           backgroundColor: isSelected
             ? colors.accentSoft
@@ -53,21 +42,28 @@ const LanguageOptionRow = ({
         },
       ]}
     >
-      <View style={styles.languageOptionContent}>
-        <Text style={[styles.languageText, { color: colors.text }]}>
-          {item.localName}
-        </Text>
-        <Text
-          style={[styles.languageMetaText, { color: colors.textSecondary }]}
-        >
-          {item.name}
+      <View
+        style={[
+          styles.swatchOuter,
+          { backgroundColor: definition.swatch.background },
+        ]}
+      >
+        <View
+          style={[
+            styles.swatchInner,
+            { backgroundColor: definition.swatch.accent },
+          ]}
+        />
+      </View>
+
+      <View style={styles.copy}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {t(definition.nameKey)}
         </Text>
       </View>
 
       {isSelected ? (
-        <View
-          style={[styles.selectionCheck, { backgroundColor: colors.accent }]}
-        >
+        <View style={[styles.check, { backgroundColor: colors.accent }]}>
           <Ionicons
             name="checkmark"
             size={scale(14)}
@@ -79,33 +75,29 @@ const LanguageOptionRow = ({
   );
 };
 
-const LanguageSelection: FC<Props> = ({ languageOptions }) => {
-  const { t, i18n } = useTranslation();
-  const { colors, isDark } = useTheme();
-  const [draftLanguage, setDraftLanguage] = useState(i18n.language);
+const ThemeSelectionSheet: FC = () => {
+  const { t } = useTranslation();
+  const { theme, setTheme, colors, isDark } = useTheme();
+  const [draftTheme, setDraftTheme] = useState<ThemeId>(theme);
   const [saving, setSaving] = useState(false);
 
+  const surfaceCardStyle = {};
+
   const handleWillPresent = () => {
-    setDraftLanguage(i18n.language);
+    setDraftTheme(theme);
   };
 
-  const handleLanguageSelect = (languageCode: string) => {
-    setDraftLanguage(languageCode);
+  const handleSelect = (id: ThemeId) => {
+    setDraftTheme(id);
   };
 
   const handleSave = async () => {
     try {
       setSaving(true);
-
-      if (draftLanguage !== i18n.language) {
-        await changeLanguage(draftLanguage);
-        await storageService.setItem("language", { code: draftLanguage });
+      if (draftTheme !== theme) {
+        setTheme(draftTheme);
       }
-
-      await TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
-    } catch (error) {
-      console.error("Error changing language:", error);
-      await TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);
+      await TrueSheet.dismiss(TrueSheetNames.THEME_SELECTION);
     } finally {
       setSaving(false);
     }
@@ -113,8 +105,8 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
 
   return (
     <SettingsSheet
-      name={TrueSheetNames.LANGUAGE_SELECTION}
-      title={t("selectLanguage")}
+      name={TrueSheetNames.THEME_SELECTION}
+      title={t("themePickerTitle")}
       onWillPresent={handleWillPresent}
       footer={
         <AppButton
@@ -126,14 +118,14 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
         />
       }
     >
-      <View style={[styles.card]}>
-        <View style={styles.languageList}>
-          {languageOptions.map((item) => (
-            <LanguageOptionRow
-              key={item.code}
-              item={item}
-              isSelected={item.code === draftLanguage}
-              onPress={handleLanguageSelect}
+      <View style={[styles.card, surfaceCardStyle]}>
+        <View style={styles.list}>
+          {Object.values(themes).map((definition) => (
+            <ThemeOptionRow
+              key={definition.id}
+              id={definition.id}
+              isSelected={definition.id === draftTheme}
+              onPress={handleSelect}
             />
           ))}
         </View>
@@ -142,45 +134,50 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
   );
 };
 
-export default LanguageSelection;
+export default ThemeSelectionSheet;
 
 const styles = StyleSheet.create({
   card: {
     borderRadius: scale(28),
     elevation: 6,
     padding: scale(18),
-    shadowOffset: {
-      width: 0,
-      height: scale(6),
-    },
+    shadowOffset: { width: 0, height: scale(6) },
     shadowRadius: scale(18),
     width: "100%",
   },
-  languageList: {
+  list: {
     gap: scale(10),
   },
-  languageOption: {
+  row: {
     alignItems: "center",
     borderRadius: scale(20),
     borderWidth: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: scale(14),
     minHeight: scale(68),
     paddingHorizontal: scale(16),
     paddingVertical: scale(14),
   },
-  languageOptionContent: {
+  swatchOuter: {
+    alignItems: "center",
+    borderRadius: scale(18),
+    height: scale(36),
+    justifyContent: "center",
+    width: scale(36),
+  },
+  swatchInner: {
+    borderRadius: scale(10),
+    height: scale(20),
+    width: scale(20),
+  },
+  copy: {
     flex: 1,
     minWidth: 0,
   },
-  languageText: {
+  title: {
     ...fontStyles.body1Bold,
   },
-  languageMetaText: {
-    ...fontStyles.body2,
-    marginTop: scale(2),
-  },
-  selectionCheck: {
+  check: {
     alignItems: "center",
     borderRadius: scale(11),
     height: scale(22),

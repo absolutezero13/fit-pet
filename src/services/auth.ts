@@ -1,4 +1,10 @@
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import {
+  GoogleSignin,
+  isCancelledResponse,
+  isErrorWithCode,
+  isSuccessResponse,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import useUserStore, {
   INITIAL_USER_STORE,
   IUser,
@@ -43,8 +49,8 @@ export class AuthService {
   public async handleLogin(
     type: LoginType,
     email?: string,
-    password?: string
-  ): Promise<{ success: boolean; user?: IUser }> {
+    password?: string,
+  ): Promise<{ success: boolean; user?: IUser; cancelled?: boolean }> {
     let response: { success: boolean; user?: IUser };
     switch (type) {
       case LoginType.Google:
@@ -98,7 +104,7 @@ export class AuthService {
 
       const appleCredential = AppleAuthProvider.credential(
         appleResponse.identityToken,
-        appleResponse.nonce
+        appleResponse.nonce,
       );
       const result = await user.linkWithCredential(appleCredential);
       console.log("Linked user UID:", result.user.uid);
@@ -162,7 +168,10 @@ export class AuthService {
     }
   }
 
-  private async handleAppleLogin(): Promise<{ success: boolean; user?: IUser }> {
+  private async handleAppleLogin(): Promise<{
+    success: boolean;
+    user?: IUser;
+  }> {
     try {
       const appleResponse = await AppleAuthentication.performRequest({
         requestedOperation: AppleAuthentication.Operation.LOGIN,
@@ -174,7 +183,7 @@ export class AuthService {
 
       const appleCredential = AppleAuthProvider.credential(
         appleResponse.identityToken,
-        appleResponse.nonce
+        appleResponse.nonce,
       );
       await getAuth().signInWithCredential(appleCredential);
 
@@ -197,7 +206,7 @@ export class AuthService {
 
   private async handleEmailLogin(
     email?: string,
-    password?: string
+    password?: string,
   ): Promise<{ success: boolean; user?: IUser }> {
     if (!email || !password) {
       return { success: false };
@@ -259,17 +268,24 @@ export class AuthService {
     }
   };
 
-  private async handleGoogleLogin() {
+  private async handleGoogleLogin(): Promise<{
+    success: boolean;
+    user?: IUser;
+    cancelled?: boolean;
+  }> {
     try {
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
-      const user = await GoogleSignin.signIn();
-      if (!user?.data?.idToken) {
+      const signInResult = await GoogleSignin.signIn();
+      if (isCancelledResponse(signInResult)) {
+        return { success: false, cancelled: true };
+      }
+      if (!isSuccessResponse(signInResult) || !signInResult.data.idToken) {
         return { success: false };
       }
 
       const googleCredential = auth.GoogleAuthProvider.credential(
-        user.data?.idToken
+        signInResult.data.idToken,
       );
       await getAuth().signInWithCredential(googleCredential);
       const response = await api.post("/auth/login/google", {
@@ -289,10 +305,16 @@ export class AuthService {
       return {
         success: false,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      if (
+        isErrorWithCode(error) &&
+        error.code === statusCodes.SIGN_IN_CANCELLED
+      ) {
+        return { success: false, cancelled: true };
+      }
       console.log(
         "Error during Google login:",
-        error instanceof Error ? error : "Unknown error"
+        error instanceof Error ? error : "Unknown error",
       );
       return {
         success: false,

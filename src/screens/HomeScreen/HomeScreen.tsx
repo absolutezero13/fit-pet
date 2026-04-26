@@ -254,7 +254,7 @@ const LoggedMealsScreen = () => {
               {
                 backgroundColor: isLiquidGlassSupported
                   ? undefined
-                  : colors["color-success-400"],
+                  : colors.accent,
               },
             ]}
             onPress={handleScanMealPress}
@@ -282,7 +282,7 @@ const LoggedMealsScreen = () => {
               {
                 backgroundColor: isLiquidGlassSupported
                   ? undefined
-                  : colors["color-success-400"],
+                  : colors.accent,
               },
             ]}
             onPress={() => navigateLogMeal(undefined)}

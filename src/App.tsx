@@ -70,7 +70,7 @@ const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
     ...(isDark ? NavigationDarkTheme : NavigationDefaultTheme),
     colors: {
       ...(isDark ? NavigationDarkTheme.colors : NavigationDefaultTheme.colors),
-      primary: colors["color-success-400"],
+      primary: colors.accent,
       background: colors.background,
       card: colors.background,
       text: colors.text,

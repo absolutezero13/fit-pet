@@ -67,9 +67,9 @@ const AppButton: FC<Props> = ({
 
   const buttonBackgroundColor = isText
     ? (backgroundColor ?? "transparent")
-    : (backgroundColor ?? colors["color-primary-500"]);
+    : (backgroundColor ?? colors.accent);
   const buttonTextColor = isText
-    ? (color ?? colors["color-primary-500"])
+    ? (color ?? colors.accent)
     : (color ?? colors.textInverse);
 
   const bounceStyle = useAnimatedStyle(() => ({

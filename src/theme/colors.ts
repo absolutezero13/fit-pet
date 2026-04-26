@@ -1,6 +1,5 @@
 import eva from "@eva-design/eva";
 
-// Base colors that are shared between themes
 const baseColors = {
   ...eva,
   "color-success-50": "#E8F5E9",
@@ -42,7 +41,6 @@ const baseColors = {
   "color-danger-900": "#490414",
 };
 
-// Light theme colors (original colors)
 export const lightColors = {
   ...baseColors,
   "color-primary-50": "#F5F7FA",
@@ -55,7 +53,6 @@ export const lightColors = {
   "color-primary-700": "#0F1323",
   "color-primary-800": "#090D1C",
   "color-primary-900": "#050817",
-  // Semantic colors for light theme
   background: "#E2E9F4",
   backgroundSecondary: "#F5F7FA",
   surface: "#FFFFFF",
@@ -67,37 +64,13 @@ export const lightColors = {
   shadow: "#000000",
   skeleton: "#C7D4EA",
   white: "#FFFFFF",
+  accent: "#11873A",
+  accentSoft: "#11873A22",
 };
 
-// Dark theme colors (dark blue dominated)
-export const darkColors = {
-  ...baseColors,
-  "color-primary-50": "#050817",
-  "color-primary-100": "#0F1323",
-  "color-primary-200": "#161B2A",
-  "color-primary-300": "#1F2431",
-  "color-primary-400": "#96A4C1",
-  "color-primary-500": "#E2E9F4",
-  "color-primary-600": "#F5F7FA",
-  "color-primary-700": "#FFFFFF",
-  "color-primary-800": "#FFFFFF",
-  "color-primary-900": "#FFFFFF",
-  // Semantic colors for dark theme
-  background: "#0A1628",
-  backgroundSecondary: "#0F1D32",
-  surface: "#162A46",
-  text: "#FFFFFF",
-  textSecondary: "#96A4C1",
-  textTertiary: "#5F6A83",
-  textInverse: "#1F2431",
-  border: "#1F3A5F",
-  shadow: "#000000",
-  skeleton: "#1F3A5F",
-  white: "#FFFFFF",
-};
+export type ThemeColors = typeof lightColors;
 
-// Dark gray theme — black
-export const darkGrayColors = {
+const onyxColors: ThemeColors = {
   ...baseColors,
   "color-primary-50": "#000000",
   "color-primary-100": "#0A0A0A",
@@ -109,28 +82,24 @@ export const darkGrayColors = {
   "color-primary-700": "#FAFAFA",
   "color-primary-800": "#FFFFFF",
   "color-primary-900": "#FFFFFF",
-  // Success — brighter green on dark, dark tint for backgrounds
   "color-success-100": "#0D2E18",
   "color-success-200": "#134D24",
   "color-success-300": "#1A6B30",
   "color-success-400": "#4CAF70",
   "color-success-500": "#4CAF70",
   "color-success-600": "#3DBE6E",
-  // Info — brighter teal on dark
   "color-info-100": "#072A33",
   "color-info-200": "#0C3F4D",
   "color-info-300": "#105566",
   "color-info-400": "#36B9CF",
   "color-info-500": "#36B9CF",
   "color-info-600": "#2AABCF",
-  // Warning — brighter yellow on dark
   "color-warning-100": "#2A2200",
   "color-warning-200": "#3D3200",
   "color-warning-300": "#514200",
   "color-warning-400": "#D4A800",
   "color-warning-500": "#D4A800",
   "color-warning-600": "#C49B00",
-  // Danger — brighter red on dark
   "color-danger-100": "#2A0D0A",
   "color-danger-200": "#3D1210",
   "color-danger-300": "#5C1A17",
@@ -148,13 +117,144 @@ export const darkGrayColors = {
   shadow: "#000000",
   skeleton: "#1A1A1A",
   white: "#FFFFFF",
+  accent: "#4CAF70",
+  accentSoft: "#4CAF7022",
 };
 
-export type ThemeColors = typeof lightColors;
-export type ThemeMode = "light" | "dark";
+const midnightGoldColors: ThemeColors = {
+  ...onyxColors,
+  background: "#100A02",
+  backgroundSecondary: "#1A1206",
+  surface: "#2B2113",
+  border: "#5C4520",
+  text: "#F8EFD6",
+  textSecondary: "#B59E73",
+  textTertiary: "#7A6840",
+  skeleton: "#2B2113",
+  accent: "#E5B454",
+  accentSoft: "#E5B45422",
+};
 
-// Default export for backward compatibility
-export const colors = darkGrayColors;
+const noirRoseColors: ThemeColors = {
+  ...onyxColors,
+  background: "#13070B",
+  backgroundSecondary: "#1C0A10",
+  surface: "#2E1820",
+  border: "#5C2A38",
+  text: "#FBE6EC",
+  textSecondary: "#B98792",
+  textTertiary: "#7A5260",
+  skeleton: "#2E1820",
+  accent: "#E5677A",
+  accentSoft: "#E5677A22",
+};
+
+const deepOceanColors: ThemeColors = {
+  ...onyxColors,
+  background: "#031026",
+  backgroundSecondary: "#061838",
+  surface: "#0F2548",
+  border: "#1F4377",
+  text: "#E1ECF8",
+  textSecondary: "#7494C0",
+  textTertiary: "#445E85",
+  skeleton: "#0F2548",
+  accent: "#36B9CF",
+  accentSoft: "#36B9CF22",
+};
+
+const violetDuskColors: ThemeColors = {
+  ...onyxColors,
+  background: "#0C051E",
+  backgroundSecondary: "#150932",
+  surface: "#241644",
+  border: "#3F2980",
+  text: "#EDE0FB",
+  textSecondary: "#9F8AC8",
+  textTertiary: "#604E80",
+  skeleton: "#241644",
+  accent: "#B388FF",
+  accentSoft: "#B388FF22",
+};
+
+export enum ThemeId {
+  Onyx = "onyx",
+  MidnightGold = "midnight-gold",
+  NoirRose = "noir-rose",
+  DeepOcean = "deep-ocean",
+  VioletDusk = "violet-dusk",
+  Ivory = "ivory",
+}
+
+type ThemeDefinition = {
+  id: ThemeId;
+  nameKey: string;
+  colors: ThemeColors;
+  isDark: boolean;
+  swatch: { background: string; accent: string };
+};
+
+export const themes: Record<ThemeId, ThemeDefinition> = {
+  [ThemeId.Onyx]: {
+    id: ThemeId.Onyx,
+    nameKey: "themeOnyx",
+    colors: onyxColors,
+    isDark: true,
+    swatch: { background: onyxColors.background, accent: onyxColors.accent },
+  },
+  [ThemeId.MidnightGold]: {
+    id: ThemeId.MidnightGold,
+    nameKey: "themeMidnightGold",
+    colors: midnightGoldColors,
+    isDark: true,
+    swatch: {
+      background: midnightGoldColors.background,
+      accent: midnightGoldColors.accent,
+    },
+  },
+  [ThemeId.NoirRose]: {
+    id: ThemeId.NoirRose,
+    nameKey: "themeNoirRose",
+    colors: noirRoseColors,
+    isDark: true,
+    swatch: {
+      background: noirRoseColors.background,
+      accent: noirRoseColors.accent,
+    },
+  },
+  [ThemeId.DeepOcean]: {
+    id: ThemeId.DeepOcean,
+    nameKey: "themeDeepOcean",
+    colors: deepOceanColors,
+    isDark: true,
+    swatch: {
+      background: deepOceanColors.background,
+      accent: deepOceanColors.accent,
+    },
+  },
+  [ThemeId.VioletDusk]: {
+    id: ThemeId.VioletDusk,
+    nameKey: "themeVioletDusk",
+    colors: violetDuskColors,
+    isDark: true,
+    swatch: {
+      background: violetDuskColors.background,
+      accent: violetDuskColors.accent,
+    },
+  },
+  [ThemeId.Ivory]: {
+    id: ThemeId.Ivory,
+    nameKey: "themeIvory",
+    colors: lightColors,
+    isDark: false,
+    swatch: { background: lightColors.background, accent: lightColors.accent },
+  },
+};
+
+export const DEFAULT_THEME_ID: ThemeId = ThemeId.Onyx;
+
+export const darkGrayColors = onyxColors;
+export const colors = onyxColors;
 
 export const macroColors = {
   calories: "#F5A623",

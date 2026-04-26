@@ -3,7 +3,6 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -35,6 +34,8 @@ import ToneSettingsSheet from "./components/ToneSettingsSheet";
 import GoalsSettingsSheet from "./components/GoalsSettingsSheet";
 import NotificationSettingsSheet from "./components/NotificationSettingsSheet";
 import SettingsActionRow from "./components/SettingsActionRow";
+import ThemeSelectionSheet from "./components/ThemeSelectionSheet";
+import { themes } from "../../theme/colors";
 
 type LanguageOption = { code: string; name: string; localName: string };
 
@@ -48,7 +49,7 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const authService = useAuthService();
   const { top, bottom } = useSafeAreaInsets();
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors, isDark, theme } = useTheme();
   const user = useUserStore();
   const aiTone = usePreferencesStore((state) => state.aiTone);
   const setAiTone = usePreferencesStore((state) => state.setAiTone);
@@ -93,10 +94,6 @@ const SettingsScreen = () => {
 
   const handleItemPress = (sheetName: string) => {
     TrueSheet.present(sheetName);
-  };
-
-  const handleThemeToggle = () => {
-    toggleTheme();
   };
 
   const handleSaveTone = (tone: AITone) => {
@@ -245,20 +242,11 @@ const SettingsScreen = () => {
             colors={colors}
           /> */}
           <SettingsActionRow
-            icon={isDark ? "weather-night" : "weather-sunny"}
-            title={t("darkMode")}
+            icon="palette-outline"
+            title={t("theme")}
+            value={t(themes[theme].nameKey)}
+            onPress={() => handleItemPress(TrueSheetNames.THEME_SELECTION)}
             colors={colors}
-            trailing={
-              <Switch
-                onValueChange={handleThemeToggle}
-                trackColor={{
-                  false: colors.border,
-                  true: colors["color-success-400"],
-                }}
-                value={isDark}
-                style={styles.switch}
-              />
-            }
           />
           <SettingsActionRow
             icon="translate"
@@ -335,6 +323,7 @@ const SettingsScreen = () => {
       </ScrollView>
 
       <NotificationSettingsSheet />
+      <ThemeSelectionSheet />
       <ToneSettingsSheet
         toneOptions={toneOptions}
         selectedTone={aiTone}
@@ -500,9 +489,6 @@ const styles = StyleSheet.create({
   },
   deleteRowTitle: {
     ...fontStyles.body1Bold,
-  },
-  switch: {
-    alignSelf: "center",
   },
 });
 

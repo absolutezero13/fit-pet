@@ -95,8 +95,12 @@ const LoginTrueSheet: React.FC<LoginTrueSheetProps> = ({ onLoginSuccess }) => {
 
   const handleSocialLogin = async (type: LoginType) => {
     setLoading(true);
-    const { success, user } = await authService.handleLogin(type);
+    const { success, user, cancelled } = await authService.handleLogin(type);
     setLoading(false);
+
+    if (cancelled) {
+      return;
+    }
 
     if (!success || !user) {
       Alert.alert(t("error"), t("globalErrorMessage"));

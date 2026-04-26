@@ -749,7 +749,7 @@ const CookScreen = () => {
       <AppButton
         title={t("cookOnboardingCta")}
         onPress={() => setViewState("allergen")}
-        backgroundColor={colors["color-success-400"]}
+        backgroundColor={colors.accent}
       />
     </Animated.View>
   );
@@ -800,10 +800,10 @@ const CookScreen = () => {
                   styles.allergenChip,
                   {
                     backgroundColor: isSelected
-                      ? colors["color-success-400"]
+                      ? colors.accent
                       : colors.backgroundSecondary,
                     borderColor: isSelected
-                      ? colors["color-success-400"]
+                      ? colors.accent
                       : colors.border,
                   },
                 ]}
@@ -825,7 +825,7 @@ const CookScreen = () => {
         <AppButton
           title={t("cookAllergenContinue")}
           onPress={() => submitAllergens()}
-          backgroundColor={colors["color-success-400"]}
+          backgroundColor={colors.accent}
         />
       </View>
     </Animated.View>
@@ -869,10 +869,10 @@ const CookScreen = () => {
                   styles.allergenChip,
                   {
                     backgroundColor: isSelected
-                      ? colors["color-success-400"]
+                      ? colors.accent
                       : colors.backgroundSecondary,
                     borderColor: isSelected
-                      ? colors["color-success-400"]
+                      ? colors.accent
                       : colors.border,
                   },
                 ]}
@@ -892,7 +892,7 @@ const CookScreen = () => {
         <AppButton
           title={t("cookKitchenContinue")}
           onPress={submitKitchenEquipment}
-          backgroundColor={colors["color-success-400"]}
+          backgroundColor={colors.accent}
         />
       </View>
     </Animated.View>
@@ -923,7 +923,7 @@ const CookScreen = () => {
       <AppButton
         title={t("cookStartPlanning")}
         onPress={submitSeed}
-        backgroundColor={colors["color-success-400"]}
+        backgroundColor={colors.accent}
       />
 
       <TouchableOpacity
@@ -1087,7 +1087,7 @@ const CookScreen = () => {
                 <AppButton
                   title={t("cookContinue")}
                   onPress={() => submitFollowUp()}
-                  backgroundColor={colors["color-success-400"]}
+                  backgroundColor={colors.accent}
                 />
               </>
             ) : (
@@ -1110,7 +1110,7 @@ const CookScreen = () => {
                 <AppButton
                   title={t("cookContinue")}
                   onPress={() => submitFollowUp()}
-                  backgroundColor={colors["color-success-400"]}
+                  backgroundColor={colors.accent}
                 />
               </>
             )}
@@ -1185,7 +1185,7 @@ const CookScreen = () => {
             resetCookFlow();
           }
         }}
-        backgroundColor={colors["color-success-400"]}
+        backgroundColor={colors.accent}
       />
     </Animated.View>
   );
@@ -1238,7 +1238,7 @@ const CookScreen = () => {
       {isImmersiveMode ? (
         <View style={[styles.immersiveTopBar, { paddingTop: top + scale(8) }]}>
           <LinearGradient
-            colors={[`${colors["color-success-400"]}24`, `${colors.surface}00`]}
+            colors={[`${colors.accent}24`, `${colors.surface}00`]}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
             style={styles.immersiveTitleWrap}
@@ -1259,7 +1259,7 @@ const CookScreen = () => {
                 {
                   backgroundColor: isLiquidGlassSupported
                     ? undefined
-                    : colors["color-success-400"],
+                    : colors.accent,
                 },
               ]}
             >
