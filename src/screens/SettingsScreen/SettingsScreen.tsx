@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../components/TrueSheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
@@ -92,7 +92,7 @@ const SettingsScreen = () => {
     navigation.goBack();
   };
 
-  const handleItemPress = (sheetName: string) => {
+  const handleItemPress = (sheetName: TrueSheetNames) => {
     TrueSheet.present(sheetName);
   };
 

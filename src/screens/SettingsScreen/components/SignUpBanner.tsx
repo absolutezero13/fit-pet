@@ -3,7 +3,7 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { colors } from "../../../theme/colors";
 import { scale } from "../../../theme/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { t } from "i18next";
 import { useTheme } from "../../../theme/ThemeContext";

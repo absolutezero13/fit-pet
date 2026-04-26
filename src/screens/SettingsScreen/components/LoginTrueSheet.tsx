@@ -1,4 +1,9 @@
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import {
+  SheetScrollView,
+  SheetTextInput,
+  TrueSheet,
+  type FocusableInput,
+} from "../../../components/TrueSheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../../theme/utils";
@@ -9,7 +14,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -42,7 +46,7 @@ const LoginTrueSheet: React.FC<LoginTrueSheetProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const disabled = !email || !password || password.length < 6;
-  const emailInputRef = useRef<TextInput>(null);
+  const emailInputRef = useRef<FocusableInput | null>(null);
   const [loading, setLoading] = useState(false);
 
   const styles = makeStyles(colors);
@@ -142,6 +146,128 @@ const LoginTrueSheet: React.FC<LoginTrueSheetProps> = ({ onLoginSuccess }) => {
     setLoading(false);
   };
 
+  const handleSignUpPress = async () => {
+    await TrueSheet.dismiss(TrueSheetNames.LOGIN);
+    TrueSheet.present(TrueSheetNames.SIGN_UP);
+  };
+
+  const loginOptionsContent = (
+    <View style={styles.buttonsContainer}>
+      {loginOptions.map((option) => (
+        <Pressable
+          key={option.type}
+          onPress={option.onPress}
+          style={[
+            styles.loginButton,
+            { opacity: option.disabled ? 0.5 : 1 },
+          ]}
+          disabled={option.disabled}
+        >
+          <MaterialCommunityIcons
+            name={option.icon as any}
+            size={scale(24)}
+            color={colors["color-primary-500"]}
+          />
+          <Text style={styles.loginButtonText}>{option.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+
+  const emailFormContent = (
+    <>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>{t("email")}</Text>
+        <SheetTextInput
+          ref={emailInputRef}
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder={t("enterEmail")}
+          placeholderTextColor={colors["color-primary-300"]}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>{t("password")}</Text>
+        <SheetTextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder={t("enterPassword")}
+          placeholderTextColor={colors["color-primary-300"]}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+
+      <AppButton
+        title={t("logIn")}
+        onPress={handleEmailLogin}
+        backgroundColor={colors["color-primary-50"]}
+        color={colors["color-primary-500"]}
+        margin={{ marginTop: scale(8) }}
+        disabled={disabled}
+        loading={loading}
+      />
+    </>
+  );
+
+  const content = (
+    <>
+      <View style={styles.header}>
+        {showEmailForm && (
+          <Pressable
+            onPress={() => setShowEmailForm(false)}
+            style={styles.backButton}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={scale(24)}
+              color={colors["color-primary-500"]}
+            />
+          </Pressable>
+        )}
+        <Text style={styles.title}>{t("loginTitle")}</Text>
+        {!showEmailForm && <Text style={styles.subtitle}>{t("loginSubtitle")}</Text>}
+      </View>
+
+      {!showEmailForm ? (
+        Platform.OS === "ios" ? (
+          <KeyboardGestureArea
+            interpolator="ios"
+            offset={scale(50)}
+            textInputNativeID="composer"
+            style={{
+              flex: 1,
+            }}
+          >
+            {loginOptionsContent}
+          </KeyboardGestureArea>
+        ) : (
+          loginOptionsContent
+        )
+      ) : Platform.OS === "ios" ? (
+        <View style={styles.emailFormContainer}>{emailFormContent}</View>
+      ) : (
+        emailFormContent
+      )}
+
+      <View style={styles.footer}>
+        <View style={styles.footerTextContainer}>
+          <Text style={styles.footerText}>{t("noAccountYet")} </Text>
+          <TouchableOpacity onPress={handleSignUpPress}>
+            <Text style={styles.signUpLink}>{t("signUp")}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
+  );
+
   return (
     <TrueSheet
       onDidDismiss={onDidDismiss}
@@ -149,121 +275,28 @@ const LoginTrueSheet: React.FC<LoginTrueSheetProps> = ({ onLoginSuccess }) => {
       detents={["auto", 1]}
       insetAdjustment="never"
       blurTint={isDark ? "system-thick-material-dark" : "system-thick-material-light"}
-      style={styles.container}
       dismissible={!loading}
       backgroundColor={colors.background}
+      keyboardBehavior={Platform.OS === "android" ? "fillParent" : undefined}
+      scrollable={Platform.OS === "android"}
     >
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors["color-primary-500"]} />
         </View>
       )}
-      {!loading && (
-        <>
-          <View style={styles.header}>
-            {showEmailForm && (
-              <Pressable
-                onPress={() => setShowEmailForm(false)}
-                style={styles.backButton}
-              >
-                <MaterialCommunityIcons
-                  name="arrow-left"
-                  size={scale(24)}
-                  color={colors["color-primary-500"]}
-                />
-              </Pressable>
-            )}
-            <Text style={styles.title}>{t("loginTitle")}</Text>
-            {!showEmailForm && (
-              <Text style={styles.subtitle}>{t("loginSubtitle")}</Text>
-            )}
-          </View>
-
-          {!showEmailForm ? (
-            <KeyboardGestureArea
-              interpolator="ios"
-              offset={scale(50)}
-              textInputNativeID="composer"
-              style={{
-                flex: 1,
-              }}
-            >
-              <View style={styles.buttonsContainer}>
-                {loginOptions.map((option) => (
-                  <Pressable
-                    key={option.type}
-                    onPress={option.onPress}
-                    style={[
-                      styles.loginButton,
-                      { opacity: option.disabled ? 0.5 : 1 },
-                    ]}
-                    disabled={option.disabled}
-                  >
-                    <MaterialCommunityIcons
-                      name={option.icon as any}
-                      size={scale(24)}
-                      color={colors["color-primary-500"]}
-                    />
-                    <Text style={styles.loginButtonText}>{option.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </KeyboardGestureArea>
-          ) : (
-            <View style={styles.emailFormContainer}>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t("email")}</Text>
-                <TextInput
-                  ref={emailInputRef}
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder={t("enterEmail")}
-                  placeholderTextColor={colors["color-primary-300"]}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t("password")}</Text>
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder={t("enterPassword")}
-                  placeholderTextColor={colors["color-primary-300"]}
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              <AppButton
-                title={t("logIn")}
-                onPress={handleEmailLogin}
-                backgroundColor={colors["color-primary-50"]}
-                color={colors["color-primary-500"]}
-                margin={{ marginTop: scale(8) }}
-                disabled={disabled}
-                loading={loading}
-              />
-            </View>
-          )}
-
-          <View style={styles.footer}>
-            <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>{t("noAccountYet")} </Text>
-              <TouchableOpacity
-                onPress={() => TrueSheet.dismiss(TrueSheetNames.LOGIN)}
-              >
-                <Text style={styles.signUpLink}>{t("signUp")}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </>
-      )}
+      {!loading &&
+        (Platform.OS === "android" ? (
+          <SheetScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.container}
+          >
+            {content}
+          </SheetScrollView>
+        ) : (
+          <View style={styles.container}>{content}</View>
+        ))}
     </TrueSheet>
   );
 };

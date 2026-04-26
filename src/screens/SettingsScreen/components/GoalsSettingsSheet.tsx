@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { TrueSheetNames } from "../../../navigation/constants";
@@ -53,9 +53,7 @@ const GoalOptionCard = ({
           style={[
             styles.goalIconWrap,
             {
-              backgroundColor: isSelected
-                ? colors.accent
-                : colors.surface,
+              backgroundColor: isSelected ? colors.accent : colors.surface,
             },
           ]}
         >
@@ -75,10 +73,7 @@ const GoalOptionCard = ({
 
       {isSelected ? (
         <View
-          style={[
-            styles.selectionCheck,
-            { backgroundColor: colors.accent },
-          ]}
+          style={[styles.selectionCheck, { backgroundColor: colors.accent }]}
         >
           <Ionicons
             name="checkmark"
@@ -171,13 +166,7 @@ const GoalsSettingsSheet = () => {
 const styles = StyleSheet.create({
   card: {
     borderRadius: scale(28),
-    elevation: 6,
     padding: scale(18),
-    shadowOffset: {
-      width: 0,
-      height: scale(6),
-    },
-    shadowRadius: scale(18),
   },
   goalsGrid: {
     gap: scale(10),

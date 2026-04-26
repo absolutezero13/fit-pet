@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { TrueSheetNames } from "../../../navigation/constants";
@@ -139,10 +139,7 @@ export default ThemeSelectionSheet;
 const styles = StyleSheet.create({
   card: {
     borderRadius: scale(28),
-    elevation: 6,
     padding: scale(18),
-    shadowOffset: { width: 0, height: scale(6) },
-    shadowRadius: scale(18),
     width: "100%",
   },
   list: {

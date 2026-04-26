@@ -173,7 +173,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         useOnboardingStore.getState(),
         "",
         selectedMealType,
-        new Date(props.params.selectedDate).toLocaleDateString("en-US"),
       );
       const response = await createGeminiVisionCompletion(
         {

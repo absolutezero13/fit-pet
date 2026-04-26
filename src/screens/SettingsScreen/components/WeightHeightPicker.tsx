@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { Picker } from "@react-native-picker/picker";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
@@ -148,6 +148,7 @@ const WeightHeightPicker: FC = () => {
       <View style={styles.selectionIndicator} pointerEvents="none" />
       <ScrollView
         ref={scrollRef}
+        nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"

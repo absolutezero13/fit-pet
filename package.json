@@ -19,6 +19,7 @@
     "@expo/metro-runtime": "~6.1.2",
     "@expo/ui": "~0.2.0-beta.7",
     "@google/generative-ai": "0.24.0",
+    "@gorhom/bottom-sheet": "^5.2.10",
     "@invertase/react-native-apple-authentication": "2.5.0",
     "@lodev09/react-native-true-sheet": "3.5.8",
     "@notifee/react-native": "^9.1.8",

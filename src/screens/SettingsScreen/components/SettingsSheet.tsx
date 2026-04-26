@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { useTheme } from "../../../theme/ThemeContext";
 import { fontStyles } from "../../../theme/fontStyles";

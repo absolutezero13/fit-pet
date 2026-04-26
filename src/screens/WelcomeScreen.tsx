@@ -26,7 +26,8 @@ import userService from "../services/user";
 import { getAuth } from "@react-native-firebase/auth";
 import { IUser } from "../zustand/useUserStore";
 import LoginTrueSheet from "./SettingsScreen/components/LoginTrueSheet";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import SignUpTrueSheet from "./SettingsScreen/components/SignUpTrueSheet";
+import { TrueSheet } from "../components/TrueSheet";
 import { TrueSheetNames } from "../navigation/constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -274,6 +275,7 @@ const WelcomeScreen: FC = () => {
       </Animated.View>
 
       <LoginTrueSheet />
+      <SignUpTrueSheet />
     </View>
   );
 };

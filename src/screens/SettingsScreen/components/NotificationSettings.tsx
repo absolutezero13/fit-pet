@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import { TrueSheet } from "../../../components/TrueSheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { TrueSheetNames } from "../../../navigation/constants";
@@ -397,7 +397,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: scale(28),
-    elevation: 6,
     padding: scale(18),
     width: "100%",
     shadowOffset: {
@@ -438,8 +437,8 @@ const styles = StyleSheet.create({
     marginTop: scale(2),
   },
   mealCardsWrap: {
-    gap: scale(12),
-    paddingTop: scale(16),
+    gap: scale(10),
+    paddingTop: scale(14),
   },
   groupLabel: {
     ...fontStyles.body2,
@@ -447,9 +446,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   mealCard: {
-    borderRadius: scale(22),
+    borderRadius: scale(20),
     borderWidth: 1,
-    padding: scale(16),
+    padding: scale(14),
   },
   mealTopRow: {
     alignItems: "center",
@@ -464,41 +463,41 @@ const styles = StyleSheet.create({
   },
   iconWrap: {
     alignItems: "center",
-    borderRadius: scale(14),
-    height: scale(40),
+    borderRadius: scale(12),
+    height: scale(36),
     justifyContent: "center",
-    marginRight: scale(12),
-    width: scale(40),
+    marginRight: scale(10),
+    width: scale(36),
   },
   mealLabel: {
-    ...fontStyles.headline4,
+    ...fontStyles.body1,
     flexShrink: 1,
   },
   timeRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: scale(14),
+    marginTop: scale(12),
   },
   timeLabel: {
     ...fontStyles.body2,
   },
   timeControl: {
     alignItems: "center",
-    borderRadius: scale(18),
+    borderRadius: scale(16),
     flexDirection: "row",
-    gap: scale(8),
-    padding: scale(6),
+    gap: scale(6),
+    padding: scale(5),
   },
   timeButton: {
     alignItems: "center",
-    borderRadius: scale(14),
-    height: scale(40),
+    borderRadius: scale(12),
+    height: scale(36),
     justifyContent: "center",
-    width: scale(40),
+    width: scale(36),
   },
   timeValue: {
-    ...fontStyles.headline4,
+    ...fontStyles.body1,
     fontVariant: ["tabular-nums"],
     minWidth: scale(68),
     textAlign: "center",

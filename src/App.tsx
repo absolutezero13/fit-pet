@@ -41,6 +41,8 @@ import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
+import TrueSheetProvider from "./components/TrueSheet/TrueSheetProvider";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const AMPLITUDE_API_KEY = "6fe402b8cb00cc133cbd85e986b37342";
 
@@ -82,11 +84,15 @@ const AppShell = ({ onReady }: { onReady: () => Promise<void> }) => {
   return (
     <>
       <StatusBar style={isDark ? "light" : "dark"} translucent />
-      <KeyboardProvider>
-        <NavigationContainer onReady={onReady} theme={navigationTheme}>
-          <RootNavigator />
-        </NavigationContainer>
-      </KeyboardProvider>
+      <SafeAreaProvider>
+        <KeyboardProvider>
+          <TrueSheetProvider>
+            <NavigationContainer onReady={onReady} theme={navigationTheme}>
+              <RootNavigator />
+            </NavigationContainer>
+          </TrueSheetProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
     </>
   );
 };

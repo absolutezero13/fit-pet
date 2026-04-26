@@ -1,4 +1,9 @@
-import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import {
+  SheetScrollView,
+  SheetTextInput,
+  TrueSheet,
+  type FocusableInput,
+} from "../../../components/TrueSheet";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { scale } from "../../../theme/utils";
@@ -8,7 +13,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -34,7 +39,7 @@ const SignUpTrueSheet = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const disabled =
     !email || !password || !confirmPassword || password.length < 6;
-  const emailInputRef = useRef<TextInput>(null);
+  const emailInputRef = useRef<FocusableInput | null>(null);
   const [loading, setLoading] = useState(false);
   const styles = makeStyles(colors);
 
@@ -103,22 +108,93 @@ const SignUpTrueSheet = () => {
     setLoading(false);
   };
 
-  return (
-    <TrueSheet
-      onDidDismiss={onDidDismiss}
-      name={TrueSheetNames.SIGN_UP}
-      detents={["auto", 1]}
-      insetAdjustment="never"
-      blurTint={
-        isDark ? "system-thick-material-dark" : "system-thick-material-light"
-      }
-      style={styles.container}
-      backgroundColor={colors.background}
-      dismissible={!loading}
-      blurOptions={{
-        interaction: false,
-      }}
-    >
+  const handleLoginPress = async () => {
+    await TrueSheet.dismiss(TrueSheetNames.SIGN_UP);
+    TrueSheet.present(TrueSheetNames.LOGIN);
+  };
+
+  const signUpOptionsContent = (
+    <View style={styles.buttonsContainer}>
+      {signUpOptions.map((option) => (
+        <Pressable
+          key={option.type}
+          onPress={option.onPress}
+          style={[
+            styles.googleButton,
+            { opacity: option.disabled ? 0.5 : 1 },
+          ]}
+          disabled={option.disabled}
+        >
+          <MaterialCommunityIcons
+            name={option.icon as any}
+            size={scale(24)}
+            color={colors["color-primary-500"]}
+          />
+          <Text style={styles.googleButtonText}>{option.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+
+  const emailFormContent = (
+    <>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>{t("email")}</Text>
+        <SheetTextInput
+          ref={emailInputRef}
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder={t("enterEmail")}
+          placeholderTextColor={colors.textTertiary}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>{t("password")}</Text>
+        <SheetTextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder={t("enterPassword")}
+          placeholderTextColor={colors.textTertiary}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>{t("confirmPassword")}</Text>
+        <SheetTextInput
+          style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder={t("confirmYourPassword")}
+          placeholderTextColor={colors.textTertiary}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+
+      <AppButton
+        title={t("signUp")}
+        onPress={handleEmailSignUp}
+        backgroundColor={colors["color-primary-50"]}
+        color={colors["color-primary-500"]}
+        margin={{ marginTop: scale(8) }}
+        disabled={disabled}
+        loading={loading}
+      />
+    </>
+  );
+
+  const content = (
+    <>
       <View style={styles.header}>
         {showEmailForm && (
           <Pressable
@@ -133,110 +209,75 @@ const SignUpTrueSheet = () => {
           </Pressable>
         )}
         <Text style={styles.title}>{t("signUpTitle")}</Text>
-        {!showEmailForm && (
-          <Text style={styles.subtitle}>{t("signUpSubtitle")}</Text>
-        )}
+        {!showEmailForm && <Text style={styles.subtitle}>{t("signUpSubtitle")}</Text>}
       </View>
 
       {!showEmailForm ? (
-        <KeyboardGestureArea
-          interpolator="ios"
-          offset={scale(50)}
-          textInputNativeID="composer"
-          style={{
-            flex: 1,
-          }}
-        >
-          <View style={styles.buttonsContainer}>
-            {signUpOptions.map((option) => (
-              <Pressable
-                key={option.type}
-                onPress={option.onPress}
-                style={[
-                  styles.googleButton,
-                  { opacity: option.disabled ? 0.5 : 1 },
-                ]}
-                disabled={option.disabled}
-              >
-                <MaterialCommunityIcons
-                  name={option.icon as any}
-                  size={scale(24)}
-                  color={colors["color-primary-500"]}
-                />
-                <Text style={styles.googleButtonText}>{option.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </KeyboardGestureArea>
+        Platform.OS === "ios" ? (
+          <KeyboardGestureArea
+            interpolator="ios"
+            offset={scale(50)}
+            textInputNativeID="composer"
+            style={{
+              flex: 1,
+            }}
+          >
+            {signUpOptionsContent}
+          </KeyboardGestureArea>
+        ) : (
+          signUpOptionsContent
+        )
+      ) : Platform.OS === "ios" ? (
+        <View style={styles.emailFormContainer}>{emailFormContent}</View>
       ) : (
-        <View style={styles.emailFormContainer}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("email")}</Text>
-            <TextInput
-              ref={emailInputRef}
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder={t("enterEmail")}
-              placeholderTextColor={colors.textTertiary}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("password")}</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t("enterPassword")}
-              placeholderTextColor={colors.textTertiary}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>{t("confirmPassword")}</Text>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder={t("confirmYourPassword")}
-              placeholderTextColor={colors.textTertiary}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <AppButton
-            title={t("signUp")}
-            onPress={handleEmailSignUp}
-            backgroundColor={colors["color-primary-50"]}
-            color={colors["color-primary-500"]}
-            margin={{ marginTop: scale(8) }}
-            disabled={disabled}
-            loading={loading}
-          />
-        </View>
+        emailFormContent
       )}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          {t("alreadyHaveAccount")}{" "}
-          <Text style={styles.loginLink}>{t("logIn")}</Text>
-        </Text>
+        <View style={styles.footerTextContainer}>
+          <Text style={styles.footerText}>{t("alreadyHaveAccount")}{" "}</Text>
+          <TouchableOpacity onPress={handleLoginPress}>
+            <Text style={styles.loginLink}>{t("logIn")}</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.termsText}>
-          {t("termsAgreement")}{" "}
-          <Text style={styles.termsLink}>{t("termsOfService")}</Text> {t("and")}{" "}
+          {t("termsAgreement")} {" "}
+          <Text style={styles.termsLink}>{t("termsOfService")}</Text> {t("and")} {" "}
           <Text style={styles.termsLink}>{t("privacyPolicy")}</Text>
           {t("termsAgreementEnd")}
         </Text>
       </View>
+    </>
+  );
+
+  return (
+    <TrueSheet
+      onDidDismiss={onDidDismiss}
+      name={TrueSheetNames.SIGN_UP}
+      detents={["auto", 1]}
+      insetAdjustment="never"
+      blurTint={
+        isDark ? "system-thick-material-dark" : "system-thick-material-light"
+      }
+      backgroundColor={colors.background}
+      dismissible={!loading}
+      keyboardBehavior={Platform.OS === "android" ? "fillParent" : undefined}
+      scrollable={Platform.OS === "android"}
+      blurOptions={{
+        interaction: false,
+      }}
+    >
+      {Platform.OS === "android" ? (
+        <SheetScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+        >
+          {content}
+        </SheetScrollView>
+      ) : (
+        <View style={styles.container}>{content}</View>
+      )}
     </TrueSheet>
   );
 };
@@ -295,6 +336,10 @@ const makeStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
     footer: {
       alignItems: "center",
       gap: scale(12),
+    },
+    footerTextContainer: {
+      alignItems: "center",
+      flexDirection: "row",
     },
     footerText: {
       ...fontStyles.body2,
