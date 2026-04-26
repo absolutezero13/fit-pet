@@ -3,7 +3,6 @@ import { OnboardingStore } from "../zustand/useOnboardingStore";
 
 export interface PersistedCookRecipe {
   recipe: import("../services/apiTypes").CookRecipe;
-  imageUrl: string | null;
   savedAt: string;
 }
 

@@ -9,7 +9,6 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LiquidGlassView } from "@callstack/liquid-glass";
-import FastImage from "react-native-fast-image";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../theme/ThemeContext";
@@ -53,25 +52,27 @@ const MyRecipesScreen: FC = () => {
 
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate("CookRecipe", { recipe: item.recipe })}
+        onPress={() =>
+          navigation.navigate("CookRecipe", {
+            recipe: item.recipe,
+          })
+        }
         style={[styles.row, { backgroundColor: colors.surface }]}
         activeOpacity={0.7}
       >
-        {item.imageUrl ? (
-          <FastImage
-            source={{ uri: item.imageUrl }}
-            style={styles.thumb}
-            resizeMode={FastImage.resizeMode.cover}
+        <View
+          style={[
+            styles.thumb,
+            styles.thumbPlaceholder,
+            { backgroundColor: colors.backgroundSecondary },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="chef-hat"
+            size={scale(28)}
+            color={colors.accent}
           />
-        ) : (
-          <View style={[styles.thumb, styles.thumbPlaceholder, { backgroundColor: colors.backgroundSecondary }]}>
-            <MaterialCommunityIcons
-              name="chef-hat"
-              size={scale(28)}
-              color={colors["color-success-500"]}
-            />
-          </View>
-        )}
+        </View>
         <View style={styles.rowInfo}>
           <Text
             style={[styles.rowTitle, { color: colors.text }]}

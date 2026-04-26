@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,6 @@ import { scale } from "../../../theme/utils";
 
 interface CookCandidateCardProps {
   recipe: CookRecipe;
-  imageUrl?: string | null;
   index?: number;
   isRefreshing: boolean;
   activeVariation: string | null;
@@ -29,7 +28,6 @@ interface CookCandidateCardProps {
 
 const CookCandidateCard = ({
   recipe,
-  imageUrl,
   index = 0,
   isRefreshing,
   activeVariation,
@@ -135,14 +133,6 @@ const CookCandidateCard = ({
               </Text>
             </View>
           </LinearGradient>
-
-          {imageUrl ? (
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.recipeImage}
-              resizeMode="cover"
-            />
-          ) : null}
 
           <Pressable
             disabled={isRefreshing}
@@ -478,12 +468,6 @@ const styles = StyleSheet.create({
   },
   shimmerGradient: {
     flex: 1,
-  },
-  recipeImage: {
-    width: "100%",
-    height: scale(200),
-    borderRadius: scale(18),
-    overflow: "hidden",
   },
   cookButton: {
     flexDirection: "row",

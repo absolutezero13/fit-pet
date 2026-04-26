@@ -185,21 +185,6 @@ export const swapRecipe = async (
   }
 };
 
-export const createGeminiImage = async (
-  content: string
-): Promise<{ data: string }> => {
-  try {
-    const res = await api.post("/chat/gemini-image", {
-      prompt: content,
-    });
-
-    return res.data;
-  } catch (error) {
-    console.log("GEMINI ERROR", error);
-    return error as any;
-  }
-};
-
 export const createCookCandidates = async (
   answers: CookPromptAnswers
 ): Promise<CookCandidateResponse> => {

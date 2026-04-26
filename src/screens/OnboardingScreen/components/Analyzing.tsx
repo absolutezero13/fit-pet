@@ -1,33 +1,33 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
-  withTiming,
   withSequence,
-  withDelay,
-  Easing,
-  runOnJS,
-  SlideInRight,
-  SlideOutLeft,
+  withTiming,
 } from "react-native-reanimated";
+import Svg, { Circle } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import { storageService } from "../../../storage/AsyncStorageService";
 import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
 import { scale, SCREEN_WIDTH } from "../../../theme/utils";
+import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
+import { createGeminiCompletion } from "../../../services/gptApi";
+import userService from "../../../services/user";
+import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import { MacroGoals } from "../../../zustand/useUserStore";
-import { createGeminiCompletion } from "../../../services/gptApi";
-import promptBuilder from "../../../utils/promptBuilder";
-import userService from "../../../services/user";
-import { getCrashlytics } from "@react-native-firebase/crashlytics";
-import { LinearGradient } from "expo-linear-gradient";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 
 const DEFAULT_MACRO_GOALS: MacroGoals = {
   calories: 2000,
@@ -36,62 +36,239 @@ const DEFAULT_MACRO_GOALS: MacroGoals = {
   fats: 30,
 };
 
-// Carousel slide duration in milliseconds (2.5 seconds)
-const SLIDE_DURATION = 2500;
-const TOTAL_SLIDES = 3;
-
+const TOTAL_DURATION = 7500;
+const PHASE_COUNT = 3;
+const PHASE_DURATION = TOTAL_DURATION / PHASE_COUNT;
+const PROGRESS_INTERVAL = 33;
 
 const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { colors } = useTheme();
-
-  const slideGradients: [string, string, string][] = [
-    [colors["color-info-100"], colors["color-info-200"], colors["color-info-300"]],
-    [colors["color-success-100"], colors["color-success-200"], colors["color-success-300"]],
-    [colors["color-warning-100"], colors["color-warning-200"], colors["color-warning-300"]],
-  ];
-  const [currentSlide, setCurrentSlide] = React.useState(0);
-  const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const updateUserCalled = useRef(false);
   const insets = useSafeAreaInsets();
-  // Get user data
-  const onboardingState = useOnboardingStore.getState();
-  const userAge =
-    new Date().getFullYear() - (onboardingState.yearOfBirth ?? 1990);
-  const userHeight = onboardingState.height ?? 170;
-  const userWeight = onboardingState.weight ?? 70;
 
-  // Carousel slide content with personalized messages (titles removed per feedback)
-  const slides = [
-    {
-      message: t("carouselMessage1", { age: userAge }),
-      gradient: slideGradients[0],
-      icon: "magnifying-glass" as const,
-      title: t("analyzing"),
-    },
-    {
-      message: t("carouselMessage2", { height: userHeight }),
-      gradient: slideGradients[1],
-      icon: "dumbbell" as const,
-      title: t("calculating"),
-    },
-    {
-      message: t("carouselMessage4"),
-      gradient: slideGradients[2],
-      icon: "bolt" as const,
-      title: t("optimizing"),
-    },
-  ];
+  const [displayProgress, setDisplayProgress] = useState(0);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isUpdateComplete, setIsUpdateComplete] = useState(false);
 
-  // Animation values
-  const progressWidth = useSharedValue(0);
-  const pulseScale = useSharedValue(1);
-  const iconRotation = useSharedValue(0);
-  // Animated dots for loading indicator
-  const dot1Opacity = useSharedValue(0.3);
-  const dot2Opacity = useSharedValue(0.3);
-  const dot3Opacity = useSharedValue(0.3);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const updateUserCalled = useRef(false);
+  const hasNavigated = useRef(false);
+  const isMountedRef = useRef(true);
+  const ringScale = useSharedValue(1);
+  const haloScale = useSharedValue(0.96);
+  const haloOpacity = useSharedValue(0.16);
+  const badgeLift = useSharedValue(0);
+  const badgeScale = useSharedValue(1);
+  const badgeRotation = useSharedValue(0);
+  const phaseOpacity = useSharedValue(1);
+  const phaseScale = useSharedValue(1);
+  const phaseTranslateY = useSharedValue(0);
+
+  const phases = useMemo(
+    () => [
+      {
+        label: t("analyzing"),
+        icon: "magnifying-glass" as const,
+        gradient: [
+          colors["color-info-100"],
+          colors["color-info-200"],
+          colors["color-info-300"],
+        ] as [string, string, string],
+      },
+      {
+        label: t("calculating"),
+        icon: "calculator" as const,
+        gradient: [
+          colors["color-success-100"],
+          colors["color-success-200"],
+          colors["color-success-300"],
+        ] as [string, string, string],
+      },
+      {
+        label: t("optimizing"),
+        icon: "bullseye" as const,
+        gradient: [
+          colors["color-warning-100"],
+          colors["color-warning-200"],
+          colors["color-warning-300"],
+        ] as [string, string, string],
+      },
+    ],
+    [colors, t],
+  );
+
+  const ringSize = Math.min(SCREEN_WIDTH - scale(48), scale(320));
+  const strokeWidth = scale(16);
+  const radius = (ringSize - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const innerSize = ringSize - strokeWidth * 2 - scale(18);
+  const currentPhase = phases[currentPhaseIndex] ?? phases[0];
+
+  const clearProgressInterval = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
+
+  const stopAmbientAnimations = () => {
+    cancelAnimation(ringScale);
+    cancelAnimation(haloScale);
+    cancelAnimation(haloOpacity);
+    cancelAnimation(badgeLift);
+    cancelAnimation(badgeScale);
+    cancelAnimation(badgeRotation);
+    cancelAnimation(phaseOpacity);
+    cancelAnimation(phaseScale);
+    cancelAnimation(phaseTranslateY);
+
+    ringScale.value = 1;
+    haloScale.value = 0.96;
+    haloOpacity.value = 0.16;
+    badgeLift.value = 0;
+    badgeScale.value = 1;
+    badgeRotation.value = 0;
+    phaseOpacity.value = 1;
+    phaseScale.value = 1;
+    phaseTranslateY.value = 0;
+  };
+
+  const startAmbientAnimations = () => {
+    ringScale.value = withRepeat(
+      withSequence(
+        withTiming(1.018, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(1, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+
+    haloScale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(0.97, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+
+    haloOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.28, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(0.14, {
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+
+    badgeLift.value = withRepeat(
+      withSequence(
+        withTiming(-scale(6), {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(0, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+
+    badgeScale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(1, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+
+    badgeRotation.value = withRepeat(
+      withSequence(
+        withTiming(4, {
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(-4, {
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(0, {
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ),
+      -1,
+      false,
+    );
+  };
+
+  const animatePhaseChange = () => {
+    phaseOpacity.value = 0.55;
+    phaseScale.value = 0.94;
+    phaseTranslateY.value = scale(10);
+
+    phaseOpacity.value = withTiming(1, {
+      duration: 280,
+      easing: Easing.out(Easing.cubic),
+    });
+    phaseScale.value = withTiming(1, {
+      duration: 320,
+      easing: Easing.out(Easing.cubic),
+    });
+    phaseTranslateY.value = withTiming(0, {
+      duration: 320,
+      easing: Easing.out(Easing.cubic),
+    });
+  };
+
+  const completeAnimation = () => {
+    if (!isMountedRef.current) {
+      return;
+    }
+
+    clearProgressInterval();
+    setDisplayProgress(100);
+    setCurrentPhaseIndex(PHASE_COUNT - 1);
+    setIsAnimationComplete(true);
+  };
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+
+      clearProgressInterval();
+      stopAmbientAnimations();
+    };
+  }, []);
 
   const updateUser = async () => {
     storageService.setItem("User", {
@@ -103,7 +280,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       console.log("user", useOnboardingStore.getState());
 
       const prompt = promptBuilder.createMacroGoalsPrompt(
-        useOnboardingStore.getState()
+        useOnboardingStore.getState(),
       );
       console.log("Prompt: ", prompt);
       const geminiRes = await createGeminiCompletion(prompt, "macroGoals");
@@ -112,16 +289,16 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
       console.log(
         "Gemini response: ",
-        geminiRes.response.candidates[0].content.parts
+        geminiRes.response.candidates[0].content.parts,
       );
 
       console.log(
         "Parsed macro goals: ",
-        JSON.parse(geminiRes.response.candidates[0].content.parts[0].text)
+        JSON.parse(geminiRes.response.candidates[0].content.parts[0].text),
       );
 
       macroGoals = JSON.parse(
-        geminiRes.response.candidates[0].content.parts[0].text
+        geminiRes.response.candidates[0].content.parts[0].text,
       );
     } catch (error) {
       console.log("Error generating macro goals:", error);
@@ -155,7 +332,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       proteins: Math.round(proteinPercentage),
       carbs: Math.round(carbsPercentage),
       fats: Math.round(fatsPercentage),
-      calories: calories,
+      calories,
     };
     console.log("last macro goals", calculatedGoals);
 
@@ -175,24 +352,9 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       dietTypes: onboardingState.dietTypes,
     });
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "HomeTabs" }],
-    });
-  };
-
-  const advanceSlide = () => {
-    setCurrentSlide((prev) => {
-      const nextSlide = prev + 1;
-      if (nextSlide >= TOTAL_SLIDES) {
-        if (!updateUserCalled.current) {
-          updateUserCalled.current = true;
-          updateUser();
-        }
-        return prev;
-      }
-      return nextSlide;
-    });
+    if (isMountedRef.current) {
+      setIsUpdateComplete(true);
+    }
   };
 
   useEffect(() => {
@@ -200,170 +362,188 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
       return;
     }
 
+    hasNavigated.current = false;
     updateUserCalled.current = false;
-    setCurrentSlide(0);
+    setDisplayProgress(0);
+    setCurrentPhaseIndex(0);
+    setIsAnimationComplete(false);
+    setIsUpdateComplete(false);
 
-    pulseScale.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1
-    );
+    clearProgressInterval();
+    stopAmbientAnimations();
+    startAmbientAnimations();
 
-    iconRotation.value = withRepeat(
-      withSequence(
-        withTiming(10, { duration: 500 }),
-        withTiming(-10, { duration: 500 }),
-        withTiming(0, { duration: 500 })
-      ),
-      -1
-    );
+    const startedAt = Date.now();
+    progressIntervalRef.current = setInterval(() => {
+      const elapsed = Math.min(Date.now() - startedAt, TOTAL_DURATION);
+      const nextProgress = Math.round((elapsed / TOTAL_DURATION) * 100);
+      const nextPhaseIndex = Math.min(
+        Math.floor(elapsed / PHASE_DURATION),
+        PHASE_COUNT - 1,
+      );
 
-    // Animated dots - sequential fade in/out
-    dot1Opacity.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 300 }),
-        withDelay(600, withTiming(0.3, { duration: 300 }))
-      ),
-      -1
-    );
-    dot2Opacity.value = withDelay(
-      200,
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration: 300 }),
-          withDelay(600, withTiming(0.3, { duration: 300 }))
-        ),
-        -1
-      )
-    );
-    dot3Opacity.value = withDelay(
-      400,
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration: 300 }),
-          withDelay(600, withTiming(0.3, { duration: 300 }))
-        ),
-        -1
-      )
-    );
+      setDisplayProgress((prev) =>
+        prev === nextProgress ? prev : nextProgress,
+      );
+      setCurrentPhaseIndex((prev) =>
+        prev === nextPhaseIndex ? prev : nextPhaseIndex,
+      );
+
+      if (elapsed >= TOTAL_DURATION) {
+        completeAnimation();
+      }
+    }, PROGRESS_INTERVAL);
+
+    if (!updateUserCalled.current) {
+      updateUserCalled.current = true;
+      void updateUser();
+    }
 
     return () => {
-      if (slideTimerRef.current) {
-        clearTimeout(slideTimerRef.current);
-      }
+      clearProgressInterval();
+      stopAmbientAnimations();
     };
   }, [focused]);
 
-  // Handle slide transitions
   useEffect(() => {
-    if (!focused || currentSlide >= TOTAL_SLIDES) {
+    if (!focused) {
       return;
     }
 
-    // Reset and animate progress bar for current slide
-    progressWidth.value = 0;
-    progressWidth.value = withTiming(100, {
-      duration: SLIDE_DURATION,
-      easing: Easing.linear,
+    animatePhaseChange();
+  }, [currentPhaseIndex, focused]);
+
+  useEffect(() => {
+    if (!focused || !isAnimationComplete || !isUpdateComplete) {
+      return;
+    }
+
+    if (hasNavigated.current) {
+      return;
+    }
+
+    hasNavigated.current = true;
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "HomeTabs" }],
     });
+  }, [focused, isAnimationComplete, isUpdateComplete, navigation]);
 
-    // Set timer for next slide
-    slideTimerRef.current = setTimeout(() => {
-      runOnJS(advanceSlide)();
-    }, SLIDE_DURATION);
-
-    return () => {
-      if (slideTimerRef.current) {
-        clearTimeout(slideTimerRef.current);
-      }
-    };
-  }, [currentSlide, focused]);
-
-  // Animated styles
-  const progressBarStyle = useAnimatedStyle(() => ({
-    width: `${progressWidth.value}%`,
+  const ringWrapperStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: ringScale.value }],
   }));
 
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
+  const haloStyle = useAnimatedStyle(() => ({
+    opacity: haloOpacity.value,
+    transform: [{ scale: haloScale.value }],
   }));
 
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${iconRotation.value}deg` }],
+  const phaseContentStyle = useAnimatedStyle(() => ({
+    opacity: phaseOpacity.value,
+    transform: [
+      { translateY: phaseTranslateY.value },
+      { scale: phaseScale.value },
+    ],
   }));
 
-  const dot1Style = useAnimatedStyle(() => ({
-    opacity: dot1Opacity.value,
+  const badgeStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: badgeLift.value },
+      { scale: badgeScale.value },
+      { rotate: `${badgeRotation.value}deg` },
+    ],
   }));
 
-  const dot2Style = useAnimatedStyle(() => ({
-    opacity: dot2Opacity.value,
-  }));
-
-  const dot3Style = useAnimatedStyle(() => ({
-    opacity: dot3Opacity.value,
-  }));
-
-  const currentSlideData = slides[currentSlide] || slides[0];
+  const strokeDashoffset = circumference * (1 - displayProgress / 100);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <LinearGradient
-        colors={currentSlideData.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientBackground}
-      />
-      <View style={styles.slideContainer}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top + scale(24),
+          paddingBottom: insets.bottom + scale(24),
+        },
+      ]}
+    >
+      <View pointerEvents="none" style={styles.gradientBackground}>
         <Animated.View
-          key={`slide-${currentSlide}`}
-          entering={SlideInRight.duration(400)}
-          exiting={SlideOutLeft.duration(400)}
-          style={styles.slideContent}
+          key={`gradient-${currentPhaseIndex}`}
+          entering={FadeIn.duration(500)}
+          exiting={FadeOut.duration(400)}
+          style={styles.gradientLayer}
         >
-          {/* Animated Icon with Loading Text */}
-          <View style={styles.loadingSection}>
-            <Animated.View style={[styles.iconContainer, pulseStyle]}>
-              <Animated.View style={iconStyle}>
-                <FontAwesome6
-                  name={currentSlideData.icon}
-                  size={scale(36)}
-                  color="white"
-                />
-              </Animated.View>
-            </Animated.View>
-
-            {/* Loading text with animated dots */}
-            <View style={styles.loadingTextContainer}>
-              <Text style={styles.loadingText}>{currentSlideData.title}</Text>
-              <View style={styles.dotsContainer}>
-                <Animated.Text style={[styles.dot, dot1Style]}>.</Animated.Text>
-                <Animated.Text style={[styles.dot, dot2Style]}>.</Animated.Text>
-                <Animated.Text style={[styles.dot, dot3Style]}>.</Animated.Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.textContainer}>
-            <Text style={styles.slideMessage}>{currentSlideData.message}</Text>
-          </View>
-
-          {/* User Info Badge */}
-          <View style={styles.userInfoBadge}>
-            <Text style={styles.userInfoText}>
-              {userWeight} kg • {userHeight} cm • {userAge}{" "}
-              {t("age").toLowerCase()}
-            </Text>
-          </View>
+          <LinearGradient
+            colors={currentPhase.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientBackground}
+          />
         </Animated.View>
       </View>
 
-      {/* Decorative Elements */}
-      <View style={styles.decorativeCircle1} />
-      <View style={styles.decorativeCircle2} />
-      <View style={styles.decorativeCircle3} />
+      <View style={styles.content}>
+        <Animated.View
+          style={[
+            styles.ringWrapper,
+            ringWrapperStyle,
+            {
+              width: ringSize,
+              height: ringSize,
+            },
+          ]}
+        >
+          <Animated.View style={[styles.ringGlow, haloStyle]} />
+          <Svg
+            width={ringSize}
+            height={ringSize}
+            style={styles.ringRotation}
+          >
+            <Circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={radius}
+              stroke="rgba(255, 255, 255, 0.2)"
+              strokeWidth={strokeWidth}
+              fill="none"
+            />
+            <Circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={radius}
+              stroke="white"
+              strokeWidth={strokeWidth}
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${circumference} ${circumference}`}
+              strokeDashoffset={strokeDashoffset}
+            />
+          </Svg>
+
+          <View
+            style={[
+              styles.innerCircle,
+              {
+                width: innerSize,
+                height: innerSize,
+                borderRadius: innerSize / 2,
+              },
+            ]}
+          >
+            <Animated.View style={[styles.phaseContent, phaseContentStyle]}>
+              <Animated.View style={[styles.iconBadge, badgeStyle]}>
+                <FontAwesome6
+                  name={currentPhase.icon}
+                  size={scale(26)}
+                  color="white"
+                />
+              </Animated.View>
+              <Text style={styles.progressValue}>{displayProgress}%</Text>
+              <Text style={styles.phaseLabel}>{currentPhase.label}</Text>
+            </Animated.View>
+          </View>
+        </Animated.View>
+      </View>
     </View>
   );
 };
@@ -375,147 +555,65 @@ const styles = StyleSheet.create({
   gradientBackground: {
     ...StyleSheet.absoluteFillObject,
   },
-  progressContainer: {
-    flexDirection: "row",
-    paddingHorizontal: scale(20),
-    paddingTop: scale(20),
-    gap: scale(6),
+  gradientLayer: {
+    ...StyleSheet.absoluteFillObject,
   },
-  progressBarBackground: {
-    flex: 1,
-    height: scale(4),
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderRadius: scale(2),
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "white",
-    borderRadius: scale(2),
-  },
-  slideContainer: {
+  content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: scale(24),
   },
-  slideContent: {
+  ringWrapper: {
     alignItems: "center",
-    width: "100%",
-  },
-  loadingSection: {
-    alignItems: "center",
-    marginBottom: scale(24),
-  },
-  iconContainer: {
-    width: scale(80),
-    height: scale(80),
-    borderRadius: scale(40),
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: scale(12),
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.4)",
   },
-  iconText: {
-    fontSize: scale(40),
-  },
-  loadingTextContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  loadingText: {
-    ...fontStyles.headline2,
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  dotsContainer: {
-    flexDirection: "row",
-    marginLeft: scale(2),
-  },
-  dot: {
-    ...fontStyles.headline2,
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  imageContainer: {
-    width: SCREEN_WIDTH - scale(48),
-    height: scale(200),
-    borderRadius: scale(24),
-    overflow: "hidden",
-    marginBottom: scale(32),
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-  },
-  slideImage: {
+  ringGlow: {
+    position: "absolute",
     width: "100%",
     height: "100%",
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
   },
-  imageOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
+  ringRotation: {
+    transform: [{ rotate: "-90deg" }],
   },
-  textContainer: {
+  innerCircle: {
+    position: "absolute",
     alignItems: "center",
-    paddingHorizontal: scale(16),
-  },
-  slideMessage: {
-    ...fontStyles.headline3,
-    color: "rgba(255, 255, 255, 0.9)",
-    textAlign: "center",
-    lineHeight: scale(28),
-    textShadowColor: "rgba(0, 0, 0, 0.2)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  userInfoBadge: {
-    marginTop: scale(32),
-    paddingHorizontal: scale(20),
-    paddingVertical: scale(12),
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: scale(25),
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: scale(20),
   },
-  userInfoText: {
-    ...fontStyles.body1Bold,
+  phaseContent: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconBadge: {
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    marginBottom: scale(18),
+  },
+  progressValue: {
+    ...fontStyles.headline1,
+    fontSize: scale(50),
+    lineHeight: scale(54),
     color: "white",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    fontWeight: "700",
   },
-  decorativeCircle1: {
-    position: "absolute",
-    width: scale(200),
-    height: scale(200),
-    borderRadius: scale(100),
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    top: -scale(50),
-    right: -scale(50),
-  },
-  decorativeCircle2: {
-    position: "absolute",
-    width: scale(150),
-    height: scale(150),
-    borderRadius: scale(75),
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    bottom: scale(100),
-    left: -scale(50),
-  },
-  decorativeCircle3: {
-    position: "absolute",
-    width: scale(100),
-    height: scale(100),
-    borderRadius: scale(50),
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    bottom: scale(50),
-    right: scale(30),
+  phaseLabel: {
+    ...fontStyles.body1Bold,
+    color: "rgba(255, 255, 255, 0.92)",
+    textAlign: "center",
+    marginTop: scale(10),
   },
 });
 

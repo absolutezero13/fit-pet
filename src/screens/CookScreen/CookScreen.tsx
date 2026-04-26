@@ -41,7 +41,6 @@ import { PersistedCookRecipe } from "../../storage/types";
 import {
   createCookCandidates,
   createCookRecipe,
-  createGeminiImage,
 } from "../../services/gptApi";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
@@ -90,7 +89,6 @@ interface HardcodedQuestion {
 type SuggestedCookRecipe = {
   candidate: CookCandidate;
   recipe: CookRecipe;
-  imageUrl: string | null;
   activeVariation: string | null;
   isRefreshing: boolean;
 };
@@ -388,7 +386,6 @@ const CookScreen = () => {
         return {
           candidate,
           recipe: recipeResponse.recipe,
-          imageUrl: null as string | null,
           activeVariation: null,
           isRefreshing: false,
         };
@@ -396,39 +393,6 @@ const CookScreen = () => {
     );
 
     return nextSuggestedRecipes;
-  };
-
-  const fetchCandidateImagesInBackground = (cards: SuggestedCookRecipe[]) => {
-    cards.forEach((card) => {
-      const keyIngredients = card.recipe.ingredients
-        .slice(0, 5)
-        .map((ing) => ing.item)
-        .join(", ");
-      createGeminiImage(
-        `Appetizing food photo of ${card.recipe.title}. ${card.recipe.summary}. Key ingredients: ${keyIngredients}. Top-down shot, natural lighting, restaurant quality.`,
-      )
-        .then((imageResponse) => {
-          const url = imageResponse?.data ?? null;
-          if (!url) return;
-          setSuggestedRecipes((current) =>
-            current.map((item) =>
-              item.candidate.id === card.candidate.id
-                ? { ...item, imageUrl: url }
-                : item,
-            ),
-          );
-        })
-        .catch((error) => {
-          console.log("COOK CANDIDATE IMAGE ERROR", error);
-          analyticsService.logEvent(AnalyticsEvent.CookImageGenerationFailed, {
-            context: "initial",
-            candidateId: card.candidate.id,
-            recipeId: card.recipe.id,
-            errorMessage:
-              error instanceof Error ? error.message : String(error),
-          });
-        });
-    });
   };
 
   const requestCandidates = async (nextAnswers: CookPromptAnswers) => {
@@ -474,7 +438,6 @@ const CookScreen = () => {
         setIsTransitioningQuestion(false);
         setSuggestedRecipes(nextSuggestedRecipes);
         setViewState("candidate_selection");
-        fetchCandidateImagesInBackground(nextSuggestedRecipes);
 
         const firstCard = nextSuggestedRecipes[0];
         if (firstCard) {
@@ -598,14 +561,15 @@ const CookScreen = () => {
     };
     const persisted: PersistedCookRecipe = {
       recipe: selectedRecipe.recipe,
-      imageUrl: selectedRecipe.imageUrl,
       savedAt,
     };
 
     await storageService.setItem("latestCook", latestSession);
     const existing = (await storageService.getItem("myRecipes")) ?? [];
     await storageService.setItem("myRecipes", [persisted, ...existing]);
-    navigation.navigate("CookRecipe", { recipe: selectedRecipe.recipe });
+    navigation.navigate("CookRecipe", {
+      recipe: selectedRecipe.recipe,
+    });
   };
 
   const handleVariationPress = async (
@@ -639,29 +603,6 @@ const CookScreen = () => {
         { variation, currentRecipe: selectedRecipe.recipe },
       );
 
-      const keyIngredients = response.recipe.ingredients
-        .slice(0, 5)
-        .map((ing) => ing.item)
-        .join(", ");
-
-      let imageResponse: { data: string | null } | null = null;
-      try {
-        imageResponse = await createGeminiImage(
-          `Appetizing food photo of ${response.recipe.title}. ${response.recipe.summary}. Key ingredients: ${keyIngredients}. Top-down shot, natural lighting, restaurant quality.`,
-        );
-      } catch (imageError) {
-        console.log("COOK VARIATION IMAGE ERROR", imageError);
-        analyticsService.logEvent(AnalyticsEvent.CookImageGenerationFailed, {
-          context: "variation",
-          candidateId: selectedRecipe.candidate.id,
-          recipeId: response.recipe.id,
-          errorMessage:
-            imageError instanceof Error
-              ? imageError.message
-              : String(imageError),
-        });
-      }
-
       logCookRecipeGenerated(selectedRecipe.candidate.id, response.recipe);
 
       setSuggestedRecipes((current) =>
@@ -670,7 +611,6 @@ const CookScreen = () => {
             ? {
                 ...item,
                 recipe: response.recipe,
-                imageUrl: imageResponse?.data ?? item.imageUrl,
                 activeVariation: null,
                 isRefreshing: false,
               }
@@ -802,9 +742,7 @@ const CookScreen = () => {
                     backgroundColor: isSelected
                       ? colors.accent
                       : colors.backgroundSecondary,
-                    borderColor: isSelected
-                      ? colors.accent
-                      : colors.border,
+                    borderColor: isSelected ? colors.accent : colors.border,
                   },
                 ]}
               >
@@ -871,9 +809,7 @@ const CookScreen = () => {
                     backgroundColor: isSelected
                       ? colors.accent
                       : colors.backgroundSecondary,
-                    borderColor: isSelected
-                      ? colors.accent
-                      : colors.border,
+                    borderColor: isSelected ? colors.accent : colors.border,
                   },
                 ]}
               >
@@ -930,7 +866,9 @@ const CookScreen = () => {
         onPress={() => navigation.navigate("MyRecipes")}
         style={styles.myRecipesLink}
       >
-        <Text style={[styles.myRecipesLinkText, { color: colors.textSecondary }]}>
+        <Text
+          style={[styles.myRecipesLinkText, { color: colors.textSecondary }]}
+        >
           {t("myRecipes")}
         </Text>
       </TouchableOpacity>
@@ -1135,13 +1073,12 @@ const CookScreen = () => {
       <View style={styles.candidateGrid}>
         {suggestedRecipes.map(
           (
-            { candidate, recipe, imageUrl, activeVariation, isRefreshing },
+            { candidate, recipe, activeVariation, isRefreshing },
             index,
           ) => (
             <CookCandidateCard
               key={candidate.id}
               recipe={recipe}
-              imageUrl={imageUrl}
               index={index}
               isRefreshing={isRefreshing}
               activeVariation={activeVariation}
@@ -1237,16 +1174,9 @@ const CookScreen = () => {
 
       {isImmersiveMode ? (
         <View style={[styles.immersiveTopBar, { paddingTop: top + scale(8) }]}>
-          <LinearGradient
-            colors={[`${colors.accent}24`, `${colors.surface}00`]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.immersiveTitleWrap}
-          >
-            <Text style={[styles.immersiveTitle, { color: colors.text }]}>
-              {t("cookImmersiveTitle")}
-            </Text>
-          </LinearGradient>
+          <Text style={[styles.immersiveTitle, { color: colors.text }]}>
+            {t("cookImmersiveTitle")}
+          </Text>
           <LiquidGlassView
             effect="clear"
             interactive

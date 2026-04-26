@@ -15,15 +15,7 @@ export enum AnalyticsEvent {
   MealLogError = "meal_log_error",
   CookCandidatesGenerated = "cook_candidates_generated",
   CookRecipeGenerated = "cook_recipe_generated",
-  CookImageGenerationFailed = "cook_image_generation_failed",
 }
-
-export type CookImageGenerationFailedParams = {
-  context: "initial" | "variation";
-  candidateId: string;
-  recipeId?: string;
-  errorMessage?: string;
-};
 
 export type MealLoggedParams = {
   type: "scan" | "text";
@@ -51,7 +43,6 @@ type EventParams = {
   [AnalyticsEvent.MealLogError]: undefined;
   [AnalyticsEvent.CookCandidatesGenerated]: CookCandidatesGeneratedParams;
   [AnalyticsEvent.CookRecipeGenerated]: CookRecipeGeneratedParams;
-  [AnalyticsEvent.CookImageGenerationFailed]: CookImageGenerationFailedParams;
 };
 
 interface IAnalyticsProvider {
