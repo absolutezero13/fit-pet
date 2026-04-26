@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, Text, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import getMacroConfig from "../../../utils/getMacroConfig";
@@ -22,6 +22,12 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
   const [goals, setGoals] = useState<MacroGoals>(
     currentMacroGoals as MacroGoals,
   );
+
+  useEffect(() => {
+    if (currentMacroGoals) {
+      setGoals(currentMacroGoals);
+    }
+  }, [currentMacroGoals]);
 
   const totals = useMemo(() => {
     const initialTotals = {
@@ -76,9 +82,25 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
   ).split(" ");
 
   const saveGoals = async () => {
-    userService.createOrUpdateUser({
+    await userService.createOrUpdateUser({
       macroGoals: goals,
     });
+    setModalVisible(false);
+  };
+
+  const handleOpenGoalsModal = () => {
+    if (currentMacroGoals) {
+      setGoals(currentMacroGoals);
+    }
+
+    setModalVisible(true);
+  };
+
+  const handleCloseGoalsModal = () => {
+    if (currentMacroGoals) {
+      setGoals(currentMacroGoals);
+    }
+
     setModalVisible(false);
   };
 
@@ -87,7 +109,7 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
       <View style={[styles.calorieCard, { backgroundColor: colors.surface }]}>
         <Pressable
           style={styles.settingsButton}
-          onPress={() => setModalVisible(true)}
+          onPress={handleOpenGoalsModal}
           hitSlop={12}
         >
           <Icon
@@ -139,7 +161,7 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
 
       <NutritionGoalsModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleCloseGoalsModal}
         goals={goals}
         setGoals={setGoals}
         onSave={saveGoals}

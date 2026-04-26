@@ -25,16 +25,6 @@ const CookRecipePreview = ({
 }: CookRecipePreviewProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const previewIngredients = recipe.ingredients.slice(0, 5);
-  const previewSteps = recipe.steps.slice(0, 3);
-  const hiddenIngredientCount = Math.max(
-    recipe.ingredients.length - previewIngredients.length,
-    0,
-  );
-  const hiddenStepCount = Math.max(
-    recipe.steps.length - previewSteps.length,
-    0,
-  );
   const cardSurfaceStyle = {
     backgroundColor: isLiquidGlassSupported ? undefined : colors.surface,
     borderColor: colors.border,
@@ -130,7 +120,7 @@ const CookRecipePreview = ({
           </View>
         </View>
         <View style={styles.sectionBody}>
-          {previewIngredients.map((ingredient) => (
+          {recipe.ingredients.map((ingredient) => (
             <View key={ingredient.id} style={styles.rowItem}>
               <MaterialCommunityIcons
                 name="checkbox-blank-circle-outline"
@@ -144,11 +134,6 @@ const CookRecipePreview = ({
             </View>
           ))}
         </View>
-        {hiddenIngredientCount > 0 ? (
-          <Text style={[styles.moreItemsText, { color: colors.textSecondary }]}>
-            {t("cookPreviewMoreItems", { count: hiddenIngredientCount })}
-          </Text>
-        ) : null}
       </LiquidGlassView>
 
       <LiquidGlassView
@@ -172,7 +157,7 @@ const CookRecipePreview = ({
           </View>
         </View>
         <View style={styles.sectionBody}>
-          {previewSteps.map((step, index) => (
+          {recipe.steps.map((step, index) => (
             <View key={step.id} style={styles.stepItem}>
               <View
                 style={[
@@ -213,7 +198,6 @@ const CookRecipePreview = ({
                   ) : null}
                 </View>
                 <Text
-                  numberOfLines={2}
                   style={[styles.rowText, { color: colors.textSecondary }]}
                 >
                   {step.instruction}
@@ -222,11 +206,6 @@ const CookRecipePreview = ({
             </View>
           ))}
         </View>
-        {hiddenStepCount > 0 ? (
-          <Text style={[styles.moreItemsText, { color: colors.textSecondary }]}>
-            {t("cookPreviewMoreItems", { count: hiddenStepCount })}
-          </Text>
-        ) : null}
       </LiquidGlassView>
     </View>
   );
@@ -357,9 +336,6 @@ const styles = StyleSheet.create({
   },
   timerText: {
     ...fontStyles.caption,
-  },
-  moreItemsText: {
-    ...fontStyles.body2,
   },
 });
 

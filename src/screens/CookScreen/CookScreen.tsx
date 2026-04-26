@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
@@ -36,6 +37,7 @@ import {
   LatestCookSession,
   CookPromptAnswers,
 } from "../../services/apiTypes";
+import { PersistedCookRecipe } from "../../storage/types";
 import {
   createCookCandidates,
   createCookRecipe,
@@ -133,8 +135,6 @@ const CookScreen = () => {
   const [suggestedRecipes, setSuggestedRecipes] = useState<
     SuggestedCookRecipe[]
   >([]);
-  const [latestCook, setLatestCook] = useState<LatestCookSession | null>(null);
-
   useEffect(() => {
     if (viewState !== "intro") {
       return;
@@ -146,19 +146,6 @@ const CookScreen = () => {
 
     return () => clearTimeout(timer);
   }, [viewState]);
-
-  useEffect(() => {
-    if (!isFocused) {
-      return;
-    }
-
-    const loadLatestCook = async () => {
-      const savedCook = await storageService.getItem("latestCook");
-      setLatestCook(savedCook);
-    };
-
-    loadLatestCook();
-  }, [isFocused]);
 
   const ALLERGEN_OPTIONS = useMemo(
     () => [
@@ -497,7 +484,6 @@ const CookScreen = () => {
             savedAt: new Date().toISOString(),
           };
           await storageService.setItem("latestCook", latestSession);
-          setLatestCook(latestSession);
         }
         return;
       }
@@ -604,14 +590,21 @@ const CookScreen = () => {
       return;
     }
 
+    const savedAt = new Date().toISOString();
     const latestSession: LatestCookSession = {
       recipe: selectedRecipe.recipe,
       seed: (answers.seed as string) ?? "",
-      savedAt: new Date().toISOString(),
+      savedAt,
+    };
+    const persisted: PersistedCookRecipe = {
+      recipe: selectedRecipe.recipe,
+      imageUrl: selectedRecipe.imageUrl,
+      savedAt,
     };
 
     await storageService.setItem("latestCook", latestSession);
-    setLatestCook(latestSession);
+    const existing = (await storageService.getItem("myRecipes")) ?? [];
+    await storageService.setItem("myRecipes", [persisted, ...existing]);
     navigation.navigate("CookRecipe", { recipe: selectedRecipe.recipe });
   };
 
@@ -933,43 +926,14 @@ const CookScreen = () => {
         backgroundColor={colors["color-success-400"]}
       />
 
-      {latestCook ? (
-        <Animated.View entering={FadeInUp.duration(260)}>
-          <Pressable
-            onPress={() =>
-              navigation.navigate("CookRecipe", { recipe: latestCook.recipe })
-            }
-            style={[
-              styles.latestCard,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <View style={styles.latestRow}>
-              <View
-                style={[
-                  styles.latestIcon,
-                  { backgroundColor: colors.backgroundSecondary },
-                ]}
-              >
-                <MaterialCommunityIcons
-                  name="history"
-                  size={scale(18)}
-                  color={colors["color-success-500"]}
-                />
-              </View>
-              <Text
-                numberOfLines={1}
-                style={[styles.cardTitle, { color: colors.text, flex: 1 }]}
-              >
-                {latestCook.recipe.title}
-              </Text>
-            </View>
-            <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>
-              {t("cookLatestLabel")}
-            </Text>
-          </Pressable>
-        </Animated.View>
-      ) : null}
+      <TouchableOpacity
+        onPress={() => navigation.navigate("MyRecipes")}
+        style={styles.myRecipesLink}
+      >
+        <Text style={[styles.myRecipesLinkText, { color: colors.textSecondary }]}>
+          {t("myRecipes")}
+        </Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 
@@ -1421,23 +1385,13 @@ const styles = StyleSheet.create({
   heroBody: {
     ...fontStyles.body1,
   },
-  latestCard: {
-    borderWidth: 1,
-    borderRadius: scale(24),
-    padding: scale(16),
-    gap: scale(6),
-  },
-  latestRow: {
-    flexDirection: "row",
+  myRecipesLink: {
     alignItems: "center",
-    gap: scale(12),
+    paddingVertical: scale(8),
   },
-  latestIcon: {
-    width: scale(36),
-    height: scale(36),
-    borderRadius: scale(18),
-    alignItems: "center",
-    justifyContent: "center",
+  myRecipesLinkText: {
+    ...fontStyles.body2,
+    textDecorationLine: "underline",
   },
   candidateGrid: {
     gap: scale(14),

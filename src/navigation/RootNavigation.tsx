@@ -6,6 +6,7 @@ import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
 import TabNavigator from "./TabBarNavigation";
 import AnalyzedMealScreen from "../screens/AnalyzedMealScreen/AnalyzedMealScreen";
 import CookRecipeScreen from "../screens/CookRecipeScreen/CookRecipeScreen";
+import MyRecipesScreen from "../screens/CookScreen/MyRecipesScreen";
 import { CookRecipe } from "../services/apiTypes";
 import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import TabBarNavigationLegacy from "./TabBarNavigationLegacy";
@@ -87,6 +88,14 @@ const RootNavigator = () => {
           presentation: "card",
         }}
       />
+      <Stack.Screen
+        name="MyRecipes"
+        component={MyRecipesScreen}
+        options={{
+          headerShown: false,
+          presentation: "card",
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -111,6 +120,7 @@ type RootStackParamList = {
   CookRecipe: {
     recipe: CookRecipe;
   };
+  MyRecipes: undefined;
 };
 
 declare global {

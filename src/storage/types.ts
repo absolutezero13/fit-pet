@@ -1,7 +1,11 @@
 import { IMeal, LatestCookSession } from "../services/apiTypes";
 import { OnboardingStore } from "../zustand/useOnboardingStore";
 
-// typedStorage.ts
+export interface PersistedCookRecipe {
+  recipe: import("../services/apiTypes").CookRecipe;
+  imageUrl: string | null;
+  savedAt: string;
+}
 
 // Define a key-to-type mapping
 export interface StorageItems {
@@ -16,5 +20,5 @@ export interface StorageItems {
   };
   hasLaunched: boolean;
   latestCook: LatestCookSession | null;
-  // Add other storage keys and their types here
+  myRecipes: PersistedCookRecipe[];
 }
