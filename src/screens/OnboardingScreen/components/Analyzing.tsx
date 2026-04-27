@@ -3,19 +3,15 @@ import { View, Text, StyleSheet } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Animated, {
   Easing,
-  FadeIn,
-  FadeOut,
   cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
 import { storageService } from "../../../storage/AsyncStorageService";
@@ -41,7 +37,22 @@ const PHASE_COUNT = 3;
 const PHASE_DURATION = TOTAL_DURATION / PHASE_COUNT;
 const PROGRESS_INTERVAL = 33;
 
-const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
+enum PhaseStatus {
+  Pending = "pending",
+  Active = "active",
+  Done = "done",
+}
+
+type Phase = {
+  label: string;
+  icon: React.ComponentProps<typeof FontAwesome6>["name"];
+};
+
+interface AnalyzingProps {
+  focused: boolean;
+}
+
+const Analyzing: React.FC<AnalyzingProps> = ({ focused }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -52,59 +63,31 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [isUpdateComplete, setIsUpdateComplete] = useState(false);
 
-  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const updateUserCalled = useRef(false);
   const hasNavigated = useRef(false);
   const isMountedRef = useRef(true);
-  const ringScale = useSharedValue(1);
-  const haloScale = useSharedValue(0.96);
-  const haloOpacity = useSharedValue(0.16);
-  const badgeLift = useSharedValue(0);
-  const badgeScale = useSharedValue(1);
-  const badgeRotation = useSharedValue(0);
-  const phaseOpacity = useSharedValue(1);
-  const phaseScale = useSharedValue(1);
-  const phaseTranslateY = useSharedValue(0);
 
-  const phases = useMemo(
+  const ringPulse = useSharedValue(1);
+  const spinnerRotation = useSharedValue(0);
+  const activeDot = useSharedValue(0);
+
+  const phases = useMemo<Phase[]>(
     () => [
-      {
-        label: t("analyzing"),
-        icon: "magnifying-glass" as const,
-        gradient: [
-          colors["color-info-100"],
-          colors["color-info-200"],
-          colors["color-info-300"],
-        ] as [string, string, string],
-      },
-      {
-        label: t("calculating"),
-        icon: "calculator" as const,
-        gradient: [
-          colors["color-success-100"],
-          colors["color-success-200"],
-          colors["color-success-300"],
-        ] as [string, string, string],
-      },
-      {
-        label: t("optimizing"),
-        icon: "bullseye" as const,
-        gradient: [
-          colors["color-warning-100"],
-          colors["color-warning-200"],
-          colors["color-warning-300"],
-        ] as [string, string, string],
-      },
+      { label: t("analyzing"), icon: "magnifying-glass" },
+      { label: t("calculating"), icon: "calculator" },
+      { label: t("optimizing"), icon: "bullseye" },
     ],
-    [colors, t],
+    [t],
   );
 
-  const ringSize = Math.min(SCREEN_WIDTH - scale(48), scale(320));
-  const strokeWidth = scale(16);
+  const ringSize = Math.min(SCREEN_WIDTH - scale(96), scale(260));
+  const strokeWidth = scale(14);
   const radius = (ringSize - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const innerSize = ringSize - strokeWidth * 2 - scale(18);
-  const currentPhase = phases[currentPhaseIndex] ?? phases[0];
+  const spinnerArcLength = circumference * 0.14;
 
   const clearProgressInterval = () => {
     if (progressIntervalRef.current) {
@@ -114,140 +97,42 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   };
 
   const stopAmbientAnimations = () => {
-    cancelAnimation(ringScale);
-    cancelAnimation(haloScale);
-    cancelAnimation(haloOpacity);
-    cancelAnimation(badgeLift);
-    cancelAnimation(badgeScale);
-    cancelAnimation(badgeRotation);
-    cancelAnimation(phaseOpacity);
-    cancelAnimation(phaseScale);
-    cancelAnimation(phaseTranslateY);
+    cancelAnimation(ringPulse);
+    cancelAnimation(spinnerRotation);
+    cancelAnimation(activeDot);
 
-    ringScale.value = 1;
-    haloScale.value = 0.96;
-    haloOpacity.value = 0.16;
-    badgeLift.value = 0;
-    badgeScale.value = 1;
-    badgeRotation.value = 0;
-    phaseOpacity.value = 1;
-    phaseScale.value = 1;
-    phaseTranslateY.value = 0;
+    ringPulse.value = 1;
+    spinnerRotation.value = 0;
+    activeDot.value = 0;
   };
 
   const startAmbientAnimations = () => {
-    ringScale.value = withRepeat(
-      withSequence(
-        withTiming(1.018, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(1, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
+    ringPulse.value = withRepeat(
+      withTiming(1.025, {
+        duration: 1400,
+        easing: Easing.inOut(Easing.ease),
+      }),
+      -1,
+      true,
+    );
+
+    spinnerRotation.value = withRepeat(
+      withTiming(360, {
+        duration: 1600,
+        easing: Easing.linear,
+      }),
       -1,
       false,
     );
 
-    haloScale.value = withRepeat(
-      withSequence(
-        withTiming(1.05, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(0.97, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
+    activeDot.value = withRepeat(
+      withTiming(1, {
+        duration: 900,
+        easing: Easing.inOut(Easing.ease),
+      }),
       -1,
-      false,
+      true,
     );
-
-    haloOpacity.value = withRepeat(
-      withSequence(
-        withTiming(0.28, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(0.14, {
-          duration: 1800,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
-      -1,
-      false,
-    );
-
-    badgeLift.value = withRepeat(
-      withSequence(
-        withTiming(-scale(6), {
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(0, {
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
-      -1,
-      false,
-    );
-
-    badgeScale.value = withRepeat(
-      withSequence(
-        withTiming(1.05, {
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(1, {
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
-      -1,
-      false,
-    );
-
-    badgeRotation.value = withRepeat(
-      withSequence(
-        withTiming(4, {
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(-4, {
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(0, {
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      ),
-      -1,
-      false,
-    );
-  };
-
-  const animatePhaseChange = () => {
-    phaseOpacity.value = 0.55;
-    phaseScale.value = 0.94;
-    phaseTranslateY.value = scale(10);
-
-    phaseOpacity.value = withTiming(1, {
-      duration: 280,
-      easing: Easing.out(Easing.cubic),
-    });
-    phaseScale.value = withTiming(1, {
-      duration: 320,
-      easing: Easing.out(Easing.cubic),
-    });
-    phaseTranslateY.value = withTiming(0, {
-      duration: 320,
-      easing: Easing.out(Easing.cubic),
-    });
   };
 
   const completeAnimation = () => {
@@ -264,7 +149,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-
       clearProgressInterval();
       stopAmbientAnimations();
     };
@@ -277,26 +161,10 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 
     let macroGoals: MacroGoals;
     try {
-      console.log("user", useOnboardingStore.getState());
-
       const prompt = promptBuilder.createMacroGoalsPrompt(
         useOnboardingStore.getState(),
       );
-      console.log("Prompt: ", prompt);
       const geminiRes = await createGeminiCompletion(prompt, "macroGoals");
-
-      console.log("Gemini response raw: ", geminiRes);
-
-      console.log(
-        "Gemini response: ",
-        geminiRes.response.candidates[0].content.parts,
-      );
-
-      console.log(
-        "Parsed macro goals: ",
-        JSON.parse(geminiRes.response.candidates[0].content.parts[0].text),
-      );
-
       macroGoals = JSON.parse(
         geminiRes.response.candidates[0].content.parts[0].text,
       );
@@ -325,16 +193,12 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
     const carbsPercentage = (carbsCalories / calories) * 100;
     const fatsPercentage = (fatsCalories / calories) * 100;
 
-    macroGoals.proteins = Math.round(proteinPercentage);
-    macroGoals.carbs = Math.round(carbsPercentage);
-    macroGoals.fats = Math.round(fatsPercentage);
     const calculatedGoals: MacroGoals = {
       proteins: Math.round(proteinPercentage),
       carbs: Math.round(carbsPercentage),
       fats: Math.round(fatsPercentage),
       calories,
     };
-    console.log("last macro goals", calculatedGoals);
 
     await userService.createOrUpdateUser({
       macroGoals: calculatedGoals,
@@ -406,14 +270,6 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   }, [focused]);
 
   useEffect(() => {
-    if (!focused) {
-      return;
-    }
-
-    animatePhaseChange();
-  }, [currentPhaseIndex, focused]);
-
-  useEffect(() => {
     if (!focused || !isAnimationComplete || !isUpdateComplete) {
       return;
     }
@@ -430,80 +286,68 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
   }, [focused, isAnimationComplete, isUpdateComplete, navigation]);
 
   const ringWrapperStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: ringScale.value }],
+    transform: [{ scale: ringPulse.value }],
   }));
 
-  const haloStyle = useAnimatedStyle(() => ({
-    opacity: haloOpacity.value,
-    transform: [{ scale: haloScale.value }],
+  const spinnerStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${spinnerRotation.value}deg` }],
   }));
 
-  const phaseContentStyle = useAnimatedStyle(() => ({
-    opacity: phaseOpacity.value,
-    transform: [
-      { translateY: phaseTranslateY.value },
-      { scale: phaseScale.value },
-    ],
-  }));
-
-  const badgeStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: badgeLift.value },
-      { scale: badgeScale.value },
-      { rotate: `${badgeRotation.value}deg` },
-    ],
+  const activeDotStyle = useAnimatedStyle(() => ({
+    opacity: 0.3 + activeDot.value * 0.7,
+    transform: [{ scale: 0.85 + activeDot.value * 0.3 }],
   }));
 
   const strokeDashoffset = circumference * (1 - displayProgress / 100);
+
+  const getPhaseStatus = (index: number): PhaseStatus => {
+    if (isAnimationComplete) {
+      return PhaseStatus.Done;
+    }
+    if (index < currentPhaseIndex) {
+      return PhaseStatus.Done;
+    }
+    if (index === currentPhaseIndex) {
+      return PhaseStatus.Active;
+    }
+    return PhaseStatus.Pending;
+  };
 
   return (
     <View
       style={[
         styles.container,
         {
+          backgroundColor: colors.background,
           paddingTop: insets.top + scale(24),
           paddingBottom: insets.bottom + scale(24),
         },
       ]}
     >
-      <View pointerEvents="none" style={styles.gradientBackground}>
-        <Animated.View
-          key={`gradient-${currentPhaseIndex}`}
-          entering={FadeIn.duration(500)}
-          exiting={FadeOut.duration(400)}
-          style={styles.gradientLayer}
-        >
-          <LinearGradient
-            colors={currentPhase.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gradientBackground}
-          />
-        </Animated.View>
+      <View style={styles.header}>
+        <Text style={[fontStyles.headline2, { color: colors.text }]}>
+          {t("carouselMessage3")}
+        </Text>
       </View>
 
-      <View style={styles.content}>
+      <View style={styles.ringSection}>
         <Animated.View
           style={[
             styles.ringWrapper,
             ringWrapperStyle,
-            {
-              width: ringSize,
-              height: ringSize,
-            },
+            { width: ringSize, height: ringSize },
           ]}
         >
-          <Animated.View style={[styles.ringGlow, haloStyle]} />
           <Svg
             width={ringSize}
             height={ringSize}
-            style={styles.ringRotation}
+            style={styles.rotatedSvg}
           >
             <Circle
               cx={ringSize / 2}
               cy={ringSize / 2}
               r={radius}
-              stroke="rgba(255, 255, 255, 0.2)"
+              stroke={colors.border}
               strokeWidth={strokeWidth}
               fill="none"
             />
@@ -511,7 +355,7 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
               cx={ringSize / 2}
               cy={ringSize / 2}
               r={radius}
-              stroke="white"
+              stroke={colors.accent}
               strokeWidth={strokeWidth}
               fill="none"
               strokeLinecap="round"
@@ -520,29 +364,128 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
             />
           </Svg>
 
-          <View
+          <Animated.View
+            pointerEvents="none"
             style={[
-              styles.innerCircle,
-              {
-                width: innerSize,
-                height: innerSize,
-                borderRadius: innerSize / 2,
-              },
+              StyleSheet.absoluteFill,
+              styles.spinnerWrapper,
+              spinnerStyle,
             ]}
           >
-            <Animated.View style={[styles.phaseContent, phaseContentStyle]}>
-              <Animated.View style={[styles.iconBadge, badgeStyle]}>
-                <FontAwesome6
-                  name={currentPhase.icon}
-                  size={scale(26)}
-                  color="white"
-                />
-              </Animated.View>
-              <Text style={styles.progressValue}>{displayProgress}%</Text>
-              <Text style={styles.phaseLabel}>{currentPhase.label}</Text>
-            </Animated.View>
+            <Svg
+              width={ringSize}
+              height={ringSize}
+              style={styles.rotatedSvg}
+            >
+              <Circle
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={radius}
+                stroke={colors.accent}
+                strokeWidth={strokeWidth}
+                strokeOpacity={0.35}
+                strokeLinecap="round"
+                fill="none"
+                strokeDasharray={`${spinnerArcLength} ${circumference}`}
+              />
+            </Svg>
+          </Animated.View>
+
+          <View style={styles.ringCenter}>
+            <Text
+              style={[
+                fontStyles.headline1,
+                styles.percent,
+                { color: colors.text },
+              ]}
+            >
+              {displayProgress}
+              <Text
+                style={[
+                  fontStyles.headline3,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                %
+              </Text>
+            </Text>
           </View>
         </Animated.View>
+      </View>
+
+      <View style={styles.checklist}>
+        {phases.map((phase, index) => {
+          const status = getPhaseStatus(index);
+          const isDone = status === PhaseStatus.Done;
+          const isActive = status === PhaseStatus.Active;
+
+          const iconColor = isDone
+            ? colors.accent
+            : isActive
+              ? colors.text
+              : colors.textTertiary;
+          const labelColor = isDone || isActive
+            ? colors.text
+            : colors.textTertiary;
+
+          return (
+            <View key={phase.label} style={styles.checklistRow}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {
+                    borderColor: isDone
+                      ? colors.accent
+                      : isActive
+                        ? colors.text
+                        : colors.border,
+                    backgroundColor: isDone ? colors.accentSoft : "transparent",
+                  },
+                ]}
+              >
+                {isDone ? (
+                  <FontAwesome6
+                    name="check"
+                    size={scale(12)}
+                    color={colors.accent}
+                  />
+                ) : isActive ? (
+                  <Animated.View
+                    style={[
+                      styles.activeDot,
+                      activeDotStyle,
+                      { backgroundColor: colors.text },
+                    ]}
+                  />
+                ) : (
+                  <FontAwesome6
+                    name={phase.icon}
+                    size={scale(11)}
+                    color={colors.textTertiary}
+                  />
+                )}
+              </View>
+              <Text
+                style={[
+                  isActive ? fontStyles.body1Bold : fontStyles.body1,
+                  styles.checklistLabel,
+                  { color: labelColor },
+                ]}
+              >
+                {phase.label}
+                {isActive ? "…" : ""}
+              </Text>
+              {isDone && !isActive ? (
+                <FontAwesome6
+                  name={phase.icon}
+                  size={scale(13)}
+                  color={iconColor}
+                  style={styles.trailingIcon}
+                />
+              ) : null}
+            </View>
+          );
+        })}
       </View>
     </View>
   );
@@ -551,70 +494,66 @@ const AnalyzingScreen = ({ focused }: { focused: boolean }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradientBackground: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  gradientLayer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     paddingHorizontal: scale(24),
+  },
+  header: {
+    alignItems: "center",
+    marginTop: scale(8),
+  },
+  ringSection: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   ringWrapper: {
     alignItems: "center",
     justifyContent: "center",
   },
-  ringGlow: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
-  },
-  ringRotation: {
+  rotatedSvg: {
     transform: [{ rotate: "-90deg" }],
   },
-  innerCircle: {
+  spinnerWrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ringCenter: {
     position: "absolute",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    paddingHorizontal: scale(20),
   },
-  phaseContent: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconBadge: {
-    width: scale(56),
-    height: scale(56),
-    borderRadius: scale(28),
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    marginBottom: scale(18),
-  },
-  progressValue: {
-    ...fontStyles.headline1,
-    fontSize: scale(50),
-    lineHeight: scale(54),
-    color: "white",
+  percent: {
+    fontSize: scale(52),
+    lineHeight: scale(56),
     fontWeight: "700",
   },
-  phaseLabel: {
-    ...fontStyles.body1Bold,
-    color: "rgba(255, 255, 255, 0.92)",
-    textAlign: "center",
-    marginTop: scale(10),
+  checklist: {
+    gap: scale(14),
+    marginBottom: scale(16),
+  },
+  checklistRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statusBadge: {
+    width: scale(26),
+    height: scale(26),
+    borderRadius: scale(13),
+    borderWidth: 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: scale(14),
+  },
+  activeDot: {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
+  },
+  checklistLabel: {
+    flex: 1,
+  },
+  trailingIcon: {
+    marginLeft: scale(8),
   },
 });
 
-export default AnalyzingScreen;
+export default Analyzing;

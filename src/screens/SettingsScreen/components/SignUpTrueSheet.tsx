@@ -119,10 +119,7 @@ const SignUpTrueSheet = () => {
         <Pressable
           key={option.type}
           onPress={option.onPress}
-          style={[
-            styles.googleButton,
-            { opacity: option.disabled ? 0.5 : 1 },
-          ]}
+          style={[styles.googleButton, { opacity: option.disabled ? 0.5 : 1 }]}
           disabled={option.disabled}
         >
           <MaterialCommunityIcons
@@ -209,7 +206,9 @@ const SignUpTrueSheet = () => {
           </Pressable>
         )}
         <Text style={styles.title}>{t("signUpTitle")}</Text>
-        {!showEmailForm && <Text style={styles.subtitle}>{t("signUpSubtitle")}</Text>}
+        {!showEmailForm && (
+          <Text style={styles.subtitle}>{t("signUpSubtitle")}</Text>
+        )}
       </View>
 
       {!showEmailForm ? (
@@ -235,14 +234,14 @@ const SignUpTrueSheet = () => {
 
       <View style={styles.footer}>
         <View style={styles.footerTextContainer}>
-          <Text style={styles.footerText}>{t("alreadyHaveAccount")}{" "}</Text>
+          <Text style={styles.footerText}>{t("alreadyHaveAccount")} </Text>
           <TouchableOpacity onPress={handleLoginPress}>
             <Text style={styles.loginLink}>{t("logIn")}</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.termsText}>
-          {t("termsAgreement")} {" "}
-          <Text style={styles.termsLink}>{t("termsOfService")}</Text> {t("and")} {" "}
+          {t("termsAgreement")}{" "}
+          <Text style={styles.termsLink}>{t("termsOfService")}</Text> {t("and")}{" "}
           <Text style={styles.termsLink}>{t("privacyPolicy")}</Text>
           {t("termsAgreementEnd")}
         </Text>
