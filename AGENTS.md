@@ -33,3 +33,5 @@
 ## Code Conventions
 
 - Don't write inline function in components, create the function on the body of the component.
+
+- dont write comments.

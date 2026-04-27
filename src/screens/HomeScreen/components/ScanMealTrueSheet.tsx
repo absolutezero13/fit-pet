@@ -41,12 +41,6 @@ const getPhotoUri = (path: string) =>
   path.startsWith("file://") ? path : `file://${path}`;
 
 const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
-  const dismiss = () => {
-    setTimeout(() => {
-      TrueSheet.dismiss(TrueSheetNames.SCAN_MEAL);
-    }, 100);
-  };
-
   const { colors } = useTheme();
   const navigation = useNavigation();
   const device = useCameraDevice("back");
@@ -61,13 +55,20 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
   );
-  const [screenState, setScreenState] = useState<ScanMealTrueSheetStep>("camera");
+  const [screenState, setScreenState] =
+    useState<ScanMealTrueSheetStep>("camera");
   const photoUri = photo ? getPhotoUri(photo.path) : null;
 
   const resetState = () => {
     setPhoto(null);
     setScreenState("camera");
     setSelectedMealType(t("breakfast"));
+  };
+
+  const dismiss = () => {
+    setTimeout(() => {
+      TrueSheet.dismiss(TrueSheetNames.SCAN_MEAL);
+    }, 100);
   };
 
   const takePhoto = async () => {
@@ -78,10 +79,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     }
   };
 
-  const uploadLocalMealImage = async (
-    meal: IMeal,
-    localImagePath: string,
-  ) => {
+  const uploadLocalMealImage = async (meal: IMeal, localImagePath: string) => {
     const imageUrl = await uploadMealImageToFireStorage(
       localImagePath,
       meal.id ?? "",

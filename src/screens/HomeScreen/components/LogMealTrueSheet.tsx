@@ -80,12 +80,18 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const [selectedMealType, setSelectedMealType] = useState(
     t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
   );
+  const [lastSeenMealId, setLastSeenMealId] = useState<string | undefined>(
+    params.mealId,
+  );
 
-  useEffect(() => {
+  if (params.mealId !== lastSeenMealId) {
+    setLastSeenMealId(params.mealId);
+    setMealDescription(mealToEdit?.description ?? "");
     setSelectedMealType(
       t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
     );
-  }, [params.mealType]);
+    setImage(null);
+  }
 
   const pickImage = async (source: "camera" | "gallery") => {
     let result;

@@ -21,7 +21,7 @@ const MealScoreSection: FC<Props> = ({ score }) => {
   return (
     <View style={[styles.scoreSection, { backgroundColor: colors.surface }]}>
       <View style={[styles.scoreContainer, { backgroundColor: color }]}>
-        <Text style={[styles.scoreValue, { color: colors.textInverse }]}>
+        <Text style={[styles.scoreValue, { color: colors.white }]}>
           {score}
         </Text>
       </View>

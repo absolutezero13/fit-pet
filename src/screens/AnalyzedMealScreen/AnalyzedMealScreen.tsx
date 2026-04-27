@@ -19,6 +19,7 @@ import { eventBus, AppEvent } from "../../services/EventBus";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
+import getMacroConfig from "../../utils/getMacroConfig";
 import MealScoreSection from "./components/MealScoreSection";
 import MealMacrosSection from "./components/MealMacrosSection";
 import MealInsightsSection from "./components/MealInsightsSection";
@@ -37,6 +38,7 @@ const AnalyzedMealScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const calorieConfig = getMacroConfig("calories");
 
   if (!meal) {
     return null;
@@ -74,10 +76,12 @@ const AnalyzedMealScreen = () => {
   };
 
   const handleEdit = () => {
-    navigation.navigate("LogMeal", {
+    if (!meal.id) return;
+    eventBus.publish(AppEvent.EditMealRequested, {
       mealId: meal.id,
-      selectedDate: meal.date,
+      date: meal.date,
     });
+    navigation.goBack();
   };
 
 
@@ -131,16 +135,24 @@ return (
             <View
               style={[
                 styles.calorieContainer,
-                { backgroundColor: colors["color-danger-100"] },
+                { backgroundColor: calorieConfig.background },
               ]}
             >
               <MaterialCommunityIcons
-                name="fire"
+                name={calorieConfig.icon}
                 size={scale(20)}
-                color={colors["color-danger-500"]}
+                color={calorieConfig.color}
               />
-              <Text style={styles.calorieValue}>{meal.calories}</Text>
-              <Text style={styles.calorieUnit}>{t("cal")}</Text>
+              <Text
+                style={[styles.calorieValue, { color: calorieConfig.color }]}
+              >
+                {meal.calories}
+              </Text>
+              <Text
+                style={[styles.calorieUnit, { color: calorieConfig.color }]}
+              >
+                {t("cal")}
+              </Text>
             </View>
           </View>
         </View>
@@ -154,28 +166,30 @@ return (
         <MealInsightsSection insights={meal.insights} />
 
         <View style={styles.actionContainer}>
-          <LiquidGlassView
-            effect="clear"
-            interactive
-            style={[
-              styles.actionButtonPrimary,
-              { backgroundColor: colors.surface },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.actionButtonInner}
-              onPress={handleEdit}
+          {!meal.image && (
+            <LiquidGlassView
+              effect="clear"
+              interactive
+              style={[
+                styles.actionButtonPrimary,
+                { backgroundColor: colors.surface },
+              ]}
             >
-              <MaterialCommunityIcons
-                name="pencil"
-                size={scale(22)}
-                color={colors.text}
-              />
-              <Text style={[styles.actionText, { color: colors.text }]}>
-                {t("edit")}
-              </Text>
-            </TouchableOpacity>
-          </LiquidGlassView>
+              <TouchableOpacity
+                style={styles.actionButtonInner}
+                onPress={handleEdit}
+              >
+                <MaterialCommunityIcons
+                  name="pencil"
+                  size={scale(22)}
+                  color={colors.text}
+                />
+                <Text style={[styles.actionText, { color: colors.text }]}>
+                  {t("edit")}
+                </Text>
+              </TouchableOpacity>
+            </LiquidGlassView>
+          )}
 
           <LiquidGlassView
             effect="clear"
@@ -285,13 +299,11 @@ const styles = StyleSheet.create({
   },
   calorieValue: {
     ...fontStyles.headline3,
-    color: "#DC2626",
     fontWeight: "700",
     marginLeft: scale(6),
   },
   calorieUnit: {
     ...fontStyles.body2,
-    color: "#DC2626",
     marginLeft: scale(2),
     fontWeight: "600",
   },

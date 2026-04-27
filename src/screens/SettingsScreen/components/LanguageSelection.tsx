@@ -3,8 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { TrueSheet } from "../../../components/TrueSheet";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { changeLanguage } from "i18next";
-import { storageService } from "../../../storage/AsyncStorageService";
+import { setLanguage } from "../../../services/languageService";
 import { TrueSheetNames } from "../../../navigation/constants";
 import { scale } from "../../../theme/utils";
 import { fontStyles } from "../../../theme/fontStyles";
@@ -98,8 +97,7 @@ const LanguageSelection: FC<Props> = ({ languageOptions }) => {
       setSaving(true);
 
       if (draftLanguage !== i18n.language) {
-        await changeLanguage(draftLanguage);
-        await storageService.setItem("language", { code: draftLanguage });
+        await setLanguage(draftLanguage);
       }
 
       await TrueSheet.dismiss(TrueSheetNames.LANGUAGE_SELECTION);

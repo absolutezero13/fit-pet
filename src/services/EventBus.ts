@@ -27,11 +27,13 @@ export class EventBus<TEvents extends Record<string, unknown>> {
 export enum AppEvent {
   MealChanged = "meal:changed",
   LanguageChanged = "language:changed",
+  EditMealRequested = "meal:edit-requested",
 }
 
 type AppEvents = {
   [AppEvent.MealChanged]: { date?: string };
   [AppEvent.LanguageChanged]: { code: string };
+  [AppEvent.EditMealRequested]: { mealId: string; date: string };
 };
 
 export const eventBus = new EventBus<AppEvents>();

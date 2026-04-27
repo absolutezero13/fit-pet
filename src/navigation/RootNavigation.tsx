@@ -15,13 +15,20 @@ import { useTheme } from "../theme/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 
+const getInitialRouteName = (onboardingCompleted: boolean) => {
+  if (__DEV__) {
+    return "Paywall" as const;
+  }
+  return onboardingCompleted ? "HomeTabs" : "Welcome";
+};
+
 const RootNavigator = () => {
   const userStore = useUserStore((state) => state);
   const { colors } = useTheme();
 
   return (
     <Stack.Navigator
-      initialRouteName={userStore?.onboardingCompleted ? "HomeTabs" : "Welcome"}
+      initialRouteName={getInitialRouteName(!!userStore?.onboardingCompleted)}
       screenOptions={{
         contentStyle: {
           backgroundColor: colors.background,

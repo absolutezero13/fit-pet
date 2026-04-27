@@ -27,6 +27,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemeColors } from "../../theme/colors";
 import { getLocalDateKey, shiftDateByDays } from "../../utils/dateUtils";
+import { eventBus, AppEvent } from "../../services/EventBus";
 
 const MealTypeSection = ({
   title,
@@ -75,6 +76,24 @@ const LoggedMealsScreen = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
   );
+  const [editMealId, setEditMealId] = useState<string | undefined>(undefined);
+  const [editRequestNonce, setEditRequestNonce] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe(
+      AppEvent.EditMealRequested,
+      ({ mealId }) => {
+        setEditMealId(mealId);
+        setEditRequestNonce((n) => n + 1);
+      },
+    );
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (editRequestNonce === 0 || !editMealId) return;
+    TrueSheet.present(TrueSheetNames.LOG_MEAL);
+  }, [editRequestNonce]);
 
   console.log("meals", meals);
   // Group meals by type
@@ -95,6 +114,7 @@ const LoggedMealsScreen = () => {
 
   const navigateLogMeal = (type?: IMealType) => {
     console.log("navigating to log meal", type);
+    setEditMealId(undefined);
     setSelectedMealType(type ?? "breakfast");
     TrueSheet.present(TrueSheetNames.LOG_MEAL);
   };
@@ -131,7 +151,7 @@ const LoggedMealsScreen = () => {
     const getMeals = async () => {
       try {
         setLoading(true);
-        const fetchedMeals = await getMealsByDate(selectedDate.toISOString());
+        const fetchedMeals = await getMealsByDate(getLocalDateKey(selectedDate));
         console.log("data?", getLocalDateKey(selectedDate));
         useMealsStore.setState({ loggedMeals: fetchedMeals });
       } catch (error) {
@@ -298,6 +318,7 @@ const LoggedMealsScreen = () => {
           params={{
             selectedDate: getLocalDateKey(selectedDate),
             mealType: selectedMealType,
+            mealId: editMealId,
           }}
         />
         <ScanMealTrueSheet

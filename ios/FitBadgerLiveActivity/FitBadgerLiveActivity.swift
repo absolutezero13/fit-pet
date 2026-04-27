@@ -37,12 +37,14 @@ struct FitBadgerMealLiveActivity: Widget {
           .padding(.leading, 4)
         }
         DynamicIslandExpandedRegion(.trailing) {
-          Text(context.state.lastMealEmoji)
+          Text(context.state.mealCount == 0 ? "🍽" : context.state.lastMealEmoji)
             .font(.system(size: 28))
             .padding(.trailing, 4)
         }
         DynamicIslandExpandedRegion(.center) {
-          Text("\(context.state.mealCount) meals today")
+          Text(context.state.mealCount == 0
+               ? "Tap to log a meal"
+               : "\(context.state.mealCount) meals today")
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(.white.opacity(0.8))
         }
@@ -56,7 +58,7 @@ struct FitBadgerMealLiveActivity: Widget {
           .font(.system(size: 13, weight: .semibold))
           .foregroundColor(.macroCalories)
       } compactTrailing: {
-        Text(context.state.lastMealEmoji)
+        Text(context.state.mealCount == 0 ? "🍽" : context.state.lastMealEmoji)
           .font(.system(size: 14))
       } minimal: {
         Text("\(context.state.caloriesConsumed)")
@@ -89,9 +91,11 @@ private struct LockScreenView: View {
         }
         Spacer()
         VStack(alignment: .trailing, spacing: 2) {
-          Text(state.lastMealEmoji)
+          Text(state.mealCount == 0 ? "🍽" : state.lastMealEmoji)
             .font(.system(size: 30))
-          Text("\(state.mealCount) meal\(state.mealCount == 1 ? "" : "s")")
+          Text(state.mealCount == 0
+               ? "Tap to log"
+               : "\(state.mealCount) meal\(state.mealCount == 1 ? "" : "s")")
             .font(.system(size: 11))
             .foregroundColor(.white.opacity(0.7))
         }

@@ -18,7 +18,7 @@ type ScanMealCameraStepProps = {
 
 const ScanMealCameraStep = (props: ScanMealCameraStepProps) => {
   const insets = useSafeAreaInsets();
-  const cameraHeightAndroid = SCREEN_HEIGHT - insets.top;
+  const cameraHeightAndroid = SCREEN_HEIGHT - insets.top - insets.bottom;
 
   return (
     <View style={styles.cameraContainer}>

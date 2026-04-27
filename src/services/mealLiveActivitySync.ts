@@ -40,15 +40,6 @@ export const syncMealLiveActivity = async (dateKey: string) => {
     .getState()
     .loggedMeals.filter((m) => m.date === todayKey);
 
-  if (meals.length === 0) {
-    if (activityRunning) {
-      await endMealLiveActivity();
-      activityRunning = false;
-      activityDateKey = null;
-    }
-    return;
-  }
-
   const totals = meals.reduce(
     (acc, m) => ({
       calories: acc.calories + toInt(m.calories),
@@ -88,8 +79,8 @@ export const syncMealLiveActivity = async (dateKey: string) => {
         percentage: goals.fats,
       })
     ),
-    lastMealTitle: last.title ?? "",
-    lastMealEmoji: last.emoji ?? "🍽",
+    lastMealTitle: last?.title ?? "",
+    lastMealEmoji: last?.emoji ?? "🍽",
     mealCount: meals.length,
   };
 

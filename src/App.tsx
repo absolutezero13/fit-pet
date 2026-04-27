@@ -29,9 +29,10 @@ import {
   Nunito_900Black_Italic,
 } from "@expo-google-fonts/nunito";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import i18next, { changeLanguage } from "i18next";
+import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import { resources } from "./localization/resources";
+import { initializeLanguage } from "./services/languageService";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import auth from "@react-native-firebase/auth";
 import userService from "./services/user";
@@ -54,11 +55,6 @@ i18next.use(initReactI18next).init({
   },
 });
 
-const initializeLanguage = async () => {
-  const language = await storageService.getItem("language");
-  console.log("language", language);
-  changeLanguage(language?.code || "en");
-};
 
 // NavigationBar.setBackgroundColorAsync("#ffffff00");
 
