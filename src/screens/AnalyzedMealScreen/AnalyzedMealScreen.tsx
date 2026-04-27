@@ -14,15 +14,14 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { fontStyles } from "../../theme/fontStyles";
 import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
-import usePreferencesStore from "../../zustand/usePreferencesStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../services/mealLiveActivitySync";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
-import { getScoreTranslationKey } from "../../utils/scoreExplanations";
-import getScoreColor from "../../utils/getScoreColor";
-import MacroCard from "../../components/MacroCard";
+import MealScoreSection from "./components/MealScoreSection";
+import MealMacrosSection from "./components/MealMacrosSection";
+import MealInsightsSection from "./components/MealInsightsSection";
 
 type AnalyzedMealScreenProps = {
   mealId: string;
@@ -38,7 +37,6 @@ const AnalyzedMealScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
   const { colors } = useTheme();
-  const aiTone = usePreferencesStore((state) => state.aiTone);
 
   if (!meal) {
     return null;
@@ -73,10 +71,6 @@ const AnalyzedMealScreen = () => {
         },
       },
     ]);
-  };
-
-  const getScoreLabel = (score: number) => {
-    return t(getScoreTranslationKey(score, aiTone));
   };
 
   const handleEdit = () => {
@@ -150,71 +144,14 @@ return (
             </View>
           </View>
         </View>
-        <View
-          style={[styles.scoreSection, { backgroundColor: colors.surface }]}
-        >
-          <View
-            style={[
-              styles.scoreContainer,
-              { backgroundColor: getScoreColor(meal.score, colors) },
-            ]}
-          >
-            <Text style={[styles.scoreValue, { color: colors.textInverse }]}>
-              {meal.score}
-            </Text>
-          </View>
-          <View style={styles.scoreTextContainer}>
-            <Text style={[styles.scoreHeading, { color: colors.text }]}>
-              {t("nutritionScore")}
-            </Text>
-            <Text
-              style={[
-                styles.scoreLabel,
-                { color: getScoreColor(meal.score, colors) },
-              ]}
-            >
-              {getScoreLabel(meal.score)}
-            </Text>
-          </View>
-        </View>
-        <Text style={[styles.sectionHeading, { color: colors.text }]}>
-          {t("macronutrients")}
-        </Text>
-        <View style={styles.macrosContainer}>
-          <MacroCard type="protein" current={meal.proteins ?? 0} goal={0} variant="content" />
-          <MacroCard type="carbs" current={meal.carbs ?? 0} goal={0} variant="content" />
-          <MacroCard type="fats" current={meal.fats ?? 0} goal={0} variant="content" />
-        </View>
-        {meal.insights && meal.insights.length > 0 && (
-          <>
-            <Text style={[styles.sectionHeading, { color: colors.text }]}>
-              {t("insights")}
-            </Text>
-            <View
-              style={[styles.insightsList, { backgroundColor: colors.surface }]}
-            >
-              {meal.insights.map((insight, index) => (
-                <View key={index} style={styles.insightItem}>
-                  <View
-                    style={[
-                      styles.insightIconContainer,
-                      { backgroundColor: colors["color-warning-100"] },
-                    ]}
-                  >
-                    <MaterialCommunityIcons
-                      name="lightbulb"
-                      size={scale(20)}
-                      color={colors["color-warning-600"]}
-                    />
-                  </View>
-                  <Text style={[styles.insightText, { color: colors.text }]}>
-                    {insight}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
+        <MealScoreSection score={meal.score} />
+        <MealMacrosSection
+          proteins={meal.proteins ?? 0}
+          carbs={meal.carbs ?? 0}
+          fats={meal.fats ?? 0}
+          variant="content"
+        />
+        <MealInsightsSection insights={meal.insights} />
 
         <View style={styles.actionContainer}>
           <LiquidGlassView
@@ -357,107 +294,6 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     marginLeft: scale(2),
     fontWeight: "600",
-  },
-  // Score Section
-  scoreSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: scale(28),
-    padding: scale(20),
-    borderRadius: scale(20),
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  scoreContainer: {
-    width: scale(70),
-    height: scale(70),
-    borderRadius: scale(35),
-    justifyContent: "center",
-    alignItems: "center",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-    marginRight: scale(18),
-  },
-  scoreValue: {
-    ...fontStyles.headline1,
-    fontSize: scale(32),
-    fontWeight: "bold",
-  },
-  scoreTextContainer: {
-    flex: 1,
-  },
-  scoreHeading: {
-    ...fontStyles.body1,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: scale(6),
-    fontWeight: "600",
-  },
-  scoreLabel: {
-    ...fontStyles.headline2,
-    fontWeight: "700",
-  },
-  // Macros Section
-  sectionHeading: {
-    ...fontStyles.headline2,
-    marginBottom: scale(16),
-    fontWeight: "700",
-  },
-  macrosContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: scale(28),
-    gap: scale(12),
-    borderRadius: scale(20),
-  },
-  macroItem: {
-    flex: 1,
-    alignItems: "center",
-    padding: scale(16),
-    borderRadius: scale(20),
-    minHeight: scale(120),
-    justifyContent: "center",
-  },
-  macroValue: {
-    ...fontStyles.headline2,
-    marginTop: scale(10),
-    marginBottom: scale(4),
-    fontWeight: "700",
-  },
-  macroLabel: {
-    ...fontStyles.body2,
-    letterSpacing: 0.5,
-    textAlign: "center",
-    fontWeight: "500",
-  },
-  // Insights Section
-  insightsList: {
-    borderRadius: scale(20),
-    padding: scale(18),
-    marginBottom: scale(28),
-  },
-  insightItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: scale(16),
-  },
-  insightIconContainer: {
-    width: scale(32),
-    height: scale(32),
-    borderRadius: scale(16),
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(12),
-    marginTop: scale(2),
-  },
-  insightText: {
-    ...fontStyles.body1,
-    flex: 1,
-    lineHeight: scale(22),
   },
   // Action Buttons
   actionContainer: {

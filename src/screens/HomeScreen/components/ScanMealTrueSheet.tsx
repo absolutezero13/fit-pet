@@ -48,13 +48,14 @@ import { fontStyles } from "../../../theme/fontStyles";
 import { deleteMeal } from "../../../services/mealAnalysis";
 import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
 import useUserStore from "../../../zustand/useUserStore";
-import MacroCard from "../../../components/MacroCard";
 import { getGramGoal } from "./utils";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
-import getScoreColor from "../../../utils/getScoreColor";
 import { getLocalDateKey } from "../../../utils/dateUtils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import MealScoreSection from "../../AnalyzedMealScreen/components/MealScoreSection";
+import MealMacrosSection from "../../AnalyzedMealScreen/components/MealMacrosSection";
+import MealInsightsSection from "../../AnalyzedMealScreen/components/MealInsightsSection";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -277,11 +278,6 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     resetState();
   };
 
-  const getScoreLabel = (score: number) => {
-    const roundedScore = Math.max(1, Math.min(10, Math.floor(score)));
-    return t("score" + roundedScore);
-  };
-
   const cameraHeightAndroid = SCREEN_HEIGHT - insets.top;
   return (
     <TrueSheet
@@ -432,91 +428,24 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
               </View>
             </Animated.View>
           </View>
-          <Animated.View
-            entering={FadeInUp.delay(400).duration(500)}
-            style={[styles.scoreSection, { backgroundColor: colors.surface }]}
-          >
-            <View
-              style={[
-                styles.scoreContainer,
-                { backgroundColor: getScoreColor(analyzedMeal.score, colors) },
-              ]}
-            >
-              <Text style={styles.scoreValue}>{analyzedMeal.score}</Text>
-            </View>
-            <View style={styles.scoreTextContainer}>
-              <Text
-                style={[styles.scoreHeading, { color: colors.textSecondary }]}
-              >
-                {t("nutritionScore")}
-              </Text>
-              <Text
-                style={[
-                  styles.scoreLabel,
-                  { color: getScoreColor(analyzedMeal.score, colors) },
-                ]}
-              >
-                {getScoreLabel(analyzedMeal.score)}
-              </Text>
-            </View>
+          <Animated.View entering={FadeInUp.delay(400).duration(500)}>
+            <MealScoreSection score={analyzedMeal.score} />
           </Animated.View>
           <Animated.View entering={FadeInUp.delay(500).duration(500)}>
-            <Text style={[styles.sectionHeading, { color: colors.text }]}>
-              {t("macronutrients")}
-            </Text>
-            <View style={styles.macrosContainer}>
-              <MacroCard
-                type="protein"
-                current={analyzedMeal.proteins ?? 0}
-                goal={proteinGoal}
-              />
-              <MacroCard
-                type="carbs"
-                current={analyzedMeal.carbs ?? 0}
-                goal={carbsGoal}
-              />
-              <MacroCard
-                type="fats"
-                current={analyzedMeal.fats ?? 0}
-                goal={fatsGoal}
-              />
-            </View>
+            <MealMacrosSection
+              proteins={analyzedMeal.proteins ?? 0}
+              carbs={analyzedMeal.carbs ?? 0}
+              fats={analyzedMeal.fats ?? 0}
+              variant="remaining"
+              proteinGoal={proteinGoal}
+              carbsGoal={carbsGoal}
+              fatsGoal={fatsGoal}
+            />
           </Animated.View>
 
-          {analyzedMeal.insights && analyzedMeal.insights.length > 0 && (
-            <Animated.View entering={FadeInUp.delay(600).duration(500)}>
-              <Text style={[styles.sectionHeading, { color: colors.text }]}>
-                {t("insights")}
-              </Text>
-              <LiquidGlassView
-                effect="clear"
-                style={[
-                  styles.insightsList,
-                  { backgroundColor: colors.surface },
-                ]}
-              >
-                {analyzedMeal.insights.map((insight, index) => (
-                  <View key={index} style={styles.insightItem}>
-                    <View
-                      style={[
-                        styles.insightIconContainer,
-                        { backgroundColor: colors["color-warning-100"] },
-                      ]}
-                    >
-                      <MaterialCommunityIcons
-                        name="lightbulb"
-                        size={scale(20)}
-                        color={colors["color-warning-600"]}
-                      />
-                    </View>
-                    <Text style={[styles.insightText, { color: colors.text }]}>
-                      {insight}
-                    </Text>
-                  </View>
-                ))}
-              </LiquidGlassView>
-            </Animated.View>
-          )}
+          <Animated.View entering={FadeInUp.delay(600).duration(500)}>
+            <MealInsightsSection insights={analyzedMeal.insights} />
+          </Animated.View>
 
           <Animated.View
             entering={FadeInUp.delay(700).duration(500)}
@@ -705,87 +634,6 @@ const styles = StyleSheet.create({
     ...fontStyles.body2,
     marginLeft: scale(2),
     fontWeight: "600",
-  },
-  scoreSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: scale(28),
-    padding: scale(20),
-    borderRadius: scale(20),
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  scoreContainer: {
-    width: scale(70),
-    height: scale(70),
-    borderRadius: scale(35),
-    justifyContent: "center",
-    alignItems: "center",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-    marginRight: scale(18),
-  },
-  scoreValue: {
-    ...fontStyles.headline1,
-    fontSize: scale(32),
-    color: "white",
-    fontWeight: "bold",
-  },
-  scoreTextContainer: {
-    flex: 1,
-  },
-  scoreHeading: {
-    ...fontStyles.body1,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: scale(6),
-    fontWeight: "600",
-  },
-  scoreLabel: {
-    ...fontStyles.headline2,
-    fontWeight: "700",
-  },
-  sectionHeading: {
-    ...fontStyles.headline2,
-    marginBottom: scale(16),
-    fontWeight: "700",
-  },
-  macrosContainer: {
-    flexDirection: "row",
-    marginBottom: scale(28),
-    gap: scale(10),
-  },
-  insightsList: {
-    borderRadius: scale(20),
-    padding: scale(18),
-    marginBottom: scale(28),
-  },
-  insightItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: scale(16),
-  },
-  insightIconContainer: {
-    width: scale(32),
-    height: scale(32),
-    borderRadius: scale(16),
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: scale(12),
-    marginTop: scale(2),
-  },
-  insightIcon: {
-    marginRight: scale(12),
-    marginTop: scale(2),
-  },
-  insightText: {
-    ...fontStyles.body1,
-    flex: 1,
-    lineHeight: scale(22),
   },
   actionContainer: {
     flexDirection: "row",
