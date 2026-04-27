@@ -219,8 +219,41 @@ export const createCookLoggedMeal = async (
   recipe: CookRecipe
 ): Promise<IMeal> => {
   const user = useUserStore.getState();
-  const prompt = promptBuilder.createCookMealLogPrompt(user, recipe);
+  const mealDescription = buildCookedMealDescription(recipe);
+  const prompt = promptBuilder.createAnalysisPrompt(
+    user ?? {},
+    mealDescription,
+    "",
+  );
   const result = await createGeminiCompletion(prompt, "analyzedMeal");
 
   return parseGeminiJson<IMeal>(result);
+};
+
+const buildCookedMealDescription = (recipe: CookRecipe): string => {
+  const lines: string[] = [];
+  lines.push(`${recipe.title}${recipe.summary ? `. ${recipe.summary}` : ""}`);
+
+  const n = recipe.nutrition;
+  if (n) {
+    const parts: string[] = [];
+    if (n.calories != null) parts.push(`${n.calories} kcal`);
+    if (n.protein != null) parts.push(`protein ${n.protein}g`);
+    if (n.carbs != null) parts.push(`carbs ${n.carbs}g`);
+    if (n.fats != null) parts.push(`fats ${n.fats}g`);
+    if (parts.length) lines.push(`Per serving: ${parts.join(", ")}.`);
+  }
+
+  if (recipe.ingredients?.length) {
+    const ing = recipe.ingredients
+      .map((i) => (i.amount ? `${i.amount} ${i.item}` : i.item))
+      .join(", ");
+    lines.push(`Ingredients: ${ing}.`);
+  }
+
+  lines.push(
+    "The user just cooked this recipe and is logging exactly one serving. Use the per-serving nutrition above as the strongest source for calories and macros.",
+  );
+
+  return lines.join("\n");
 };

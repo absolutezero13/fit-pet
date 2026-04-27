@@ -334,38 +334,6 @@ ${JSON.stringify(options.currentRecipe, null, 2)}
 }
 `;
 
-const createCookMealLogPrompt = (
-  userInfo: IUser | null,
-  recipe: CookRecipe,
-) => {
-  const tone = toneInstructions[getSelectedTone()];
-
-  return `${tone.analysis}
-${analysisBaseInstructions}
-The user just finished cooking this recipe and wants to log it as a meal.
-Transform the cooked recipe into one analyzed meal object using the provided analyzedMeal schema.
-
-Rules:
-- Treat this as one serving unless the recipe clearly states otherwise in a way that should change the logged serving.
-- If recipe nutrition exists, use it as the strongest source for calories and macros.
-- If recipe nutrition is missing, estimate nutrition from the ingredients and cooking method.
-- Set mealType to the most likely choice among breakfast, lunch, dinner, or snack.
-- mealTypeLocalized must match the user's language.
-- description should be one short sentence describing the finished dish.
-- insights should focus on the nutritional quality of this cooked meal and how it fits the user's goals.
-- errorMessage should be null unless the recipe is unusable.
-- Respond in the user’s language: ${
-    languageMapping[getLanguage()] ?? getLanguage()
-  }.
-
-User info:
-${stringifyUserInfo(parseGeminiUserInfo(userInfo ?? {})) ?? {}}
-
-Cooked recipe:
-${JSON.stringify(recipe, null, 2)}
-`;
-};
-
 const promptBuilder = {
   createMealPrompt,
   createAnalysisPrompt,
@@ -374,7 +342,6 @@ const promptBuilder = {
   createImagePrompt,
   createCookCandidatesPrompt,
   createCookRecipePrompt,
-  createCookMealLogPrompt,
 };
 
 export default promptBuilder;

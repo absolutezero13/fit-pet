@@ -14,7 +14,6 @@ import {
   LiquidGlassView,
   isLiquidGlassSupported,
 } from "@callstack/liquid-glass";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import Animated, {
@@ -38,10 +37,7 @@ import {
   CookPromptAnswers,
 } from "../../services/apiTypes";
 import { PersistedCookRecipe } from "../../storage/types";
-import {
-  createCookCandidates,
-  createCookRecipe,
-} from "../../services/gptApi";
+import { createCookCandidates, createCookRecipe } from "../../services/gptApi";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
 import { fontStyles } from "../../theme/fontStyles";
@@ -98,7 +94,6 @@ const CookScreen = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const user = useUserStore();
   const seedInputRef = useRef<TextInput>(null);
   const isKeyboardVisible = useKeyboardVisible();
@@ -258,6 +253,7 @@ const CookScreen = () => {
         key: "maxCaloriesPerServing",
         title: t("cookQuestionMaxCalories"),
         options: [
+          { label: t("cookCalories200"), value: "200" },
           { label: t("cookCalories400"), value: "400" },
           { label: t("cookCalories600"), value: "600" },
           { label: t("cookCalories800"), value: "800" },
@@ -566,7 +562,11 @@ const CookScreen = () => {
 
     await storageService.setItem("latestCook", latestSession);
     const existing = (await storageService.getItem("myRecipes")) ?? [];
-    await storageService.setItem("myRecipes", [persisted, ...existing]);
+
+    if (!existing.find((r) => r.recipe.id === persisted.recipe.id)) {
+      await storageService.setItem("myRecipes", [persisted, ...existing]);
+    }
+
     navigation.navigate("CookRecipe", {
       recipe: selectedRecipe.recipe,
     });
@@ -900,11 +900,6 @@ const CookScreen = () => {
           style={styles.questionStage}
         >
           <View style={styles.questionMetaRow}>
-            <Text
-              style={[styles.cardLabel, { color: colors["color-success-500"] }]}
-            >
-              {t("cookAssistantLabel")}
-            </Text>
             <View
               style={[
                 styles.progressPill,
@@ -965,14 +960,6 @@ const CookScreen = () => {
             style={styles.questionStage}
           >
             <View style={styles.questionMetaRow}>
-              <Text
-                style={[
-                  styles.cardLabel,
-                  { color: colors["color-success-500"] },
-                ]}
-              >
-                {t("cookAssistantLabel")}
-              </Text>
               <View
                 style={[
                   styles.progressPill,
@@ -1072,10 +1059,7 @@ const CookScreen = () => {
     <Animated.View entering={FadeInUp.duration(240)} style={styles.sectionGap}>
       <View style={styles.candidateGrid}>
         {suggestedRecipes.map(
-          (
-            { candidate, recipe, activeVariation, isRefreshing },
-            index,
-          ) => (
+          ({ candidate, recipe, activeVariation, isRefreshing }, index) => (
             <CookCandidateCard
               key={candidate.id}
               recipe={recipe}
@@ -1284,7 +1268,7 @@ const styles = StyleSheet.create({
     ...fontStyles.headline3,
   },
   immersiveTitleWrap: {
-    borderRadius: scale(999),
+    borderRadius: scale(99),
     paddingHorizontal: scale(14),
     paddingVertical: scale(8),
   },
@@ -1396,7 +1380,7 @@ const styles = StyleSheet.create({
     ...fontStyles.headline2,
   },
   progressPill: {
-    borderRadius: scale(999),
+    borderRadius: scale(99),
     paddingHorizontal: scale(10),
     paddingVertical: scale(6),
   },
@@ -1412,11 +1396,11 @@ const styles = StyleSheet.create({
     ...fontStyles.headline3,
   },
   textInput: {
-    borderRadius: scale(18),
-    minHeight: scale(58),
+    borderRadius: scale(20),
     paddingHorizontal: scale(16),
     paddingVertical: scale(16),
     ...fontStyles.body1,
+    lineHeight: 0,
   },
 });
 

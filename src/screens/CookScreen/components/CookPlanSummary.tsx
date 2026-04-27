@@ -64,15 +64,18 @@ const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
     borderRadius: scale(22),
-    padding: scale(16),
     gap: scale(12),
   },
   title: {
     ...fontStyles.headline4,
+    paddingHorizontal: scale(16),
+    paddingTop: scale(16),
   },
   chips: {
     flexDirection: "row",
     gap: scale(8),
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(16),
   },
   chip: {
     borderRadius: scale(16),

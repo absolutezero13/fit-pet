@@ -53,12 +53,12 @@ const CookChipItem = ({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.surface, colors.accent]
+      [colors.surface, colors.accent],
     ),
     borderColor: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.border, colors.accent]
+      [colors.border, colors.accent],
     ),
     transform: [{ scale: 1 - progress.value * 0.02 }],
   }));
@@ -67,7 +67,7 @@ const CookChipItem = ({
     color: interpolateColor(
       progress.value,
       [0, 1],
-      [colors.text, colors.textInverse]
+      [colors.text, colors.textInverse],
     ),
   }));
 
@@ -77,9 +77,13 @@ const CookChipItem = ({
       disabled={disabled}
       onPress={() => onSelect(option.value)}
     >
-      <Animated.View style={[styles.chip, chipStyle, disabled ? styles.disabled : null]}>
+      <Animated.View
+        style={[styles.chip, chipStyle, disabled ? styles.disabled : null]}
+      >
         <View style={styles.row}>
-          <Animated.Text style={[styles.label, labelStyle]}>{option.label}</Animated.Text>
+          <Animated.Text style={[styles.label, labelStyle]}>
+            {option.label}
+          </Animated.Text>
           {isRecommended ? (
             <View
               style={[
@@ -94,7 +98,11 @@ const CookChipItem = ({
               <Text
                 style={[
                   styles.recommendedText,
-                  { color: isSelected ? colors.textInverse : colors["color-success-500"] },
+                  {
+                    color: isSelected
+                      ? colors.textInverse
+                      : colors["color-success-500"],
+                  },
                 ]}
               >
                 {t("cookRecommended")}
@@ -119,12 +127,12 @@ const CookOptionChips = ({
       {options.map((option) => (
         <CookChipItem
           key={option.value}
-            option={option}
-            selectedValue={selectedValue}
-            recommendedValue={recommendedValue}
-            disabled={disabled}
-            onSelect={onSelect}
-          />
+          option={option}
+          selectedValue={selectedValue}
+          recommendedValue={recommendedValue}
+          disabled={disabled}
+          onSelect={onSelect}
+        />
       ))}
     </View>
   );

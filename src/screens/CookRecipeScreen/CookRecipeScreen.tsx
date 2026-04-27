@@ -209,9 +209,7 @@ const CookRecipeScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {isLoggingMeal ? (
         <View style={styles.loggingOverlay}>
-          <View
-            style={[styles.loggingCard, { backgroundColor: colors.surface }]}
-          >
+          <View style={[styles.loggingCard, {}]}>
             <LoadingDots />
             <Text style={[styles.loggingText, { color: colors.text }]}>
               {t("cookLoggingMeal")}
@@ -320,122 +318,122 @@ const CookRecipeScreen = () => {
               </View>
 
               <View style={styles.bottomContentWrap}>
-              <View style={styles.bottomContentBlock}>
-                <Animated.View
-                  key={`body-${currentStep.id}`}
-                  entering={
-                    transitionDirection === "forward"
-                      ? SlideInDown.duration(260)
-                      : SlideInUp.duration(260)
-                  }
-                  exiting={
-                    transitionDirection === "forward"
-                      ? SlideOutUp.duration(180)
-                      : SlideOutDown.duration(180)
-                  }
-                  layout={LinearTransition}
-                  style={styles.activeStepBlock}
-                >
+                <View style={styles.bottomContentBlock}>
                   <Animated.View
-                    style={[
-                      styles.instructionCircleWrap,
-                      circlePulseStyle,
-                      isFinishingCurrentStep
-                        ? { backgroundColor: colors["color-success-100"] }
-                        : null,
-                    ]}
+                    key={`body-${currentStep.id}`}
+                    entering={
+                      transitionDirection === "forward"
+                        ? SlideInDown.duration(260)
+                        : SlideInUp.duration(260)
+                    }
+                    exiting={
+                      transitionDirection === "forward"
+                        ? SlideOutUp.duration(180)
+                        : SlideOutDown.duration(180)
+                    }
+                    layout={LinearTransition}
+                    style={styles.activeStepBlock}
                   >
-                    <LiquidGlassView
-                      effect="clear"
-                      interactive
+                    <Animated.View
                       style={[
-                        styles.instructionCircle,
-                        {
-                          backgroundColor: isLiquidGlassSupported
-                            ? undefined
-                            : "transparent",
-                          borderColor: isFinishingCurrentStep
-                            ? colors.accent
-                            : colors.border,
-                          borderWidth: isLiquidGlassSupported
-                            ? isFinishingCurrentStep
-                              ? 2
-                              : 0
-                            : 2,
-                        },
+                        styles.instructionCircleWrap,
+                        circlePulseStyle,
+                        isFinishingCurrentStep
+                          ? { backgroundColor: colors["color-success-100"] }
+                          : null,
                       ]}
                     >
-                      <Text
+                      <LiquidGlassView
+                        effect="clear"
+                        interactive
                         style={[
-                          styles.heroBody,
-                          styles.instructionText,
-                          { color: colors.text },
+                          styles.instructionCircle,
+                          {
+                            backgroundColor: isLiquidGlassSupported
+                              ? undefined
+                              : "transparent",
+                            borderColor: isFinishingCurrentStep
+                              ? colors.accent
+                              : colors.border,
+                            borderWidth: isLiquidGlassSupported
+                              ? isFinishingCurrentStep
+                                ? 2
+                                : 0
+                              : 2,
+                          },
                         ]}
                       >
-                        {currentStep.instruction}
-                      </Text>
-
-                      {isFinishingCurrentStep ? (
-                        <Animated.View
-                          entering={ZoomIn.duration(160)}
+                        <Text
                           style={[
-                            styles.completedBadge,
-                            { backgroundColor: colors.accent },
+                            styles.heroBody,
+                            styles.instructionText,
+                            { color: colors.text },
                           ]}
                         >
-                          <MaterialCommunityIcons
-                            name="check"
-                            size={scale(36)}
-                            color={colors.textInverse}
-                          />
-                        </Animated.View>
-                      ) : null}
-                    </LiquidGlassView>
-                  </Animated.View>
+                          {currentStep.instruction}
+                        </Text>
 
-                  {currentStep.timerSeconds ? (
-                    <CookStepTimer
-                      key={currentStep.id}
-                      initialSeconds={currentStep.timerSeconds}
-                    />
-                  ) : null}
+                        {isFinishingCurrentStep ? (
+                          <Animated.View
+                            entering={ZoomIn.duration(160)}
+                            style={[
+                              styles.completedBadge,
+                              { backgroundColor: colors.accent },
+                            ]}
+                          >
+                            <MaterialCommunityIcons
+                              name="check"
+                              size={scale(36)}
+                              color={colors.textInverse}
+                            />
+                          </Animated.View>
+                        ) : null}
+                      </LiquidGlassView>
+                    </Animated.View>
 
-                  {currentStep.tips?.length ? (
-                    <View
-                      style={[
-                        styles.tipBox,
-                        { backgroundColor: colors.backgroundSecondary },
-                      ]}
-                    >
-                      <Text
+                    {currentStep.timerSeconds ? (
+                      <CookStepTimer
+                        key={currentStep.id}
+                        initialSeconds={currentStep.timerSeconds}
+                      />
+                    ) : null}
+
+                    {currentStep.tips?.length ? (
+                      <View
                         style={[
-                          styles.tipLabel,
-                          { color: colors.textSecondary },
+                          styles.tipBox,
+                          { backgroundColor: colors.backgroundSecondary },
                         ]}
                       >
-                        {t("cookTipsTitle")}
-                      </Text>
-                      {currentStep.tips.map((tip) => (
                         <Text
-                          key={tip}
-                          style={[styles.tipText, { color: colors.text }]}
+                          style={[
+                            styles.tipLabel,
+                            { color: colors.textSecondary },
+                          ]}
                         >
-                          - {tip}
+                          {t("cookTipsTitle")}
                         </Text>
-                      ))}
-                    </View>
-                  ) : null}
-                </Animated.View>
+                        {currentStep.tips.map((tip) => (
+                          <Text
+                            key={tip}
+                            style={[styles.tipText, { color: colors.text }]}
+                          >
+                            - {tip}
+                          </Text>
+                        ))}
+                      </View>
+                    ) : null}
+                  </Animated.View>
 
-                <Text
-                  style={[
-                    styles.completedText,
-                    { color: colors.textSecondary },
-                  ]}
-                >
-                  {completedCountLabel}
-                </Text>
-              </View>
+                  <Text
+                    style={[
+                      styles.completedText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {completedCountLabel}
+                  </Text>
+                </View>
               </View>
             </Animated.View>
 
@@ -493,7 +491,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.24)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: 20,
   },
   loggingCard: {

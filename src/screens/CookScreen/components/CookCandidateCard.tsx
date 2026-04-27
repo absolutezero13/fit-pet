@@ -16,6 +16,7 @@ import { CookRecipe } from "../../../services/apiTypes";
 import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
 import { scale } from "../../../theme/utils";
+import AppButton from "../../../components/AppButton";
 
 interface CookCandidateCardProps {
   recipe: CookRecipe;
@@ -111,30 +112,29 @@ const CookCandidateCard = ({
           },
         ]}
       >
-        <View style={[styles.cardContent, isRefreshing ? styles.cardContentRefreshing : null]}>
+        <View
+          style={[
+            styles.cardContent,
+            isRefreshing ? styles.cardContentRefreshing : null,
+          ]}
+        >
           <LinearGradient
             colors={[accentColorSoft, colors.surface]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.heroBlock}
           >
-            <View style={[styles.iconWrap, { backgroundColor: accentColorSoft }]}> 
-              <MaterialCommunityIcons
-                name={accentIcon}
-                size={scale(18)}
-                color={accentColor}
-              />
-            </View>
-
             <View style={styles.titleWrap}>
-              <Text style={[styles.title, { color: colors.text }]}>{recipe.title}</Text>
-              <Text style={[styles.summary, { color: colors.textSecondary }]}> 
+              <Text style={[styles.title, { color: colors.text }]}>
+                {recipe.title}
+              </Text>
+              <Text style={[styles.summary, { color: colors.textSecondary }]}>
                 {recipe.summary}
               </Text>
             </View>
           </LinearGradient>
 
-          <Pressable
+          {/* <Pressable
             disabled={isRefreshing}
             onPress={onStartCooking}
             style={[
@@ -145,7 +145,9 @@ const CookCandidateCard = ({
               },
             ]}
           >
-            <Text style={[styles.cookButtonLabel, { color: colors.textInverse }]}>
+            <Text
+              style={[styles.cookButtonLabel, { color: colors.textInverse }]}
+            >
               {t("cookStartCooking")}
             </Text>
             <MaterialCommunityIcons
@@ -153,7 +155,7 @@ const CookCandidateCard = ({
               size={scale(15)}
               color={colors.textInverse}
             />
-          </Pressable>
+          </Pressable> */}
 
           <View style={styles.metaGrid}>
             {metaItems.map((item) => (
@@ -164,7 +166,9 @@ const CookCandidateCard = ({
                   { backgroundColor: colors.backgroundSecondary },
                 ]}
               >
-                <Text style={[styles.metaLabel, { color: colors.textSecondary }]}>
+                <Text
+                  style={[styles.metaLabel, { color: colors.textSecondary }]}
+                >
                   {item.label}
                 </Text>
                 <Text style={[styles.metaValue, { color: colors.text }]}>
@@ -173,7 +177,12 @@ const CookCandidateCard = ({
               </View>
             ))}
           </View>
-
+          <AppButton
+            title={t("cookStartCooking")}
+            onPress={onStartCooking}
+            backgroundColor={accentColor}
+            color={colors.textInverse}
+          />
           <View
             style={[
               styles.variationBlock,
@@ -227,7 +236,9 @@ const CookCandidateCard = ({
                         backgroundColor: isActiveVariation
                           ? accentColor
                           : colors.surface,
-                        borderColor: isActiveVariation ? accentColor : colors.border,
+                        borderColor: isActiveVariation
+                          ? accentColor
+                          : colors.border,
                         opacity: isRefreshing && !isActiveVariation ? 0.5 : 1,
                       },
                     ]}
@@ -248,7 +259,9 @@ const CookCandidateCard = ({
                             isActiveVariation ? "progress-clock" : "auto-fix"
                           }
                           size={scale(16)}
-                          color={isActiveVariation ? colors.textInverse : accentColor}
+                          color={
+                            isActiveVariation ? colors.textInverse : accentColor
+                          }
                         />
                       </View>
                       <View style={styles.variationChipCopy}>
@@ -282,7 +295,9 @@ const CookCandidateCard = ({
                       name="chevron-right"
                       size={scale(18)}
                       color={
-                        isActiveVariation ? colors.textInverse : colors.textSecondary
+                        isActiveVariation
+                          ? colors.textInverse
+                          : colors.textSecondary
                       }
                     />
                   </Pressable>
@@ -290,17 +305,19 @@ const CookCandidateCard = ({
               })}
             </View>
           </View>
-
         </View>
 
         {isRefreshing ? (
-          <View
-            pointerEvents="none"
-            style={styles.shimmerOverlay}
-          >
+          <View pointerEvents="none" style={styles.shimmerOverlay}>
             <Animated.View style={[styles.shimmerBand, shimmerStyle]}>
               <LinearGradient
-                colors={["transparent", `${colors.white}28`, `${colors.white}50`, `${colors.white}28`, "transparent"]}
+                colors={[
+                  "transparent",
+                  `${colors.white}28`,
+                  `${colors.white}50`,
+                  `${colors.white}28`,
+                  "transparent",
+                ]}
                 locations={[0, 0.3, 0.5, 0.7, 1]}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
@@ -424,7 +441,7 @@ const styles = StyleSheet.create({
     gap: scale(10),
   },
   variationChip: {
-    minHeight: scale(62),
+    minHeight: scale(52),
     borderRadius: scale(18),
     borderWidth: 1,
     paddingHorizontal: scale(12),
