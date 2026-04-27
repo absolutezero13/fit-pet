@@ -1,4 +1,5 @@
 import { Platform, PermissionsAndroid } from "react-native";
+import i18next from "i18next";
 import useNotificationStore, {
   MealType,
   MealTime,
@@ -10,6 +11,7 @@ import notifee, {
   TriggerType,
   type TimestampTrigger,
 } from "@notifee/react-native";
+import { eventBus, AppEvent } from "./EventBus";
 
 const NOTIFICATION_IDS = {
   breakfast: "meal-reminder-breakfast",
@@ -25,6 +27,7 @@ const getNotifee = async () => notifee;
 
 class NotificationService {
   private initialized = false;
+  private languageListenerRegistered = false;
 
   /**
    * Initialize the notification service
@@ -218,6 +221,36 @@ class NotificationService {
     } catch {
       return [];
     }
+  }
+
+  initLanguageListener(): void {
+    if (this.languageListenerRegistered) return;
+    this.languageListenerRegistered = true;
+
+    eventBus.subscribe(AppEvent.LanguageChanged, async () => {
+      const store = useNotificationStore.getState();
+      if (!store.notificationsEnabled) return;
+
+      try {
+        await this.rescheduleAllNotifications(
+          {
+            breakfast: i18next.t("breakfastReminder"),
+            lunch: i18next.t("lunchReminder"),
+            dinner: i18next.t("dinnerReminder"),
+          },
+          i18next.t("mealReminderBody"),
+        );
+      } catch (error) {
+        console.error(
+          "Failed to reschedule notifications on language change:",
+          error,
+        );
+      }
+    });
+
+    i18next.on("languageChanged", (code: string) => {
+      eventBus.publish(AppEvent.LanguageChanged, { code });
+    });
   }
 
   private createDailyTrigger(time: MealTime): TimestampTrigger {

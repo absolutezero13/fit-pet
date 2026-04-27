@@ -20,7 +20,7 @@ import getMacroConfig, {
   withMacroAlpha,
 } from "../../../utils/getMacroConfig";
 import { deleteMeal } from "../../../services/mealAnalysis";
-import { syncMealLiveActivity } from "../../../services/mealLiveActivitySync";
+import { eventBus, AppEvent } from "../../../services/EventBus";
 import useMealsStore from "../../../zustand/useMealsStore";
 import Animated, {
   SharedValue,
@@ -113,7 +113,7 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
               deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
-            if (meal.date) syncMealLiveActivity(meal.date);
+            eventBus.publish(AppEvent.MealChanged, { date: meal.date });
           } catch (error) {
             console.error("Error deleting meal:", error);
             Alert.alert(t("error"), t("deleteFailed"));

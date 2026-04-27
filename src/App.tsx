@@ -41,6 +41,7 @@ import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
+import { initMealLiveActivityListener } from "./services/mealLiveActivitySync";
 import TrueSheetProvider from "./components/TrueSheet/TrueSheetProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -152,6 +153,10 @@ export function App() {
 
     // Initialize notification service
     await notificationService.initialize();
+    notificationService.initLanguageListener();
+
+    // Register pubsub listeners
+    initMealLiveActivityListener();
 
     // Track first launch
     const hasLaunched = await storageService.getItem("hasLaunched");

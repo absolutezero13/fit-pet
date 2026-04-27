@@ -10,6 +10,7 @@ import {
   updateMealLiveActivity,
   LiveActivityPayload,
 } from "./mealLiveActivity";
+import { eventBus, AppEvent } from "./EventBus";
 
 let activityRunning = false;
 let activityDateKey: string | null = null;
@@ -105,4 +106,18 @@ export const resetMealLiveActivity = async () => {
   await endMealLiveActivity();
   activityRunning = false;
   activityDateKey = null;
+};
+
+let listenerRegistered = false;
+
+export const initMealLiveActivityListener = () => {
+  if (listenerRegistered) return;
+  listenerRegistered = true;
+
+  eventBus.subscribe(AppEvent.MealChanged, ({ date }) => {
+    if (!date) return;
+    syncMealLiveActivity(date).catch((error) => {
+      console.error("syncMealLiveActivity failed:", error);
+    });
+  });
 };
