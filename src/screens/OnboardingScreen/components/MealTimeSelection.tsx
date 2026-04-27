@@ -121,17 +121,17 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
 
   const handleBreakfastTimeChange = (time: MealTime) => {
     setBreakfastTime(time);
-    notificationStore.setBreakfastTime(time);
+    useNotificationStore.setState({ breakfastTime: time });
   };
 
   const handleLunchTimeChange = (time: MealTime) => {
     setLunchTime(time);
-    notificationStore.setLunchTime(time);
+    useNotificationStore.setState({ lunchTime: time });
   };
 
   const handleDinnerTimeChange = (time: MealTime) => {
     setDinnerTime(time);
-    notificationStore.setDinnerTime(time);
+    useNotificationStore.setState({ dinnerTime: time });
   };
 
   const requestPermissionAndEnable = async () => {
@@ -141,10 +141,12 @@ const MealTimeSelection: React.FC<MealTimeSelectionProps> = ({ focused }) => {
     const granted = await notificationService.requestPermission();
 
     if (granted) {
-      notificationStore.setNotificationsEnabled(true);
-      notificationStore.setBreakfastEnabled(true);
-      notificationStore.setLunchEnabled(true);
-      notificationStore.setDinnerEnabled(true);
+      useNotificationStore.setState({
+        notificationsEnabled: true,
+        breakfastEnabled: true,
+        lunchEnabled: true,
+        dinnerEnabled: true,
+      });
 
       await notificationService.rescheduleAllNotifications(
         {

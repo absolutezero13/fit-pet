@@ -255,13 +255,15 @@ const NotificationSettings: React.FC<Props> = ({
         }
       }
 
-      store.setNotificationsEnabled(globalEnabled);
-      store.setBreakfastEnabled(breakfastEnabled);
-      store.setLunchEnabled(lunchEnabled);
-      store.setDinnerEnabled(dinnerEnabled);
-      store.setBreakfastTime(breakfastTime);
-      store.setLunchTime(lunchTime);
-      store.setDinnerTime(dinnerTime);
+      useNotificationStore.setState({
+        notificationsEnabled: globalEnabled,
+        breakfastEnabled,
+        lunchEnabled,
+        dinnerEnabled,
+        breakfastTime,
+        lunchTime,
+        dinnerTime,
+      });
 
       if (!globalEnabled) {
         await notificationService.cancelAllReminders();

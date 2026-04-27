@@ -37,7 +37,6 @@ import auth from "@react-native-firebase/auth";
 import userService from "./services/user";
 import { storageService } from "./storage/AsyncStorageService";
 import { getCrashlytics } from "@react-native-firebase/crashlytics";
-import useUserStore from "./zustand/useUserStore";
 import { ThemeProvider, useTheme } from "./theme/ThemeContext";
 import { analyticsService, AnalyticsEvent } from "./services/analytics";
 import notificationService from "./services/notificationService";
@@ -139,7 +138,6 @@ export function App() {
     };
   }, []);
 
-  const userStore = useUserStore((state) => state);
   const user = auth().currentUser;
   if (!fontLoaded || !isLanguageReady) {
     return null;
@@ -148,17 +146,13 @@ export function App() {
   const onReady = async () => {
     getCrashlytics().log("App ready");
 
-    // Initialize analytics
     analyticsService.init(AMPLITUDE_API_KEY);
 
-    // Initialize notification service
     await notificationService.initialize();
     notificationService.initLanguageListener();
 
-    // Register pubsub listeners
     initMealLiveActivityListener();
 
-    // Track first launch
     const hasLaunched = await storageService.getItem("hasLaunched");
     if (!hasLaunched) {
       analyticsService.logEvent(AnalyticsEvent.FirstLaunch);
