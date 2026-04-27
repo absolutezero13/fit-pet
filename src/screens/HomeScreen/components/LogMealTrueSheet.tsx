@@ -185,7 +185,10 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         useUserStore.getState()?.uid ?? "",
       );
       console.log("IMAGE URL", imageUrl);
-      meal.image = imageUrl;
+      if (typeof imageUrl === "string") {
+        meal.image = imageUrl;
+        await updateMeal(meal);
+      }
     }
 
     if (!meal.errorMessage) {

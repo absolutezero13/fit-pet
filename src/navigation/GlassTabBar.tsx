@@ -13,7 +13,6 @@ import { TAB_BAR_ICON_SIZE } from "./constants";
 const TAB_ITEM_WIDTH = scale(80);
 const PILL_HEIGHT = scale(56);
 const BAR_PADDING_H = scale(2);
-const PILL_INSET = scale(2);
 const PILL_WIDTH = TAB_ITEM_WIDTH;
 
 const ICONS: Record<string, (color: string) => React.ReactNode> = {

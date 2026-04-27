@@ -69,6 +69,6 @@ export const uploadMealImageToFireStorage = async (
     return url;
   } catch (error) {
     console.log("UPLOAD MEAL IMAGE TO FIRE STORAGE ERROR", error);
-    return error as any;
+    return null;
   }
 };
