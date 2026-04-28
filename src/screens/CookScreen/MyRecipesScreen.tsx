@@ -14,8 +14,10 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
 import { fontStyles } from "../../theme/fontStyles";
-import { storageService } from "../../storage/AsyncStorageService";
-import { PersistedCookRecipe } from "../../storage/types";
+import {
+  listCookRecipes,
+  PersistedCookRecipe,
+} from "../../services/cookRecipes";
 
 const MyRecipesScreen: FC = () => {
   const navigation = useNavigation();
@@ -25,9 +27,7 @@ const MyRecipesScreen: FC = () => {
   const [recipes, setRecipes] = useState<PersistedCookRecipe[]>([]);
 
   useEffect(() => {
-    storageService.getItem("myRecipes").then((saved) => {
-      setRecipes(saved ?? []);
-    });
+    listCookRecipes().then(setRecipes);
   }, []);
 
   const renderEmpty = () => (

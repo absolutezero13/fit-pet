@@ -36,10 +36,10 @@ import {
   LatestCookSession,
   CookPromptAnswers,
 } from "../../services/apiTypes";
-import { PersistedCookRecipe } from "../../storage/types";
 import { createCookCandidates, createCookRecipe } from "../../services/gptApi";
 import { analyticsService, AnalyticsEvent } from "../../services/analytics";
 import { storageService } from "../../storage/AsyncStorageService";
+import { saveCookRecipe } from "../../services/cookRecipes";
 import { fontStyles } from "../../theme/fontStyles";
 import { useTheme } from "../../theme/ThemeContext";
 import { scale } from "../../theme/utils";
@@ -555,17 +555,8 @@ const CookScreen = () => {
       seed: (answers.seed as string) ?? "",
       savedAt,
     };
-    const persisted: PersistedCookRecipe = {
-      recipe: selectedRecipe.recipe,
-      savedAt,
-    };
-
     await storageService.setItem("latestCook", latestSession);
-    const existing = (await storageService.getItem("myRecipes")) ?? [];
-
-    if (!existing.find((r) => r.recipe.id === persisted.recipe.id)) {
-      await storageService.setItem("myRecipes", [persisted, ...existing]);
-    }
+    void saveCookRecipe(selectedRecipe.recipe);
 
     navigation.navigate("CookRecipe", {
       recipe: selectedRecipe.recipe,
