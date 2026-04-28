@@ -1,1 +1,1 @@
-export type ScanMealTrueSheetStep = "camera" | "captured";
+export type ScanMealTrueSheetStep = "camera" | "captured" | "portionReview";

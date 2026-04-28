@@ -2,6 +2,7 @@ import {
   CookCandidate,
   CookPromptAnswers,
   CookRecipe,
+  DetectedMealPortions,
 } from "../services/apiTypes";
 import i18next from "i18next";
 import { IUser } from "../zustand/useUserStore";
@@ -154,12 +155,83 @@ mealType must be one of: breakfast, lunch, dinner, or snack—language doesn’t
 Include one emoji based on what’s in the meal.
 Insights should be about the quality of the food and how it fits into the user's goals.
 There should be about 2 to 4 insights,
+Do not include seasonings, spices, herbs, salt, pepper, or garnish in ingredients.
 User info: ${stringifyUserInfo(parseGeminiUserInfo(userInfo))}
 Meal Description: ${
     meal ?? "[YOU SHOULD FILL THE DESCRIPTION]"
   } Meal Type: ${mealType}
 If user's description is adequate, just leave it as description or  Write one short, clear sentence like “Chicken salad with quinoa and veggies."
 `;
+};
+
+const createMealPortionDetectionPrompt = (
+  userInfo: {},
+  mealType: string,
+): string => `You are identifying a meal from an image before final nutrition analysis.
+Only respond if the image contains a real edible meal.
+Respond in the user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
+Meal Type: ${mealType}
+
+Return visible food items with estimated adjustable amounts and only the questions that materially affect calories or macros.
+
+Rules:
+- Prioritize calorie-sensitive uncertainty: oils, butter, cream, mayo, cheese, fatty sauces, nuts, avocado, dense carbs, and protein portions.
+- Every item must include one clear emoji.
+- Do not add seasonings, spices, herbs, salt, pepper, or garnish as items.
+- Do not ask about negligible-calorie ingredients like lettuce, cucumber, tomato, lemon juice, vinegar, herbs, spices, or small garnish unless unusually large or calorie-relevant.
+- Include low-impact foods in items if visible, but mark adjustable false.
+- Mark dense carbs, proteins, drinks, and calorie-heavy foods adjustable true.
+- Use amount + unit for visible food amount uncertainty.
+- Unit must be one of: "g", "ml", or "piece".
+- Use "piece" for countable foods when that is more natural, for example apple -> amount 1, egg -> amount 3, banana -> amount 1.
+- Use "ml" for drinks, soups, milk, juice, alcohol, smoothies, and other liquids.
+- Use "g" for rice, pasta, meat, potatoes, cheese, nuts, spreads, sauces that are visible as food portions, and most solid mixed foods.
+- Set stepSize to a natural tap increment: 25 for grams, 50 or 100 for ml, 1 for piece.
+- Every item must include hiddenFatRisk.
+- hiddenFatRisk must be false for foods that clearly do not involve added cooking fat, such as boiled eggs, shell-on eggs, raw fruit, plain bread, plain drinks, steamed vegetables, or plain boiled foods.
+- hiddenFatRisk should be true only when added fat/oil/butter/mayo/cream/fatty sauce is plausible and visually uncertain.
+- Do not ask a question that duplicates an item amount adjustment, such as rice amount, chicken size, apple count, drink volume, or potato portion.
+- Ask questions only for hidden fat sources that are not reliable as visible item amounts from the photo, especially oiliness, butter, creamy sauce, mayo, or oil-based dressing amount.
+- Every question must use category "hidden_fat".
+- Every question must include appliesToItemIds, and every referenced item must have hiddenFatRisk true.
+- If no item has hiddenFatRisk true, return no questions.
+- Never ask about oil/fat for boiled eggs, shell-on eggs, or any item whose name/preparation already clearly excludes added fat.
+- Never ask cooking method questions. If preparation is visually obvious or implied by the item/dish name, include it in the item name, for example "haşlanmış yumurta" or "fried schnitzel".
+- Do not ask about cooking method when it is visually obvious or does not materially change calories. For example, if an egg is clearly boiled, do not ask how it was cooked.
+- Do not ask cooking method for dishes whose standard preparation is already implied by the dish name. For example, schnitzel should be assumed breaded and fried unless the image clearly suggests otherwise.
+- When a dish name strongly implies a calorie-relevant preparation, use that assumption in the item context instead of asking the user.
+- Do not return questions for visible food amounts. Those belong only in items with amount and unit.
+- Do not ask about lemon sauce, lemon juice, vinegar, herbs, lettuce, cucumber, or other negligible-calorie salad details.
+- For oil/fat uncertainty, prefer simple chips such as very_little, normal, oily. Pick selectedValue as your best visual estimate.
+- selectedValue must exactly match one option value for each question.
+- Item ids and question ids must be unique.
+- Keep questions short. Ask at most 3 questions.
+- If it is not a real meal, use errorMessage.
+
+User info: ${stringifyUserInfo(parseGeminiUserInfo(userInfo))}`;
+
+const createPortionConfirmedAnalysisPrompt = (
+  userInfo: {},
+  mealType: string,
+  detectedPortions: DetectedMealPortions,
+): string => {
+  const tone = toneInstructions[getSelectedTone()];
+
+  return `${tone.analysis}
+${analysisBaseInstructions}
+Rate the meal on a scale of 1 to 10 (integer only, minimum 1, maximum 10) based on nutritional quality. ${tone.rating}
+Use the confirmed portions and answers as the source of truth for calories and macros.
+Do not invent extra high-calorie ingredients unless clearly implied by the user's answers or the confirmed meal context.
+Do not include seasonings, spices, herbs, salt, pepper, or garnish in ingredients.
+Low-calorie vegetables, lemon juice, vinegar, herbs, and spices should not materially affect the estimate.
+Respond in the user's language: ${languageMapping[getLanguage()] ?? getLanguage()}.
+mealType must be one of: breakfast, lunch, dinner, or snack—language doesn’t matter.
+Include one emoji based on what’s in the meal.
+Insights should be about the quality of the food and how it fits into the user's goals.
+There should be about 2 to 4 insights.
+User info: ${stringifyUserInfo(parseGeminiUserInfo(userInfo))}
+Meal Type: ${mealType}
+Confirmed meal context: ${JSON.stringify(detectedPortions, null, 2)}`;
 };
 
 const createChatPrompt = (userInfo: IUser | null): string => {
@@ -337,6 +409,8 @@ ${JSON.stringify(options.currentRecipe, null, 2)}
 const promptBuilder = {
   createMealPrompt,
   createAnalysisPrompt,
+  createMealPortionDetectionPrompt,
+  createPortionConfirmedAnalysisPrompt,
   createChatPrompt,
   createMacroGoalsPrompt,
   createImagePrompt,

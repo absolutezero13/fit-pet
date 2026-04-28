@@ -12,7 +12,7 @@ import AnalyzingMealOverlay from "../../../components/AnalyzingMealOverlay";
 import { t } from "i18next";
 import { useNavigation } from "@react-navigation/native";
 import { createGeminiVisionCompletion } from "../../../services/gptApi";
-import { IMeal } from "../../../services/apiTypes";
+import { DetectedMealPortions, IMeal } from "../../../services/apiTypes";
 import {
   createMeal,
   updateMeal,
@@ -29,6 +29,7 @@ import { getLocalDateKey } from "../../../utils/dateUtils";
 import type { ScanMealTrueSheetStep } from "./ScanMealTrueSheetTypes";
 import ScanMealCameraStep from "./ScanMealCameraStep";
 import ScanMealCapturedStep from "./ScanMealCapturedStep";
+import ScanMealPortionReviewStep from "./ScanMealPortionReviewStep";
 
 type ScanMealTrueSheetProps = {
   params: {
@@ -51,6 +52,9 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingLabel, setLoadingLabel] = useState<string | undefined>();
+  const [detectedPortions, setDetectedPortions] =
+    useState<DetectedMealPortions | null>(null);
 
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
@@ -61,6 +65,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
 
   const resetState = () => {
     setPhoto(null);
+    setDetectedPortions(null);
     setScreenState("camera");
     setSelectedMealType(t("breakfast"));
   };
@@ -92,13 +97,60 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     }
   };
 
-  const savePhoto = async () => {
+  const detectPhotoPortions = async () => {
     try {
       setLoading(true);
-      const prompt = promptBuilder.createAnalysisPrompt(
+      setLoadingLabel(t("checkingPortions"));
+      const prompt = promptBuilder.createMealPortionDetectionPrompt(
         useOnboardingStore.getState(),
-        "",
         selectedMealType,
+      );
+      const response = await createGeminiVisionCompletion(
+        {
+          uri: photoUri ?? "",
+          mimeType: "image/jpeg",
+        },
+        prompt,
+        "detectedMealPortions",
+      );
+
+      const detectedPortions: DetectedMealPortions = JSON.parse(
+        response.response.candidates[0].content.parts[0].text,
+      );
+
+      if (detectedPortions.errorMessage) {
+        analyticsService.logEvent(AnalyticsEvent.MealLogError);
+        Alert.alert("Error", detectedPortions.errorMessage);
+        resetState();
+        return;
+      }
+
+      setDetectedPortions(detectedPortions);
+      setScreenState("portionReview");
+    } catch (error) {
+      console.log("ERROR DETECTING PHOTO PORTIONS", error);
+      analyticsService.logEvent(AnalyticsEvent.MealLogError);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to detect meal portions",
+      );
+      resetState();
+    } finally {
+      setLoading(false);
+      setLoadingLabel(undefined);
+    }
+  };
+
+  const analyzeConfirmedPortions = async (
+    confirmedPortions: DetectedMealPortions,
+  ) => {
+    try {
+      setLoading(true);
+      setLoadingLabel(t("analyzingMeal"));
+      const prompt = promptBuilder.createPortionConfirmedAnalysisPrompt(
+        useOnboardingStore.getState(),
+        selectedMealType,
+        confirmedPortions,
       );
       const response = await createGeminiVisionCompletion(
         {
@@ -147,7 +199,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
         void uploadLocalMealImage(meal, meal.image);
       }
     } catch (error) {
-      console.log("ERROR SAVING PHOTO", error);
+      console.log("ERROR ANALYZING CONFIRMED PORTIONS", error);
       analyticsService.logEvent(AnalyticsEvent.MealLogError);
       Alert.alert(
         "Error",
@@ -156,6 +208,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       resetState();
     } finally {
       setLoading(false);
+      setLoadingLabel(undefined);
     }
   };
 
@@ -195,11 +248,24 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
           loading={loading}
           selectedMealType={selectedMealType}
           onSelectedMealTypeChange={setSelectedMealType}
-          onAnalyze={savePhoto}
+          onAnalyze={detectPhotoPortions}
           onRetake={handleNewScan}
         />
       )}
-      <AnalyzingMealOverlay visible={loading} variant="dots" />
+      {screenState === "portionReview" && detectedPortions && photoUri && (
+        <ScanMealPortionReviewStep
+          photoUri={photoUri}
+          loading={loading}
+          detectedPortions={detectedPortions}
+          onAnalyze={analyzeConfirmedPortions}
+          onRetake={handleNewScan}
+        />
+      )}
+      <AnalyzingMealOverlay
+        visible={loading}
+        label={loadingLabel}
+        variant="dots"
+      />
     </TrueSheet>
   );
 };

@@ -11,7 +11,7 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import LoadingDots from "./LoadingDots";
-import { scale, SCREEN_HEIGHT, SCREEN_WIDTH } from "../theme/utils";
+import { scale } from "../theme/utils";
 import { fontStyles } from "../theme/fontStyles";
 import { useTheme } from "../theme/ThemeContext";
 
@@ -62,7 +62,13 @@ const AnalyzingMealOverlay: FC<Props> = ({
   if (!visible) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      presentationStyle="overFullScreen"
+      statusBarTranslucent
+    >
       <View style={styles.container}>
         <View
           style={[
@@ -138,8 +144,7 @@ const AnalyzingMealOverlay: FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.8)",

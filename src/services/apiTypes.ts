@@ -650,9 +650,168 @@ const analyzedMealSchema: Schema = {
   ],
 };
 
+const detectedMealPortionsSchema: Schema = {
+  description: "Detected meal portions for user confirmation",
+  type: SchemaType.OBJECT,
+  properties: {
+    description: {
+      type: SchemaType.STRING,
+      description: "Short description of the visible meal",
+      nullable: false,
+    },
+    items: {
+      type: SchemaType.ARRAY,
+      description: "Visible meal items with estimated adjustable amounts",
+      nullable: false,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          id: {
+            type: SchemaType.STRING,
+            description: "Stable lowercase id for this item",
+            nullable: false,
+          },
+          name: {
+            type: SchemaType.STRING,
+            description: "Localized food item name",
+            nullable: false,
+          },
+          emoji: {
+            type: SchemaType.STRING,
+            description: "One emoji representing this food item",
+            nullable: false,
+          },
+          amount: {
+            type: SchemaType.NUMBER,
+            description: "Estimated amount in the given unit",
+            nullable: false,
+          },
+          unit: {
+            type: SchemaType.STRING,
+            description: "Unit for the amount",
+            nullable: false,
+            enum: ["g", "ml", "piece"],
+            format: "enum",
+          },
+          stepSize: {
+            type: SchemaType.NUMBER,
+            description: "Amount changed by each plus/minus tap",
+            nullable: false,
+          },
+          calorieImpact: {
+            type: SchemaType.STRING,
+            description: "How much this item affects calories",
+            nullable: false,
+            enum: ["low", "medium", "high"],
+            format: "enum",
+          },
+          adjustable: {
+            type: SchemaType.BOOLEAN,
+            description: "Whether the user should adjust this amount",
+            nullable: false,
+          },
+          hiddenFatRisk: {
+            type: SchemaType.BOOLEAN,
+            description:
+              "Whether this item may contain visually uncertain added fat, oil, butter, mayo, cream, or fatty sauce",
+            nullable: false,
+          },
+        },
+        required: [
+          "id",
+          "name",
+          "emoji",
+          "amount",
+          "unit",
+          "stepSize",
+          "calorieImpact",
+          "adjustable",
+          "hiddenFatRisk",
+        ],
+      },
+    },
+    questions: {
+      type: SchemaType.ARRAY,
+      description: "Only calorie-sensitive questions worth asking",
+      nullable: false,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          id: {
+            type: SchemaType.STRING,
+            description: "Stable lowercase id for the question",
+            nullable: false,
+          },
+          label: {
+            type: SchemaType.STRING,
+            description: "Localized question label",
+            nullable: false,
+          },
+          category: {
+            type: SchemaType.STRING,
+            description: "Why this question is needed",
+            nullable: false,
+            enum: ["hidden_fat"],
+            format: "enum",
+          },
+          options: {
+            type: SchemaType.ARRAY,
+            description: "Localized answer chips",
+            nullable: false,
+            items: {
+              type: SchemaType.OBJECT,
+              properties: {
+                value: {
+                  type: SchemaType.STRING,
+                  description: "Stable answer value",
+                  nullable: false,
+                },
+                label: {
+                  type: SchemaType.STRING,
+                  description: "Localized answer label",
+                  nullable: false,
+                },
+              },
+              required: ["value", "label"],
+            },
+          },
+          selectedValue: {
+            type: SchemaType.STRING,
+            description: "Best initial estimate chosen by AI",
+            nullable: false,
+          },
+          appliesToItemIds: {
+            type: SchemaType.ARRAY,
+            description: "Item ids this hidden-fat question applies to",
+            nullable: false,
+            items: {
+              type: SchemaType.STRING,
+            },
+          },
+        },
+        required: [
+          "id",
+          "label",
+          "category",
+          "options",
+          "selectedValue",
+          "appliesToItemIds",
+        ],
+      },
+    },
+    errorMessage: {
+      type: SchemaType.STRING,
+      description: "Error message if this is not a real meal",
+      nullable: true,
+    },
+  },
+  required: ["description", "items", "questions"],
+};
+
 export const schemas: Record<string, Schema> = {
   recipe: recipeSchema,
   analyzedMeal: analyzedMealSchema,
+  detectedMealPortions: detectedMealPortionsSchema,
   macroGoals: macroGoalsSchema,
   cookCandidates: cookCandidatesSchema,
   cookRecipe: cookRecipeSchema,
@@ -691,6 +850,42 @@ interface UsageMetadata {
 }
 
 export type IMealType = "breakfast" | "lunch" | "dinner" | "snack";
+
+export type MealPortionCalorieImpact = "low" | "medium" | "high";
+export type MealPortionUnit = "g" | "ml" | "piece";
+
+export interface MealPortionItem {
+  id: string;
+  name: string;
+  emoji: string;
+  amount: number;
+  unit: MealPortionUnit;
+  stepSize: number;
+  calorieImpact: MealPortionCalorieImpact;
+  adjustable: boolean;
+  hiddenFatRisk: boolean;
+}
+
+export interface MealPortionQuestionOption {
+  value: string;
+  label: string;
+}
+
+export interface MealPortionQuestion {
+  id: string;
+  label: string;
+  category: "hidden_fat";
+  options: MealPortionQuestionOption[];
+  selectedValue: string;
+  appliesToItemIds: string[];
+}
+
+export interface DetectedMealPortions {
+  description: string;
+  items: MealPortionItem[];
+  questions: MealPortionQuestion[];
+  errorMessage?: string;
+}
 
 export interface IMeal {
   calories: number;
