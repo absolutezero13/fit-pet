@@ -93,11 +93,7 @@ const CookRecipePreview = ({
         </View>
       </LiquidGlassView>
 
-      <AppButton
-        title={ctaLabel}
-        onPress={onStartCooking}
-        backgroundColor={colors.accent}
-      />
+      <AppButton title={ctaLabel} onPress={onStartCooking} />
 
       <LiquidGlassView
         effect="clear"

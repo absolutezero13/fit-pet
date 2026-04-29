@@ -177,12 +177,7 @@ const CookCandidateCard = ({
               </View>
             ))}
           </View>
-          <AppButton
-            title={t("cookStartCooking")}
-            onPress={onStartCooking}
-            backgroundColor={accentColor}
-            color={colors.textInverse}
-          />
+          <AppButton title={t("cookStartCooking")} onPress={onStartCooking} />
           <View
             style={[
               styles.variationBlock,

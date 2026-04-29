@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Platform,
   StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { isLiquidGlassSupported } from "@callstack/liquid-glass";
 import { TrueSheet } from "../../../components/TrueSheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { TrueSheetNames } from "../../../navigation/constants";
-import AppButton from "../../../components/AppButton";
+import GlassView from "../../../components/SafeGlassView";
 import notificationService from "../../../services/notificationService";
 import { fontStyles } from "../../../theme/fontStyles";
 import { useTheme } from "../../../theme/ThemeContext";
@@ -58,6 +60,19 @@ const MealReminderCard = ({
   const { t } = useTranslation();
   const isInteractive = globalEnabled && enabled;
 
+  const isAndroidGlassFallback =
+    Platform.OS === "android" && !isLiquidGlassSupported;
+
+  const glassButtonShell = [
+    styles.glassStepButton,
+    isAndroidGlassFallback
+      ? {
+          backgroundColor: "transparent",
+          borderColor: colors.border,
+          borderWidth: StyleSheet.hairlineWidth,
+        }
+      : { backgroundColor: "transparent" },
+  ];
   const handleDecreaseTime = () => {
     if (!isInteractive) {
       return;
@@ -130,25 +145,25 @@ const MealReminderCard = ({
           {t("reminderTime")}
         </Text>
 
-        <View style={[styles.timeControl, { backgroundColor: colors.surface }]}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            disabled={!isInteractive}
-            onPress={handleDecreaseTime}
-            style={[
-              styles.timeButton,
-              {
-                backgroundColor: colors.backgroundSecondary,
-                opacity: isInteractive ? 1 : 0.5,
-              },
-            ]}
+        <View style={styles.timeControl}>
+          <GlassView
+            effect="clear"
+            interactive
+            style={[...glassButtonShell, { opacity: isInteractive ? 1 : 0.45 }]}
           >
-            <MaterialCommunityIcons
-              name="minus"
-              size={scale(16)}
-              color={colors.text}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              disabled={!isInteractive}
+              onPress={handleDecreaseTime}
+              style={styles.glassStepButtonInner}
+            >
+              <MaterialCommunityIcons
+                name="minus"
+                size={scale(16)}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          </GlassView>
 
           <Text
             style={[
@@ -159,24 +174,24 @@ const MealReminderCard = ({
             {formatMealTime(time)}
           </Text>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            disabled={!isInteractive}
-            onPress={handleIncreaseTime}
-            style={[
-              styles.timeButton,
-              {
-                backgroundColor: colors.backgroundSecondary,
-                opacity: isInteractive ? 1 : 0.5,
-              },
-            ]}
+          <GlassView
+            effect="clear"
+            interactive
+            style={[...glassButtonShell, { opacity: isInteractive ? 1 : 0.45 }]}
           >
-            <MaterialCommunityIcons
-              name="plus"
-              size={scale(16)}
-              color={colors.text}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              disabled={!isInteractive}
+              onPress={handleIncreaseTime}
+              style={styles.glassStepButtonInner}
+            >
+              <MaterialCommunityIcons
+                name="plus"
+                size={scale(16)}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          </GlassView>
         </View>
       </View>
     </View>
@@ -486,17 +501,20 @@ const styles = StyleSheet.create({
   },
   timeControl: {
     alignItems: "center",
-    borderRadius: scale(16),
     flexDirection: "row",
-    gap: scale(6),
-    padding: scale(5),
+    gap: scale(4),
   },
-  timeButton: {
+  glassStepButton: {
     alignItems: "center",
-    borderRadius: scale(12),
-    height: scale(36),
+    borderRadius: scale(16),
+    height: scale(32),
     justifyContent: "center",
-    width: scale(36),
+    width: scale(32),
+  },
+  glassStepButtonInner: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
   },
   timeValue: {
     ...fontStyles.body1,

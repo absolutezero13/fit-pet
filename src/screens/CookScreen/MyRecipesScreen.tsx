@@ -18,17 +18,41 @@ import {
   listCookRecipes,
   PersistedCookRecipe,
 } from "../../services/cookRecipes";
+import LoadingDots from "../../components/LoadingDots";
 
 const MyRecipesScreen: FC = () => {
   const navigation = useNavigation();
   const { top, bottom } = useSafeAreaInsets();
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
   const [recipes, setRecipes] = useState<PersistedCookRecipe[]>([]);
 
   useEffect(() => {
-    listCookRecipes().then(setRecipes);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listCookRecipes();
+        if (!cancelled) {
+          setRecipes(data);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const renderLoading = () => (
+    <View style={styles.loadingState}>
+      <LoadingDots />
+    </View>
+  );
 
   const renderEmpty = () => (
     <View style={styles.emptyState}>
@@ -123,10 +147,14 @@ const MyRecipesScreen: FC = () => {
         data={recipes}
         keyExtractor={(item) => item.savedAt + item.recipe.id}
         renderItem={renderItem}
-        ListEmptyComponent={renderEmpty}
+        ListEmptyComponent={loading ? renderLoading : renderEmpty}
         contentContainerStyle={[
           styles.listContent,
-          { paddingTop: top + scale(70), paddingBottom: bottom + scale(24) },
+          {
+            flexGrow: 1,
+            paddingTop: top + scale(70),
+            paddingBottom: bottom + scale(24),
+          },
         ]}
         ItemSeparatorComponent={() => <View style={{ height: scale(10) }} />}
         showsVerticalScrollIndicator={false}
@@ -193,6 +221,13 @@ const styles = StyleSheet.create({
   },
   rowMeta: {
     ...fontStyles.caption,
+  },
+  loadingState: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: scale(80),
+    minHeight: scale(280),
   },
   emptyState: {
     alignItems: "center",
