@@ -1,16 +1,13 @@
 import PubSub from "pubsub-js";
 
-export class EventBus<TEvents extends Record<string, unknown>> {
+class EventBus<TEvents extends Record<string, unknown>> {
   subscribe<K extends keyof TEvents & string>(
     event: K,
     handler: (payload: TEvents[K]) => void,
   ): () => void {
-    const token = PubSub.subscribe(
-      event,
-      (_msg: string, data: TEvents[K]) => {
-        handler(data);
-      },
-    );
+    const token = PubSub.subscribe(event, (_msg: string, data: TEvents[K]) => {
+      handler(data);
+    });
     return () => {
       PubSub.unsubscribe(token);
     };
@@ -26,14 +23,14 @@ export class EventBus<TEvents extends Record<string, unknown>> {
 
 export enum AppEvent {
   MealChanged = "meal:changed",
+  MealUpdated = "meal:updated",
   LanguageChanged = "language:changed",
-  EditMealRequested = "meal:edit-requested",
 }
 
 type AppEvents = {
   [AppEvent.MealChanged]: { date?: string };
+  [AppEvent.MealUpdated]: { id?: string };
   [AppEvent.LanguageChanged]: { code: string };
-  [AppEvent.EditMealRequested]: { mealId: string; date: string };
 };
 
 export const eventBus = new EventBus<AppEvents>();

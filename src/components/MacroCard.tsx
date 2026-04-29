@@ -73,7 +73,11 @@ export const ArcProgress: FC<ArcProgressProps> = ({
   });
 
   return (
-    <Svg width={size} height={size} style={{ transform: [{ rotate: "225deg" }] }}>
+    <Svg
+      width={size}
+      height={size}
+      style={{ transform: [{ rotate: "225deg" }] }}
+    >
       <Path
         d={trackPath}
         stroke={trackColor}
@@ -119,7 +123,14 @@ export const RingWithIcon: FC<RingWithIconProps> = ({
 }) => {
   const innerCircle = size - strokeWidth * 2 - scale(6);
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <ArcProgress
         progress={progress}
         color={color}
@@ -149,30 +160,51 @@ interface MacroCardProps {
   current: number;
   goal: number;
   variant?: "remaining" | "content";
+  summaryMetric?: "remaining" | "consumed";
 }
 
-const MacroCard: FC<MacroCardProps> = ({ type, current, goal, variant = "remaining" }) => {
+const MacroCard: FC<MacroCardProps> = ({
+  type,
+  current,
+  goal,
+  variant = "remaining",
+  summaryMetric = "remaining",
+}) => {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const config = getMacroConfig(type);
   const isOver = current > goal;
   const remaining = Math.max(0, goal - current);
   const overBy = Math.max(0, current - goal);
-  const displayValue = isOver ? overBy : remaining;
+  const displayValue =
+    variant === "remaining" && summaryMetric === "consumed"
+      ? Math.round(current)
+      : isOver
+        ? overBy
+        : remaining;
   const progress = goal > 0 ? Math.min(current / goal, 1) : 0;
 
   const ringColor = isOver ? colors["color-danger-400"] : config.color;
   const iconBg = colors.backgroundSecondary;
-  const trackColor = isDark
-    ? colors.textTertiary + "30"
-    : colors.border + "60";
-
+  const trackColor = isDark ? colors.textTertiary + "30" : colors.border + "60";
   const labelKey = (
-    {
-      protein: isOver ? "proteinOver" : "proteinLeft",
-      carbs: isOver ? "carbsOver" : "carbsLeft",
-      fats: isOver ? "fatsOver" : "fatsLeft",
-    } as const
+    variant === "remaining" && summaryMetric === "consumed"
+      ? isOver
+        ? {
+            protein: "proteinOver",
+            carbs: "carbsOver",
+            fats: "fatsOver",
+          }
+        : {
+            protein: "proteinConsumed",
+            carbs: "carbsConsumed",
+            fats: "fatsConsumed",
+          }
+      : {
+          protein: isOver ? "proteinOver" : "proteinLeft",
+          carbs: isOver ? "carbsOver" : "carbsLeft",
+          fats: isOver ? "fatsOver" : "fatsLeft",
+        }
   )[type];
 
   const [labelMain, labelSuffix] = t(labelKey).split(" ");
@@ -214,7 +246,11 @@ const MacroCard: FC<MacroCardProps> = ({ type, current, goal, variant = "remaini
         <Text style={[styles.label, { color: colors.textSecondary }]}>
           {labelMain}
           {labelSuffix ? " " : ""}
-          <Text style={isOver ? { fontWeight: "700", color: colors.text } : undefined}>
+          <Text
+            style={
+              isOver ? { fontWeight: "700", color: colors.text } : undefined
+            }
+          >
             {labelSuffix ?? ""}
           </Text>
         </Text>

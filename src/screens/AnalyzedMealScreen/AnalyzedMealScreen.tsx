@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   ScrollView,
@@ -16,6 +16,9 @@ import { scale } from "../../theme/utils";
 import useMealsStore from "../../zustand/useMealsStore";
 import { deleteMeal } from "../../services/mealAnalysis";
 import { eventBus, AppEvent } from "../../services/EventBus";
+import { TrueSheetNames } from "../../navigation/constants";
+import { TrueSheet } from "@lodev09/react-native-true-sheet";
+import LogMealTrueSheet from "../HomeScreen/components/LogMealTrueSheet";
 import { LiquidGlassView } from "@callstack/liquid-glass";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "../../theme/ThemeContext";
@@ -39,6 +42,16 @@ const AnalyzedMealScreen = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const calorieConfig = getMacroConfig("calories");
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe(AppEvent.MealUpdated, ({ id }) => {
+      if (id === mealId) {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }
+    });
+    return unsubscribe;
+  }, [mealId]);
 
   if (!meal) {
     return null;
@@ -61,9 +74,9 @@ const AnalyzedMealScreen = () => {
               );
               if (!meal.id) return state;
 
-              deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
+            await deleteMeal(meal?.id ?? "");
             eventBus.publish(AppEvent.MealChanged, { date: meal.date });
             navigation.goBack();
           } catch (error) {
@@ -77,15 +90,10 @@ const AnalyzedMealScreen = () => {
 
   const handleEdit = () => {
     if (!meal.id) return;
-    eventBus.publish(AppEvent.EditMealRequested, {
-      mealId: meal.id,
-      date: meal.date,
-    });
-    navigation.goBack();
+    TrueSheet.present(TrueSheetNames.LOG_MEAL_ANALYSIS);
   };
 
-
-return (
+  return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LiquidGlassView
         effect="clear"
@@ -105,6 +113,7 @@ return (
       </LiquidGlassView>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
@@ -215,6 +224,15 @@ return (
           </LiquidGlassView>
         </View>
       </ScrollView>
+
+      <LogMealTrueSheet
+        sheetName={TrueSheetNames.LOG_MEAL_ANALYSIS}
+        params={{
+          selectedDate: meal.date,
+          mealType: meal.mealType,
+          mealId: meal.id,
+        }}
+      />
     </View>
   );
 };

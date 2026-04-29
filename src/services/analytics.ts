@@ -31,7 +31,6 @@ export type OnboardingFinishedParams = {
   dietTypes?: string[];
 };
 
-
 type EventParams = {
   [AnalyticsEvent.FirstLaunch]: undefined;
   [AnalyticsEvent.StartOnboarding]: undefined;
@@ -59,6 +58,11 @@ class AmplitudeProvider implements IAnalyticsProvider {
   }
 
   logEvent<T extends AnalyticsEvent>(event: T, params?: EventParams[T]): void {
+    if (__DEV__) {
+      console.log("Amplitude event: NOT LOGGED", event, params);
+      return;
+    }
+
     if (params) {
       Amplitude.track(event, params);
     } else {

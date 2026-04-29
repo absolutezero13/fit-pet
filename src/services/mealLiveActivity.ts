@@ -21,25 +21,20 @@ type MealLiveActivityModule = {
   end(): Promise<void>;
 };
 
-const Native = (NativeModules.MealLiveActivity ?? null) as
-  | MealLiveActivityModule
-  | null;
-
-const noop = async () => {
-  return "" as string;
-};
+const LiveActivityModule = (NativeModules.MealLiveActivity ??
+  null) as MealLiveActivityModule | null;
 
 export const isLiveActivitySupported = (): boolean => {
   if (Platform.OS !== "ios") return false;
-  return Boolean(Native?.isSupported);
+  return Boolean(LiveActivityModule?.isSupported);
 };
 
 export const startMealLiveActivity = async (
-  payload: LiveActivityPayload
-): Promise<string> => {
-  if (!isLiveActivitySupported() || !Native) return noop();
+  payload: LiveActivityPayload,
+): Promise<string | undefined> => {
+  if (!isLiveActivitySupported() || !LiveActivityModule) return;
   try {
-    return await Native.start(payload);
+    return await LiveActivityModule.start(payload);
   } catch (err) {
     console.warn("[LiveActivity] start failed", err);
     return "";
@@ -47,11 +42,11 @@ export const startMealLiveActivity = async (
 };
 
 export const updateMealLiveActivity = async (
-  payload: LiveActivityPayload
-): Promise<string> => {
-  if (!isLiveActivitySupported() || !Native) return noop();
+  payload: LiveActivityPayload,
+): Promise<string | undefined> => {
+  if (!isLiveActivitySupported() || !LiveActivityModule) return;
   try {
-    return await Native.update(payload);
+    return await LiveActivityModule.update(payload);
   } catch (err) {
     console.warn("[LiveActivity] update failed", err);
     return "";
@@ -59,9 +54,9 @@ export const updateMealLiveActivity = async (
 };
 
 export const endMealLiveActivity = async (): Promise<void> => {
-  if (!isLiveActivitySupported() || !Native) return;
+  if (!isLiveActivitySupported() || !LiveActivityModule) return;
   try {
-    await Native.end();
+    await LiveActivityModule.end();
   } catch (err) {
     console.warn("[LiveActivity] end failed", err);
   }

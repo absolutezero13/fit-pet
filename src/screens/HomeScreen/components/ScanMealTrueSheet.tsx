@@ -63,6 +63,13 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
     useState<ScanMealTrueSheetStep>("camera");
   const photoUri = photo ? getPhotoUri(photo.path) : null;
 
+  const syncMealTypeFromParams = () => {
+    const next = props.params.mealType;
+    if (next !== undefined && next !== null && next !== "") {
+      setSelectedMealType(next);
+    }
+  };
+
   const resetState = () => {
     setPhoto(null);
     setDetectedPortions(null);
@@ -221,6 +228,7 @@ const ScanMealTrueSheet = (props: ScanMealTrueSheetProps) => {
       backgroundColor={colors.surface}
       dismissible={!loading}
       scrollable
+      onWillPresent={syncMealTypeFromParams}
       onDidDismiss={() => {
         setTimeout(() => {
           resetState();

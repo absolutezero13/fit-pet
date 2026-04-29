@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, View, Text, StyleSheet, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Camera } from "react-native-vision-camera";
 import { scale } from "../../theme/utils";
 import { fontStyles } from "../../theme/fontStyles";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SwipeableMealCard from "./components/SwipeableMealCard";
 import { IMeal, IMealType } from "../../services/apiTypes";
@@ -67,6 +67,7 @@ const MealTypeSection = ({
 
 const LoggedMealsScreen = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const { bottom, top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -76,26 +77,7 @@ const LoggedMealsScreen = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>(
     t("breakfast"),
   );
-  const [editMealId, setEditMealId] = useState<string | undefined>(undefined);
-  const [editRequestNonce, setEditRequestNonce] = useState(0);
 
-  useEffect(() => {
-    const unsubscribe = eventBus.subscribe(
-      AppEvent.EditMealRequested,
-      ({ mealId }) => {
-        setEditMealId(mealId);
-        setEditRequestNonce((n) => n + 1);
-      },
-    );
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    if (editRequestNonce === 0 || !editMealId) return;
-    TrueSheet.present(TrueSheetNames.LOG_MEAL);
-  }, [editRequestNonce]);
-
-  console.log("meals", meals);
   // Group meals by type
   const getMealsByType = (type: IMealType) => {
     return meals.filter(
@@ -113,13 +95,15 @@ const LoggedMealsScreen = () => {
   };
 
   const navigateLogMeal = (type?: IMealType) => {
-    console.log("navigating to log meal", type);
-    setEditMealId(undefined);
-    setSelectedMealType(type ?? "breakfast");
+    setSelectedMealType(t(type ?? "breakfast"));
     TrueSheet.present(TrueSheetNames.LOG_MEAL);
   };
 
-  const handleScanMealPress = async () => {
+  const openScanMeal = async (mealType?: IMealType) => {
+    if (mealType !== undefined) {
+      setSelectedMealType(t(mealType));
+    }
+
     const currentStatus = Camera.getCameraPermissionStatus();
 
     if (currentStatus !== "granted") {
@@ -151,9 +135,14 @@ const LoggedMealsScreen = () => {
     const getMeals = async () => {
       try {
         setLoading(true);
-        const fetchedMeals = await getMealsByDate(getLocalDateKey(selectedDate));
+        const fetchedMeals = await getMealsByDate(
+          getLocalDateKey(selectedDate),
+        );
         console.log("data?", getLocalDateKey(selectedDate));
         useMealsStore.setState({ loggedMeals: fetchedMeals });
+        eventBus.publish(AppEvent.MealChanged, {
+          date: getLocalDateKey(selectedDate),
+        });
       } catch (error) {
         console.error("fetch meal error");
       } finally {
@@ -244,7 +233,7 @@ const LoggedMealsScreen = () => {
               <DailySummary meals={meals} />
               {mealTypesData.map(({ type, meals }) => (
                 <MealTypeSection
-                  onPressAddMeal={() => navigateLogMeal(type)}
+                  onPressAddMeal={() => openScanMeal(type)}
                   key={type}
                   title={t(type)}
                   type={type}
@@ -277,7 +266,7 @@ const LoggedMealsScreen = () => {
                   : colors.accent,
               },
             ]}
-            onPress={handleScanMealPress}
+            onPress={() => openScanMeal()}
           >
             <MaterialCommunityIcons
               name="camera"
@@ -314,13 +303,14 @@ const LoggedMealsScreen = () => {
             />
           </Pressable>
         </LiquidGlassView>
-        <LogMealTrueSheet
-          params={{
-            selectedDate: getLocalDateKey(selectedDate),
-            mealType: selectedMealType,
-            mealId: editMealId,
-          }}
-        />
+        {isFocused ? (
+          <LogMealTrueSheet
+            params={{
+              selectedDate: getLocalDateKey(selectedDate),
+              mealType: selectedMealType,
+            }}
+          />
+        ) : null}
         <ScanMealTrueSheet
           params={{
             selectedDate: getLocalDateKey(selectedDate),

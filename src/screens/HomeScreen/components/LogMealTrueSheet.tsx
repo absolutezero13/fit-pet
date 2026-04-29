@@ -1,5 +1,5 @@
 import { TrueSheet } from "@lodev09/react-native-true-sheet";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import AppButton from "../../../components/AppButton";
@@ -47,6 +46,7 @@ import { eventBus, AppEvent } from "../../../services/EventBus";
 import GlassView from "../../../components/SafeGlassView";
 
 type LogMealTrueSheetProps = {
+  sheetName?: TrueSheetNames;
   params: {
     mealId?: string;
     mealType?: string;
@@ -54,10 +54,10 @@ type LogMealTrueSheetProps = {
   };
 };
 const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
+  const sheetName = props.sheetName ?? TrueSheetNames.LOG_MEAL;
+
   const dismiss = async () => {
-    setTimeout(() => {
-      TrueSheet.dismiss(TrueSheetNames.LOG_MEAL);
-    }, 100);
+    TrueSheet.dismiss(sheetName);
   };
 
   const navigation = useNavigation();
@@ -71,7 +71,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const textInputRef = useRef<TextInput>(null);
-  const { height } = useReanimatedKeyboardAnimation();
 
   const [image, setImage] = useState<ImagePickerAsset | null>(null);
   const [mealDescription, setMealDescription] = useState(
@@ -80,24 +79,28 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   const [selectedMealType, setSelectedMealType] = useState(
     t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
   );
-  const [lastSeenMealId, setLastSeenMealId] = useState<string | undefined>(
-    params.mealId,
-  );
 
-  if (params.mealId !== lastSeenMealId) {
-    setLastSeenMealId(params.mealId);
-    setMealDescription(mealToEdit?.description ?? "");
-    setSelectedMealType(
-      t(mealToEdit?.mealType ?? params.mealType ?? "breakfast"),
-    );
+  const syncFormForPresentation = () => {
+    if (params.mealId) {
+      const meal = useMealsStore
+        .getState()
+        .loggedMeals.find((m) => m.id === params.mealId);
+      if (meal) {
+        setMealDescription(meal.description ?? "");
+        setSelectedMealType(t(meal.mealType ?? params.mealType ?? "breakfast"));
+        setImage(null);
+        return;
+      }
+    }
+    setMealDescription("");
+    setSelectedMealType(t(params.mealType ?? "breakfast"));
     setImage(null);
-  }
+  };
 
   const pickImage = async (source: "camera" | "gallery") => {
     let result;
 
     if (source === "camera") {
-      // Request camera permission
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Sorry", "Camera permission is required to take a photo.");
@@ -112,7 +115,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
         base64: true,
       });
     } else {
-      // Request media library permission
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
@@ -182,6 +184,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
       meal.description = mealDescription;
       meal.image = image?.uri ?? mealToEdit.image;
       await updateMeal(meal);
+      eventBus.publish(AppEvent.MealUpdated, { id: meal.id });
     }
 
     if (meal.image) {
@@ -249,13 +252,14 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   return (
     <TrueSheet
       dismissible={!isAnalyzing}
+      onWillPresent={syncFormForPresentation}
       onDidDismiss={() => {
         setIsAnalyzing(false);
         setMealDescription("");
         setImage(null);
         setSelectedMealType(t("breakfast"));
       }}
-      name={TrueSheetNames.LOG_MEAL}
+      name={sheetName}
       detents={["auto"]}
       backgroundColor={colors.surface}
       insetAdjustment="never"

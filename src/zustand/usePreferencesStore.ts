@@ -10,9 +10,13 @@ export enum AITone {
   Supportive = "supportive",
 }
 
+export type HomeNutritionDisplayMode = "consumed" | "remaining";
+
 type PreferenceStore = {
   aiTone: AITone;
   setAiTone: (tone: AITone) => void;
+  homeNutritionDisplay: HomeNutritionDisplayMode;
+  setHomeNutritionDisplay: (mode: HomeNutritionDisplayMode) => void;
 };
 
 const usePreferencesStore = create(
@@ -20,6 +24,9 @@ const usePreferencesStore = create(
     (set) => ({
       aiTone: AITone.Harsh,
       setAiTone: (tone) => set({ aiTone: tone }),
+      homeNutritionDisplay: "consumed",
+      setHomeNutritionDisplay: (homeNutritionDisplay) =>
+        set({ homeNutritionDisplay }),
     }),
     {
       name: "preferences-storage",

@@ -7,6 +7,7 @@ import { scale } from "../../../theme/utils";
 import { IMeal } from "../../../services/apiTypes";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import useUserStore, { MacroGoals } from "../../../zustand/useUserStore";
+import usePreferencesStore from "../../../zustand/usePreferencesStore";
 import { getGramGoal } from "./utils";
 import userService from "../../../services/user";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
@@ -19,6 +20,9 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
   const { colors, isDark } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const currentMacroGoals = useUserStore((state) => state?.macroGoals);
+  const homeNutritionDisplay =
+    usePreferencesStore((state) => state.homeNutritionDisplay) ?? "consumed";
+
   const [goals, setGoals] = useState<MacroGoals>(
     currentMacroGoals as MacroGoals,
   );
@@ -70,16 +74,29 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
   const isOverCalorie = totals.calories > goals.calories;
   const remainingCalories = Math.max(0, goals.calories - totals.calories);
   const overCalories = Math.max(0, totals.calories - goals.calories);
-  const calorieDisplay = isOverCalorie ? overCalories : remainingCalories;
+  const remainingModeDisplay = isOverCalorie ? overCalories : remainingCalories;
+  const calorieLargeNumber =
+    homeNutritionDisplay === "consumed"
+      ? Math.round(totals.calories)
+      : Math.round(remainingModeDisplay);
+
+  const calorieLabelKey =
+    homeNutritionDisplay === "consumed"
+      ? isOverCalorie
+        ? "caloriesOver"
+        : "caloriesConsumed"
+      : isOverCalorie
+        ? "caloriesOver"
+        : "caloriesLeft";
+
+  const [calorieLabelMain, calorieLabelSuffix] = t(calorieLabelKey).split(" ");
 
   const calorieConfig = getMacroConfig("calories");
   const ringColor = isOverCalorie ? colors["color-danger-400"] : colors.text;
-  const trackColor = isDark ? colors.textTertiary + "30" : colors.border + "60";
+  const trackColor = isDark
+    ? colors.textTertiary + "30"
+    : colors.border + "60";
   const iconBg = colors.backgroundSecondary;
-
-  const [calorieLabelMain, calorieLabelSuffix] = t(
-    isOverCalorie ? "caloriesOver" : "caloriesLeft",
-  ).split(" ");
 
   const saveGoals = async () => {
     await userService.createOrUpdateUser({
@@ -107,20 +124,23 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
   return (
     <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.wrapper}>
       <View style={[styles.calorieCard, { backgroundColor: colors.surface }]}>
-        <Pressable
-          style={styles.settingsButton}
-          onPress={handleOpenGoalsModal}
-          hitSlop={12}
-        >
-          <Icon
-            name="cog-outline"
-            size={scale(18)}
-            color={colors.textSecondary}
-          />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            style={styles.headerIconButton}
+            onPress={handleOpenGoalsModal}
+            hitSlop={12}
+            accessibilityRole="button"
+          >
+            <Icon
+              name="cog-outline"
+              size={scale(18)}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+        </View>
         <View style={styles.calorieTextBlock}>
           <Text style={[styles.calorieValue, { color: colors.text }]}>
-            {Math.round(calorieDisplay)}
+            {calorieLargeNumber}
           </Text>
           <Text style={[styles.calorieLabel, { color: colors.textSecondary }]}>
             {calorieLabelMain}
@@ -154,9 +174,20 @@ const DailySummary: FC<{ meals: IMeal[] }> = ({ meals }) => {
           type="protein"
           current={totals.proteins}
           goal={proteinGoal}
+          summaryMetric={homeNutritionDisplay}
         />
-        <MacroCard type="carbs" current={totals.carbs} goal={carbsGoal} />
-        <MacroCard type="fats" current={totals.fats} goal={fatsGoal} />
+        <MacroCard
+          type="carbs"
+          current={totals.carbs}
+          goal={carbsGoal}
+          summaryMetric={homeNutritionDisplay}
+        />
+        <MacroCard
+          type="fats"
+          current={totals.fats}
+          goal={fatsGoal}
+          summaryMetric={homeNutritionDisplay}
+        />
       </View>
 
       <NutritionGoalsModal
@@ -176,11 +207,16 @@ const styles = StyleSheet.create({
     marginBottom: scale(16),
     gap: scale(10),
   },
-  settingsButton: {
+  headerActions: {
     position: "absolute",
     top: scale(10),
     right: scale(12),
     zIndex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+  },
+  headerIconButton: {
     padding: scale(4),
   },
   calorieCard: {

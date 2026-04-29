@@ -55,7 +55,6 @@ i18next.use(initReactI18next).init({
   },
 });
 
-
 // NavigationBar.setBackgroundColorAsync("#ffffff00");
 
 Asset.loadAsync([...NavigationAssets]);

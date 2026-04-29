@@ -23,23 +23,22 @@ const DEFAULT_GOALS = {
 };
 
 const toInt = (v: string | number | undefined): number => {
-  const n = typeof v === "string" ? parseFloat(v) : v ?? 0;
+  const n = typeof v === "string" ? parseFloat(v) : (v ?? 0);
   return Number.isFinite(n) ? Math.round(n as number) : 0;
 };
 
 export const syncMealLiveActivity = async (dateKey: string) => {
   if (Platform.OS !== "ios" || !isLiveActivitySupported()) return;
-
   const todayKey = getLocalDateKey(new Date());
+  console.log("syncing meal live activity", dateKey, "todayKey", todayKey);
+  console.log("dateKey comparison", dateKey === todayKey);
   if (dateKey !== todayKey) return;
 
   const user = useUserStore.getState();
   const goals = user?.macroGoals ?? DEFAULT_GOALS;
 
-  const meals = useMealsStore
-    .getState()
-    .loggedMeals.filter((m) => m.date === todayKey);
-
+  const meals = useMealsStore.getState().loggedMeals;
+  console.log("meals", meals);
   const totals = meals.reduce(
     (acc, m) => ({
       calories: acc.calories + toInt(m.calories),
@@ -47,7 +46,7 @@ export const syncMealLiveActivity = async (dateKey: string) => {
       carbs: acc.carbs + toInt(m.carbs),
       fats: acc.fats + toInt(m.fats),
     }),
-    { calories: 0, proteins: 0, carbs: 0, fats: 0 }
+    { calories: 0, proteins: 0, carbs: 0, fats: 0 },
   );
 
   const last = meals[meals.length - 1];
@@ -61,7 +60,7 @@ export const syncMealLiveActivity = async (dateKey: string) => {
         calorieGoal: goals.calories,
         kcalCoefficent: 4,
         percentage: goals.proteins,
-      })
+      }),
     ),
     carbsGrams: totals.carbs,
     carbsGoal: Math.round(
@@ -69,7 +68,7 @@ export const syncMealLiveActivity = async (dateKey: string) => {
         calorieGoal: goals.calories,
         kcalCoefficent: 4,
         percentage: goals.carbs,
-      })
+      }),
     ),
     fatsGrams: totals.fats,
     fatsGoal: Math.round(
@@ -77,13 +76,14 @@ export const syncMealLiveActivity = async (dateKey: string) => {
         calorieGoal: goals.calories,
         kcalCoefficent: 9,
         percentage: goals.fats,
-      })
+      }),
     ),
     lastMealTitle: last?.title ?? "",
     lastMealEmoji: last?.emoji ?? "🍽",
     mealCount: meals.length,
   };
 
+  console.log("syncMealLiveActivity", payload);
   if (!activityRunning || activityDateKey !== todayKey) {
     await startMealLiveActivity(payload);
     activityRunning = true;
@@ -101,14 +101,33 @@ export const resetMealLiveActivity = async () => {
 
 let listenerRegistered = false;
 
+export const onMealsChanged = ({ date }: { date?: string }) => {
+  if (!date) {
+    return;
+  }
+  syncMealLiveActivity(date);
+};
+
+export const onMealUpdated = ({ id }: { id?: string }) => {
+  console.log("onMealUpdated", id);
+  if (!id) {
+    return;
+  }
+
+  const meal = useMealsStore.getState().loggedMeals.find((m) => m.id === id);
+  console.log("meal", meal);
+  if (!meal) {
+    return;
+  }
+  syncMealLiveActivity(meal.date);
+};
+
 export const initMealLiveActivityListener = () => {
-  if (listenerRegistered) return;
+  if (listenerRegistered) {
+    return;
+  }
   listenerRegistered = true;
 
-  eventBus.subscribe(AppEvent.MealChanged, ({ date }) => {
-    if (!date) return;
-    syncMealLiveActivity(date).catch((error) => {
-      console.error("syncMealLiveActivity failed:", error);
-    });
-  });
+  eventBus.subscribe(AppEvent.MealChanged, onMealsChanged);
+  eventBus.subscribe(AppEvent.MealUpdated, onMealUpdated);
 };

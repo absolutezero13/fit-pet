@@ -110,9 +110,9 @@ const SwipeableMealCard: FC<Props> = ({ meal, onPress }) => {
               );
               if (!meal.id) return state;
 
-              deleteMeal(meal.id);
               return { loggedMeals: newMeals };
             });
+            await deleteMeal(meal?.id ?? "");
             eventBus.publish(AppEvent.MealChanged, { date: meal.date });
           } catch (error) {
             console.error("Error deleting meal:", error);
