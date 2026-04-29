@@ -157,6 +157,7 @@ export function App() {
     if (user) {
       try {
         await userService.getUser();
+        console.log("User UID:", user.uid);
         analyticsService.setUserId(user.uid);
       } catch (error) {
         console.error("Error fetching user data:", error);

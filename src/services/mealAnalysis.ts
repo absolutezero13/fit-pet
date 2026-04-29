@@ -5,6 +5,7 @@ import {
   getStorage,
   ref,
 } from "@react-native-firebase/storage";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
 export const createMeal = async (meal: IMeal): Promise<IMeal> => {
   try {
@@ -63,7 +64,17 @@ export const uploadMealImageToFireStorage = async (
       getStorage(),
       `analyzed-meals/${uid}/${Date.now()}.jpg`,
     );
-    await storageRef.putFile(image);
+
+    const compressed = await ImageManipulator.manipulate(image)
+      .resize({ width: 800 })
+      .renderAsync();
+
+    const result = await compressed.saveAsync({
+      format: SaveFormat.JPEG,
+      compress: 0.7,
+    });
+
+    await storageRef.putFile(result.uri);
 
     const url = await getDownloadURL(storageRef);
     return url;
