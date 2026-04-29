@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -8,14 +8,21 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import LoadingGlow from "./LoadingGlow";
 import { useTheme } from "../theme/ThemeContext";
 import { scale } from "../theme/utils";
 
 type LoadingDotsProps = {
   color?: string;
+  withGlow?: boolean;
+  glowDurationMs?: number;
 };
 
-const LoadingDots = ({ color }: LoadingDotsProps) => {
+const LoadingDots = ({
+  color,
+  withGlow = false,
+  glowDurationMs,
+}: LoadingDotsProps) => {
   const { colors } = useTheme();
   const dotColor = color ?? colors.accent;
   const first = useSharedValue(0);
@@ -64,49 +71,53 @@ const LoadingDots = ({ color }: LoadingDotsProps) => {
     ],
   }));
 
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        gap: scale(8),
-      }}
-    >
+  const dots = (
+    <View style={styles.dotsRow}>
       <Animated.View
-        style={[
-          {
-            width: scale(10),
-            height: scale(10),
-            borderRadius: scale(5),
-            backgroundColor: dotColor,
-          },
-          firstDotStyle,
-        ]}
+        style={[styles.dot, { backgroundColor: dotColor }, firstDotStyle]}
       />
       <Animated.View
-        style={[
-          {
-            width: scale(10),
-            height: scale(10),
-            borderRadius: scale(5),
-            backgroundColor: dotColor,
-          },
-          secondDotStyle,
-        ]}
+        style={[styles.dot, { backgroundColor: dotColor }, secondDotStyle]}
       />
       <Animated.View
-        style={[
-          {
-            width: scale(10),
-            height: scale(10),
-            borderRadius: scale(5),
-            backgroundColor: dotColor,
-          },
-          thirdDotStyle,
-        ]}
+        style={[styles.dot, { backgroundColor: dotColor }, thirdDotStyle]}
       />
     </View>
   );
+
+  if (!withGlow) {
+    return dots;
+  }
+
+  return (
+    <View style={styles.glowFill} pointerEvents="box-none">
+      <LoadingGlow durationMs={glowDurationMs} />
+      <View style={styles.dotsCenter} pointerEvents="none">
+        {dots}
+      </View>
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  dotsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+  },
+  dot: {
+    width: scale(10),
+    height: scale(10),
+    borderRadius: scale(5),
+  },
+  glowFill: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  dotsCenter: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 export default LoadingDots;
