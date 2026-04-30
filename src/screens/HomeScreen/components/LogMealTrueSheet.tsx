@@ -433,8 +433,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   style={[
                     styles.textInput,
                     {
-                      paddingLeft: image ? scale(132) : scale(72),
-                      paddingRight: scale(72),
+                      paddingBottom: scale(48),
                       color: colors.text,
                       backgroundColor: colors.background,
                     },
