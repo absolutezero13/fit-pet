@@ -159,10 +159,6 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   }) => {
     const transcript = event.results[0]?.transcript ?? "";
 
-    if (event.isFinal) {
-      speechFinalTextRef.current = buildTranscriptText(transcript);
-    }
-
     setMealDescription(buildTranscriptText(transcript));
   };
 
@@ -425,10 +421,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
             </Text>
             <View style={styles.textInputWrapper}>
               <View
-                style={[
-                  styles.textInputFrame,
-                  { borderColor: colors.border },
-                ]}
+                style={[styles.textInputFrame, { borderColor: colors.border }]}
               >
                 <Animated.View
                   pointerEvents="none"
@@ -440,6 +433,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                   style={[
                     styles.textInput,
                     {
+                      paddingLeft: image ? scale(132) : scale(72),
                       paddingRight: scale(72),
                       color: colors.text,
                       backgroundColor: colors.background,
@@ -621,19 +615,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   previewImage: {
-    width: scale(52),
-    height: scale(52),
-    borderRadius: scale(12),
+    width: scale(96),
+    height: scale(96),
+    borderRadius: scale(16),
   },
   imageWrapper: {
     position: "absolute",
-    left: scale(8),
-    bottom: scale(8),
+    left: scale(12),
+    bottom: scale(12),
   },
   deleteImageIcon: {
     position: "absolute",
-    right: scale(-8),
-    top: scale(-8),
+    right: scale(-6),
+    top: scale(-6),
     zIndex: 1,
   },
   recordingStatus: {

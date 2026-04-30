@@ -1,7 +1,6 @@
 import { Part } from "@google/generative-ai";
 import { getAuth } from "@react-native-firebase/auth";
 import promptBuilder from "../utils/promptBuilder";
-import useOnboardingStore from "../zustand/useOnboardingStore";
 import {
   ChatCompletion,
   CookCandidate,
@@ -38,7 +37,7 @@ const parseGeminiJson = <T>(result: { response: GeminiResponse }): T => {
 };
 
 export const createChatCompletion = async (
-  content: string
+  content: string,
 ): Promise<ChatCompletion> => {
   try {
     const body = JSON.stringify({
@@ -67,7 +66,7 @@ export const createGeminiCompletion = async (
   content: string,
   schema: string,
   images?: { data: string; mimeType: string }[],
-  systemPromptOverride?: string
+  systemPromptOverride?: string,
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const res = await api.post("/chat/gemini", {
@@ -75,7 +74,8 @@ export const createGeminiCompletion = async (
       schema: schemas[schema],
       images,
       systemPrompt:
-        systemPromptOverride ?? promptBuilder.createChatPrompt(useUserStore.getState()),
+        systemPromptOverride ??
+        promptBuilder.createChatPrompt(useUserStore.getState()),
     });
 
     return res.data;
@@ -88,7 +88,7 @@ export const createGeminiCompletion = async (
 export const createGeminiVisionCompletion = async (
   image: { uri: string; mimeType: string },
   content?: string,
-  schema?: string
+  schema?: string,
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const formData = new FormData();
@@ -124,7 +124,9 @@ export const createGeminiVisionCompletion = async (
 
     if (!response.ok) {
       if (response.status === 413) {
-        throw new Error("Captured photo is too large to upload. Please retake it.");
+        throw new Error(
+          "Captured photo is too large to upload. Please retake it.",
+        );
       }
 
       throw new Error(
@@ -148,7 +150,7 @@ export interface Content {
 
 export const createGeminiStream = async (
   content: string,
-  history: Content[]
+  history: Content[],
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const res = await api.post("/chat/gemini-stream", {
@@ -168,7 +170,7 @@ export const createGeminiStream = async (
 export const swapRecipe = async (
   recipe: IMeal,
   content: string,
-  schema: string
+  schema: string,
 ): Promise<{ response: GeminiResponse }> => {
   try {
     const res = await api.post("/chat/gemini", {
@@ -186,7 +188,7 @@ export const swapRecipe = async (
 };
 
 export const createCookCandidates = async (
-  answers: CookPromptAnswers
+  answers: CookPromptAnswers,
 ): Promise<CookCandidateResponse> => {
   const user = useUserStore.getState();
   const prompt = promptBuilder.createCookCandidatesPrompt(user, answers);
@@ -201,7 +203,7 @@ export const createCookRecipe = async (
   options?: {
     variation?: string;
     currentRecipe?: CookRecipe;
-  }
+  },
 ): Promise<CookRecipeResponse> => {
   const user = useUserStore.getState();
   const prompt = promptBuilder.createCookRecipePrompt(
@@ -216,7 +218,7 @@ export const createCookRecipe = async (
 };
 
 export const createCookLoggedMeal = async (
-  recipe: CookRecipe
+  recipe: CookRecipe,
 ): Promise<IMeal> => {
   const user = useUserStore.getState();
   const mealDescription = buildCookedMealDescription(recipe);
