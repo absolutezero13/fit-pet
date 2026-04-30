@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: "100%",
-    height: scale(240),
+    height: scale(340),
     borderRadius: scale(24),
   },
   retakeButton: {

@@ -32,10 +32,7 @@ const ScanMealCapturedStep = (props: ScanMealCapturedStepProps) => {
   return (
     <View style={styles.capturedContainer}>
       <View style={styles.capturedImageWrapper}>
-        <Image
-          source={{ uri: props.photoUri }}
-          style={styles.capturedPhoto}
-        />
+        <Image source={{ uri: props.photoUri }} style={styles.capturedPhoto} />
         <LinearGradient
           colors={["transparent", colors.background]}
           style={styles.capturedGradientOverlay}
@@ -93,13 +90,13 @@ const styles = StyleSheet.create({
     height: Platform.select({ default: scale(380), android: scale(500) }),
     width: "100%",
     borderRadius: scale(24),
+    backgroundColor: "red",
   },
   capturedGradientOverlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    height: scale(140),
     borderBottomLeftRadius: scale(24),
     borderBottomRightRadius: scale(24),
   },
@@ -122,7 +119,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(24),
     paddingTop: scale(16),
     paddingBottom: scale(32),
-    justifyContent: "flex-end",
     flex: 1,
   },
   capturedTitle: {

@@ -80,6 +80,12 @@ Use their body and lifestyle data to tailor your analysis. This isn’t some one
 Give precise macros and calories—no lazy rounding, no "guesstimates", no fluff.
 Keep your wording aligned with the selected tone.`;
 
+const scoreInstructions = `Rate the meal on a scale of 1 to 10 (integer only, minimum 1, maximum 10) based only on nutritional quality.
+The numeric score must be tone-independent: use the same score for the same meal regardless of whether the selected tone is harsh, friendly, funny, nerdy, or supportive.
+Do not lower or raise the score because of sarcasm, encouragement, humor, or wording style.
+Score using objective nutrition factors: calorie fit for the meal type and user goals, protein adequacy, macro balance, fiber/micronutrient density, food quality, portion reasonableness, and added sugar/alcohol/ultra-processed load.
+Tone may affect only the wording of insights, never the numeric score.`;
+
 const chatBaseInstructions = `You speak only about health, fitness, and nutrition—no cats, no horoscopes.
 Use the user info only when helpful. Don’t show off with it.`;
 
@@ -143,7 +149,7 @@ const createAnalysisPrompt = (
 
   return `${tone.analysis}
 ${analysisBaseInstructions}
-Rate the meal on a scale of 1 to 10 (integer only, minimum 1, maximum 10) based on nutritional quality. ${tone.rating}
+${scoreInstructions}
 Use the errorMessage field only when:
 The meal is vague or not a meal.
 The input is outrageously unrealistic (e.g., 50 eggs, 10kg rice) → return localized: "Something went wrong, check your input".
@@ -219,7 +225,7 @@ const createPortionConfirmedAnalysisPrompt = (
 
   return `${tone.analysis}
 ${analysisBaseInstructions}
-Rate the meal on a scale of 1 to 10 (integer only, minimum 1, maximum 10) based on nutritional quality. ${tone.rating}
+${scoreInstructions}
 Use the confirmed portions and answers as the source of truth for calories and macros.
 Do not invent extra high-calorie ingredients unless clearly implied by the user's answers or the confirmed meal context.
 Do not include seasonings, spices, herbs, salt, pepper, or garnish in ingredients.

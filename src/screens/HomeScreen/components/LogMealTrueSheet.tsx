@@ -2,6 +2,8 @@ import { TrueSheet } from "@lodev09/react-native-true-sheet";
 import { useRef, useState } from "react";
 import {
   Alert,
+  Animated,
+  Easing,
   Image,
   Pressable,
   StyleSheet,
@@ -19,12 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GeminiResponse, IMeal } from "../../../services/apiTypes";
 import useMealsStore from "../../../zustand/useMealsStore";
-import {
-  KeyboardGestureArea,
-  useReanimatedKeyboardAnimation,
-} from "react-native-keyboard-controller";
-import { ImagePickerAsset } from "expo-image-picker";
-import * as ImagePicker from "expo-image-picker";
+import { KeyboardGestureArea } from "react-native-keyboard-controller";
 import promptBuilder from "../../../utils/promptBuilder";
 import useOnboardingStore from "../../../zustand/useOnboardingStore";
 import {
@@ -44,6 +41,12 @@ import { analyticsService, AnalyticsEvent } from "../../../services/analytics";
 import { getLocalDateKey } from "../../../utils/dateUtils";
 import { eventBus, AppEvent } from "../../../services/EventBus";
 import GlassView from "../../../components/SafeGlassView";
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from "expo-speech-recognition";
+import { ImagePickerAsset } from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker";
 
 type LogMealTrueSheetProps = {
   sheetName?: TrueSheetNames;
@@ -62,7 +65,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
 
   const navigation = useNavigation();
   const params = props.params;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { bottom } = useSafeAreaInsets();
   const { colors } = useTheme();
   const mealToEdit = useMealsStore((state) =>
@@ -70,9 +73,13 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   );
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const textInputRef = useRef<TextInput>(null);
-
+  const [isRecording, setIsRecording] = useState(false);
   const [image, setImage] = useState<ImagePickerAsset | null>(null);
+  const textInputRef = useRef<TextInput>(null);
+  const speechBaseTextRef = useRef("");
+  const speechFinalTextRef = useRef("");
+  const inputBorderOpacity = useRef(new Animated.Value(0)).current;
+
   const [mealDescription, setMealDescription] = useState(
     mealToEdit?.description ?? "",
   );
@@ -97,46 +104,179 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
     setImage(null);
   };
 
-  const pickImage = async (source: "camera" | "gallery") => {
-    let result;
+  const pickImageFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (source === "camera") {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Sorry", "Camera permission is required to take a photo.");
-        return;
-      }
-
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-        base64: true,
-      });
-    } else {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Sorry",
-          "Media library permission is required to select an image.",
-        );
-        return;
-      }
-
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-        base64: true,
-      });
+    if (status !== "granted") {
+      Alert.alert(
+        t("globalError"),
+        "Media library permission is required to select an image.",
+      );
+      return;
     }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+      base64: true,
+    });
 
     if (!result.canceled) {
       setImage(result.assets[0]);
     }
+  };
+
+  const buildTranscriptText = (text: string) => {
+    const transcript = text.trim();
+    const baseText = speechFinalTextRef.current || speechBaseTextRef.current;
+
+    if (!transcript) {
+      return baseText;
+    }
+
+    return baseText ? `${baseText} ${transcript}` : transcript;
+  };
+
+  const handleSpeechStart = () => {
+    setIsRecording(true);
+  };
+
+  const handleSpeechEnd = () => {
+    setIsRecording(false);
+    Animated.timing(inputBorderOpacity, {
+      toValue: 0,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSpeechResult = (event: {
+    isFinal?: boolean;
+    results: { transcript: string }[];
+  }) => {
+    const transcript = event.results[0]?.transcript ?? "";
+
+    if (event.isFinal) {
+      speechFinalTextRef.current = buildTranscriptText(transcript);
+    }
+
+    setMealDescription(buildTranscriptText(transcript));
+  };
+
+  const handleSpeechError = (event: { error: string }) => {
+    setIsRecording(false);
+    Animated.timing(inputBorderOpacity, {
+      toValue: 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+
+    if (event.error === "aborted" || event.error === "no-speech") {
+      return;
+    }
+
+    Alert.alert(t("globalError"), t("globalErrorMessage"));
+  };
+
+  useSpeechRecognitionEvent("start", handleSpeechStart);
+  useSpeechRecognitionEvent("end", handleSpeechEnd);
+  useSpeechRecognitionEvent("result", handleSpeechResult);
+  useSpeechRecognitionEvent("error", handleSpeechError);
+
+  const startRecording = async () => {
+    const isAvailable = ExpoSpeechRecognitionModule.isRecognitionAvailable();
+
+    if (!isAvailable) {
+      Alert.alert(t("globalError"), t("speechRecognitionUnavailable"));
+      return;
+    }
+
+    const { granted } =
+      await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+
+    if (!granted) {
+      Alert.alert(
+        t("microphonePermissionTitle"),
+        t("microphonePermissionMessage"),
+      );
+      return;
+    }
+
+    textInputRef.current?.blur();
+    speechBaseTextRef.current = mealDescription.trim();
+    speechFinalTextRef.current = mealDescription.trim();
+    Animated.timing(inputBorderOpacity, {
+      toValue: 1,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+    ExpoSpeechRecognitionModule.start({
+      lang: i18n.language.startsWith("tr") ? "tr-TR" : "en-US",
+      interimResults: true,
+      maxAlternatives: 1,
+      continuous: true,
+      iosTaskHint: "dictation",
+      androidIntentOptions: {
+        EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS: 10000,
+        EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS: 10000,
+      },
+      contextualStrings: [
+        "breakfast",
+        "lunch",
+        "dinner",
+        "snack",
+        "calories",
+        "protein",
+        "carbs",
+        "fat",
+      ],
+    });
+  };
+
+  const stopRecording = () => {
+    ExpoSpeechRecognitionModule.stop();
+  };
+
+  const cancelRecording = () => {
+    if (!isRecording) {
+      return;
+    }
+
+    ExpoSpeechRecognitionModule.abort();
+  };
+
+  const handleVoicePress = async () => {
+    if (isAnalyzing) {
+      return;
+    }
+
+    try {
+      if (isRecording) {
+        stopRecording();
+        return;
+      }
+
+      await startRecording();
+    } catch (error) {
+      console.error("Error recognizing meal speech:", error);
+      setIsRecording(false);
+      Alert.alert(t("globalError"), t("globalErrorMessage"));
+    }
+  };
+
+  const handleSheetDismiss = () => {
+    cancelRecording();
+    setIsAnalyzing(false);
+    setIsRecording(false);
+    inputBorderOpacity.setValue(0);
+    setMealDescription("");
+    setImage(null);
+    setSelectedMealType(t("breakfast"));
   };
 
   const handleAddMeal = async (mealDescription: string, mealType: string) => {
@@ -154,8 +294,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
           uri: image.uri,
           mimeType: image.mimeType ?? "image/jpeg",
         },
-
-        prompt ?? null,
+        prompt,
         "analyzedMeal",
       );
     } else {
@@ -249,16 +388,22 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
   };
 
   const contentExists = !!(mealDescription.trim() || image);
+  const isBusy = isAnalyzing;
+  const voiceIconName = isRecording ? "stop" : "microphone";
+  const voiceIconColor = isRecording ? colors["color-danger-600"] : colors.text;
+  const voiceLabel = isRecording
+    ? t("stopRecordingMeal")
+    : t("recordMealDescription");
+  const animatedInputBorderStyle = {
+    opacity: inputBorderOpacity,
+    borderColor: colors.accent,
+  };
+
   return (
     <TrueSheet
-      dismissible={!isAnalyzing}
+      dismissible={!isBusy && !isRecording}
       onWillPresent={syncFormForPresentation}
-      onDidDismiss={() => {
-        setIsAnalyzing(false);
-        setMealDescription("");
-        setImage(null);
-        setSelectedMealType(t("breakfast"));
-      }}
+      onDidDismiss={handleSheetDismiss}
       name={sheetName}
       detents={["auto"]}
       backgroundColor={colors.surface}
@@ -279,52 +424,50 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
               {t("describeYourMeal")}
             </Text>
             <View style={styles.textInputWrapper}>
-              <TextInput
-                keyboardType="default"
-                ref={textInputRef}
+              <View
                 style={[
-                  styles.textInput,
-                  {
-                    paddingRight: image ? scale(140) : scale(24),
-                    borderColor: colors.border,
-                    color: colors.text,
-                    backgroundColor: colors.background,
-                  },
+                  styles.textInputFrame,
+                  { borderColor: colors.border },
                 ]}
-                placeholder={t("exampleMeal")}
-                placeholderTextColor={colors.textTertiary}
-                value={mealDescription}
-                onChangeText={setMealDescription}
-                multiline
-                numberOfLines={3}
-              />
+              >
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.animatedInputBorder, animatedInputBorderStyle]}
+                />
+                <TextInput
+                  keyboardType="default"
+                  ref={textInputRef}
+                  style={[
+                    styles.textInput,
+                    {
+                      paddingRight: scale(72),
+                      color: colors.text,
+                      backgroundColor: colors.background,
+                    },
+                  ]}
+                  placeholder={t("exampleMeal")}
+                  placeholderTextColor={colors.textTertiary}
+                  value={mealDescription}
+                  onChangeText={setMealDescription}
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
               {!image && (
                 <GlassView
                   effect="clear"
-                  interactive
-                  style={[styles.imagePickerButton]}
+                  interactive={!isAnalyzing && !isRecording}
+                  style={styles.galleryButton}
                 >
                   <Pressable
-                    onPress={() => {
-                      Alert.alert(t("addImage"), t("chooseImageSource"), [
-                        {
-                          text: t("camera"),
-                          onPress: () => pickImage("camera"),
-                        },
-                        {
-                          text: t("gallery"),
-                          onPress: () => pickImage("gallery"),
-                        },
-                        {
-                          text: t("cancel"),
-                          style: "cancel",
-                        },
-                      ]);
-                    }}
+                    accessibilityLabel={t("gallery")}
+                    disabled={isAnalyzing || isRecording}
+                    onPress={pickImageFromGallery}
+                    style={styles.iconPressable}
                   >
                     <FontAwesome5
                       name="image"
-                      size={scale(24)}
+                      size={scale(22)}
                       color={colors.text}
                     />
                   </Pressable>
@@ -333,14 +476,9 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
               {image && (
                 <View style={styles.imageWrapper}>
                   <AntDesign
-                    style={{
-                      position: "absolute",
-                      right: scale(-4),
-                      bottom: 0,
-                      zIndex: 99,
-                    }}
+                    style={styles.deleteImageIcon}
                     name="delete"
-                    size={scale(24)}
+                    size={scale(22)}
                     color={colors["color-danger-600"]}
                     onPress={() => setImage(null)}
                   />
@@ -349,6 +487,31 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
                     style={styles.previewImage}
                   />
                 </View>
+              )}
+              <GlassView
+                effect="clear"
+                interactive={!isAnalyzing}
+                style={styles.voiceButton}
+              >
+                <Pressable
+                  accessibilityLabel={voiceLabel}
+                  disabled={isAnalyzing}
+                  onPress={handleVoicePress}
+                  style={styles.iconPressable}
+                >
+                  <FontAwesome5
+                    name={voiceIconName}
+                    size={scale(22)}
+                    color={voiceIconColor}
+                  />
+                </Pressable>
+              </GlassView>
+              {isRecording && (
+                <Text
+                  style={[styles.recordingStatus, { color: voiceIconColor }]}
+                >
+                  {t("recordingMeal")}
+                </Text>
               )}
             </View>
           </View>
@@ -371,7 +534,7 @@ const LogMealTrueSheet = (props: LogMealTrueSheetProps) => {
             <AppButton
               title={t("analyzeMeal")}
               onPress={handleSaveMeal}
-              disabled={isAnalyzing || !contentExists}
+              disabled={isBusy || isRecording || !contentExists}
             />
           </View>
         </View>
@@ -404,12 +567,22 @@ const styles = StyleSheet.create({
     marginBottom: scale(8),
   },
   textInput: {
-    borderWidth: 1,
-    borderRadius: scale(12),
+    borderRadius: scale(11),
     padding: scale(12),
     ...fontStyles.body1,
     minHeight: scale(150),
     textAlignVertical: "top",
+  },
+  textInputFrame: {
+    borderRadius: scale(12),
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  animatedInputBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: scale(2),
+    borderRadius: scale(12),
+    zIndex: 1,
   },
   mealTypeContainer: {
     marginBottom: scale(24),
@@ -421,7 +594,7 @@ const styles = StyleSheet.create({
   textInputWrapper: {
     position: "relative",
   },
-  imagePickerButton: {
+  voiceButton: {
     position: "absolute",
     bottom: scale(8),
     right: scale(8),
@@ -431,16 +604,43 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  galleryButton: {
+    position: "absolute",
+    bottom: scale(8),
+    left: scale(8),
+    borderRadius: scale(20),
+    width: scale(44),
+    height: scale(44),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconPressable: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   previewImage: {
-    height: scale(120),
-    width: scale(120),
-    borderRadius: scale(60),
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(12),
   },
   imageWrapper: {
-    marginTop: scale(12),
     position: "absolute",
-    right: scale(8),
-    bottom: scale(15),
+    left: scale(8),
+    bottom: scale(8),
+  },
+  deleteImageIcon: {
+    position: "absolute",
+    right: scale(-8),
+    top: scale(-8),
+    zIndex: 1,
+  },
+  recordingStatus: {
+    ...fontStyles.caption,
+    position: "absolute",
+    right: scale(12),
+    bottom: scale(56),
   },
 });
 

@@ -168,6 +168,13 @@ export const resources = {
       fats: "Yağ",
       calories: "Kalori",
       analyzeMeal: "Öğünü Analiz Et",
+      recordMealDescription: "Öğünü sesle anlat",
+      stopRecordingMeal: "Kaydı durdur",
+      recordingMeal: "Kaydediliyor...",
+      microphonePermissionTitle: "Mikrofon izni gerekli",
+      microphonePermissionMessage:
+        "Öğünü sesle anlatmak için mikrofon izni gerekiyor.",
+      speechRecognitionUnavailable: "Bu cihazda ses tanıma kullanılamıyor.",
       confirmPortions: "Porsiyonları onayla",
       confirmPortionsDescription:
         "Kaloriyi en çok etkileyen miktarları düzelt.",
@@ -534,6 +541,14 @@ export const resources = {
       fats: "Fats",
       calories: "Calories",
       analyzeMeal: "Analyze Meal",
+      recordMealDescription: "Record meal description",
+      stopRecordingMeal: "Stop recording",
+      recordingMeal: "Recording...",
+      microphonePermissionTitle: "Microphone permission required",
+      microphonePermissionMessage:
+        "Microphone permission is required to record your meal description.",
+      speechRecognitionUnavailable:
+        "Speech recognition is not available on this device.",
       confirmPortions: "Confirm portions",
       confirmPortionsDescription:
         "Adjust the amounts that affect calories most.",
@@ -697,9 +712,9 @@ export const resources = {
       carbsOver: "Carbs over",
       fatsLeft: "Fats left",
       fatsOver: "Fats over",
-      proteinConsumed: "Protein consumed",
-      carbsConsumed: "Carbs consumed",
-      fatsConsumed: "Fats consumed",
+      proteinConsumed: "Protein",
+      carbsConsumed: "Carbs",
+      fatsConsumed: "Fats",
       nutritionDisplayToggleAccessibility:
         "Switch between consumed and remaining",
       nutritionDisplayModeConsumed: "Consumed",

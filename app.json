@@ -14,6 +14,8 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Location access is used to improve app functionality where relevant.",
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone for meal descriptions.",
+        "NSSpeechRecognitionUsageDescription": "Allow $(PRODUCT_NAME) to turn your speech into meal description text.",
         "CFBundleVersion": "1",
         "CFBundleShortVersionString": "1.0.6"
       }
@@ -79,7 +81,15 @@
       "expo-font",
       "react-native-bottom-tabs",
       "@react-native-firebase/crashlytics",
-      "react-native-vision-camera"
+      "react-native-vision-camera",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to use the microphone for meal descriptions.",
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to turn your speech into meal description text.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
+      ]
     ],
     "extra": {
       "eas": {
